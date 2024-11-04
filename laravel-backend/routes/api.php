@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ExampleController;
+use App\Http\Controllers\Modules\User\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,7 +23,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::middleware('api')->group(function () {
     Route::get('/showData', [ExampleController::class, 'showData']);
-
 });
+Route::post('login',[UserController::class,'login']);
+Route::post('logout', [UserController::class, 'logout']);
+
 
 

@@ -1,15 +1,56 @@
 <script setup lang="ts">
 import DefaultAuthCard from '@/components/Auths/DefaultAuthCard.vue'
 import InputGroup from '@/components/Auths/InputGroup.vue'
-import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
-import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import Toast from 'primevue/toast';
 
-import { ref } from 'vue'
+import { useToast } from 'primevue/usetoast';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-const pageTitle = ref('Sign In')
+import api from '../../../laravel-backend/resources/js/axiosInstance.js'
+
+  const pageTitle = ref('Welcome to DENR-SRF');
+  const toast = useToast();
+  const router = useRouter();
+  const form = ref({
+      username: '',
+      password: '',
+  });
+  const errors = ref(null);
+
+  const loginUser = async () => {
+      try {
+          const response = await api.post('/login', form.value);
+          if (response.data.status) {
+              localStorage.setItem('userId', response.data.userId);
+              localStorage.setItem('api_token', response.data.api_token);
+              toast.add({ severity: 'success', summary: 'Success', detail: 'Login successful', life: 3000 });
+              setTimeout(() => {
+                  router.push({ name: 'eCommerce', query: { api_token: response.data.api_token } });
+              }, 1000);
+          } else {
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Invalid username or password', life: 3000 });
+
+              setTimeout(() => {
+                  router.push({ path: '/' });
+              }, 1000);
+          }
+      } catch (error) {
+          if (error.response && error.response.data) {
+              // Server returned an error response
+              errors.value = error.response.data.errors;
+          } else {
+              console.log(error);
+          }
+      }
+  };
+
 </script>
 
+
 <template>
+  <Toast />
+
   <div class="flex h-screen overflow-hidden">
     <!-- ===== Content Area Start ===== -->
     <div class="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
@@ -23,11 +64,15 @@ const pageTitle = ref('Sign In')
           <DefaultAuthCard
             subtitle="Department of Environment and Natural Resources"
             division="Planning and Management Division"
-            title="Welcome to DENR-SRF"
+            :title="pageTitle"
           >
            
-            <form>
-              <InputGroup label="Email" type="email" placeholder="Enter your email">
+          <form  @submit.prevent="loginUser">
+            <InputGroup  
+            v-model="form.username"
+            label="Username" 
+            type="text"
+             placeholder="Enter your username">
                 <svg
                   class="fill-current"
                   width="22"
@@ -46,6 +91,7 @@ const pageTitle = ref('Sign In')
               </InputGroup>
 
               <InputGroup
+               v-model="form.password"
                 label="Password"
                 type="password"
                 placeholder="6+ Characters, 1 Capital letter"

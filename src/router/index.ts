@@ -13,13 +13,31 @@ import TablesView from '@/views/TablesView.vue'
 import AlertsView from '@/views/UiElements/AlertsView.vue'
 import ButtonsView from '@/views/UiElements/ButtonsView.vue'
 
+import SRF_FormCreateView from '@/views/SurveyRequestForm/SRF_FormCreateView.vue'
+
 const routes = [
   {
     path: '/',
+    name: 'signin',
+    component: SigninView,
+    meta: {
+      title: 'Signin'
+    }
+  },
+  {
+    path: '/ecommerce',
     name: 'eCommerce',
     component: ECommerceView,
     meta: {
       title: 'eCommerce Dashboard'
+    }
+  },
+  {
+    path: '/survey-request/view',
+    name: 'Survey Form List',
+    component: SRF_FormCreateView,
+    meta: {
+      title: 'Survey Form List'
     }
   },
   {
@@ -94,14 +112,7 @@ const routes = [
       title: 'Buttons'
     }
   },
-  {
-    path: '/auth/signin',
-    name: 'signin',
-    component: SigninView,
-    meta: {
-      title: 'Signin'
-    }
-  },
+  
   {
     path: '/auth/signup',
     name: 'signup',
