@@ -6,7 +6,7 @@ import SelectGroupTwo from '@/components/Forms/SelectGroup/SelectGroupTwo.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import { ref } from 'vue'
 
-const pageTitle = ref('Form Layout')
+const pageTitle = ref('Form Laddyout')
 </script>
 
 <template>

@@ -13,6 +13,8 @@ import TablesView from '@/views/TablesView.vue'
 import AlertsView from '@/views/UiElements/AlertsView.vue'
 import ButtonsView from '@/views/UiElements/ButtonsView.vue'
 
+import InventoryView from '@/views/Inventory/InventoryView.vue'
+import InventoryCreate from '@/views/Inventory/InventoryCreate.vue'
 import SRF_FormCreateView from '@/views/SurveyRequestForm/SRF_FormCreateView.vue'
 
 const routes = [
@@ -30,6 +32,22 @@ const routes = [
     component: ECommerceView,
     meta: {
       title: 'eCommerce Dashboard'
+    }
+  },
+  {
+    path: '/inventory',
+    name: 'Inventory',
+    component: InventoryView,
+    meta: {
+      title: 'Inventory Dashboard'
+    }
+  },
+  {
+    path: '/inventory/create',
+    name: 'Inventory Add Item',
+    component: InventoryCreate,
+    meta: {
+      title: 'Inventory Add Item'
     }
   },
   {

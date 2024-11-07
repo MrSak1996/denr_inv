@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ExampleController;
 use App\Http\Controllers\Modules\User\UserController;
+use App\Http\Controllers\Modules\Inventory\InventoryController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -23,6 +25,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::middleware('api')->group(function () {
     Route::get('/showData', [ExampleController::class, 'showData']);
+    Route::get('/getControlNo', [InventoryController::class, 'getControlNo']);
+    Route::get('/getDivision', [InventoryController::class, 'getDivision']);
+    Route::get('/getNatureWork', [InventoryController::class, 'getNatureWork']);
+    Route::get('/getEquipment', [InventoryController::class, 'getEquipment']);
+    Route::get('/getRangeCategory', [InventoryController::class, 'getRangeCategory']);
+
+Route::post('post_insert_gen_info', [InventoryController::class, 'post_insert_gen_info']);
+
 });
 Route::post('login',[UserController::class,'login']);
 Route::post('logout', [UserController::class, 'logout']);

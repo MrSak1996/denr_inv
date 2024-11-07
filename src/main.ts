@@ -1,5 +1,7 @@
 import './assets/css/satoshi.css'
 import './assets/css/style.css'
+import "primeicons/primeicons.css";
+
 import 'jsvectormap/dist/css/jsvectormap.min.css'
 import 'flatpickr/dist/flatpickr.min.css'
 

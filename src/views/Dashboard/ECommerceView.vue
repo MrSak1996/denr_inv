@@ -11,7 +11,7 @@ import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import api from '../../../laravel-backend/resources/js/axiosInstance.js'
 import { ref, onMounted } from 'vue'
 
-const message = ref<string>('') // Define `message` as a reactive variable with type `string`
+const message = ref<string>('')
 
 onMounted(async () => {
   try {
