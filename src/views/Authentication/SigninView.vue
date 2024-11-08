@@ -46,7 +46,7 @@ import api from '../../../laravel-backend/resources/js/axiosInstance.js'
   };
 
 </script>
-
+  
 
 <template>
   <Toast />

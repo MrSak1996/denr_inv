@@ -30,12 +30,9 @@ Route::middleware('api')->group(function () {
     Route::get('/getNatureWork', [InventoryController::class, 'getNatureWork']);
     Route::get('/getEquipment', [InventoryController::class, 'getEquipment']);
     Route::get('/getRangeCategory', [InventoryController::class, 'getRangeCategory']);
-
-Route::post('post_insert_gen_info', [InventoryController::class, 'post_insert_gen_info']);
-
+    Route::get('/getEmploymentType', [InventoryController::class, 'getEmploymentType']);
+    Route::get('/retriveDataviaAPI', [InventoryController::class, 'retriveDataviaAPI']);
+    Route::post('post_insert_gen_info', [InventoryController::class, 'post_insert_gen_info']);
 });
-Route::post('login',[UserController::class,'login']);
+Route::post('login', [UserController::class, 'login']);
 Route::post('logout', [UserController::class, 'logout']);
-
-
-

@@ -1,6 +1,12 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
+import { useToast } from 'primevue/usetoast'
+import { useRouter, useRoute } from 'vue-router'
+import { useStore } from 'vuex'
+import { useApi } from '@/composables/useApi'
+import { useForm } from '@/composables/useForm'
 
+import Toast from 'primevue/toast'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import Tabs from 'primevue/tabs'
@@ -15,139 +21,126 @@ import Badge from 'primevue/badge'
 import Divider from 'primevue/divider'
 import Fieldset from 'primevue/fieldset'
 import InputText from 'primevue/inputtext'
-import Button from 'primevue/button'
 import api from '../../../laravel-backend/resources/js/axiosInstance.js'
 
 const pageTitle = ref('ICT Equipment')
 
-const section_opts = ref([{ name: 'RICT', code: '1' }])
-const division_opts = ref([])
-const work_nature = ref([])
-const equipment_type = ref([])
-const range_category = ref([])
+const toast = useToast()
+const router = useRouter()
+const store = useStore()
+const route = useRoute()
 
-const form = reactive({
-  control_no: '',
-  qr_code: '',
-  acct_person: '',
-  employmentType: '',
-  brand: '',
-  model: '',
-  property_no: '',
-  serial_no: '',
-  aquisition_cost: '',
-  processor: '',
-  selectedDivision:'',
-  selectedAcctDivision: '',
-  selectedActualDivision:'',
-  selectedWorkNature:'',
-  selectedSection:'',
-  selectedRangeCategory:'',
-  selectedEquipmentType:'',
-  actual_user:''
-})
+const { form, specs_form } = useForm()
+const {
+  division_opts,
+  section_opts,
+  work_nature,
+  equipment_type,
+  range_category,
+  employment_opts,
+  getControlNo,
+  getDivision,
+  getNatureWork,
+  getEquipment,
+  getRangeCategory,
+  getEmploymentType
+} = useApi()
 
-const getControlNo = async () => {
-  try {
-    const res = await api.get('/getControlNo')
-    const controlNo = res.data[0].control_no
-    const paddedControlNo = String(controlNo).padStart(4, '0')
+// Additional setup
+const isButtonDisabled = ref(false)
+const errors = ref({})
 
-    form.control_no = `R4A-RICT-${paddedControlNo}`
-  } catch (error) {
-    console.error('Error fetching control number:', error)
+// DISABLE BUTTON AFTER SAVING
+const checkUrlAndDisableButton = () => {
+  const url = window.location.href
+  const regex = /\/create\/\d+/
+  isButtonDisabled.value = regex.test(url)
+}
+
+// RETRIEVE DATA USING STORE AFTER SAVING
+const retrieveData = async () => {
+  const savedData = store.state.formData
+  if (savedData) {
+    Object.assign(form, savedData)
   }
 }
 
-const getDivision = async () => {
-  try {
-    const res = await api.get('/getDivision')
-    division_opts.value = res.data.map((division) => ({
-      id: division.id,
-      name: `${division.acronym} - ${division.division_title}`
-    }))
-  } catch (error) {
-    console.error('Error fetching divisions:', error)
+// RETRIEVE DATA USING DATABASE
+const retrieveDataviaAPI = async () => {
+  const id = route.params.id
+  if (id) {
+    try {
+      const response = await api.get(`/retriveDataviaAPI?id=${id}`)
+      Object.assign(form, response.data[0])
+    } catch (error) {
+      console.error('Error retrieving data:', error)
+    }
   }
 }
 
-const getNatureWork = async () => {
-  try {
-    const res = await api.get('/getNatureWork')
-    work_nature.value = res.data.map((work) => ({
-      id: work.id,
-      name: `${work.nature_work_title}`
-    }))
-  } catch (error) {
-    console.error('Error fetching work:', error)
-
-  }
-}
-
-const getEquipment = async () => {
-  try {
-    const res = await api.get('/getEquipment')
-    equipment_type.value = res.data.map((item) => ({
-      id: item.id,
-      name: `${item.equipment_title}`
-    }))
-  } catch (error) {
-    console.error('Error fetching work:', error)
-
-  }
-}
-
-const getRangeCategory = async () => {
-  try {
-    const res = await api.get('/getRangeCategory')
-    range_category.value = res.data.map((item) => ({
-      id: item.code,
-      name: `${item.name}`
-    }))
-  } catch (error) {
-    console.error('Error fetching work:', error)
-
-  }
-}
+// GENERAL INFORMATION
 const saveGeneralInfo = async () => {
-      try {
-        // Send POST request with form data
-        const employmentTypeValue = form.employmentType[0] || '';
-        const selectedDivisionValue = form.selectedDivision[0] || '';
-        const selectedAcctDivisionValue = form.selectedAcctDivision[0] || '';
-        const selectedActualDivisionValue = form.selectedActualDivision[0] || '';
-        const selectedWorkNatureValue = form.selectedWorkNature[0] || '';
-        const selectedSectionValue = form.selectedSection[0] || '';
-        const selectedRangeCategoryValue = form.selectedRangeCategory[0] || '';
-        const selectedEquipmentTypeValue = form.selectedEquipmentType[0] || '';''
+  try {
+    errors.value = {}
+    const extractId = (item) => item?.id || null
+    const requestData = {
+      ...form,
+      employmentType: extractId(form.employmentType),
+      selectedDivision: extractId(form.selectedDivision),
+      selectedAcctDivision: extractId(form.selectedAcctDivision),
+      selectedActualDivision: extractId(form.selectedActualDivision),
+      selectedWorkNature: extractId(form.selectedWorkNature),
+      selectedSection: extractId(form.selectedSection),
+      selectedRangeCategory: extractId(form.selectedRangeCategory),
+      selectedEquipmentType: extractId(form.selectedEquipmentType)
+    }
 
-        const response = await api.post('/post_insert_gen_info',  {
-          ...form,
-          employmentType: employmentTypeValue,
-          selectedDivision:selectedDivisionValue,
-          selectedAcctDivision: selectedAcctDivisionValue,
-          selectedActualDivision:selectedActualDivisionValue,
-          selectedWorkNature:selectedWorkNatureValue,
-          selectedSection:selectedSectionValue,
-          selectedRangeCategory:selectedRangeCategoryValue,
-          selectedEquipmentType:selectedEquipmentTypeValue
-        });
-        console.log(form)
-        // Optionally, reset the form after saving
-        // Object.keys(form).forEach(key => form[key] = '');  // To reset form fields
-      } catch (error) {
-        console.error('Error saving form:', error);
-      }
-    };
+    const response = await api.post('/post_insert_gen_info', requestData)
+
+    store.dispatch('saveFormData', form)
+
+    setTimeout(() => {
+      toast.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Data saved successfully!',
+        life: 3000
+      })
+
+      const id = response.data.id
+      router.push({
+        name: 'InventoryEdit',
+        params: { id },
+        query: { api_token: localStorage.getItem('api_token') }
+      })
+    }, 1000)
+  } catch (error) {
+    if (error.response?.status === 422) {
+      errors.value = error.response.data.message
+      console.error('Validation errors:', errors.value)
+    } else {
+      console.error('Error saving form:', error)
+    }
+  }
+}
+
+
 onMounted(() => {
-  getControlNo()
+  getControlNo(form)
   getDivision()
   getNatureWork()
   getEquipment()
   getRangeCategory()
+  getEmploymentType()
+  retrieveData()
+  checkUrlAndDisableButton()
+  retrieveDataviaAPI()
 })
 </script>
+
 <template>
+  <Toast />
+
   <DefaultLayout>
     <!-- Breadcrumb Start -->
     <BreadcrumbDefault :pageTitle="pageTitle" />
@@ -201,6 +194,7 @@ onMounted(() => {
                 <Select
                   v-model="form.selectedDivision"
                   :options="division_opts"
+                  optionValue="id"
                   optionLabel="name"
                   placeholder="Division"
                   class="w-full"
@@ -210,6 +204,7 @@ onMounted(() => {
                 <Select
                   v-model="form.selectedSection"
                   :options="section_opts"
+                  optionValue="id"
                   optionLabel="name"
                   placeholder="Section"
                   class="w-full"
@@ -225,6 +220,7 @@ onMounted(() => {
                 <Select
                   v-model="form.selectedAcctDivision"
                   :options="division_opts"
+                  optionValue="id"
                   optionLabel="name"
                   placeholder="Division"
                   class="w-full"
@@ -242,6 +238,7 @@ onMounted(() => {
                 <Select
                   v-model="form.selectedWorkNature"
                   :options="work_nature"
+                  optionValue="id"
                   optionLabel="name"
                   placeholder="Nature of Works"
                   class="w-full"
@@ -252,35 +249,20 @@ onMounted(() => {
                   v-model="form.selectedActualDivision"
                   :options="division_opts"
                   optionLabel="name"
+                  optionValue="id"
                   placeholder="Division"
                   class="w-full"
                 />
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <div class="card flex flex-wrap gap-6">
-                  <div class="flex items-center gap-2">
-                    <Checkbox
-                      inputId="employmentCasual"
-                      v-model="form.employmentType"
-                      value="Casual"
-                    />
-                    <label for="employmentCasual">Casual</label>
-                  </div>
-
-                  <div class="flex items-center gap-2">
-                    <Checkbox inputId="employmentCTI" v-model="form.employmentType" value="CTI" />
-                    <label for="employmentCTI">CTI</label>
-                  </div>
-
-                  <div class="flex items-center gap-2">
-                    <Checkbox
-                      inputId="employmentJobOrder"
-                      v-model="form.employmentType"
-                      value="Job Order"
-                    />
-                    <label for="employmentJobOrder">Job Order</label>
-                  </div>
-                </div>
+                <Select
+                  v-model="form.employmentType"
+                  :options="employment_opts"
+                  optionLabel="name"
+                  optionValue="id"
+                  placeholder="Employment Type"
+                  class="w-full"
+                />
               </div>
             </div>
             <div class="grid md:grid-cols-4 md:gap-6 mb-4">
@@ -295,6 +277,7 @@ onMounted(() => {
                 <Select
                   v-model="form.selectedEquipmentType"
                   :options="equipment_type"
+                  optionValue="id"
                   optionLabel="name"
                   placeholder="Equipment Type"
                   class="w-full"
@@ -313,6 +296,7 @@ onMounted(() => {
                   v-model="form.selectedRangeCategory"
                   :options="range_category"
                   optionLabel="name"
+                  optionValue="id"
                   placeholder="Range Category"
                   class="w-full"
                 />
@@ -346,7 +330,13 @@ onMounted(() => {
             </div>
             <button
               type="submit"
-              class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              :disabled="isButtonDisabled"
+              :class="{
+                'text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800':
+                  !isButtonDisabled,
+                'text-white bg-gray-400 hover:bg-gray-800 focus:ring-4 focus:outline-none dark:bg-gray-600 dark:hover:bg-gray-700 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center':
+                  isButtonDisabled
+              }"
             >
               Save as Draft
             </button>
@@ -358,19 +348,19 @@ onMounted(() => {
             <div class="grid md:grid-cols-3 md:gap-6 mb-4">
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
-                  <InputText id="processor" v-model="form.processor" class="w-full" />
+                  <InputText id="processor" v-model="specs_form.specs_processor" class="w-full" />
                   <label for="processor">Processor</label>
                 </FloatLabel>
               </div>
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
-                  <InputText id="hdd" v-model="form.acct_person" class="w-full" />
+                  <InputText id="hdd" v-model="specs_form.specs_hdd" class="w-full" />
                   <label for="hdd">Hard Disk Drive No.</label>
                 </FloatLabel>
               </div>
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
-                  <InputText id="capacity" v-model="form.acct_person" class="w-full" />
+                  <InputText id="capacity" v-model="specs_form.specs_hdd_capacity" class="w-full" />
                   <label for="capacity">Capacity</label>
                 </FloatLabel>
               </div>
@@ -378,26 +368,30 @@ onMounted(() => {
             <div class="grid md:grid-cols-4 md:gap-6">
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
-                  <InputText id="username" v-model="form.acct_person" class="w-full" />
-                  <label for="username">RAM Type</label>
+                  <InputText id="ram" v-model="specs_form.specs_ram" class="w-full" />
+                  <label for="ram">RAM Type</label>
                 </FloatLabel>
               </div>
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
-                  <InputText id="username" v-model="form.acct_person" class="w-full" />
-                  <label for="username">GPU</label>
+                  <InputText id="gpu" v-model="specs_form.specs_gpu" class="w-full" />
+                  <label for="gpu">GPU</label>
                 </FloatLabel>
               </div>
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
-                  <InputText id="username" v-model="form.acct_person" class="w-full" />
-                  <label for="username">Solid State Drive Type</label>
+                  <InputText id="ssd" v-model="specs_form.specs_ssd" class="w-full" />
+                  <label for="ssd">Solid State Drive Type</label>
                 </FloatLabel>
               </div>
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
-                  <InputText id="username" v-model="form.acct_person" class="w-full" />
-                  <label for="username">Capacity</label>
+                  <InputText
+                    id="ssd_capacity"
+                    v-model="specs_form.specs_ssd_capacity"
+                    class="w-full"
+                  />
+                  <label for="ssd_capacity">Capacity</label>
                 </FloatLabel>
               </div>
             </div>
@@ -408,24 +402,28 @@ onMounted(() => {
                   <div class="card flex flex-wrap gap-6">
                     <div class="flex items-center gap-2">
                       <Checkbox
-                        inputId="employmentCasual"
-                        v-model="form.employmentType"
+                        inputId="gpuBuiltIn"
+                        v-model="specs_form.specs_gpu_isbuilt_in"
                         value="Built-In"
                       />
-                      <label for="employmentCasual">Built-In</label>
+                      <label for="gpuBuiltIn">Built-In</label>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <Checkbox
-                        inputId="employmentCTI"
-                        v-model="form.employmentType"
-                        value="Built-In"
+                        inputId="gpuDedicated"
+                        v-model="specs_form.specs_gpu_isdedicated"
+                        value="Dedicated"
                       />
-                      <label for="employmentCTI">Dedicated</label>
+                      <label for="gpuDedicated">Dedicated</label>
                     </div>
                     <FloatLabel>
-                      <InputText id="processor" v-model="form.processor" class="w-full md:w-100" />
-                      <label for="processor">Dedicated Information</label>
+                      <InputText
+                        id="gpu_dedic_info"
+                        v-model="specs_form.specs_gpu_dedic_info"
+                        class="w-full md:w-100"
+                      />
+                      <label for="gpu_dedic_info">Dedicated Information</label>
                     </FloatLabel>
                   </div>
                 </Fieldset>
@@ -436,47 +434,47 @@ onMounted(() => {
                   <div class="card flex flex-wrap gap-6 mb-6">
                     <div class="flex items-center gap-2">
                       <Checkbox
-                        inputId="employmentCasual"
-                        v-model="form.employmentType"
+                        inputId="networkLAN"
+                        v-model="specs_form.specs_net_lan"
                         value="LAN"
                       />
-                      <label for="employmentCasual">LAN</label>
+                      <label for="networkLAN">LAN</label>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <Checkbox
-                        inputId="employmentCTI"
-                        v-model="form.employmentType"
+                        inputId="networkWireless"
+                        v-model="specs_form.specs_net_wireless"
                         value="Wireless"
                       />
-                      <label for="employmentCTI">Wireless</label>
+                      <label for="networkWireless">Wireless</label>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <Checkbox
-                        inputId="employmentCTI"
-                        v-model="form.employmentType"
+                        inputId="networkBoth"
+                        v-model="specs_form.specs_net_both"
                         value="Both"
                       />
-                      <label for="employmentCTI">Both</label>
+                      <label for="networkBoth">Both</label>
                     </div>
                     <label>If Wireless:</label>
                     <div class="flex items-center gap-2">
                       <Checkbox
-                        inputId="employmentCTI"
-                        v-model="form.employmentType"
+                        inputId="networkBuiltIn"
+                        v-model="specs_form.specs_net_isbuilt_in"
                         value="Built-In"
                       />
-                      <label for="employmentCTI">Built-In</label>
+                      <label for="networkBuiltIn">Built-In</label>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <Checkbox
-                        inputId="employmentCTI"
-                        v-model="form.employmentType"
+                        inputId="networkDongle"
+                        v-model="specs_form.specs_net_with_dongle"
                         value="With Dongle"
                       />
-                      <label for="employmentCTI">With Dongle</label>
+                      <label for="networkDongle">With Dongle</label>
                     </div>
                   </div>
                 </Fieldset>

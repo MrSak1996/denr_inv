@@ -44,12 +44,20 @@ const routes = [
   },
   {
     path: '/inventory/create',
-    name: 'Inventory Add Item',
+    name: 'InventoryCreate', // Unique name for the route
     component: InventoryCreate,
     meta: {
       title: 'Inventory Add Item'
     }
   },
+  {
+    path: '/inventory/create/:id',
+    name: 'InventoryEdit', // Different name for this route
+    component: InventoryCreate,
+    meta: {
+      title: 'Inventory Edit Item'
+    }
+  },  
   {
     path: '/survey-request/view',
     name: 'Survey Form List',
@@ -150,7 +158,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  document.title = `Vue.js ${to.meta.title} | TailAdmin - Vue.js Tailwind CSS Dashboard Template`
+  document.title = `DENR CALABARZON |  ${to.meta.title}`
   next()
 })
 

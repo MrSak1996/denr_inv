@@ -12,9 +12,9 @@ import PrimeVue from 'primevue/config';
 import ToastService from 'primevue/toastservice';
 import Lara from '@primevue/themes/lara';
 
-
 import App from './App.vue'
 import router from './router'
+import store from './store'  // Ensure the store is imported
 
 const app = createApp(App)
 
@@ -25,7 +25,7 @@ app.use(PrimeVue, {
         preset: Lara
     }
 });
-
+app.use(store)
 app.use(router)
 app.use(VueApexCharts)
 
