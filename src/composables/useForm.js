@@ -27,21 +27,45 @@ export function useForm() {
 
   const specs_form = reactive({
     specs_processor: '',
-    specs_hdd: '',
+    specs_ram_capacity:'',
+    specs_hdd: 0,
     specs_hdd_capacity: '',
     specs_ram: '',
     specs_gpu:'',
-    specs_ssd: '',
+    specs_ssd: 0,
     specs_ssd_capacity:'',
-    specs_gpu_isbuilt_in:'',
-    specs_gpu_isdedicated:'',
     specs_gpu_dedic_info:'',
-    specs_net_lan: '',
-    specs_net_wireless: '',
-    specs_net_both: '',
-    specs_net_isbuilt_in: '',
-    specs_net_with_dongle: '',
+    // specs_net: null,
+    specs_net_iswireless: '',
   })
 
-  return { form,specs_form }
+  const software_form = reactive({
+    operating_system: '',
+    ms_office: '',
+    arcgis: '',
+    adobe_pdf:'',
+    adobe_photoshop: '',
+    autocad: ''
+  })
+
+  const peripheral_form = reactive({
+    monitor1QrCode: '',
+    monitor1BrandModel: '',
+    monitor1SerialNumber: '',
+    monitor1PropertyNumber: '',
+    monitor1AccountPersonInPN: '',
+    monitor1ActualUser: '',
+    monitor2QrCode: '',
+    monitor2BrandModel: '',
+    monitor2SerialNumber: '',
+    monitor2PropertyNumber: '',
+    monitor2AccountPersonInPN: '',
+    monitor2ActualUser: '',
+    ups_qr_code: '',
+    ups_serial_no: '',
+    ups_property_no: '',
+    ups_accountPersonInPN: '',
+    ups_qr_acctual_user: '',
+    })
+  return { form,specs_form,software_form,peripheral_form}
 }

@@ -8,7 +8,7 @@ const store = createStore({
       acct_person: '',
       employmentType: '',
       brand: '',
-      model: '',
+      model: '',  
       property_no: '',
       serial_no: '',
       aquisition_cost: '',
