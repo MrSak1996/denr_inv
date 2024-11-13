@@ -24,6 +24,7 @@ class SpecificationInformation extends Model
         'hdd_capacity',
         'no_of_ssd',
         'ssd_capacity',
+        'specs_gpu',
         'specs_net',
         'wireless_type',
         'created_at',

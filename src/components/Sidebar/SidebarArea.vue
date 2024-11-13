@@ -7,7 +7,7 @@ import SidebarItem from './SidebarItem.vue'
 const target = ref(null)
 
 const sidebarStore = useSidebarStore()
-
+  
 onClickOutside(target, () => {
   sidebarStore.isSidebarOpen = false
 })
@@ -338,9 +338,11 @@ const menuGroups = ref([
   >
     <!-- SIDEBAR HEADER -->
     <div class="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
-      <router-link to="/">
-        <img src="@/assets/images/logo/denr_logo.png" alt="Logo" class="h-15 w-15" />
-      </router-link>
+      <router-link to="/" class="flex items-center space-x-2">
+  <img src="@/assets/images/logo/denr_logo.png" alt="Logo" class="h-15 w-15" />
+  <span class="text-xl font-semibold">DENR (CALABARZON)</span>
+</router-link>
+
 
       <button class="block lg:hidden" @click="sidebarStore.isSidebarOpen = false">
         <svg

@@ -9,9 +9,9 @@ export function useApi() {
   const range_category = ref([])
   const employment_opts = ref([])
   const section_opts = ref([
-    { name: 'RICT', id: '1' },
-    { name: 'MES', id: '2' },
-    { name: 'PPS', id: '3' }
+    { name: 'RICT', id: 1 },
+    { name: 'MES', id: 2 },
+    { name: 'PPS', id: 3}
   ])
 
   const getControlNo = async (form) => {

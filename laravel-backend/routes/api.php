@@ -33,6 +33,9 @@ Route::middleware('api')->group(function () {
     Route::get('/getEmploymentType', [InventoryController::class, 'getEmploymentType']);
     Route::get('/retriveDataviaAPI', [InventoryController::class, 'retriveDataviaAPI']);
     Route::get('/retrieveSpecsData', [InventoryController::class, 'retrieveSpecsData']);
+    Route::get('/retrieveSoftwareData', [InventoryController::class, 'retrieveSoftwareData']);
+    Route::get('/retrievePeripheralsData', [InventoryController::class, 'retrievePeripheralsData']);
+    Route::get('/getInventoryData', [InventoryController::class, 'getInventoryData']);
 
     Route::post('post_insert_gen_info', [InventoryController::class, 'post_insert_gen_info']);
     Route::post('post_insert_specs_info', [InventoryController::class, 'post_insert_specs_info']);

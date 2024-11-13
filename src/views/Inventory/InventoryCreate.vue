@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed, watch } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
@@ -71,41 +71,41 @@ const retrieveData = async () => {
     Object.assign(form, savedData)
   }
 }
-// RETRIEVE DATA USING DATABASE
-const retrieveDataviaAPI = async () => {
-  const id = route.params.id
-  if (id) {
-    try {
-      const response = await api.get(`/retriveDataviaAPI?id=${id}`)
-      Object.assign(form, response.data[0])
-    } catch (error) {
-      console.error('Error retrieving data:', error)
-    }
-  }
-}
-const retrieveSpecsData = async () => {
-  const id = route.params.id
-  if (id) {
-    try {
-      const response = await api.get(`/retrieveSpecsData?id=${id}`)
-      selectedNetwork = String(response.data[0].specs_net);
-      selectedWirelessType = String(response.data[0].specs_net_iswireless);
-      
-      Object.assign(specs_form, response.data[0])
 
-      console.log(specs_form.specs_net)
-    } catch (error) {
-      console.error('Error retrieving data:', error)
-    }
-  }
-}
+let selectedNetwork = ref(null) // Converts to string
+let selectedGPU = ref(null)
+let selectedWireless = ref(null)
+const selectedSoftware = ref({}) // Initialize as an empty object
+
+const isDedicatedSelected = computed(() => selectedGPU.value === '2')
+const isWirelessSelected = computed(() => selectedNetwork.value === '2')
 
 const network_type = ref([
   { name: 'LAN', key: '1' },
   { name: 'Wireless', key: '2' },
-  { name: 'Both', key: '3' },
-]);
+  { name: 'Both', key: '3' }
+])
 
+const gpu_type = ref([
+  { name: 'Built-in', key: '1' },
+  { name: 'Dedicated', key: '2' }
+])
+
+const software_installed = ref([
+  { title: 'Operating System', key: 'operating_system' },
+  { title: 'Microsoft Office', key: 'ms_office' },
+  { title: 'ARCGIS', key: 'arcgis' },
+  { title: 'Adobe PDF', key: 'adobe_pdf' },
+  { title: 'Adobe Photoshop', key: 'adobe_photoshop' },
+  { title: 'Autocad', key: 'autocad' }
+])
+
+// Map remarks values to the corresponding options
+const remarksMap = {
+  perpetual: '1',
+  subscription: '2',
+  evaluation: '3'
+};
 
 // GENERAL INFORMATION
 const saveGeneralInfo = async () => {
@@ -113,19 +113,19 @@ const saveGeneralInfo = async () => {
     errors.value = {}
     const extractId = (item) => item?.id || null
     const requestData = {
-      ...form,
-      employmentType: extractId(form.employmentType),
-      selectedDivision: extractId(form.selectedDivision),
-      selectedAcctDivision: extractId(form.selectedAcctDivision),
-      selectedActualDivision: extractId(form.selectedActualDivision),
-      selectedWorkNature: extractId(form.selectedWorkNature),
-      selectedSection: extractId(form.selectedSection),
-      selectedRangeCategory: extractId(form.selectedRangeCategory),
-      selectedEquipmentType: extractId(form.selectedEquipmentType)
+      ...form
+      // employmentType: extractId(form.employmentType),
+      // selectedDivisiondd: extractId(form.selectedDivision),
+      // selectedAcctDivision: extractId(form.selectedAcctDivision),
+      // selectedActualDivision: extractId(form.selectedActualDivision),
+      // selectedWorkNature: extractId(form.selectedWorkNature),
+      // selectedSection: extractId(form.selectedSection),
+      // selectedRangeCategory: extractId(form.selectedRangeCategory),
+      // selectedEquipmentType: extractId(form.selectedEquipmentType)
     }
 
     const response = await api.post('/post_insert_gen_info', requestData)
-
+    // console.log(requestData)
     store.dispatch('saveFormData', form)
 
     setTimeout(() => {
@@ -163,10 +163,11 @@ const saveSpecsInfo = async () => {
     const requestData = {
       ...specs_form,
       control_id: id,
-      specs_net: selectedNetwork.value 
+      specs_net: selectedNetwork.value,
+      specs_gpu: selectedGPU.value,
+      specs_net_iswireless: selectedWireless.value
     }
-    // const response = await api.post('/post_insert_specs_info', requestData)
-    console.log(requestData)
+    const response = await api.post('/post_insert_specs_info', requestData)
     setTimeout(() => {
       toast.add({
         severity: 'success',
@@ -196,13 +197,21 @@ const saveSpecsInfo = async () => {
 const saveSoftwareInfo = async () => {
   try {
     errors.value = {}
-
-    const id = route.params.id
+    
+    // Prepare the request data by combining form data with selected software options
     const requestData = {
-      ...software_form,
-      control_id: id
-    }
+      selectedSoftware: Object.fromEntries(
+        Object.entries(selectedSoftware.value).map(([key, value]) => [
+          key,
+          remarksMap[value] || null
+        ])
+      ),
+      control_id: route.params.id
+    };
+    // Make the API call
     const response = await api.post('/post_insert_software', requestData)
+
+    // Notify the user and redirect after successful save
     setTimeout(() => {
       toast.add({
         severity: 'success',
@@ -211,6 +220,7 @@ const saveSoftwareInfo = async () => {
         life: 3000
       })
 
+      // Redirect to the edit page with the new ID
       const id = response.data.id
       router.push({
         name: 'InventoryEdit',
@@ -239,7 +249,6 @@ const savePeripheralInfo = async () => {
       control_id: id
     }
     const response = await api.post('/post_insert_peripheral', requestData)
-    console.log(requestData)
     setTimeout(() => {
       toast.add({
         severity: 'success',
@@ -264,12 +273,67 @@ const savePeripheralInfo = async () => {
     }
   }
 }
-let selectedNetwork = ref(null); // Converts to string
-let selectedWirelessType = ref(null);
+// RETRIEVE DATA USING DATABASE
+const retrieveDataviaAPI = async () => {
+  const id = route.params.id
+  if (id) {
+    try {
+      const response = await api.get(`/retriveDataviaAPI?id=${id}`)
+      Object.assign(form, response.data[0])
+    } catch (error) {
+      console.error('Error retrieving data:', error)
+    }
+  }
+}
 
-const isDedicatedSelected = computed(() => specs_form.specs_gpu === '0')
-const isWirelessSelected = computed(() => selectedNetwork.value === '2')
+const retrieveSpecsData = async () => {
+  const id = route.params.id
+  if (id) {
+    try {
+      const response = await api.get(`/retrieveSpecsData?id=${id}`)
+      selectedNetwork.value = String(response.data[0].specs_net)
+      selectedGPU.value = String(response.data[0].specs_gpu)
+      selectedWireless.value = String(response.data[0].specs_net_iswireless)
 
+      Object.assign(specs_form, response.data[0])
+    } catch (error) {
+      console.error('Error retrieving data:', error)
+    }
+  }
+}
+
+const retrieveSoftwareData = async () => {
+  const id = route.params.id
+  if (id) {
+    try {
+      const response = await api.get(`/retrieveSoftwareData?id=${id}`)
+      
+      response.data.forEach((software) => {
+        // Reverse the mapping: match the value from 'remarksMap' and find the option
+        const selectedOption = Object.keys(remarksMap).find(key => remarksMap[key] === software.remarks)
+        
+        if (selectedOption) {
+          selectedSoftware.value[software.software] = selectedOption // Update the selectedSoftware object
+        }
+      })
+    } catch (error) {
+      console.error('Error retrieving data:', error)
+    }
+  }
+}
+
+
+const retrievePeripheralsData = async () => {
+  const id = route.params.id
+  if (id) {
+    try {
+      const response = await api.get(`/retrievePeripheralsData?id=${id}`)
+      Object.assign(peripheral_form, response.data[0])
+    } catch (error) {
+      console.error('Error retrieving data:', error)
+    }
+  }
+}
 onMounted(() => {
   getControlNo(form)
   getDivision()
@@ -279,7 +343,7 @@ onMounted(() => {
   getEmploymentType()
   retrieveData()
   checkUrlAndDisableButton()
-  retrieveDataviaAPI(), retrieveSpecsData()
+  retrieveDataviaAPI(), retrieveSpecsData(), retrieveSoftwareData(), retrievePeripheralsData()
 })
 </script>
 
@@ -319,6 +383,7 @@ onMounted(() => {
       </TabList>
 
       <TabPanels>
+        <!-- General Information -->
         <TabPanel value="0" as="p" class="m-0">
           <form @submit.prevent="saveGeneralInfo">
             <div class="grid md:grid-cols-2 md:gap-6 mb-4 text-right">
@@ -564,23 +629,14 @@ onMounted(() => {
               <div class="relative z-0 w-full mb-5 group">
                 <Fieldset legend="GPU">
                   <div class="card flex flex-wrap gap-6">
-                    <div class="flex items-center gap-2">
+                    <div v-for="gpu in gpu_type" :key="gpu.key" class="flex items-center gap-2">
                       <RadioButton
-                        v-model="specs_form.specs_gpu"
-                        inputId="gpuBuiltIn"
-                        name="gpuBuiltIn"
-                        value="1"
+                        v-model="selectedGPU"
+                        :inputId="gpu.key"
+                        name="dynamdic"
+                        :value="gpu.key"
                       />
-                      <label for="gpuBuiltIn">Built-In</label>
-                    </div>
-                    <div class="flex items-center gap-2">
-                      <RadioButton
-                        v-model="specs_form.specs_gpu"
-                        inputId="gpuDedicated"
-                        name="gpuDedicated"
-                        value="0"
-                      />
-                      <label for="gpuDedicated">Dedicated</label>
+                      <label :for="gpu.key">{{ gpu.name }}</label>
                     </div>
                     <FloatLabel>
                       <InputText
@@ -598,19 +654,23 @@ onMounted(() => {
               <div class="relative z-0 w-full mb-5 group">
                 <Fieldset legend="Network">
                   <div class="card flex flex-wrap gap-6 mb-6">
-                  <div v-for="category in network_type" :key="category.key" class="flex items-center gap-2" >
-                    <RadioButton
-                      v-model="selectedNetwork"
-                      :inputId="category.key"
-                      name="dynamic"
-                      :value="category.key"
-                    />
-                    <label :for="category.key">{{ category.name }}</label>
-                  </div>
-                   <label>If Wireless:</label>
+                    <div
+                      v-for="category in network_type"
+                      :key="category.key"
+                      class="flex items-center gap-2"
+                    >
+                      <RadioButton
+                        v-model="selectedNetwork"
+                        :inputId="category.key"
+                        name="dynamic"
+                        :value="category.key"
+                      />
+                      <label :for="category.key">{{ category.name }}</label>
+                    </div>
+                    <label>If Wireless:</label>
                     <div class="flex items-center gap-2">
                       <RadioButton
-                        v-model="specs_form.specs_net_iswireless"
+                        v-model="selectedWireless"
                         :disabled="!isWirelessSelected"
                         inputId="networkBuiltIn"
                         name="networkBuiltIn"
@@ -621,10 +681,10 @@ onMounted(() => {
 
                     <div class="flex items-center gap-2">
                       <RadioButton
-                        v-model="specs_form.specs_net_iswireless"
+                        v-model="selectedWireless"
                         inputId="networkDongle"
                         name="networkDongle"
-                        value="0"
+                        value="2"
                         :disabled="!isWirelessSelected"
                       />
                       <label for="networkDongle">With Dongle</label>
@@ -688,13 +748,7 @@ onMounted(() => {
 
             <button
               type="submit"
-              :disabled="isButtonDisabled"
-              :class="{
-                'text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800':
-                  !isButtonDisabled,
-                'text-white bg-gray-400 hover:bg-gray-800 focus:ring-4 focus:outline-none dark:bg-gray-600 dark:hover:bg-gray-700 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center':
-                  isButtonDisabled
-              }"
+              class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
               Save as Draft
             </button>
@@ -704,218 +758,34 @@ onMounted(() => {
         <TabPanel value="2" as="p" class="m-0">
           <form @submit.prevent="saveSoftwareInfo">
             <div class="grid md:grid-cols-2 md:gap-6 mb-4">
-              <div class="relative z-0 w-full mb-5 group">
-                <Fieldset legend="Operating System">
+              <div
+                v-for="(software, index) in software_installed"
+                :key="software.key + '-' + index"
+                class="relative z-0 w-full mb-5 group"
+              >
+                <Fieldset :legend="software.title">
                   <div class="card flex flex-wrap gap-9">
-                    <div class="flex items-center gap-3">
+                    <div
+                      v-for="option in ['perpetual', 'subscription', 'evaluation']"
+                      :key="option"
+                      class="flex items-center gap-3"
+                    >
                       <RadioButton
-                        v-model="software_form.operating_system"
-                        inputId="perpetual"
-                        name="perpetual"
-                        value="perpetual"
+                        v-model="selectedSoftware[software.key]"
+                        :inputId="option.toLowerCase() + '-' + index"
+                        :name="software.key"
+                        :value="option.toLowerCase()"
                       />
-                      <label for="perpetual">Perpetual</label>
-                    </div>
-                    <div class="flex items-center gap-2">
-                      <RadioButton
-                        v-model="software_form.operating_system"
-                        inputId="subscription"
-                        name="subscription"
-                        value="subscription"
-                      />
-                      <label for="subscription">Subscription</label>
-                    </div>
-                    <div class="flex items-center gap-3">
-                      <RadioButton
-                        v-model="software_form.operating_system"
-                        inputId="evaluation"
-                        name="evaluation"
-                        value="evaluation"
-                      />
-                      <label for="evaluation">Evaluation</label>
-                    </div>
-                  </div>
-                </Fieldset>
-              </div>
-              <div class="relative z-0 w-full mb-5 group">
-                <Fieldset legend="Microsoft Office">
-                  <div class="card flex flex-wrap gap-9">
-                    <div class="flex items-center gap-3">
-                      <RadioButton
-                        v-model="software_form.ms_office"
-                        inputId="perpetual"
-                        name="perpetual"
-                        value="perpetual"
-                      />
-                      <label for="perpetual">Perpetual</label>
-                    </div>
-                    <div class="flex items-center gap-2">
-                      <RadioButton
-                        v-model="software_form.ms_office"
-                        inputId="subscription"
-                        name="subscription"
-                        value="subscription"
-                      />
-                      <label for="subscription">Subscription</label>
-                    </div>
-                    <div class="flex items-center gap-3">
-                      <RadioButton
-                        v-model="software_form.ms_office"
-                        inputId="evaluation"
-                        name="evaluation"
-                        value="evaluation"
-                      />
-                      <label for="evaluation">Evaluation</label>
-                    </div>
-                  </div>
-                </Fieldset>
-              </div>
-
-              <div class="relative z-0 w-full mb-5 group">
-                <Fieldset legend="ARCGIS">
-                  <div class="card flex flex-wrap gap-9">
-                    <div class="flex items-center gap-3">
-                      <RadioButton
-                        v-model="software_form.arcgis"
-                        inputId="perpetual"
-                        name="perpetual"
-                        value="perpetual"
-                      />
-                      <label for="perpetual">Perpetual</label>
-                    </div>
-                    <div class="flex items-center gap-2">
-                      <RadioButton
-                        v-model="software_form.arcgis"
-                        inputId="subscription"
-                        name="subscription"
-                        value="subscription"
-                      />
-                      <label for="subscription">Subscription</label>
-                    </div>
-                    <div class="flex items-center gap-3">
-                      <RadioButton
-                        v-model="software_form.arcgis"
-                        inputId="evaluation"
-                        name="evaluation"
-                        value="evaluation"
-                      />
-                      <label for="evaluation">Evaluation</label>
-                    </div>
-                  </div>
-                </Fieldset>
-              </div>
-
-              <div class="relative z-0 w-full mb-5 group">
-                <Fieldset legend="Adobe PDF">
-                  <div class="card flex flex-wrap gap-9">
-                    <div class="flex items-center gap-3">
-                      <RadioButton
-                        v-model="software_form.adobe_pdf"
-                        inputId="perpetual"
-                        name="perpetual"
-                        value="perpetual"
-                      />
-                      <label for="perpetual">Perpetual</label>
-                    </div>
-                    <div class="flex items-center gap-2">
-                      <RadioButton
-                        v-model="software_form.adobe_pdf"
-                        inputId="subscription"
-                        name="subscription"
-                        value="subscription"
-                      />
-                      <label for="subscription">Subscription</label>
-                    </div>
-                    <div class="flex items-center gap-3">
-                      <RadioButton
-                        v-model="software_form.adobe_pdf"
-                        inputId="evaluation"
-                        name="evaluation"
-                        value="evaluation"
-                      />
-                      <label for="evaluation">Evaluation</label>
-                    </div>
-                  </div>
-                </Fieldset>
-              </div>
-
-              <div class="relative z-0 w-full mb-5 group">
-                <Fieldset legend="Adobe Photoshop">
-                  <div class="card flex flex-wrap gap-9">
-                    <div class="flex items-center gap-3">
-                      <RadioButton
-                        v-model="software_form.adobe_photoshop"
-                        inputId="perpetual"
-                        name="perpetual"
-                        value="perpetual"
-                      />
-                      <label for="perpetual">Perpetual</label>
-                    </div>
-                    <div class="flex items-center gap-2">
-                      <RadioButton
-                        v-model="software_form.adobe_photoshop"
-                        inputId="subscription"
-                        name="subscription"
-                        value="subscription"
-                      />
-                      <label for="subscription">Subscription</label>
-                    </div>
-                    <div class="flex items-center gap-3">
-                      <RadioButton
-                        v-model="software_form.adobe_photoshop"
-                        inputId="evaluation"
-                        name="evaluation"
-                        value="evaluation"
-                      />
-                      <label for="evaluation">Evaluation</label>
-                    </div>
-                  </div>
-                </Fieldset>
-              </div>
-
-              <div class="relative z-0 w-full mb-5 group">
-                <Fieldset legend="Autocad">
-                  <div class="card flex flex-wrap gap-9">
-                    <div class="flex items-center gap-3">
-                      <RadioButton
-                        v-model="software_form.autocad"
-                        inputId="perpetual"
-                        name="perpetual"
-                        value="perpetual"
-                      />
-                      <label for="perpetual">Perpetual</label>
-                    </div>
-                    <div class="flex items-center gap-2">
-                      <RadioButton
-                        v-model="software_form.autocad"
-                        inputId="subscription"
-                        name="subscription"
-                        value="subscription"
-                      />
-                      <label for="subscription">Subscription</label>
-                    </div>
-                    <div class="flex items-center gap-3">
-                      <RadioButton
-                        v-model="software_form.autocad"
-                        inputId="evaluation"
-                        name="evaluation"
-                        value="evaluation"
-                      />
-                      <label for="evaluation">Evaluation</label>
+                      <label :for="option.toLowerCase() + '-' + index">{{ option }}</label>
                     </div>
                   </div>
                 </Fieldset>
               </div>
             </div>
+
             <button
               type="submit"
-              :disabled="isButtonDisabled"
-              :class="{
-                'text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800':
-                  !isButtonDisabled,
-                'text-white bg-gray-400 hover:bg-gray-800 focus:ring-4 focus:outline-none dark:bg-gray-600 dark:hover:bg-gray-700 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center':
-                  isButtonDisabled
-              }"
+              class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
               Save as Draft
             </button>
@@ -927,6 +797,9 @@ onMounted(() => {
             <div class="grid md:grid-cols-2 md:gap-6 mb-4">
               <div class="relative z-0 w-full mb-5 group">
                 <Fieldset legend="Monitor 1">
+                  <div class="flex items-center gap-2">
+                    <QrcodeVue :value="peripheral_form.monitor1QrCode" />
+                  </div>
                   <div class="card flex mb-7 mt-7 flex-wrap gap-6">
                     <div class="flex items-center gap-2">
                       <FloatLabel>
@@ -1000,6 +873,9 @@ onMounted(() => {
 
               <div class="relative z-0 w-full mb-5 group">
                 <Fieldset legend="Monitor 2">
+                  <div class="flex items-center gap-2">
+                    <QrcodeVue :value="peripheral_form.monitor2QrCode" />
+                  </div>
                   <div class="card flex mb-7 mt-7 flex-wrap gap-6">
                     <div class="flex items-center gap-2">
                       <FloatLabel>
@@ -1072,6 +948,9 @@ onMounted(() => {
               </div>
               <div class="relative z-0 w-full mb-5 group">
                 <Fieldset legend="UPS">
+                  <div class="flex items-center gap-2">
+                    <QrcodeVue :value="peripheral_form.ups_qr_code" />
+                  </div>
                   <div class="card flex mb-7 mt-7 flex-wrap gap-6">
                     <div class="flex items-center gap-2">
                       <FloatLabel>
@@ -1135,9 +1014,22 @@ onMounted(() => {
 
             <button
               type="submit"
-              class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              :disabled="isButtonDisabled"
+              :class="{
+                'text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800':
+                  !isButtonDisabled,
+                'text-white bg-gray-400 hover:bg-gray-800 focus:ring-4 focus:outline-none dark:bg-gray-600 dark:hover:bg-gray-700 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center':
+                  isButtonDisabled
+              }"
             >
               Save as Draft
+            </button>
+            <button
+              type="submit"
+              :disabled="isButtonDisabled"
+              class="text-white ml-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            >
+              Review and Continue
             </button>
           </form>
         </TabPanel>

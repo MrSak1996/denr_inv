@@ -110,7 +110,8 @@ class InventoryController extends Controller
                  hdd_capacity as specs_hdd_capacity, 
                  no_of_ssd as specs_ssd, 
                  ssd_capacity as specs_ssd_capacity, 
-                 specs_net, 
+                 specs_gpu,
+                 specs_net,
                  wireless_type as specs_net_iswireless, 
                  created_at, 
                  updated_at'
@@ -121,14 +122,117 @@ class InventoryController extends Controller
         return response()->json($results);
     }
 
+    public function retrieveSoftwareData(Request $request)
+    {
+        $id = $request->query('id');
+
+        $results = DB::table('tbl_software_install')
+            ->select(DB::raw(
+                'id, 
+                 control_id,
+                 software, 
+                 remarks, 
+                 created_at, 
+                 updated_at'
+            ))
+            ->where('control_id', $id)
+            ->get();
+
+        return response()->json($results);
+    }
+
+    public function retrievePeripheralsData(Request $request)
+    {
+        $id = $request->query('id');
+
+        $results = DB::table('tbl_peripherals')
+            ->select(DB::raw(
+                'id, 
+                control_id, 
+                mon_brand_model1 as monitor1BrandModel, 
+                mon_brand_model2 as monitor2BrandModel, 
+                mon_sn1 as monitor1SerialNumber, 
+                mon_sn2 monitor2SerialNumber, 
+                mon_qr_code1 as monitor1QrCode, 
+                mon_qr_code2 as monitor2QrCode, 
+                mon_pro_no1 as monitor1PropertyNumber, 
+                mon_pro_no2 as monitor2PropertyNumber, 
+                mon_acct_user1 as monitor1AccountPersonInPN, 
+                mon_acct_user2 as monitor2AccountPersonInPN, 
+                mon_actual_user1 as monitor1ActualUser, 
+                mon_actual_user2 as monitor2ActualUser, 
+                ups_qr_code, 
+                ups_acct_user as ups_accountPersonInPN, 
+                ups_actual_user as ups_qr_acctual_user, 
+                ups_property_no, 
+                ups_sn as ups_serial_no'
+            ))
+            ->where('control_id', $id)
+            ->get();
+
+        return response()->json($results);
+    }
+
+    public function getInventoryData()
+    {
+        $equipmentData = DB::table('tbl_general_info as gi')
+            ->leftJoin('tbl_specification as s', 's.control_id', '=', 'gi.id')
+            ->leftJoin('tbl_peripherals as p', 'p.control_id', '=', 'gi.id')
+            ->leftJoin('tbl_division as acct_division', 'acct_division.id', '=', 'gi.acct_person_division_id')
+            ->leftJoin('tbl_division as actual_division', 'actual_division.id', '=', 'gi.actual_user_division_id')
+            ->leftJoin('tbl_equipment_type as eq_t', 'eq_t.id', '=', 'gi.equipment_type')
+            ->select(
+                'gi.id',
+                'gi.qr_code',
+                'gi.control_no',
+                'actual_division.division_title as actual_division_title',
+                'eq_t.equipment_title',
+                'gi.brand',
+                DB::raw("CONCAT(
+                    s.processor, ' ',
+                    s.ram_type, ' ',
+                    s.ram_capacity, ' ',
+                    s.dedicated_information, ' ',
+                    CONCAT('HDD NO: ', s.no_of_hdd), ' ',
+                    CONCAT('SSD NO: ', s.no_of_ssd), ' ',
+                    s.ssd_capacity, ' ',
+                    CASE 
+                        WHEN s.specs_gpu = 1 THEN 'Built In'
+                        WHEN s.specs_gpu = 2 THEN 'Dedicated'
+                        ELSE 'Unknown'
+                    END, ' ',
+                    CASE 
+                        WHEN s.wireless_type = 1 THEN 'LAN'
+                        WHEN s.wireless_type = 2 THEN 'Wireless'
+                        WHEN s.wireless_type = 3 THEN 'Both'
+                        ELSE 'Unknown'
+                    END
+                ) AS full_specs"),
+                DB::raw("CASE 
+                WHEN gi.range_category = 1 THEN 'Entry Level'
+                WHEN gi.range_category = 2 THEN 'Mid Level'
+                WHEN gi.range_category = 3 THEN 'High End Level'
+                ELSE 'Unknown'
+            END AS 'range_category'"),
+                'gi.acct_person',
+                'acct_division.division_title as acct_division_title',
+                'gi.actual_user',
+                'actual_division.division_title as actual_division_title'
+            )
+            ->get(); // Fetch the data
+
+        return response()->json($equipmentData); // Return data as JSON
+    }
+
     // C R U D
     public function post_insert_gen_info(Request $req)
     {
+        print_r($req->all());
         $validated = $req->validate([
             'control_no' => 'required|string',
             'qr_code' => 'nullable|string',
             'acct_person' => 'nullable|string',
-            'employmentType' => 'nullable|string',
+            'employmentType' => 'nullable|integer',
             'brand' => 'nullable|string',
             'model' => 'nullable|string',
             'property_no' => 'nullable|string',
@@ -182,9 +286,10 @@ class InventoryController extends Controller
     public function post_insert_specs_info(Request $request)
     {
         $request->merge([
-            'specs_gpu' => (int) $request->input('specs_gpu'),
             'specs_net' => (int) $request->input('specs_net'),
+            'specs_gpu' => (int) $request->input('specs_gpu'),
             'specs_ram' => (int) $request->input('specs_ram'),
+            'specs_net_iswireless' => (int) $request->input('specs_net_iswireless'),
         ]);
 
         // Validate input data
@@ -198,6 +303,7 @@ class InventoryController extends Controller
             'specs_ssd' => 'nullable|integer',
             'specs_ssd_capacity' => 'nullable|string|max:255',
             'specs_gpu_dedic_info' => 'nullable|string|max:255',
+            'specs_gpu' => 'nullable|integer',
             'specs_net' => 'nullable|integer',
             'specs_net_iswireless' => 'nullable|integer',
         ]);
@@ -214,6 +320,7 @@ class InventoryController extends Controller
                 'hdd_capacity' => $validatedData['specs_hdd_capacity'],
                 'no_of_ssd' => $validatedData['specs_ssd'],
                 'ssd_capacity' => $validatedData['specs_ssd_capacity'],
+                'specs_gpu' => $validatedData['specs_gpu'],
                 'specs_net' => $validatedData['specs_net'],
                 'wireless_type' => $validatedData['specs_net_iswireless'],
             ]
@@ -228,28 +335,26 @@ class InventoryController extends Controller
 
     public function post_insert_software(Request $request)
     {
-        // Validate incoming request data
+        // Validate the incoming request
         $validated = $request->validate([
             'control_id' => 'required|integer',
-            'adobe_pdf' => 'required|string',
-            'adobe_photoshop' => 'required|string',
-            'arcgis' => 'required|string',
-            'autocad' => 'required|string',
-            'ms_office' => 'required|string',
-            'operating_system' => 'required|string',
+            'selectedSoftware' => 'required|array', // Ensure selectedSoftware is an array
+            'selectedSoftware.*' => 'required|string', // Ensure each value in selectedSoftware is a string
         ]);
 
-        // Loop through each software and remarks pair and insert into the database
-        foreach ($validated as $software => $remarks) {
-            if ($software !== 'control_id') { // Skip the control_id key
-                SoftwareInstall::create([
-                    'control_id' => $validated['control_id'],  // Control ID
+        // Loop through each software and insert into the database
+        foreach ($validated['selectedSoftware'] as $software => $remarks) {
+            // Insert into the SoftwareInstall model (assuming it has the necessary columns)
+            SoftwareInstall::updateOrCreate(
+                ['control_id' => $validated['control_id']],  // Control ID
+                [
                     'software' => $software,                    // Software name (e.g., 'adobe_pdf')
-                    'remarks' => $remarks                       // Remarks value (e.g., 'subscription')
-                ]);
-            }
+                    'remarks' => $remarks                       // Remarks value (1, 2, or 3)
+                ]
+            );
         }
 
+        // Return a success response
         return response()->json(['message' => 'Data inserted successfully'], 200);
     }
 
