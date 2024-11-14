@@ -57,6 +57,7 @@ class InventoryController extends Controller
             ->get();
         return response()->json($results);
     }
+
     public function getEmploymentType()
     {
         $results = DB::table('tbl_employment_type')
@@ -191,6 +192,8 @@ class InventoryController extends Controller
             ->select(
                 'gi.id',
                 'gi.qr_code',
+                'p.mon_qr_code1',
+                'p.mon_qr_code2',
                 'gi.control_no',
                 'actual_division.division_title as actual_division_title',
                 'eq_t.equipment_title',
@@ -407,10 +410,12 @@ class InventoryController extends Controller
             'ups_property_no' => 'nullable|string',
             'ups_serial_no' => 'nullable|string',
         ]);
+      
 
-        // Map the validated data to match the fillable attributes of the PeripheralInformation model
-        $peripheralData = [
-            'control_id' => $validatedData['control_id'],
+        // Insert the data into the database
+        $peripheral = PeripheralInformation::updateOrCreate(
+            ['control_id' => $validatedData['control_id']],
+            [
             'mon_qr_code1' => $validatedData['monitor1QrCode'],
             'mon_brand_model1' => $validatedData['monitor1BrandModel'],
             'mon_sn1' => $validatedData['monitor1SerialNumber'],
@@ -428,10 +433,8 @@ class InventoryController extends Controller
             'ups_actual_user' => $validatedData['ups_qr_acctual_user'],
             'ups_property_no' => $validatedData['ups_property_no'],
             'ups_sn' => $validatedData['ups_serial_no'],
-        ];
-
-        // Insert the data into the database
-        $peripheral = PeripheralInformation::create($peripheralData);
+            ]
+        );
 
         // Return a response
         return response()->json([

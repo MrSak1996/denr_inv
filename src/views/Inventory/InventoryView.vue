@@ -90,6 +90,8 @@ const initFilters = () => {
     equipment_title: { value: null, matchMode: FilterMatchMode.CONTAINS },
     acct_person: { value: null, matchMode: FilterMatchMode.CONTAINS },
     qr_code: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    mon_qr_code1: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    mon_qr_code2: { value: null, matchMode: FilterMatchMode.CONTAINS },
     brand: { value: null, matchMode: FilterMatchMode.CONTAINS },
     full_specs: { value: null, matchMode: FilterMatchMode.CONTAINS },
     range_category: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -209,9 +211,7 @@ const pageTitle = ref('Inventory Management')
           tabindex="-1"
           aria-labelledby="progress-modal"
         >
-          <div
-            class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-sm rounded-xl w-full max-w-4xl mx-4 lg:mx-auto transition-transform duration-500 transform"
-          >
+          <div class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-sm rounded-xl w-full max-w-4xl mx-4 lg:mx-auto transition-transform duration-500 transform" >
             <!-- Modal Header -->
             <div
               class="modal-content flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700"
@@ -249,7 +249,9 @@ const pageTitle = ref('Inventory Management')
             'actual_division',
             'equipment_title',
             'acct_person',
-            'qr_code'
+            'qr_code',
+            'mon_qr_code1',
+            'mon_qr_code2'
           ]"
         >
           <template #header>
@@ -330,6 +332,24 @@ const pageTitle = ref('Inventory Management')
               <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
             </template>
           </Column>
+          <Column field="mon_qr_code1" header="Monitor 1 QR Code" style="min-width: 12rem">
+            <template #body="{ data }">
+              {{ data.mon_qr_code1 }}
+              <!-- Ensure this field exists in the data object -->
+            </template>
+            <template #filter="{ filterModel }">
+              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
+            </template>
+          </Column>
+          <Column field="mon_qr_code2" header="Monitor 2 QR Code" style="min-width: 12rem">
+            <template #body="{ data }">
+              {{ data.mon_qr_code2 }}
+              <!-- Ensure this field exists in the data object -->
+            </template>
+            <template #filter="{ filterModel }">
+              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
+            </template>
+          </Column>
           <Column field="actual_division_title" header="Office/Division" style="min-width: 12rem">
             <template #body="{ data }">
               {{ data.actual_division_title }}
@@ -399,217 +419,6 @@ const pageTitle = ref('Inventory Management')
               <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
             </template>
           </Column>
-
-          <!-- <Column
-            header="TYPE OF ICT EQUIPMENT"
-            filterField="date"
-            dataType="date"
-            style="min-width: 10rem"
-          >
-            <template #body="{ data }">
-              {{ formatDate(data.date) }}
-            </template>
-            <template #filter="{ filterModel }">
-              <DatePicker
-                v-model="filterModel.value"
-                dateFormat="mm/dd/yy"
-                placeholder="mm/dd/yyyy"
-              />
-            </template>
-          </Column>
-          <Column
-            header="YEAR ACQUIRED"
-            filterField="balance"
-            dataType="numeric"
-            style="min-width: 10rem"
-          >
-            <template #body="{ data }">
-              {{ formatCurrency(data.balance) }}
-            </template>
-            <template #filter="{ filterModel }">
-              <InputNumber
-                v-model="filterModel.value"
-                mode="currency"
-                currency="USD"
-                locale="en-US"
-              />
-            </template>
-          </Column>
-          <Column
-            header="SHELF LIFE"
-            field="status"
-            :filterMenuStyle="{ width: '14rem' }"
-            style="min-width: 12rem"
-          >
-            <template #body="{ data }">
-              <Tag :value="data.status" :severity="getSeverity(data.status)" />
-            </template>
-            <template #filter="{ filterModel }">
-              <Select
-                v-model="filterModel.value"
-                :options="statuses"
-                placeholder="Select One"
-                showClear
-              >
-                <template #option="slotProps">
-                  <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)" />
-                </template>
-              </Select>
-            </template>
-          </Column>
-          <Column
-            field="activity"
-            header="BRAND"
-            :showFilterMatchModes="false"
-            style="min-width: 12rem"
-          >
-            <template #body="{ data }">
-              <ProgressBar
-                :value="data.activity"
-                :showValue="false"
-                style="height: 6px"
-              ></ProgressBar>
-            </template>
-            <template #filter="{ filterModel }">
-              <Slider v-model="filterModel.value" range class="m-4"></Slider>
-              <div class="flex items-center justify-between px-2">
-                <span>{{ filterModel.value ? filterModel.value[0] : 0 }}</span>
-                <span>{{ filterModel.value ? filterModel.value[1] : 100 }}</span>
-              </div>
-            </template>
-          </Column>
-          <Column
-            field="verified"
-            header="SPECIFICATION/DESCRIPTION"
-            dataType="boolean"
-            bodyClass="text-center"
-            style="min-width: 8rem"
-          >
-            <template #body="{ data }">
-              <i
-                class="pi"
-                :class="{
-                  'pi-check-circle text-green-500 ': data.verified,
-                  'pi-times-circle text-red-500': !data.verified
-                }"
-              ></i>
-            </template>
-            <template #filter="{ filterModel }">
-              <label for="verified-filter" class="font-bold"> Verified </label>
-              <Checkbox
-                v-model="filterModel.value"
-                :indeterminate="filterModel.value === null"
-                binary
-                inputId="verified-filter"
-              />
-            </template>
-          </Column>
-          <Column
-            field="verified"
-            header="RANGE CATEGORY"
-            dataType="boolean"
-            bodyClass="text-center"
-            style="min-width: 10rem"
-          >
-            <template #body="{ data }">
-              <i
-                class="pi"
-                :class="{
-                  'pi-check-circle text-green-500 ': data.verified,
-                  'pi-times-circle text-red-500': !data.verified
-                }"
-              ></i>
-            </template>
-            <template #filter="{ filterModel }">
-              <label for="verified-filter" class="font-bold"> Verified </label>
-              <Checkbox
-                v-model="filterModel.value"
-                :indeterminate="filterModel.value === null"
-                binary
-                inputId="verified-filter"
-              />
-            </template>
-          </Column>
-          <Column
-            field="verified"
-            header="RANGE CATEGORY"
-            dataType="boolean"
-            bodyClass="text-center"
-            style="min-width: 10rem"
-          >
-          </Column>
-          <Column header="Accountable Person" filterField="country.name" style="min-width: 12rem">
-            <template #body="{ data }">
-              <div class="flex items-center gap-2">
-                <img
-                  alt="flag"
-                  src="https://primefaces.org/cdn/primevue/images/flag/flag_placeholder.png"
-                  :class="`flag flag-${data.acct_person}`"
-                  style="width: 24px"
-                />
-                <span>{{ data.country.name }}</span>
-              </div>
-            </template>
-            <template #filter="{ filterModel }">
-              <InputText v-model="filterModel.value" type="text" placeholder="Search by country" />
-            </template>
-            <template #filterclear="{ filterCallback }">
-              <Button
-                type="button"
-                icon="pi pi-times"
-                @click="filterCallback()"
-                severity="secondary"
-              ></Button>
-            </template>
-            <template #filterapply="{ filterCallback }">
-              <Button
-                type="button"
-                icon="pi pi-check"
-                @click="filterCallback()"
-                severity="success"
-              ></Button>
-            </template>
-            <template #filterfooter>
-              <div class="px-4 pt-0 pb-4 text-center">Customized Buttons</div>
-            </template>
-          </Column>
-          <Column
-            header="Office/Division"
-            filterField="representative"
-            :showFilterMatchModes="false"
-            :filterMenuStyle="{ width: '14rem' }"
-            style="min-width: 14rem"
-          >
-            <template #body="{ data }">
-              <div class="flex items-center gap-2">
-                <img
-                  :alt="data.representative.name"
-                  :src="`https://primefaces.org/cdn/primevue/images/avatar/${data.representative.image}`"
-                  style="width: 32px"
-                />
-                <span>{{ data.representative.name }}</span>
-              </div>
-            </template>
-            <template #filter="{ filterModel }">
-              <MultiSelect
-                v-model="filterModel.value"
-                :options="representatives"
-                optionLabel="name"
-                placeholder="Any"
-              >
-                <template #option="slotProps">
-                  <div class="flex items-center gap-2">
-                    <img
-                      :alt="slotProps.option.name"
-                      :src="`https://primefaces.org/cdn/primevue/images/avatar/${slotProps.option.image}`"
-                      style="width: 32px"
-                    />
-                    <span>{{ slotProps.option.name }}</span>
-                  </div>
-                </template>
-              </MultiSelect>
-            </template>
-          </Column> -->
         </DataTable>
       </div>
     </div>
