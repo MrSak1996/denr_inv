@@ -8,6 +8,11 @@ use App\Models\SoftwareInstall;
 use App\Models\PeripheralInformation;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Fill; // Import the Fill class for styling
+
+
 use DB;
 
 class InventoryController extends Controller
@@ -85,6 +90,8 @@ class InventoryController extends Controller
                 range_category as selectedRangeCategory, 
                 acquisition_cost, 
                 year_acquired, 
+                shelf_life, 
+                remarks, 
                 created_at,
                 updated_at'
             ))
@@ -189,25 +196,40 @@ class InventoryController extends Controller
                 'eq_t.equipment_title',
                 'gi.brand',
                 DB::raw("CONCAT(
-                    s.processor, ' ',
-                    s.ram_type, ' ',
-                    s.ram_capacity, ' ',
-                    s.dedicated_information, ' ',
-                    CONCAT('HDD NO: ', s.no_of_hdd), ' ',
-                    CONCAT('SSD NO: ', s.no_of_ssd), ' ',
-                    s.ssd_capacity, ' ',
+                    s.processor, CHAR(10),
+                    CASE 
+                        WHEN s.ram_type = 1 THEN 'Static RAM'
+                        WHEN s.ram_type = 2 THEN '(SDRAM)'
+                        WHEN s.ram_type = 4 THEN 'Single Data Rate Synchronous Dynamic RAM'
+                        WHEN s.ram_type = 5 THEN 'DDR2'
+                        WHEN s.ram_type = 6 THEN 'DDR3'
+                        WHEN s.ram_type = 7 THEN 'DDR4'
+                        WHEN s.ram_type = 8 THEN 'GDDR'
+                        WHEN s.ram_type = 9 THEN 'SDRAM'
+                        WHEN s.ram_type = 10 THEN 'GDDR2'
+                        WHEN s.ram_type = 11 THEN 'GDDR3'
+                        WHEN s.ram_type = 12 THEN 'GDDR4'
+                        WHEN s.ram_type = 13 THEN 'GDDR5'
+                        WHEN s.ram_type = 14 THEN 'Flash Memory'
+                        ELSE 'Unknown RAM'
+                    END, CHAR(10),
+                    s.ram_capacity, CHAR(10),
+                    s.dedicated_information, CHAR(10),
+                    CONCAT('HDD NO: ', s.no_of_hdd), CHAR(10),
+                    CONCAT('SSD NO: ', s.no_of_ssd), CHAR(10),
+                    s.ssd_capacity, CHAR(10),
                     CASE 
                         WHEN s.specs_gpu = 1 THEN 'Built In'
                         WHEN s.specs_gpu = 2 THEN 'Dedicated'
                         ELSE 'Unknown'
-                    END, ' ',
+                    END, CHAR(10),
                     CASE 
                         WHEN s.wireless_type = 1 THEN 'LAN'
                         WHEN s.wireless_type = 2 THEN 'Wireless'
                         WHEN s.wireless_type = 3 THEN 'Both'
                         ELSE 'Unknown'
                     END
-                ) AS full_specs"),
+                ) AS full_specs"),                
                 DB::raw("CASE 
                 WHEN gi.range_category = 1 THEN 'Entry Level'
                 WHEN gi.range_category = 2 THEN 'Mid Level'
@@ -227,7 +249,6 @@ class InventoryController extends Controller
     // C R U D
     public function post_insert_gen_info(Request $req)
     {
-        print_r($req->all());
         $validated = $req->validate([
             'control_no' => 'required|string',
             'qr_code' => 'nullable|string',
@@ -247,6 +268,9 @@ class InventoryController extends Controller
             'selectedRangeCategory' => 'nullable|integer',
             'selectedEquipmentType' => 'nullable|integer',
             'actual_user' => 'nullable|string',
+            'year_acquired' => 'nullable|string',
+            'remarks' => 'nullable|string',
+            'shelf_life' => 'nullable|string',
         ]);
 
         // Insert the data into the GeneralInformation model
@@ -271,6 +295,9 @@ class InventoryController extends Controller
                 'section_id' => $validated['selectedSection'],
                 'range_category' => $validated['selectedRangeCategory'],
                 'equipment_type' => $validated['selectedEquipmentType'],
+                'year_acquired' => $validated['year_acquired'],
+                'remarks' => $validated['remarks'],
+                'shelf_life' => $validated['shelf_life'],
                 'created_at' => now(),
                 'updated_at' => now(),
             ]
@@ -412,4 +439,6 @@ class InventoryController extends Controller
             'data' => $peripheral,
         ], 201);
     }
+
+    
 }

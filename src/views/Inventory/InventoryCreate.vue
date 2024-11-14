@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, computed, watch } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
@@ -23,6 +23,7 @@ import Fieldset from 'primevue/fieldset'
 import InputText from 'primevue/inputtext'
 import InputNumber from 'primevue/inputnumber'
 import RadioButton from 'primevue/radiobutton'
+import Textarea from 'primevue/textarea'
 import api from '../../../laravel-backend/resources/js/axiosInstance.js'
 import type { isBuiltin } from 'module'
 import { spec } from 'node:test/reporters'
@@ -72,6 +73,14 @@ const retrieveData = async () => {
   }
 }
 
+const checkYear = () => {
+      const year = parseInt(form.year_acquired, 10);
+      if (!isNaN(year)) {
+        form.shelf_life = year <= 2017 ? "Beyond 5 year" : "Within 5 year";
+      } else {
+        form.shelf_life = ''; // Reset shelf if year input is invalid
+      }
+    };
 let selectedNetwork = ref(null) // Converts to string
 let selectedGPU = ref(null)
 let selectedWireless = ref(null)
@@ -105,7 +114,7 @@ const remarksMap = {
   perpetual: '1',
   subscription: '2',
   evaluation: '3'
-};
+}
 
 // GENERAL INFORMATION
 const saveGeneralInfo = async () => {
@@ -113,7 +122,7 @@ const saveGeneralInfo = async () => {
     errors.value = {}
     const extractId = (item) => item?.id || null
     const requestData = {
-      ...form
+      ...form,
       // employmentType: extractId(form.employmentType),
       // selectedDivisiondd: extractId(form.selectedDivision),
       // selectedAcctDivision: extractId(form.selectedAcctDivision),
@@ -197,7 +206,7 @@ const saveSpecsInfo = async () => {
 const saveSoftwareInfo = async () => {
   try {
     errors.value = {}
-    
+
     // Prepare the request data by combining form data with selected software options
     const requestData = {
       selectedSoftware: Object.fromEntries(
@@ -207,7 +216,7 @@ const saveSoftwareInfo = async () => {
         ])
       ),
       control_id: route.params.id
-    };
+    }
     // Make the API call
     const response = await api.post('/post_insert_software', requestData)
 
@@ -307,11 +316,13 @@ const retrieveSoftwareData = async () => {
   if (id) {
     try {
       const response = await api.get(`/retrieveSoftwareData?id=${id}`)
-      
+
       response.data.forEach((software) => {
         // Reverse the mapping: match the value from 'remarksMap' and find the option
-        const selectedOption = Object.keys(remarksMap).find(key => remarksMap[key] === software.remarks)
-        
+        const selectedOption = Object.keys(remarksMap).find(
+          (key) => remarksMap[key] === software.remarks
+        )
+
         if (selectedOption) {
           selectedSoftware.value[software.software] = selectedOption // Update the selectedSoftware object
         }
@@ -321,7 +332,6 @@ const retrieveSoftwareData = async () => {
     }
   }
 }
-
 
 const retrievePeripheralsData = async () => {
   const id = route.params.id
@@ -334,6 +344,8 @@ const retrievePeripheralsData = async () => {
     }
   }
 }
+
+
 onMounted(() => {
   getControlNo(form)
   getDivision()
@@ -387,7 +399,7 @@ onMounted(() => {
         <TabPanel value="0" as="p" class="m-0">
           <form @submit.prevent="saveGeneralInfo">
             <div class="grid md:grid-cols-2 md:gap-6 mb-4 text-right">
-              <div class="relative z-0 w-full mb-5 group">
+              <div class="relative z-0 w-full mb-5 group" v-if="form.qr_code">
                 <QrcodeVue :value="form.qr_code" />
               </div>
             </div>
@@ -442,6 +454,20 @@ onMounted(() => {
                 />
               </div>
             </div>
+              <div class="grid md:grid-cols-2 md:gap-6 mb-4">
+                <div class="relative z-0 w-full mb-5 group">
+                  <FloatLabel>
+                    <InputText id="year_acquired" @input="checkYear" v-model="form.year_acquired" class="w-full" />
+                    <label for="year_acquired">Year Acquired</label>
+                  </FloatLabel>
+                </div>
+                <div class="relative z-0 w-full mb-5 group">
+                  <FloatLabel>
+                    <InputText id="shelf_life" v-model="form.shelf_life" class="w-full" />
+                    <label for="shelf_life">Shelf Life</label>
+                  </FloatLabel>
+                </div>
+              </div>
             <div class="grid md:grid-cols-4 md:gap-6 mb-4">
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
@@ -543,6 +569,15 @@ onMounted(() => {
                 </FloatLabel>
               </div>
             </div>
+            <div class="grid md:grid-cols-1 md:gap-6 mb-4">
+              <div class="relative z-0 w-full mb-5 group">
+                <FloatLabel>
+                  <Textarea id="remarks" v-model="form.remarks" rows="5" cols="189" />
+                  <label for="remarks">Remarks</label>
+                </FloatLabel>
+              </div>
+            </div>
+
             <button
               type="submit"
               :disabled="isButtonDisabled"
@@ -558,6 +593,7 @@ onMounted(() => {
           </form>
         </TabPanel>
 
+        <!--Specification-->
         <TabPanel value="1" as="p" class="m-0">
           <form @submit.prevent="saveSpecsInfo">
             <div class="grid md:grid-cols-3 md:gap-6 mb-4">
@@ -755,6 +791,7 @@ onMounted(() => {
           </form>
         </TabPanel>
 
+        <!-- Software Install -->
         <TabPanel value="2" as="p" class="m-0">
           <form @submit.prevent="saveSoftwareInfo">
             <div class="grid md:grid-cols-2 md:gap-6 mb-4">
@@ -792,23 +829,24 @@ onMounted(() => {
           </form>
         </TabPanel>
 
+        <!-- Peripherals -->
         <TabPanel value="3" as="p" class="m-0">
           <form @submit.prevent="savePeripheralInfo">
             <div class="grid md:grid-cols-2 md:gap-6 mb-4">
               <div class="relative z-0 w-full mb-5 group">
                 <Fieldset legend="Monitor 1">
-                  <div class="flex items-center gap-2">
+                  <div class="flex items-center gap-2" v-if="peripheral_form.monitor1QrCode">
                     <QrcodeVue :value="peripheral_form.monitor1QrCode" />
                   </div>
                   <div class="card flex mb-7 mt-7 flex-wrap gap-6">
                     <div class="flex items-center gap-2">
                       <FloatLabel>
                         <InputText
-                          id="processor"
+                          id="qr_code"
                           v-model="peripheral_form.monitor1QrCode"
                           class="w-full"
                         />
-                        <label for="processor">QR Code</label>
+                        <label for="qr_code">QR Code</label>
                       </FloatLabel>
                     </div>
 
@@ -873,7 +911,7 @@ onMounted(() => {
 
               <div class="relative z-0 w-full mb-5 group">
                 <Fieldset legend="Monitor 2">
-                  <div class="flex items-center gap-2">
+                  <div class="flex items-center gap-2" v-if="peripheral_form.monitor2QrCode">
                     <QrcodeVue :value="peripheral_form.monitor2QrCode" />
                   </div>
                   <div class="card flex mb-7 mt-7 flex-wrap gap-6">
@@ -948,7 +986,7 @@ onMounted(() => {
               </div>
               <div class="relative z-0 w-full mb-5 group">
                 <Fieldset legend="UPS">
-                  <div class="flex items-center gap-2">
+                  <div class="flex items-center gap-2" v-if="peripheral_form.ups_qr_code">
                     <QrcodeVue :value="peripheral_form.ups_qr_code" />
                   </div>
                   <div class="card flex mb-7 mt-7 flex-wrap gap-6">
@@ -1014,22 +1052,9 @@ onMounted(() => {
 
             <button
               type="submit"
-              :disabled="isButtonDisabled"
-              :class="{
-                'text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800':
-                  !isButtonDisabled,
-                'text-white bg-gray-400 hover:bg-gray-800 focus:ring-4 focus:outline-none dark:bg-gray-600 dark:hover:bg-gray-700 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center':
-                  isButtonDisabled
-              }"
+              class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
               Save as Draft
-            </button>
-            <button
-              type="submit"
-              :disabled="isButtonDisabled"
-              class="text-white ml-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-            >
-              Review and Continue
             </button>
           </form>
         </TabPanel>

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ExampleController;
 use App\Http\Controllers\Modules\User\UserController;
 use App\Http\Controllers\Modules\Inventory\InventoryController;
+use App\Http\Controllers\Modules\Reports\ReportsController;
 
 
 /*
@@ -36,6 +37,8 @@ Route::middleware('api')->group(function () {
     Route::get('/retrieveSoftwareData', [InventoryController::class, 'retrieveSoftwareData']);
     Route::get('/retrievePeripheralsData', [InventoryController::class, 'retrievePeripheralsData']);
     Route::get('/getInventoryData', [InventoryController::class, 'getInventoryData']);
+
+    Route::get('/export', [ReportsController::class, 'generateReport']);
 
     Route::post('post_insert_gen_info', [InventoryController::class, 'post_insert_gen_info']);
     Route::post('post_insert_specs_info', [InventoryController::class, 'post_insert_specs_info']);

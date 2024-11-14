@@ -1,10 +1,6 @@
-<style>
-.p-dialog-mask {
-  background: rgba(0, 0, 0, 0.7); /* Adjust the overlay color and opacity */
-}
-</style>
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import router from '@/router'
 
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
@@ -16,58 +12,75 @@ import Button from 'primevue/button'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import Dialog from 'primevue/dialog'
-import SpeedDial from 'primevue/speeddial'
-import MultiSelect from '@/components/Forms/MultiSelect.vue'
-import Select from 'primevue/select'
-import Slider from 'primevue/slider'
-import ProgressBar from 'primevue/progressbar'
-import Tag from 'primevue/tag'
-import DatePicker from 'primevue/datepicker'
-import Checkbox from 'primevue/checkbox'
-import InputNumber from 'primevue/inputnumber'
-import ColumnGroup from 'primevue/columngroup' // optional
-import Row from 'primevue/row'
 
-import { CustomerService } from '@/service/CustomerService'
-import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
-import router from '@/router'
-
+import { FilterMatchMode } from '@primevue/core/api'
 import api from '../../../laravel-backend/resources/js/axiosInstance.js'
 
-const customers = ref()
-const filters = ref()
-const visible = ref(false)
-
-const representatives = ref([
-  { name: 'Amy Elsner', image: 'amyelsner.png' },
-  { name: 'Anna Fali', image: 'annafali.png' },
-  { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
-  { name: 'Bernardo Dominic', image: 'bernardodominic.png' },
-  { name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
-  { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
-  { name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
-  { name: 'Onyama Limba', image: 'onyamalimba.png' },
-  { name: 'Stephen Shaw', image: 'stephenshaw.png' },
-  { name: 'XuXue Feng', image: 'xuxuefeng.png' }
-])
+const customers = ref([]) // Stores customer data
+const filters = ref() // Stores table filters
+const visible = ref(false) // Controls visibility of dialogs
+// const representatives = ref([...])  // Array of representative data
 const statuses = ref(['unqualified', 'qualified', 'new', 'negotiation', 'renewal', 'proposal'])
-const loading = ref(true)
+const loading = ref(false) // Tracks loading state
 
-onMounted(() => {
-  fetchData()
-})
+// Progress bar state
+const progress = ref(0)
+const isLoading = ref(false)
+const currentMessage = ref('Loading, please wait...')
+const messages = ref([
+  'Loading, please wait...',
+  'Processing data...',
+  'Initializing data...',
+  'Fetching resources...',
+  'Preparing your data...',
+  'Almost there, hang tight...'
+])
 
+// Start progress bar animation
+const startProgress = () => {
+  progress.value = 0
+  isLoading.value = true
+  updateMessage()
+  const interval = setInterval(() => {
+    if (progress.value < 90) {
+      progress.value += Number((Math.random() * 10).toFixed(2)) // Simulate progress increase
+      updateMessage()
+    } else {
+      clearInterval(interval)
+    }
+  }, 500)
+}
+
+// Complete progress bar animation
+const completeProgress = () => {
+  progress.value = 100
+  setTimeout(() => {
+    isLoading.value = false
+  }, 500)
+}
+
+// Random message for progress updates
+const updateMessage = () => {
+  const randomIndex = Math.floor(Math.random() * messages.value.length)
+  currentMessage.value = messages.value[randomIndex]
+}
+
+// Fetch customer data from the API
 const fetchData = async () => {
   try {
+    startProgress() // Start the progress bar
     const response = await api.get(`/getInventoryData`)
-    customers.value = getCustomers(response.data) // Use the getCustomers function to process the data
-    loading.value = false // Set loading to false once data is fetched
+    customers.value = getCustomers(response.data) // Process the fetched data
+    loading.value = false
+    completeProgress() // Stop the progress bar
   } catch (error) {
     console.error('Error fetching customers:', error)
-    loading.value = false // Set loading to false even if there's an error
+    loading.value = false
+    completeProgress() // Stop the progress bar even in case of error
   }
 }
 
+// Initialize filter values
 const initFilters = () => {
   filters.value = {
     id: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -82,87 +95,103 @@ const initFilters = () => {
     range_category: { value: null, matchMode: FilterMatchMode.CONTAINS },
     actual_user: { value: null, matchMode: FilterMatchMode.CONTAINS }
   }
-  // filters.value = {
-  //   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-  //   name: {
-  //     operator: FilterOperator.AND,
-  //     constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }]
-  //   },
-  //   'country.name': {
-  //     operator: FilterOperator.AND,
-  //     constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }]
-  //   },
-  //   representative: { value: null, matchMode: FilterMatchMode.IN },
-  //   date: {
-  //     operator: FilterOperator.AND,
-  //     constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }]
-  //   },
-  //   balance: {
-  //     operator: FilterOperator.AND,
-  //     constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
-  //   },
-  //   status: {
-  //     operator: FilterOperator.OR,
-  //     constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
-  //   },
-  //   activity: { value: [0, 100], matchMode: FilterMatchMode.BETWEEN },
-  //   verified: { value: null, matchMode: FilterMatchMode.EQUALS }
-  // }
 }
 
 initFilters()
 
-const formatDate = (value) => {
+// Format date to 'MM/DD/YYYY'
+const formatDate = (value: Date) => {
   return value.toLocaleDateString('en-US', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric'
   })
 }
-const formatCurrency = (value) => {
+
+// Format value to currency (USD)
+const formatCurrency = (value: number) => {
   return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
 }
+
+// Clear all filters
 const clearFilter = () => {
   initFilters()
 }
+
+// Navigate to the create page for inventory
 const addMore = () => {
   router.push({ path: '/inventory/create' })
 }
-const getCustomers = (data) => {
-  return [...(data || [])].map((d) => {
-    d.date = new Date(d.date)
 
+// Process fetched customer data
+const getCustomers = (data: any) => {
+  return [...(data || [])].map((d: any) => {
+    d.date = new Date(d.date)
     return d
   })
 }
-const getSeverity = (status) => {
+
+// Get severity based on status
+const getSeverity = (status: string) => {
   switch (status) {
     case 'unqualified':
       return 'danger'
-
     case 'qualified':
       return 'success'
-
     case 'new':
       return 'info'
-
     case 'negotiation':
       return 'warn'
-
     case 'renewal':
       return null
   }
 }
 
-const viewRecord = (id) =>{
+// View the record for a specific inventory item
+const viewRecord = (id: string) => {
   router.push({
     path: `/inventory/create/${id}`,
     query: { api_token: localStorage.getItem('api_token') }
-  });
+  })
 }
 
+// Export inventory data to Excel
+const exportData = async () => {
+  try {
+    const response = await api.get('http://localhost:8000/api/export?export=true', {
+      responseType: 'blob'
+    })
+
+    const blob = new Blob([response.data], { type: response.headers['content-type'] })
+    const url = window.URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'denr_ict_inv_2024.xlsx'
+    document.body.appendChild(link)
+    link.click()
+
+    link.remove()
+    window.URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('Error exporting data:', error)
+  }
+}
+
+// Page title
 const pageTitle = ref('Inventory Management')
 </script>
+
+<style scoped>
+.p-dialog-mask {
+  background: rgba(0, 0, 0, 0.7); /* Adjust the overlay color and opacity */
+}
+.wrap-text {
+  white-space: normal;
+  word-wrap: break-word;
+}
+</style>
+
 <template>
   <DefaultLayout>
     <!-- Breadcrumb Start -->
@@ -172,7 +201,38 @@ const pageTitle = ref('Inventory Management')
       <div
         class="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1"
       >
-        <!-- <h4 class="mb-6 text-xl font-semibold text-black dark:text-white">Top Channels</h4> -->
+        <!--Progress Bar-->
+        <div
+          v-if="isLoading"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          role="dialog"
+          tabindex="-1"
+          aria-labelledby="progress-modal"
+        >
+          <div
+            class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-sm rounded-xl w-full max-w-4xl mx-4 lg:mx-auto transition-transform duration-500 transform"
+          >
+            <!-- Modal Header -->
+            <div
+              class="modal-content flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700"
+            >
+              <h3 class="text-lg font-semibold">{{ currentMessage }}</h3>
+              <!-- Dynamic Message -->
+            </div>
+            <!-- Modal Body -->
+            <div class="flex flex-col justify-center items-center gap-x-2 py-6 px-4">
+              <!-- Progress Bar Container -->
+              <div class="w-full bg-gray-200 rounded-full h-4">
+                <div
+                  class="bg-teal-500 h-4 rounded-full transition-all"
+                  :style="{ width: progress + '%' }"
+                ></div>
+              </div>
+              <!-- Progress Percentage -->
+              <p class="mt-2 text-gray-700 dark:text-gray-300">{{ progress }}%</p>
+            </div>
+          </div>
+        </div>
 
         <DataTable
           size="small"
@@ -195,7 +255,7 @@ const pageTitle = ref('Inventory Management')
           <template #header>
             <div class="flex items-center gap-4 justify-start">
               <Button
-              class='text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
+                class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 type="button"
                 icon="pi pi-filter-slash"
                 label="Clear"
@@ -207,6 +267,20 @@ const pageTitle = ref('Inventory Management')
                 label="Add"
                 outlined
                 @click="addMore()"
+              />
+              <Button
+                type="button"
+                icon="pi pi-file-export"
+                label="Export"
+                outlined
+                @click="exportData()"
+              />
+              <Button
+                type="button"
+                icon="pi pi-refresh"
+                label="Refresh"
+                outlined
+                @click="fetchData()"
               />
 
               <!-- Additional space between buttons and search field -->
@@ -220,97 +294,18 @@ const pageTitle = ref('Inventory Management')
               </div>
             </div>
           </template>
-          <template #empty> No customers found. </template>
-          <template #loading> Loading customers data. Please wait. </template>
-          <Column field="id" header="Action" style="min-width: 14rem">
+          <!-- <template #empty> No customers found. </template>
+          <template #loading> Loading customers data. Please wait. </template> -->
+          <Column field="id" header="Action" style="width: 1rem">
             <template #body="{ data }">
-              <Button label="View" @click="viewRecord(data.id)" icon="pi pi-eye" size="small" severity="info" />
-              <Button
-                label="Download"
-                icon="pi pi-download"
-                size="small"
-                class='ml-2 text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'
-                severity="success"
-              />
               <div class="card flex justify-center">
-              <Dialog
-                v-model:visible="visible"
-                modal
-                header="Header"
-                :style="{ width: '50rem' }"
-                :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
-                :modal-options="{ style: { opacity: '0.8' } }"
-
-              >
-                <p class="mb-8">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-                  incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                  exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute
-                  irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                  pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
-                  officia deserunt mollit anim id est laborum.
-                </p>
-                <p class="mb-8">
-                  "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium
-                  doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore
-                  veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam
-                  voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur
-                  magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est,
-                  qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non
-                  numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat
-                  voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis
-                  suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum
-                  iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae
-                  consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
-                </p>
-                <p class="mb-8">
-                  At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis
-                  praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias
-                  excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui
-                  officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem
-                  rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est
-                  eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere
-                  possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem
-                  quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et
-                  voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic
-                  tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias
-                  consequatur aut perferendis doloribus asperiores repellat.
-                </p>
-                <p class="mb-8">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-                  incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                  exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute
-                  irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                  pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
-                  officia deserunt mollit anim id est laborum.
-                </p>
-                <p class="mb-8">
-                  "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium
-                  doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore
-                  veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam
-                  voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur
-                  magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est,
-                  qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non
-                  numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat
-                  voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis
-                  suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum
-                  iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae
-                  consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
-                </p>
-                <p>
-                  At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis
-                  praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias
-                  excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui
-                  officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem
-                  rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est
-                  eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere
-                  possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem
-                  quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et
-                  voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic
-                  tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias
-                  consequatur aut perferendis doloribus asperiores repellat.
-                </p>
-              </Dialog>
+                <Button
+                  label="View"
+                  @click="viewRecord(data.id)"
+                  icon="pi pi-eye"
+                  size="small"
+                  class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                />
               </div>
             </template>
             <template #filter="{ filterModel }">
@@ -362,15 +357,21 @@ const pageTitle = ref('Inventory Management')
               <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
             </template>
           </Column>
-          <Column field="full_specs" header="Specifications / Descriptions" style="min-width: 1rem">
+          <Column
+            field="full_specs"
+            header="Specifications / Descriptions"
+            style="min-width: 100px"
+          >
             <template #body="{ data }">
-              {{ data.full_specs }}
-              <!-- Ensure this field exists in the data object -->
+              <div class="wrap-text">
+                {{ data.full_specs }}
+              </div>
             </template>
             <template #filter="{ filterModel }">
               <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
             </template>
           </Column>
+
           <Column field="range_category" header="Range Category" style="min-width: 1rem">
             <template #body="{ data }">
               {{ data.range_category }}
