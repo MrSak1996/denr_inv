@@ -79,6 +79,7 @@ class InventoryController extends Controller
                 acct_person, 
                 acct_person_division_id as selectedAcctDivision , 
                 actual_user, 
+                sex, 
                 actual_user_division_id as selectedActualDivision, 
                 actual_employment_type as employmentType , 
                 work_nature_id as selectedWorkNature, 
@@ -194,59 +195,60 @@ class InventoryController extends Controller
                 'gi.qr_code',
                 'p.mon_qr_code1',
                 'p.mon_qr_code2',
+                'p.ups_qr_code',
                 'gi.control_no',
                 'actual_division.division_title as actual_division_title',
                 'eq_t.equipment_title',
                 'gi.brand',
                 DB::raw("CONCAT(
-                    s.processor, CHAR(10),
-                    CASE 
-                        WHEN s.ram_type = 1 THEN 'Static RAM'
-                        WHEN s.ram_type = 2 THEN '(SDRAM)'
-                        WHEN s.ram_type = 4 THEN 'Single Data Rate Synchronous Dynamic RAM'
-                        WHEN s.ram_type = 5 THEN 'DDR2'
-                        WHEN s.ram_type = 6 THEN 'DDR3'
-                        WHEN s.ram_type = 7 THEN 'DDR4'
-                        WHEN s.ram_type = 8 THEN 'GDDR'
-                        WHEN s.ram_type = 9 THEN 'SDRAM'
-                        WHEN s.ram_type = 10 THEN 'GDDR2'
-                        WHEN s.ram_type = 11 THEN 'GDDR3'
-                        WHEN s.ram_type = 12 THEN 'GDDR4'
-                        WHEN s.ram_type = 13 THEN 'GDDR5'
-                        WHEN s.ram_type = 14 THEN 'Flash Memory'
-                        ELSE 'Unknown RAM'
-                    END, CHAR(10),
-                    s.ram_capacity, CHAR(10),
-                    s.dedicated_information, CHAR(10),
-                    CONCAT('HDD NO: ', s.no_of_hdd), CHAR(10),
-                    CONCAT('SSD NO: ', s.no_of_ssd), CHAR(10),
-                    s.ssd_capacity, CHAR(10),
-                    CASE 
-                        WHEN s.specs_gpu = 1 THEN 'Built In'
-                        WHEN s.specs_gpu = 2 THEN 'Dedicated'
-                        ELSE 'Unknown'
-                    END, CHAR(10),
-                    CASE 
-                        WHEN s.wireless_type = 1 THEN 'LAN'
-                        WHEN s.wireless_type = 2 THEN 'Wireless'
-                        WHEN s.wireless_type = 3 THEN 'Both'
-                        ELSE 'Unknown'
-                    END
-                ) AS full_specs"),                
+                        COALESCE(s.processor, ''), CHAR(10),
+                        CASE 
+                            WHEN s.ram_type = 1 THEN 'Static RAM'
+                            WHEN s.ram_type = 2 THEN '(SDRAM)'
+                            WHEN s.ram_type = 4 THEN 'Single Data Rate Synchronous Dynamic RAM'
+                            WHEN s.ram_type = 5 THEN 'DDR2'
+                            WHEN s.ram_type = 6 THEN 'DDR3'
+                            WHEN s.ram_type = 7 THEN 'DDR4'
+                            WHEN s.ram_type = 8 THEN 'GDDR'
+                            WHEN s.ram_type = 9 THEN 'SDRAM'
+                            WHEN s.ram_type = 10 THEN 'GDDR2'
+                            WHEN s.ram_type = 11 THEN 'GDDR3'
+                            WHEN s.ram_type = 12 THEN 'GDDR4'
+                            WHEN s.ram_type = 13 THEN 'GDDR5'
+                            WHEN s.ram_type = 14 THEN 'Flash Memory'
+                            ELSE 'Unknown RAM'
+                        END, CHAR(10),
+                        COALESCE(s.ram_capacity, ''), CHAR(10),
+                        COALESCE(s.dedicated_information, ''), CHAR(10),
+                        CONCAT('HDD NO: ', COALESCE(s.no_of_hdd, '0')), CHAR(10),
+                        CONCAT('SSD NO: ', COALESCE(s.no_of_ssd, '0')), CHAR(10),
+                        COALESCE(s.ssd_capacity, ''), CHAR(10),
+                        CASE 
+                            WHEN s.specs_gpu = 1 THEN 'Built In'
+                            WHEN s.specs_gpu = 2 THEN 'Dedicated'
+                            ELSE 'Unknown'
+                        END, CHAR(10),
+                        CASE 
+                            WHEN s.wireless_type = 1 THEN 'LAN'
+                            WHEN s.wireless_type = 2 THEN 'Wireless'
+                            WHEN s.wireless_type = 3 THEN 'Both'
+                            ELSE 'Unknown'
+                        END
+                    ) as full_specs"),
                 DB::raw("CASE 
-                WHEN gi.range_category = 1 THEN 'Entry Level'
-                WHEN gi.range_category = 2 THEN 'Mid Level'
-                WHEN gi.range_category = 3 THEN 'High End Level'
-                ELSE 'Unknown'
-            END AS 'range_category'"),
+                        WHEN gi.range_category = 1 THEN 'Entry Level'
+                        WHEN gi.range_category = 2 THEN 'Mid Level'
+                        WHEN gi.range_category = 3 THEN 'High End Level'
+                        ELSE 'Unknown'
+                    END as range_category"),
                 'gi.acct_person',
                 'acct_division.division_title as acct_division_title',
                 'gi.actual_user',
                 'actual_division.division_title as actual_division_title'
             )
-            ->get(); // Fetch the data
+            ->get();
 
-        return response()->json($equipmentData); // Return data as JSON
+        return response()->json($equipmentData);
     }
 
     // C R U D
@@ -271,6 +273,7 @@ class InventoryController extends Controller
             'selectedRangeCategory' => 'nullable|integer',
             'selectedEquipmentType' => 'nullable|integer',
             'actual_user' => 'nullable|string',
+            'sex' => 'nullable|string',
             'year_acquired' => 'nullable|string',
             'remarks' => 'nullable|string',
             'shelf_life' => 'nullable|string',
@@ -286,6 +289,7 @@ class InventoryController extends Controller
                 'employment_type' => $validated['employmentType'],
                 'brand' => $validated['brand'],
                 'model' => $validated['model'],
+                'sex' => $validated['sex'],
                 'property_no' => $validated['property_no'],
                 'serial_no' => $validated['serial_no'],
                 'acquisition_cost' => $validated['aquisition_cost'],
@@ -375,11 +379,10 @@ class InventoryController extends Controller
         // Loop through each software and insert into the database
         foreach ($validated['selectedSoftware'] as $software => $remarks) {
             // Insert into the SoftwareInstall model (assuming it has the necessary columns)
-            SoftwareInstall::updateOrCreate(
-                ['control_id' => $validated['control_id']],  // Control ID
-                [
-                    'software' => $software,                    // Software name (e.g., 'adobe_pdf')
-                    'remarks' => $remarks                       // Remarks value (1, 2, or 3)
+            SoftwareInstall::create([
+                'control_id' => $validated['control_id'],  // Control ID
+                'software' => $software,                    // Software name (e.g., 'adobe_pdf')
+                'remarks' => $remarks                       // Remarks value (1, 2, or 3)
                 ]
             );
         }
@@ -394,6 +397,8 @@ class InventoryController extends Controller
             'control_id' => 'required|string',
             'monitor1QrCode' => 'nullable|string',
             'monitor1BrandModel' => 'nullable|string',
+            'monitor1Model' => 'nullable|string',
+            'monitor2Model' => 'nullable|string',
             'monitor1SerialNumber' => 'nullable|string',
             'monitor1PropertyNumber' => 'nullable|string',
             'monitor1AccountPersonInPN' => 'nullable|string',
@@ -405,6 +410,8 @@ class InventoryController extends Controller
             'monitor2AccountPersonInPN' => 'nullable|string',
             'monitor2ActualUser' => 'nullable|string',
             'ups_qr_code' => 'nullable|string',
+            'ups_brand' => 'nullable|string',
+            'ups_model' => 'nullable|string',
             'ups_accountPersonInPN' => 'nullable|string',
             'ups_qr_acctual_user' => 'nullable|string',
             'ups_property_no' => 'nullable|string',
@@ -418,6 +425,8 @@ class InventoryController extends Controller
             [
             'mon_qr_code1' => $validatedData['monitor1QrCode'],
             'mon_brand_model1' => $validatedData['monitor1BrandModel'],
+            'monitor1Model' => $validatedData['monitor1Model'],
+            'monitor2Model' => $validatedData['monitor2Model'],
             'mon_sn1' => $validatedData['monitor1SerialNumber'],
             'mon_pro_no1' => $validatedData['monitor1PropertyNumber'],
             'mon_acct_user1' => $validatedData['monitor1AccountPersonInPN'],
@@ -429,6 +438,8 @@ class InventoryController extends Controller
             'mon_acct_user2' => $validatedData['monitor2AccountPersonInPN'],
             'mon_actual_user2' => $validatedData['monitor2ActualUser'],
             'ups_qr_code' => $validatedData['ups_qr_code'],
+            'ups_brand' => $validatedData['ups_brand'],
+            'ups_model' => $validatedData['ups_model'],
             'ups_acct_user' => $validatedData['ups_accountPersonInPN'],
             'ups_actual_user' => $validatedData['ups_qr_acctual_user'],
             'ups_property_no' => $validatedData['ups_property_no'],

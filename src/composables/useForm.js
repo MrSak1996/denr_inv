@@ -4,8 +4,9 @@ import { reactive } from 'vue'
 export function useForm() {
   const form = reactive({
     control_no: '',
-    qr_code: '4AICT-',
+    qr_code: '',
     acct_person: '',
+    sex:'',
     employmentType: '',
     brand: '',
     model: '',
@@ -52,19 +53,23 @@ export function useForm() {
   })
 
   const peripheral_form = reactive({
-    monitor1QrCode: "4AICT-",
+    monitor1QrCode: "",
     monitor1BrandModel: '',
+    monitor1Model: '',
     monitor1SerialNumber: '',
     monitor1PropertyNumber: '',
     monitor1AccountPersonInPN: '',
     monitor1ActualUser: '',
-    monitor2QrCode: '4AICT-',
+    monitor2QrCode: '',
     monitor2BrandModel: '',
+    monitor2Model: '',
     monitor2SerialNumber: '',
     monitor2PropertyNumber: '',
     monitor2AccountPersonInPN: '',
     monitor2ActualUser: '',
-    ups_qr_code: '4AICT-',
+    ups_qr_code: '',
+    ups_brand: '',
+    ups_model: '',
     ups_serial_no: '',
     ups_property_no: '',
     ups_accountPersonInPN: '',

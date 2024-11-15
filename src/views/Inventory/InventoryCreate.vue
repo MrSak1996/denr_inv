@@ -6,37 +6,45 @@ import { useStore } from 'vuex'
 import { useApi } from '@/composables/useApi'
 import { useForm } from '@/composables/useForm'
 
+import api from '../../../laravel-backend/resources/js/axiosInstance.js'
+import modal_reserved from './modal/modal_reserved.vue'
+
 import Toast from 'primevue/toast'
-import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
-import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import Button from 'primevue/Button'
 import Tabs from 'primevue/tabs'
 import TabList from 'primevue/tablist'
 import TabPanel from 'primevue/tabpanel'
-import FloatLabel from 'primevue/floatlabel'
 import Tab from 'primevue/tab'
 import TabPanels from 'primevue/tabpanels'
+import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
+import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import Select from 'primevue/select'
 import Checkbox from 'primevue/checkbox'
 import Badge from 'primevue/badge'
 import Divider from 'primevue/divider'
 import Fieldset from 'primevue/fieldset'
+import FloatLabel from 'primevue/floatlabel'
 import InputText from 'primevue/inputtext'
 import InputNumber from 'primevue/inputnumber'
-import RadioButton from 'primevue/radiobutton'
+import RadioButton from 'primevue/radioButton'
 import Textarea from 'primevue/textarea'
-import api from '../../../laravel-backend/resources/js/axiosInstance.js'
-import type { isBuiltin } from 'module'
-import { spec } from 'node:test/reporters'
 
+// Page title and modal state
 const pageTitle = ref('ICT Equipment')
 
+
+// Toast, router, route, and store instances
 const toast = useToast()
 const router = useRouter()
-const store = useStore()
 const route = useRoute()
+const store = useStore()
+const isModalOpen = ref(!route.params.id);
 
+
+// Forms and API options
 const { form, specs_form, software_form, peripheral_form } = useForm()
 const {
+  sex_opts,
   division_opts,
   section_opts,
   work_nature,
@@ -57,15 +65,27 @@ const {
 // Additional setup
 const isButtonDisabled = ref(false)
 const errors = ref({})
+let selectedNetwork = ref(null)
+let selectedGPU = ref(null)
+let selectedWireless = ref(null)
+const selectedSoftware = ref({}) // Initialize as an empty object
 
-// DISABLE BUTTON AFTER SAVING
+// Computed properties
+const isDedicatedSelected = computed(() => selectedGPU.value === '2')
+const isWirelessSelected = computed(() => selectedNetwork.value === '2')
+
+// Functions
 const checkUrlAndDisableButton = () => {
   const url = window.location.href
   const regex = /\/create\/\d+/
   isButtonDisabled.value = regex.test(url)
 }
 
-// RETRIEVE DATA USING STORE AFTER SAVING
+const btnBack = () => {
+  router.push({ path: '/inventory' })
+}
+
+// Retrieve data from store after saving
 const retrieveData = async () => {
   const savedData = store.state.formData
   if (savedData) {
@@ -73,21 +93,17 @@ const retrieveData = async () => {
   }
 }
 
+// Check year and update shelf life
 const checkYear = () => {
-      const year = parseInt(form.year_acquired, 10);
-      if (!isNaN(year)) {
-        form.shelf_life = year <= 2017 ? "Beyond 5 year" : "Within 5 year";
-      } else {
-        form.shelf_life = ''; // Reset shelf if year input is invalid
-      }
-    };
-let selectedNetwork = ref(null) // Converts to string
-let selectedGPU = ref(null)
-let selectedWireless = ref(null)
-const selectedSoftware = ref({}) // Initialize as an empty object
+  const yearValue = form.year_acquired;
 
-const isDedicatedSelected = computed(() => selectedGPU.value === '2')
-const isWirelessSelected = computed(() => selectedNetwork.value === '2')
+  if (yearValue === "N/A" || yearValue === "n/a") {
+    form.shelf_life = "N/A";
+  } else {
+    const year = parseInt(yearValue, 10);
+    form.shelf_life = !isNaN(year) ? (year <= 2017 ? "Beyond 5 years" : "Within 5 years") : "";
+  }
+};
 
 const network_type = ref([
   { name: 'LAN', key: '1' },
@@ -122,7 +138,7 @@ const saveGeneralInfo = async () => {
     errors.value = {}
     const extractId = (item) => item?.id || null
     const requestData = {
-      ...form,
+      ...form
       // employmentType: extractId(form.employmentType),
       // selectedDivisiondd: extractId(form.selectedDivision),
       // selectedAcctDivision: extractId(form.selectedAcctDivision),
@@ -151,6 +167,8 @@ const saveGeneralInfo = async () => {
         params: { id },
         query: { api_token: localStorage.getItem('api_token') }
       })
+      location.reload();
+      window.location.href="/inventory/create/"+id+"?api_token="+localStorage.getItem('api_token');
     }, 1000)
   } catch (error) {
     if (error.response?.status === 422) {
@@ -345,7 +363,6 @@ const retrievePeripheralsData = async () => {
   }
 }
 
-
 onMounted(() => {
   getControlNo(form)
   getDivision()
@@ -363,10 +380,14 @@ onMounted(() => {
   <Toast />
 
   <DefaultLayout>
-    <!-- Breadcrumb Start -->
     <BreadcrumbDefault :pageTitle="pageTitle" />
-    <!-- Breadcrumb End -->
-
+    <modal_reserved
+      v-if="isModalOpen"
+      :controlNo="form.control_no"
+      :isLoading="isModalOpen"
+      @proceed="saveGeneralInfo"
+      @close="isModalOpen = false"
+    />
     <Tabs value="0">
       <TabList>
         <Tab value="0" as="div" class="flex items-center gap-2">
@@ -385,7 +406,7 @@ onMounted(() => {
           >
             <i class="pi pi-code" />
             <span class="font-bold whitespace-nowrap">Major Software Installed</span>
-            <Badge value="2" />
+            <!-- <Badge value="2" /> -->
           </div>
         </Tab>
         <Tab value="3" as="div" class="flex items-center gap-2">
@@ -437,11 +458,24 @@ onMounted(() => {
                   class="w-full"
                 />
               </div>
+              
+            </div>
+            <div class="grid md:grid-cols-3 md:gap-6 mb-4">
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
                   <InputText id="username" v-model="form.acct_person" class="w-full" />
                   <label for="username">Accountable Person</label>
                 </FloatLabel>
+              </div>
+              <div class="relative z-0 w-full mb-5 group">
+                <Select
+                  v-model="form.sex"
+                  :options="sex_opts"
+                  optionValue="value"
+                  optionLabel="name"
+                  placeholder="Sex"
+                  class="w-full"
+                />
               </div>
               <div class="relative z-0 w-full mb-5 group">
                 <Select
@@ -454,20 +488,25 @@ onMounted(() => {
                 />
               </div>
             </div>
-              <div class="grid md:grid-cols-2 md:gap-6 mb-4">
-                <div class="relative z-0 w-full mb-5 group">
-                  <FloatLabel>
-                    <InputText id="year_acquired" @input="checkYear" v-model="form.year_acquired" class="w-full" />
-                    <label for="year_acquired">Year Acquired</label>
-                  </FloatLabel>
-                </div>
-                <div class="relative z-0 w-full mb-5 group">
-                  <FloatLabel>
-                    <InputText id="shelf_life" v-model="form.shelf_life" class="w-full" />
-                    <label for="shelf_life">Shelf Life</label>
-                  </FloatLabel>
-                </div>
+            <div class="grid md:grid-cols-2 md:gap-6 mb-4">
+              <div class="relative z-0 w-full mb-5 group">
+                <FloatLabel>
+                  <InputText
+                    id="year_acquired"
+                    @input="checkYear"
+                    v-model="form.year_acquired"
+                    class="w-full"
+                  />
+                  <label for="year_acquired">Year Acquired</label>
+                </FloatLabel>
               </div>
+              <div class="relative z-0 w-full mb-5 group">
+                <FloatLabel>
+                  <InputText id="shelf_life" v-model="form.shelf_life" class="w-full" />
+                  <label for="shelf_life">Shelf Life</label>
+                </FloatLabel>
+              </div>
+            </div>
             <div class="grid md:grid-cols-4 md:gap-6 mb-4">
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
@@ -577,26 +616,22 @@ onMounted(() => {
                 </FloatLabel>
               </div>
             </div>
+            <Button
+              label="Back"
+              icon="pi pi-undo"
+              class="mr-4"
+              severity="primary"
+              @click="btnBack()"
+            />
 
-            <button
-              type="submit"
-              :disabled="isButtonDisabled"
-              :class="{
-                'text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800':
-                  !isButtonDisabled,
-                'text-white bg-gray-400 hover:bg-gray-800 focus:ring-4 focus:outline-none dark:bg-gray-600 dark:hover:bg-gray-700 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center':
-                  isButtonDisabled
-              }"
-            >
-              Save as Draft
-            </button>
+            <Button label="Save as Draft" type="submit" icon="pi pi-save" severity="primary" />
           </form>
         </TabPanel>
 
         <!--Specification-->
         <TabPanel value="1" as="p" class="m-0">
           <form @submit.prevent="saveSpecsInfo">
-            <div class="grid md:grid-cols-3 md:gap-6 mb-4">
+            <div class="grid md:grid-cols-3 md:gap-6 mb-4 mt-4">
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
                   <InputText id="processor" v-model="specs_form.specs_processor" class="w-full" />
@@ -782,12 +817,15 @@ onMounted(() => {
               </div>
             </div>
 
-            <button
-              type="submit"
-              class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-            >
-              Save as Draft
-            </button>
+            <Button
+              label="Back"
+              icon="pi pi-undo"
+              class="mr-4"
+              severity="primary"
+              @click="btnBack()"
+            />
+
+            <Button label="Save as Draft" type="submit" icon="pi pi-save" severity="primary" />
           </form>
         </TabPanel>
 
@@ -820,19 +858,22 @@ onMounted(() => {
               </div>
             </div>
 
-            <button
-              type="submit"
-              class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-            >
-              Save as Draft
-            </button>
+            <Button
+              label="Back"
+              icon="pi pi-undo"
+              class="mr-4"
+              severity="primary"
+              @click="btnBack()"
+            />
+
+            <Button label="Save as Draft" type="submit" icon="pi pi-save" severity="primary" />
           </form>
         </TabPanel>
 
         <!-- Peripherals -->
         <TabPanel value="3" as="p" class="m-0">
           <form @submit.prevent="savePeripheralInfo">
-            <div class="grid md:grid-cols-2 md:gap-6 mb-4">
+            <div class="grid md:grid-cols-3 md:gap-6 mb-4">
               <div class="relative z-0 w-full mb-5 group">
                 <Fieldset legend="Monitor 1">
                   <div class="flex items-center gap-2" v-if="peripheral_form.monitor1QrCode">
@@ -844,7 +885,7 @@ onMounted(() => {
                         <InputText
                           id="qr_code"
                           v-model="peripheral_form.monitor1QrCode"
-                          class="w-full"
+                          class="w-full md:w-100"
                         />
                         <label for="qr_code">QR Code</label>
                       </FloatLabel>
@@ -855,9 +896,20 @@ onMounted(() => {
                         <InputText
                           id="processor"
                           v-model="peripheral_form.monitor1BrandModel"
-                          class="w-full"
+                          class="w-full md:w-100"
                         />
-                        <label for="processor">Brand Model</label>
+                        <label for="processor">Brand</label>
+                      </FloatLabel>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                      <FloatLabel>
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.monitor1Model"
+                          class="w-full md:w-100"
+                        />
+                        <label for="processor">Model</label>
                       </FloatLabel>
                     </div>
 
@@ -866,7 +918,7 @@ onMounted(() => {
                         <InputText
                           id="processor"
                           v-model="peripheral_form.monitor1SerialNumber"
-                          class="w-full"
+                          class="w-full md:w-100"
                         />
                         <label for="processor">Serial Number</label>
                       </FloatLabel>
@@ -878,7 +930,7 @@ onMounted(() => {
                         <InputText
                           id="processor"
                           v-model="peripheral_form.monitor1PropertyNumber"
-                          class="w-full"
+                          class="w-full md:w-100"
                         />
                         <label for="processor">Property No</label>
                       </FloatLabel>
@@ -889,7 +941,7 @@ onMounted(() => {
                         <InputText
                           id="processor"
                           v-model="peripheral_form.monitor1AccountPersonInPN"
-                          class="w-full"
+                          class="w-full md:w-100"
                         />
                         <label for="processor">Accountable Person as seen in PN</label>
                       </FloatLabel>
@@ -900,7 +952,7 @@ onMounted(() => {
                         <InputText
                           id="processor"
                           v-model="peripheral_form.monitor1ActualUser"
-                          class="w-full"
+                          class="w-full md:w-100"
                         />
                         <label for="processor">Actual User</label>
                       </FloatLabel>
@@ -920,7 +972,7 @@ onMounted(() => {
                         <InputText
                           id="processor"
                           v-model="peripheral_form.monitor2QrCode"
-                          class="w-full"
+                          class="w-full md:w-100"
                         />
                         <label for="processor">QR Code</label>
                       </FloatLabel>
@@ -931,18 +983,27 @@ onMounted(() => {
                         <InputText
                           id="processor"
                           v-model="peripheral_form.monitor2BrandModel"
-                          class="w-full"
+                          class="w-full md:w-100"
                         />
                         <label for="processor">Brand Model</label>
                       </FloatLabel>
                     </div>
-
+                    <div class="flex items-center gap-2">
+                      <FloatLabel>
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.monitor2Model"
+                          class="w-full md:w-100"
+                        />
+                        <label for="processor">Model</label>
+                      </FloatLabel>
+                    </div>
                     <div class="flex items-center gap-2">
                       <FloatLabel>
                         <InputText
                           id="processor"
                           v-model="peripheral_form.monitor2SerialNumber"
-                          class="w-full"
+                          class="w-full md:w-100"
                         />
                         <label for="processor">Serial Number</label>
                       </FloatLabel>
@@ -954,7 +1015,7 @@ onMounted(() => {
                         <InputText
                           id="processor"
                           v-model="peripheral_form.monitor2PropertyNumber"
-                          class="w-full"
+                          class="w-full md:w-100"
                         />
                         <label for="processor">Property No</label>
                       </FloatLabel>
@@ -965,7 +1026,7 @@ onMounted(() => {
                         <InputText
                           id="processor"
                           v-model="peripheral_form.monitor2AccountPersonInPN"
-                          class="w-full"
+                          class="w-full md:w-100"
                         />
                         <label for="processor">Accountable Person as seen in PN</label>
                       </FloatLabel>
@@ -976,7 +1037,7 @@ onMounted(() => {
                         <InputText
                           id="processor"
                           v-model="peripheral_form.monitor2ActualUser"
-                          class="w-full"
+                          class="w-full md:w-100"
                         />
                         <label for="processor">Actual User</label>
                       </FloatLabel>
@@ -986,20 +1047,42 @@ onMounted(() => {
               </div>
               <div class="relative z-0 w-full mb-5 group">
                 <Fieldset legend="UPS">
-                  <div class="flex items-center gap-2" v-if="peripheral_form.ups_qr_code">
+                  <div class="flex items-center gap-2 " v-if="peripheral_form.ups_qr_code">
                     <QrcodeVue :value="peripheral_form.ups_qr_code" />
                   </div>
-                  <div class="card flex mb-7 mt-7 flex-wrap gap-6">
-                    <div class="flex items-center gap-2">
+                  <div class="flex items-center gap-2 mt-7 mb-7">
                       <FloatLabel>
                         <InputText
                           id="processor"
                           v-model="peripheral_form.ups_qr_code"
-                          class="w-full"
+                          class="w-full md:w-100"
                         />
                         <label for="processor">QR Code</label>
                       </FloatLabel>
                     </div>
+                  <div class="card flex mb-7 mt-3 flex-wrap gap-6">
+                    <div class="flex items-center gap-2">
+                      <FloatLabel>
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.ups_brand"
+                          class="w-full md:w-100"
+                        />
+                        <label for="processor">Brand</label>
+                      </FloatLabel>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                      <FloatLabel>
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.ups_model"
+                          class="w-full md:w-100"
+                        />
+                        <label for="processor">Model</label>
+                      </FloatLabel>
+                    </div>
+                    
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
@@ -1018,7 +1101,7 @@ onMounted(() => {
                         <InputText
                           id="processor"
                           v-model="peripheral_form.ups_property_no"
-                          class="w-full lg:w-900"
+                          class="w-full lg:w-100"
                         />
                         <label for="processor">Property Number</label>
                       </FloatLabel>
@@ -1040,7 +1123,7 @@ onMounted(() => {
                         <InputText
                           id="processor"
                           v-model="peripheral_form.ups_qr_acctual_user"
-                          class="w-full"
+                          class="w-full md:w-100"
                         />
                         <label for="processor">Actual User</label>
                       </FloatLabel>
@@ -1050,12 +1133,15 @@ onMounted(() => {
               </div>
             </div>
 
-            <button
-              type="submit"
-              class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-            >
-              Save as Draft
-            </button>
+            <Button
+              label="Back"
+              icon="pi pi-undo"
+              class="mr-4"
+              severity="primary"
+              @click="btnBack()"
+            />
+
+            <Button label="Save as Draft" type="submit" icon="pi pi-save" severity="primary" />
           </form>
         </TabPanel>
       </TabPanels>

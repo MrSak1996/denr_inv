@@ -36,6 +36,10 @@ const messages = ref([
   'Almost there, hang tight...'
 ])
 
+onMounted(() => {
+  fetchData()
+})
+
 // Start progress bar animation
 const startProgress = () => {
   progress.value = 0
@@ -87,11 +91,13 @@ const initFilters = () => {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     control_no: { value: null, matchMode: FilterMatchMode.CONTAINS },
     actual_division_title: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    acct_division_title: { value: null, matchMode: FilterMatchMode.CONTAINS },
     equipment_title: { value: null, matchMode: FilterMatchMode.CONTAINS },
     acct_person: { value: null, matchMode: FilterMatchMode.CONTAINS },
     qr_code: { value: null, matchMode: FilterMatchMode.CONTAINS },
     mon_qr_code1: { value: null, matchMode: FilterMatchMode.CONTAINS },
     mon_qr_code2: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    ups_qr_code: { value: null, matchMode: FilterMatchMode.CONTAINS },
     brand: { value: null, matchMode: FilterMatchMode.CONTAINS },
     full_specs: { value: null, matchMode: FilterMatchMode.CONTAINS },
     range_category: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -246,12 +252,16 @@ const pageTitle = ref('Inventory Management')
           :loading="loading"
           :globalFilterFields="[
             'control_no',
-            'actual_division',
+            'acct_person',
             'equipment_title',
             'acct_person',
             'qr_code',
             'mon_qr_code1',
-            'mon_qr_code2'
+            'mon_qr_code2',
+            'ups_qr_code',
+            'actual_division_title',
+            'acct_division_title',
+            'brand'
           ]"
         >
           <template #header>
@@ -323,9 +333,11 @@ const pageTitle = ref('Inventory Management')
               <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
             </template>
           </Column>
-          <Column field="qr_code" header="QR Code" style="min-width: 12rem">
+          <Column field="qr_code" header="ICT Equipment QR Code" style="min-width: 12rem">
             <template #body="{ data }">
+              <QrcodeVue v-if="data.qr_code && data.qr_code.trim() !== ''" :value="data.qr_code" :size="80" class="text-center" />
               {{ data.qr_code }}
+
               <!-- Ensure this field exists in the data object -->
             </template>
             <template #filter="{ filterModel }">
@@ -334,7 +346,9 @@ const pageTitle = ref('Inventory Management')
           </Column>
           <Column field="mon_qr_code1" header="Monitor 1 QR Code" style="min-width: 12rem">
             <template #body="{ data }">
+              <QrcodeVue v-if="data.mon_qr_code1 && data.mon_qr_code1.trim() !== ''" :value="data.mon_qr_code1" :size="80" class="text-center" />
               {{ data.mon_qr_code1 }}
+
               <!-- Ensure this field exists in the data object -->
             </template>
             <template #filter="{ filterModel }">
@@ -343,7 +357,20 @@ const pageTitle = ref('Inventory Management')
           </Column>
           <Column field="mon_qr_code2" header="Monitor 2 QR Code" style="min-width: 12rem">
             <template #body="{ data }">
+              <QrcodeVue v-if="data.mon_qr_code2 && data.mon_qr_code2.trim() !== ''" :value="data.mon_qr_code2" :size="80" class="text-center" />
               {{ data.mon_qr_code2 }}
+
+              <!-- Ensure this field exists in the data object -->
+            </template>
+            <template #filter="{ filterModel }">
+              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
+            </template>
+          </Column>
+          <Column field="ups_qr_code" header="UPS QR Code" style="min-width: 12rem">
+            <template #body="{ data }">
+              <QrcodeVue v-if="data.ups_qr_code && data.ups_qr_code.trim() !== ''" :value="data.ups_qr_code" :size="80" class="text-center" />
+              {{ data.ups_qr_code }}
+
               <!-- Ensure this field exists in the data object -->
             </template>
             <template #filter="{ filterModel }">

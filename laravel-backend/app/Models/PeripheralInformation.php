@@ -27,6 +27,8 @@ class PeripheralInformation extends Model
         'mon_actual_user1',
         'mon_actual_user2',
         'ups_qr_code',
+        'ups_brand',
+        'ups_model',
         'ups_acct_user',
         'ups_actual_user',
         'ups_property_no',

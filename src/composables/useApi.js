@@ -85,6 +85,10 @@ export function useApi() {
       console.error('Error fetching employment types:', error)
     }
   }
+  const sex_opts = ref([
+    {name: 'Male', value: 'Male'},
+    {name: 'Female', value: 'Female'}
+  ])
   const capacity_opts = ref([
     { name: '1 TB', value: '1 TB' },
     { name: '2 TB', value: '2 TB' },
@@ -92,20 +96,20 @@ export function useApi() {
     { name: '4 TB', value: '4 TB' },
     { name: '5 TB', value: '5 TB' },
     { name: '100 GB',value: '100 GB' },
+    { name: '128 GB',value: '128 GB' },
     { name: '250 GB',value: '250 GB' },
     { name: '400 GB',value: '400 GB' },
-    { name: '500 GB',value: '500 GB' }
+    { name: '512 GB',value: '512 GB' },
   ])
 
   const ram_capacity_opts = ref([
-    { name: '64 GB',value: '64 GB' },
-    { name: '32 GB',value: '32 GB' },
-    { name: '24 GB',value: '24 GB' },
-    { name: '16 GB',value: '16 GB' },
-    { name: '8 GB',value: '8 GB' },
-    { name: '4 GB',value: '4 GB' },
     { name: '2 GB',value: '2 GB' },
-
+    { name: '4 GB',value: '4 GB' },
+    { name: '8 GB',value: '8 GB' },
+    { name: '16 GB',value: '16 GB' },
+    { name: '24 GB',value: '24 GB' },
+    { name: '32 GB',value: '32 GB' },
+    { name: '64 GB',value: '64 GB' },
   ])
 
   const ram_opts = ref([
@@ -126,6 +130,7 @@ export function useApi() {
   ])
 
   return {
+    sex_opts,
     division_opts,
     section_opts,
     work_nature,
