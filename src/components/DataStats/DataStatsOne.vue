@@ -20,7 +20,7 @@ const cardItems = ref([
             fill=""
           />
         </svg>`,
-    title: 'Total views',
+    title: 'Total ICT Equipment',
     total: '$3.456K',
     growthRate: 0.43
   },
@@ -46,7 +46,7 @@ const cardItems = ref([
               fill=""
             />
           </svg>`,
-    title: 'Total Profit',
+    title: 'Total Serviceable Equipment',
     total: '$45,2K',
     growthRate: 4.35
   },
@@ -68,7 +68,7 @@ const cardItems = ref([
               fill=""
             />
           </svg>`,
-    title: 'Total Product',
+    title: 'Total Unserviceable Equipment',
     total: '2.450',
     growthRate: 2.59
   },
@@ -94,7 +94,7 @@ const cardItems = ref([
               fill=""
             />
           </svg>`,
-    title: 'Total Users',
+    title: 'Total Active Users',
     total: '3.456',
     growthRate: -0.95
   }

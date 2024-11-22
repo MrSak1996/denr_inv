@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Modules\Reports;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Modules\Inventory\InventoryController;
 use Illuminate\Http\Request;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -10,6 +11,10 @@ use PhpOffice\PhpSpreadsheet\Style\Fill; // Import the Fill class for styling
 use Maatwebsite\Excel\Facades\Excel;
 use DB;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+
+use JasperPHP\JasperPHP;
+use PHPJasper\PHPJasper;
+
 
 class ReportsController extends Controller
 {
@@ -103,9 +108,6 @@ class ReportsController extends Controller
         }
     }
 
-
-
-
     public function getInventoryData()
     {
 
@@ -190,5 +192,233 @@ class ReportsController extends Controller
 
         // Return the results as JSON
         return $softwareData;
+    }
+
+    public function getDatabaseConfig()
+    {
+        return [
+            'driver'   => env('com.mysql.jdbc.Driver'),
+            'host'     => env('127.0.0.1'),
+            'port'     => env('3306'),
+            'username' => env('root'),
+            'password' => env(''),
+            'database' => env('denr_inventory'),
+        ];
+    }
+
+    public function generatePDFReport(Request $request)
+    {
+        try {
+            $id = $request->query('id');
+            $ext = 'pdf';
+
+            // Paths
+            $paths = [
+                'input' => storage_path('templates/report/report.jasper'),
+                'check_icon' => storage_path('templates/report/check.png'),
+                'uncheck_icon' => storage_path('templates/report/uncheck.png'),
+                'output' => public_path('templates/report'),
+            ];
+
+            // Fetch data
+            $resultDataOpts = $this->fetchData(new InventoryController, 'retriveDataviaAPI', $id);
+            $resultData = $this->fetchData(new InventoryController, 'retrieveSoftwareData', $id);
+            $specsDataOpts = $this->fetchData(new InventoryController, 'retrieveSpecsData', $id);
+          
+
+            // Generate parameters
+            $worknatureRemarks = $this->prepareWorknatureRemarks($resultDataOpts, $paths['check_icon'], $paths['uncheck_icon']);
+            $softwareRemarks = $this->prepareSoftwareRemarks($resultData, $paths['check_icon'], $paths['uncheck_icon']);
+            $empTypeRemarks = $this->prepareEmpTypeRemarks($resultDataOpts, $paths['check_icon'], $paths['uncheck_icon']);
+            $gpuInfoRemarks = $this->prepareSpecsInfoRemarks($specsDataOpts, $paths['check_icon'], $paths['uncheck_icon']);
+            $networkInfoRemarks = $this->prepareNetworkInfoRemarks($specsDataOpts, $paths['check_icon'], $paths['uncheck_icon']);
+            // Merge parameters for Jasper
+            $jasperParams = array_merge(
+                ['id' => $id],
+                $gpuInfoRemarks,
+                $networkInfoRemarks,
+                $worknatureRemarks,
+                $empTypeRemarks,
+                $this->flattenSoftwareRemarks($softwareRemarks)
+            );
+
+            // Generate PDF
+            $file = $this->generatePDF($paths, $jasperParams, $ext);
+
+            // Return file or error response
+            if (!file_exists($file)) {
+                return response()->json(['error' => 'Report generation failed!'], 500);
+            }
+
+            return response()->file($file, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="report.pdf"',
+            ]);
+        } catch (\Exception $e) {
+            // Log error for debugging
+            \Log::error("PDF Report Generation Error: " . $e->getMessage(), [
+                'id' => $request->query('id'),
+                'stack' => $e->getTraceAsString()
+            ]);
+            return response()->json(['error' => 'An error occurred while generating the report.'], 500);
+        }
+    }
+
+    private function fetchData($controller, $method, $id)
+    {
+        $newRequest = new Request(['id' => $id]);
+        $response = $controller->{$method}($newRequest);
+        return json_decode($response->getContent(), true);
+    }
+    
+    private function prepareNetworkInfoRemarks($specsDataOpts, $checkIcon, $uncheckIcon)
+    {
+        $networkMapping = [
+            '1' => 'lan',
+            '2' => 'wireless',
+            '3' => 'both',
+        ];
+
+        $networkRemarks = array_fill_keys(
+            array_map(fn($key, $value) => "{$key}_{$value}", array_keys($networkMapping),$networkMapping),
+            $uncheckIcon
+        );
+
+        $selectedNework = $specsDataOpts[0]['specs_net'] ?? null;
+        if ($selectedNework && isset($networkMapping[$selectedNework])) {
+            foreach ($networkMapping as $key => $value) {
+                $mappedKey = "{$key}_{$value}";
+                $networkRemarks[$mappedKey] = $key == $selectedNework ? $checkIcon : $uncheckIcon;
+            }
+        }
+
+        return $networkRemarks;
+    }
+
+    private function prepareSpecsInfoRemarks($specsDataOpts, $checkIcon, $uncheckIcon)
+    {
+        $gpuMapping = [
+            '1' => 'built_in',
+            '2' => 'dedicated',
+        ];
+
+        $gpuRemarks = array_fill_keys(
+            array_map(fn($key, $value) => "{$key}_{$value}", array_keys($gpuMapping),$gpuMapping),
+            $uncheckIcon
+        );
+
+        $selectedGPU = $specsDataOpts[0]['specs_gpu'] ?? null;
+        if ($selectedGPU && isset($gpuMapping[$selectedGPU])) {
+            foreach ($gpuMapping as $key => $value) {
+                $mappedKey = "{$key}_{$value}";
+                $gpuRemarks[$mappedKey] = $key == $selectedGPU ? $checkIcon : $uncheckIcon;
+            }
+        }
+
+        return $gpuRemarks;
+    }
+    private function prepareWorknatureRemarks($resultDataOpts, $checkIcon, $uncheckIcon)
+    {
+        $workMapping = [
+            '1' => 'admin',
+            '2' => 'technical',
+            '3' => 'gis',
+        ];
+
+        $worknatureRemarks = array_fill_keys(
+            array_map(fn($key, $value) => "{$key}_{$value}", array_keys($workMapping), $workMapping),
+            $uncheckIcon
+        );
+
+        $selectedWorkNature = $resultDataOpts[0]['selectedWorkNature'] ?? null;
+        if ($selectedWorkNature && isset($workMapping[$selectedWorkNature])) {
+            foreach ($workMapping as $key => $value) {
+                $mappedKey = "{$key}_{$value}";
+                $worknatureRemarks[$mappedKey] = $key == $selectedWorkNature ? $checkIcon : $uncheckIcon;
+            }
+        }
+
+        return $worknatureRemarks;
+    }
+
+    private function prepareEmpTypeRemarks($resultDataOpts, $checkIcon, $uncheckIcon)
+    {
+        $empMapping = [
+            '1' => 'casual',
+            '2' => 'cti',
+            '3' => 'jo',
+        ];
+
+        $empTypeRemarks = array_fill_keys(
+            array_map(fn($key, $value) => "{$key}_{$value}", array_keys($empMapping), $empMapping),
+            $uncheckIcon
+        );
+
+        $selectedEmpType = $resultDataOpts[0]['employmentType'] ?? null;
+        if ($selectedEmpType && isset($empMapping[$selectedEmpType])) {
+            foreach ($empMapping as $key => $value) {
+                $mappedKey = "{$key}_{$value}";
+                $empTypeRemarks[$mappedKey] = $key == $selectedEmpType ? $checkIcon : $uncheckIcon;
+            }
+        }
+
+        return $empTypeRemarks;
+    }
+
+    private function prepareSoftwareRemarks($resultData, $checkIcon, $uncheckIcon)
+    {
+        $softwareRemarks = [
+            'operating_system' => [$uncheckIcon, $uncheckIcon, $uncheckIcon],
+            'ms_office' => [$uncheckIcon, $uncheckIcon, $uncheckIcon],
+            'arcgis' => [$uncheckIcon, $uncheckIcon, $uncheckIcon],
+            'adobe_pdf' => [$uncheckIcon, $uncheckIcon, $uncheckIcon],
+            'adobe_photoshop' => [$uncheckIcon, $uncheckIcon, $uncheckIcon],
+            'autocad' => [$uncheckIcon, $uncheckIcon, $uncheckIcon],
+        ];
+
+        foreach ($resultData as $data) {
+            $software = $data['software'];
+            $remarkIndex = $data['remarks'] - 1; // Convert 1-based to 0-based index
+            if (isset($softwareRemarks[$software], $softwareRemarks[$software][$remarkIndex])) {
+                $softwareRemarks[$software] = array_fill(0, 3, $uncheckIcon);
+                $softwareRemarks[$software][$remarkIndex] = $checkIcon;
+            }
+        }
+
+        return $softwareRemarks;
+    }
+
+    private function flattenSoftwareRemarks($softwareRemarks)
+    {
+        $flattened = [];
+        foreach ($softwareRemarks as $software => $icons) {
+            $flattened["{$software}_perpetual"] = $icons[0];
+            $flattened["{$software}_subscription"] = $icons[1];
+            $flattened["{$software}_evaluation"] = $icons[2];
+        }
+        return $flattened;
+    }
+
+    private function generatePDF($paths, $jasperParams, $ext)
+    {
+        $jasper = new JasperPHP();
+         $jasper->process(
+            $paths['input'],
+            $paths['output'],
+            [$ext],
+            $jasperParams,
+            [
+                'driver' => 'mysql',
+                'username' => env('DB_USERNAME', 'root'),
+                'password' => env('DB_PASSWORD', ''),
+                'host' => env('DB_HOST', 'localhost'),
+                'database' => env('DB_DATABASE', 'denr_inventory'),
+                'port' => env('DB_PORT', '3306'),
+            ],
+            true,
+            true
+        )->execute();
+
+        return "{$paths['output']}/report.{$ext}";
     }
 }

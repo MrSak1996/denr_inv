@@ -3,6 +3,8 @@ import { ref, onMounted } from 'vue'
 import router from '@/router'
 
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
+import DataStatsOne from '@/components/DataStats/DataStatsOne.vue'
+
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 
 import DataTable from 'primevue/datatable'
@@ -12,15 +14,18 @@ import Button from 'primevue/button'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import Dialog from 'primevue/dialog'
+import Tag from 'primevue/tag'
+import Select from 'primevue/select'
 
-import { FilterMatchMode } from '@primevue/core/api'
+
+import { FilterMatchMode,FilterOperator } from '@primevue/core/api'
 import api from '../../../laravel-backend/resources/js/axiosInstance.js'
 
 const customers = ref([]) // Stores customer data
 const filters = ref() // Stores table filters
 const visible = ref(false) // Controls visibility of dialogs
 // const representatives = ref([...])  // Array of representative data
-const statuses = ref(['unqualified', 'qualified', 'new', 'negotiation', 'renewal', 'proposal'])
+const statuses = ref(['Serviceable', 'Unserviceable'])
 const loading = ref(false) // Tracks loading state
 
 // Progress bar state
@@ -89,7 +94,6 @@ const initFilters = () => {
   filters.value = {
     id: { value: null, matchMode: FilterMatchMode.CONTAINS },
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    control_no: { value: null, matchMode: FilterMatchMode.CONTAINS },
     actual_division_title: { value: null, matchMode: FilterMatchMode.CONTAINS },
     acct_division_title: { value: null, matchMode: FilterMatchMode.CONTAINS },
     equipment_title: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -101,7 +105,11 @@ const initFilters = () => {
     brand: { value: null, matchMode: FilterMatchMode.CONTAINS },
     full_specs: { value: null, matchMode: FilterMatchMode.CONTAINS },
     range_category: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    actual_user: { value: null, matchMode: FilterMatchMode.CONTAINS }
+    actual_user: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    status: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+    control_no: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+    
+
   }
 }
 
@@ -140,20 +148,17 @@ const getCustomers = (data: any) => {
 }
 
 // Get severity based on status
-const getSeverity = (status: string) => {
-  switch (status) {
-    case 'unqualified':
-      return 'danger'
-    case 'qualified':
-      return 'success'
-    case 'new':
-      return 'info'
-    case 'negotiation':
-      return 'warn'
-    case 'renewal':
-      return null
-  }
-}
+const getSeverity = (status:string) => {
+    switch (status) {
+        case 'Serviceable':
+            return 'success';
+
+        case 'Unserviceable':
+            return 'danger';
+
+
+    }
+};
 
 // View the record for a specific inventory item
 const viewRecord = (id: string) => {
@@ -162,6 +167,16 @@ const viewRecord = (id: string) => {
     query: { api_token: localStorage.getItem('api_token') }
   })
 }
+
+const printRecord = async (id: string) => {
+  try {
+      const url = `http://127.0.0.1:8000/api/generatePDFReport?id=${id}`;
+      window.open(url, '_blank');
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+  }
+};
+
 
 // Export inventory data to Excel
 const exportData = async () => {
@@ -202,8 +217,11 @@ const pageTitle = ref('Inventory Management')
 
 <template>
   <DefaultLayout>
-    <!-- Breadcrumb Start -->
     <BreadcrumbDefault :pageTitle="pageTitle" />
+
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5 mb-4">
+      <DataStatsOne/> 
+    </div>
 
     <div class="flex flex-col gap-10">
       <div
@@ -217,7 +235,9 @@ const pageTitle = ref('Inventory Management')
           tabindex="-1"
           aria-labelledby="progress-modal"
         >
-          <div class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-sm rounded-xl w-full max-w-4xl mx-4 lg:mx-auto transition-transform duration-500 transform" >
+          <div
+            class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-sm rounded-xl w-full max-w-4xl mx-4 lg:mx-auto transition-transform duration-500 transform"
+          >
             <!-- Modal Header -->
             <div
               class="modal-content flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700"
@@ -261,7 +281,8 @@ const pageTitle = ref('Inventory Management')
             'ups_qr_code',
             'actual_division_title',
             'acct_division_title',
-            'brand'
+            'brand',
+            'status'
           ]"
         >
           <template #header>
@@ -316,8 +337,16 @@ const pageTitle = ref('Inventory Management')
                   @click="viewRecord(data.id)"
                   icon="pi pi-eye"
                   size="small"
-                  class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 />
+                <Button
+                  label="Print"
+                  @click="printRecord(data.id)"
+                  icon="pi pi-print"
+                  size="small"
+                  class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-blue-800"
+                  severity="info"
+                  />
               </div>
             </template>
             <template #filter="{ filterModel }">
@@ -333,9 +362,27 @@ const pageTitle = ref('Inventory Management')
               <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
             </template>
           </Column>
+          <Column header="Status" field="status" :filterMenuStyle="{ width: '14rem' }" style="min-width: 12rem">
+                <template #body="{ data }">
+                    <Tag :value="data.status" :severity="getSeverity(data.status)" />
+                     
+                </template>
+                <template #filter="{ filterModel }">
+                    <Select v-model="filterModel.value" :options="statuses" placeholder="Select One" showClear>
+                        <template #option="slotProps">
+                            <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)" />
+                        </template>
+                    </Select>
+                </template>
+            </Column>
           <Column field="qr_code" header="ICT Equipment QR Code" style="min-width: 12rem">
             <template #body="{ data }">
-              <QrcodeVue v-if="data.qr_code && data.qr_code.trim() !== ''" :value="data.qr_code" :size="80" class="text-center" />
+              <QrcodeVue
+                v-if="data.qr_code && data.qr_code.trim() !== ''"
+                :value="data.qr_code"
+                :size="80"
+                class="text-center"
+              />
               {{ data.qr_code }}
 
               <!-- Ensure this field exists in the data object -->
@@ -344,9 +391,15 @@ const pageTitle = ref('Inventory Management')
               <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
             </template>
           </Column>
+
           <Column field="mon_qr_code1" header="Monitor 1 QR Code" style="min-width: 12rem">
             <template #body="{ data }">
-              <QrcodeVue v-if="data.mon_qr_code1 && data.mon_qr_code1.trim() !== ''" :value="data.mon_qr_code1" :size="80" class="text-center" />
+              <QrcodeVue
+                v-if="data.mon_qr_code1 && data.mon_qr_code1.trim() !== ''"
+                :value="data.mon_qr_code1"
+                :size="80"
+                class="text-center"
+              />
               {{ data.mon_qr_code1 }}
 
               <!-- Ensure this field exists in the data object -->
@@ -357,7 +410,12 @@ const pageTitle = ref('Inventory Management')
           </Column>
           <Column field="mon_qr_code2" header="Monitor 2 QR Code" style="min-width: 12rem">
             <template #body="{ data }">
-              <QrcodeVue v-if="data.mon_qr_code2 && data.mon_qr_code2.trim() !== ''" :value="data.mon_qr_code2" :size="80" class="text-center" />
+              <QrcodeVue
+                v-if="data.mon_qr_code2 && data.mon_qr_code2.trim() !== ''"
+                :value="data.mon_qr_code2"
+                :size="80"
+                class="text-center"
+              />
               {{ data.mon_qr_code2 }}
 
               <!-- Ensure this field exists in the data object -->
@@ -368,7 +426,12 @@ const pageTitle = ref('Inventory Management')
           </Column>
           <Column field="ups_qr_code" header="UPS QR Code" style="min-width: 12rem">
             <template #body="{ data }">
-              <QrcodeVue v-if="data.ups_qr_code && data.ups_qr_code.trim() !== ''" :value="data.ups_qr_code" :size="80" class="text-center" />
+              <QrcodeVue
+                v-if="data.ups_qr_code && data.ups_qr_code.trim() !== ''"
+                :value="data.ups_qr_code"
+                :size="80"
+                class="text-center"
+              />
               {{ data.ups_qr_code }}
 
               <!-- Ensure this field exists in the data object -->

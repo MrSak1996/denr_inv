@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="b49968f3-0b5d-4aae-9b9a-582f28777eb9">
+	<property name="ireport.zoom" value="1.0000000000000178"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="user_name" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT
+    gi.id,
+    gi.qr_code,
+    p.mon_qr_code1,
+    p.mon_qr_code2,
+    p.ups_qr_code,
+    gi.control_no,
+gi.year_acquired,
+    actual_division.division_title AS actual_division_title,
+    eq_t.equipment_title,
+    gi.brand,
+gi.model,
+gi.serial_no,
+gi.property_no,
+    CONCAT(
+        COALESCE(s.processor, ''), CHAR(10),
+        CASE
+            WHEN s.ram_type = 1 THEN 'Static RAM'
+            WHEN s.ram_type = 2 THEN '(SDRAM)'
+            WHEN s.ram_type = 4 THEN 'Single Data Rate Synchronous Dynamic RAM'
+            WHEN s.ram_type = 5 THEN 'DDR2'
+            WHEN s.ram_type = 6 THEN 'DDR3'
+            WHEN s.ram_type = 7 THEN 'DDR4'
+            WHEN s.ram_type = 8 THEN 'GDDR'
+            WHEN s.ram_type = 9 THEN 'SDRAM'
+            WHEN s.ram_type = 10 THEN 'GDDR2'
+            WHEN s.ram_type = 11 THEN 'GDDR3'
+            WHEN s.ram_type = 12 THEN 'GDDR4'
+            WHEN s.ram_type = 13 THEN 'GDDR5'
+            WHEN s.ram_type = 14 THEN 'Flash Memory'
+            ELSE 'Unknown RAM'
+        END, CHAR(10),
+        COALESCE(s.ram_capacity, ''), CHAR(10),
+        COALESCE(s.dedicated_information, ''), CHAR(10),
+        CONCAT('HDD NO: ', COALESCE(s.no_of_hdd, '0')), CHAR(10),
+        CONCAT('SSD NO: ', COALESCE(s.no_of_ssd, '0')), CHAR(10),
+        COALESCE(s.ssd_capacity, ''), CHAR(10),
+        CASE
+            WHEN s.specs_gpu = 1 THEN 'Built In'
+            WHEN s.specs_gpu = 2 THEN 'Dedicated'
+            ELSE 'Unknown'
+        END, CHAR(10),
+        CASE
+            WHEN s.wireless_type = 1 THEN 'LAN'
+            WHEN s.wireless_type = 2 THEN 'Wireless'
+            WHEN s.wireless_type = 3 THEN 'Both'
+            ELSE 'Unknown'
+        END
+    ) AS full_specs,
+    CASE
+        WHEN gi.range_category = 1 THEN 'Entry Level'
+        WHEN gi.range_category = 2 THEN 'Mid Level'
+        WHEN gi.range_category = 3 THEN 'High End Level'
+        ELSE 'Unknown'
+    END AS range_category,
+    gi.acct_person,
+    acct_division.division_title AS acct_division_title,
+    gi.actual_user,
+    actual_division.division_title AS actual_division_title
+FROM
+    tbl_general_info AS gi
+LEFT JOIN
+    tbl_specification AS s ON s.control_id = gi.id
+LEFT JOIN
+    tbl_peripherals AS p ON p.control_id = gi.id
+LEFT JOIN
+    tbl_division AS acct_division ON acct_division.id = gi.acct_person_division_id
+LEFT JOIN
+    tbl_division AS actual_division ON actual_division.id = gi.actual_user_division_id
+LEFT JOIN
+    tbl_equipment_type AS eq_t ON eq_t.id = gi.equipment_type;]]>
+	</queryString>
+	<field name="id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="qr_code" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="mon_qr_code1" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="mon_qr_code2" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ups_qr_code" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="control_no" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="year_acquired" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="actual_division_title" class="java.lang.String"/>
+	<field name="equipment_title" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="brand" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="model" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="serial_no" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="property_no" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="full_specs" class="java.lang.String"/>
+	<field name="range_category" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="acct_person" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="acct_division_title" class="java.lang.String"/>
+	<field name="actual_user" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="338" splitType="Stretch">
+			<rectangle>
+				<reportElement x="0" y="0" width="555" height="20" backcolor="#666666" uuid="32b54031-c27d-4107-a133-125cd084ff2c"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="213" y="0" width="123" height="20" forecolor="#FF0000" uuid="924d8f64-d59c-4b67-94f9-57141df1d1cf"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[GENERAL INFORMATION]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement x="0" y="20" width="271" height="20" uuid="39eaf06f-9262-4b46-b734-7219906adc7a"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="271" y="20" width="230" height="20" uuid="7a4de169-11d6-4b29-9245-d8f20ab207f4"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="0" y="40" width="376" height="20" uuid="ab045ad0-b020-4701-9a7f-7f86f49ec557"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="376" y="40" width="125" height="20" uuid="89674ab7-1c7d-451c-b1ea-4854b4f3b33f"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="0" y="60" width="458" height="20" uuid="265773bb-8358-47d4-b060-130d7866219b"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="458" y="60" width="97" height="20" uuid="000e291b-803b-42a8-832c-bf9f21ffb5ed"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="0" y="80" width="555" height="20" uuid="3ed2bae7-6b0f-4525-8e14-eded09955d68"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="0" y="100" width="271" height="20" uuid="6c91cfb9-4ff2-466b-9839-44aee72703d5"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="271" y="100" width="284" height="20" uuid="2f969039-7401-46d5-9441-b606672bfd56"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="0" y="120" width="271" height="20" uuid="b7d275b2-6b34-4cc0-a149-d4fc63994088"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="0" y="140" width="271" height="20" uuid="5be44910-1fc4-4049-92a1-9e646806dfdb"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="0" y="160" width="271" height="20" uuid="93acb749-eb5f-4ecf-8673-c65a4fe2bec2"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="271" y="140" width="284" height="20" uuid="d9236035-63b3-402c-9fbf-8126500e28ab"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="271" y="160" width="284" height="20" uuid="d2fcdc1e-e61f-47d9-a275-c44602e8b766"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="271" y="120" width="284" height="20" uuid="6d2e8cb3-803e-453e-80d1-3003aadcd57a"/>
+			</rectangle>
+			<rectangle>
+				<reportElement x="0" y="180" width="555" height="20" backcolor="#FF9999" uuid="9608608c-e557-4b30-87e0-acfa62e34073"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="213" y="180" width="123" height="20" forecolor="#000000" uuid="b8a2e430-e2c7-4f8b-863c-65d614a39e99"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[SPECIFICATION]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2" y="20" width="44" height="20" uuid="a304b893-39b9-4e29-ab3b-82468e621cc4"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Division:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2" y="40" width="100" height="20" uuid="21fa1482-2941-4a3f-a2f3-cbb2cec0cdfb"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Accountable Person:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2" y="60" width="57" height="20" uuid="8dee62f2-1b01-4306-aa60-d8e81bd8ce8e"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Actual User:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2" y="80" width="100" height="20" uuid="5a0377c3-e34d-45c6-a93c-8ab27dd0ab52"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Nature of Work:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2" y="100" width="51" height="20" uuid="61dcee11-c68e-49e1-a66e-a6af972de225"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[QR Code:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2" y="120" width="80" height="20" uuid="d9a885a9-4fcb-40a6-89ac-6a1fea57cba8"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Equipment Type:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2" y="140" width="80" height="20" uuid="9e28bcee-bb57-4cb4-bea6-81a639792e88"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Year Acquired:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2" y="160" width="31" height="20" uuid="d94bb906-f69e-4bdc-9a8b-c1fdf5171465"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Brand:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="274" y="20" width="100" height="20" uuid="dcefcd29-697b-4e83-9d80-8569693d2d32"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Section:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="379" y="40" width="100" height="20" uuid="41dbd835-48c6-4c30-bc09-f6a716a072fc"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Division:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="274" y="100" width="100" height="20" uuid="ded4d824-28d7-4a40-9863-8e63589dafeb"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Property No:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="274" y="120" width="100" height="20" uuid="76eaeea2-4ef2-4047-8639-ac7af25035aa"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Range Category:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="274" y="140" width="100" height="20" uuid="83780e8c-2243-4113-a4f4-4a1e727c92e3"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Aquisition Cost:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="274" y="160" width="100" height="20" uuid="f9854225-d5d5-4895-b688-061cd21fdc87"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[S/N:]]></text>
+			</staticText>
+			<line>
+				<reportElement x="554" y="20" width="1" height="41" uuid="d4766877-0630-440e-ba4e-700bcff403e2"/>
+			</line>
+			<line>
+				<reportElement x="82" y="94" width="21" height="1" uuid="920e0ea6-1e3e-4f2e-a7d4-e45919ec5ff4"/>
+			</line>
+			<staticText>
+				<reportElement x="106" y="80" width="100" height="20" uuid="d0548911-90d3-484d-bb9e-865ae45aed82"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Admin Works/Clerical]]></text>
+			</staticText>
+			<line>
+				<reportElement x="212" y="93" width="21" height="1" uuid="a048e352-2738-46ca-825b-b13e6c457a9e"/>
+			</line>
+			<staticText>
+				<reportElement x="237" y="80" width="100" height="20" uuid="fb8c3565-6e81-4c34-a334-8f43f7959927"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Technical/IS Operator]]></text>
+			</staticText>
+			<line>
+				<reportElement x="350" y="93" width="21" height="1" uuid="ced66d69-e723-40ba-861f-5df91ece0717"/>
+			</line>
+			<staticText>
+				<reportElement x="375" y="80" width="100" height="20" uuid="6dd008ac-fd1b-4a9f-840b-50968ab234ec"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[GIS/Graphics/SysDev]]></text>
+			</staticText>
+			<line>
+				<reportElement x="412" y="73" width="21" height="1" uuid="90f2da8a-2306-423d-a8d6-2c0b9bd0033d"/>
+			</line>
+			<staticText>
+				<reportElement x="437" y="60" width="21" height="20" uuid="5cec27b7-d7fa-4416-8287-4816a4728b87"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[JO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="365" y="60" width="21" height="20" uuid="911e68aa-4872-4537-b343-4d819eddf61e"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[CTI]]></text>
+			</staticText>
+			<line>
+				<reportElement x="340" y="73" width="21" height="1" uuid="7cc3cfc0-1766-41bf-b11b-e1fc7a51a34e"/>
+			</line>
+			<staticText>
+				<reportElement x="290" y="60" width="35" height="20" uuid="801fb62d-62c1-4734-803d-765fdcf740a4"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Casual]]></text>
+			</staticText>
+			<line>
+				<reportElement x="265" y="73" width="21" height="1" uuid="0bc16dd3-c63c-418a-837c-ecc30cb9d517"/>
+			</line>
+			<textField>
+				<reportElement x="46" y="20" width="221" height="20" uuid="dbc7d5bd-436c-4c1a-9c23-3be8a71f56c2"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{acct_division_title}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="102" y="40" width="221" height="20" uuid="311547b4-ee7b-48a5-8c92-9b0fae7993b7"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{acct_person}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="64" y="60" width="221" height="20" uuid="6072290a-6c47-4d24-9529-6948b0ef03f4"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{actual_user}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="53" y="100" width="221" height="20" uuid="33cd3c26-fc4b-464d-8dbb-5737d16e15bc"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{qr_code}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="83" y="120" width="221" height="20" uuid="72dc5ae2-0212-4ef9-a36c-447d6678db42"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{equipment_title}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="74" y="140" width="221" height="20" uuid="1fb289a0-0230-4b42-a628-c5bac28234e3"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{year_acquired}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="38" y="160" width="112" height="20" uuid="834edf70-8abf-4eff-920c-2c3a7fa71d8a"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{brand}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="150" y="160" width="31" height="20" uuid="29977f2f-1cc1-4d59-997a-264e5ce0cd16"/>
+				<textElement verticalAlignment="Middle"/>
+				<text><![CDATA[Model:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="183" y="160" width="88" height="20" uuid="ce1c6223-5708-4300-8361-4da1e5623479"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{model}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="297" y="160" width="258" height="20" uuid="b53ff88e-afb1-4dc1-a5a7-04d6ad5eeed6"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{serial_no}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="337" y="100" width="258" height="20" uuid="8eb5a04b-fa17-4875-8474-3b6926cc060b"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{property_no}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="314" y="292" width="100" height="20" uuid="6945b381-9458-4a55-80c2-d846eb701229"/>
+				<textFieldExpression><![CDATA[$P{user_name}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

@@ -8,11 +8,8 @@ export function useApi() {
   const equipment_type = ref([])
   const range_category = ref([])
   const employment_opts = ref([])
-  const section_opts = ref([
-    { name: 'RICT', id: 1 },
-    { name: 'MES', id: 2 },
-    { name: 'PPS', id: 3}
-  ])
+
+  
 
   const getControlNo = async (form) => {
     try {
@@ -85,6 +82,17 @@ export function useApi() {
       console.error('Error fetching employment types:', error)
     }
   }
+  const status_opts = ref([
+    { name: 'Serviceable', id: 1 },
+    { name: 'Unserviceable', id: 2 },
+  ])
+
+  const section_opts = ref([
+    { name: 'RICT', id: 1 },
+    { name: 'MES', id: 2 },
+    { name: 'PPS', id: 3}
+  ])
+  
   const sex_opts = ref([
     {name: 'Male', value: 'Male'},
     {name: 'Female', value: 'Female'}
@@ -131,6 +139,7 @@ export function useApi() {
 
   return {
     sex_opts,
+    status_opts,
     division_opts,
     section_opts,
     work_nature,

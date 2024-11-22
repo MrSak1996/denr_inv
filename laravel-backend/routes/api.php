@@ -39,11 +39,15 @@ Route::middleware('api')->group(function () {
     Route::get('/getInventoryData', [InventoryController::class, 'getInventoryData']);
 
     Route::get('/export', [ReportsController::class, 'generateReport']);
+    Route::get('/generatePDFReport', [ReportsController::class, 'generatePDFReport']);
+
 
     Route::post('post_insert_gen_info', [InventoryController::class, 'post_insert_gen_info']);
     Route::post('post_insert_specs_info', [InventoryController::class, 'post_insert_specs_info']);
     Route::post('/post_insert_software', [InventoryController::class, 'post_insert_software']);
     Route::post('/post_insert_peripheral', [InventoryController::class, 'post_insert_peripheral']);
+    Route::post('/post_add_os', [InventoryController::class, 'post_add_os']);
+    Route::post('/post_add_msoffice', [InventoryController::class, 'post_add_msoffice']);
 
 });
 Route::post('login', [UserController::class, 'login']);

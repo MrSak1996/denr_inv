@@ -44,7 +44,7 @@ const menuGroups = ref([
                 </svg>`,
         label: 'Dashboard',
         route: '#',
-        children: [{ label: 'eCommerce', route: '/' }]
+        children: [{ label: 'eCommerce', route: '/ecommerce' }]
       },
       {
         icon: `<svg
@@ -338,7 +338,7 @@ const menuGroups = ref([
   >
     <!-- SIDEBAR HEADER -->
     <div class="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
-      <router-link to="/" class="flex items-center space-x-2">
+      <router-link to="/ecommerce" class="flex items-center space-x-2">
   <img src="@/assets/images/logo/denr_logo.png" alt="Logo" class="h-15 w-15" />
   <span class="text-xl font-semibold">DENR (CALABARZON)</span>
 </router-link>

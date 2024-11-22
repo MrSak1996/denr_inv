@@ -94,6 +94,7 @@ class InventoryController extends Controller
                 year_acquired, 
                 shelf_life, 
                 remarks, 
+                status, 
                 created_at,
                 updated_at'
             ))
@@ -174,7 +175,10 @@ class InventoryController extends Controller
                 ups_acct_user as ups_accountPersonInPN, 
                 ups_actual_user as ups_qr_acctual_user, 
                 ups_property_no, 
-                ups_sn as ups_serial_no'
+                ups_sn as ups_serial_no,
+                monitor1Status, 
+                monitor2Status, 
+                ups_status', 
             ))
             ->where('control_id', $id)
             ->get();
@@ -192,6 +196,13 @@ class InventoryController extends Controller
             ->leftJoin('tbl_equipment_type as eq_t', 'eq_t.id', '=', 'gi.equipment_type')
             ->select(
                 'gi.id',
+                'gi.status',
+                DB::raw("
+                 CASE 
+                            WHEN gi.status = 1 THEN 'Serviceable'
+                            WHEN gi.status = 2 THEN 'Unserviceable'
+                            ELSE ''
+                END as status"),
                 'gi.qr_code',
                 'p.mon_qr_code1',
                 'p.mon_qr_code2',
@@ -276,6 +287,7 @@ class InventoryController extends Controller
             'sex' => 'nullable|string',
             'year_acquired' => 'nullable|string',
             'remarks' => 'nullable|string',
+            'status' => 'nullable|integer',
             'shelf_life' => 'nullable|string',
         ]);
 
@@ -304,6 +316,7 @@ class InventoryController extends Controller
                 'equipment_type' => $validated['selectedEquipmentType'],
                 'year_acquired' => $validated['year_acquired'],
                 'remarks' => $validated['remarks'],
+                'status' => $validated['status'],
                 'shelf_life' => $validated['shelf_life'],
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -319,13 +332,16 @@ class InventoryController extends Controller
 
     public function post_insert_specs_info(Request $request)
     {
+        
         $request->merge([
             'specs_net' => (int) $request->input('specs_net'),
             'specs_gpu' => (int) $request->input('specs_gpu'),
             'specs_ram' => (int) $request->input('specs_ram'),
             'specs_net_iswireless' => (int) $request->input('specs_net_iswireless'),
         ]);
-
+        if ($request->input('specs_net') === 1 || $request->input('specs_net') == 3 ) {
+            $request->merge(['specs_net_iswireless' => null]);
+        }
         // Validate input data
         $validatedData = $request->validate([
             'control_id' => 'nullable|integer',
@@ -379,10 +395,11 @@ class InventoryController extends Controller
         // Loop through each software and insert into the database
         foreach ($validated['selectedSoftware'] as $software => $remarks) {
             // Insert into the SoftwareInstall model (assuming it has the necessary columns)
-            SoftwareInstall::create([
-                'control_id' => $validated['control_id'],  // Control ID
-                'software' => $software,                    // Software name (e.g., 'adobe_pdf')
-                'remarks' => $remarks                       // Remarks value (1, 2, or 3)
+            SoftwareInstall::create(
+                [
+                    'control_id' => $validated['control_id'],  // Control ID
+                    'software' => $software,                    // Software name (e.g., 'adobe_pdf')
+                    'remarks' => $remarks                       // Remarks value (1, 2, or 3)
                 ]
             );
         }
@@ -416,34 +433,40 @@ class InventoryController extends Controller
             'ups_qr_acctual_user' => 'nullable|string',
             'ups_property_no' => 'nullable|string',
             'ups_serial_no' => 'nullable|string',
+            'monitor1Status' => 'nullable|integer',
+            'monitor2Status' => 'nullable|integer',
+            'ups_status' => 'nullable|integer',
         ]);
-      
+
 
         // Insert the data into the database
         $peripheral = PeripheralInformation::updateOrCreate(
             ['control_id' => $validatedData['control_id']],
             [
-            'mon_qr_code1' => $validatedData['monitor1QrCode'],
-            'mon_brand_model1' => $validatedData['monitor1BrandModel'],
-            'monitor1Model' => $validatedData['monitor1Model'],
-            'monitor2Model' => $validatedData['monitor2Model'],
-            'mon_sn1' => $validatedData['monitor1SerialNumber'],
-            'mon_pro_no1' => $validatedData['monitor1PropertyNumber'],
-            'mon_acct_user1' => $validatedData['monitor1AccountPersonInPN'],
-            'mon_actual_user1' => $validatedData['monitor1ActualUser'],
-            'mon_qr_code2' => $validatedData['monitor2QrCode'],
-            'mon_brand_model2' => $validatedData['monitor2BrandModel'],
-            'mon_sn2' => $validatedData['monitor2SerialNumber'],
-            'mon_pro_no2' => $validatedData['monitor2PropertyNumber'],
-            'mon_acct_user2' => $validatedData['monitor2AccountPersonInPN'],
-            'mon_actual_user2' => $validatedData['monitor2ActualUser'],
-            'ups_qr_code' => $validatedData['ups_qr_code'],
-            'ups_brand' => $validatedData['ups_brand'],
-            'ups_model' => $validatedData['ups_model'],
-            'ups_acct_user' => $validatedData['ups_accountPersonInPN'],
-            'ups_actual_user' => $validatedData['ups_qr_acctual_user'],
-            'ups_property_no' => $validatedData['ups_property_no'],
-            'ups_sn' => $validatedData['ups_serial_no'],
+                'mon_qr_code1' => $validatedData['monitor1QrCode'],
+                'mon_brand_model1' => $validatedData['monitor1BrandModel'],
+                'monitor1Model' => $validatedData['monitor1Model'],
+                'monitor2Model' => $validatedData['monitor2Model'],
+                'mon_sn1' => $validatedData['monitor1SerialNumber'],
+                'mon_pro_no1' => $validatedData['monitor1PropertyNumber'],
+                'mon_acct_user1' => $validatedData['monitor1AccountPersonInPN'],
+                'mon_actual_user1' => $validatedData['monitor1ActualUser'],
+                'mon_qr_code2' => $validatedData['monitor2QrCode'],
+                'mon_brand_model2' => $validatedData['monitor2BrandModel'],
+                'mon_sn2' => $validatedData['monitor2SerialNumber'],
+                'mon_pro_no2' => $validatedData['monitor2PropertyNumber'],
+                'mon_acct_user2' => $validatedData['monitor2AccountPersonInPN'],
+                'mon_actual_user2' => $validatedData['monitor2ActualUser'],
+                'ups_qr_code' => $validatedData['ups_qr_code'],
+                'ups_brand' => $validatedData['ups_brand'],
+                'ups_model' => $validatedData['ups_model'],
+                'ups_acct_user' => $validatedData['ups_accountPersonInPN'],
+                'ups_actual_user' => $validatedData['ups_qr_acctual_user'],
+                'ups_property_no' => $validatedData['ups_property_no'],
+                'ups_sn' => $validatedData['ups_serial_no'],
+                'monitor1Status' => $validatedData['monitor1Status'],
+                'monitor2Status' => $validatedData['monitor2Status'],
+                'ups_status' => $validatedData['ups_status'],
             ]
         );
 
@@ -454,5 +477,73 @@ class InventoryController extends Controller
         ], 201);
     }
 
-    
+    public function post_add_os(Request $request)
+    {
+        // Validate incoming request data
+        $validatedData = $request->validate([
+            'control_id' => 'required|integer', // Control ID to find the record
+            'os_installed' => 'required|string|max:255', // New OS value
+        ]);
+
+        try {
+            // Find the existing record by control_id
+            $os = GeneralInformation::where('id', $validatedData['control_id'])->first();
+
+            if (!$os) {
+                return response()->json([
+                    'message' => 'Record not found for the given Control ID.',
+                ], 404);
+            }
+
+            // Update the record
+            $os->update([
+                'os_installed' => $validatedData['os_installed'],
+            ]);
+
+            return response()->json([
+                'message' => 'Operating System updated successfully!',
+                'data' => $os,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to update Operating System.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function post_add_msoffice(Request $request)
+    {
+        // Validate incoming request data
+        $validatedData = $request->validate([
+            'control_id' => 'required|integer', // Control ID to find the record
+            'ms_office_installed' => 'required|string|max:255', // New OS value
+        ]);
+
+        try {
+            // Find the existing record by control_id
+            $os = GeneralInformation::where('id', $validatedData['control_id'])->first();
+
+            if (!$os) {
+                return response()->json([
+                    'message' => 'Record not found for the given Control ID.',
+                ], 404);
+            }
+
+            // Update the record
+            $os->update([
+                'ms_office_installed' => $validatedData['ms_office_installed'],
+            ]);
+
+            return response()->json([
+                'message' => 'Operating System updated successfully!',
+                'data' => $os,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to update Operating System.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

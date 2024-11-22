@@ -8,6 +8,8 @@ import { useForm } from '@/composables/useForm'
 
 import api from '../../../laravel-backend/resources/js/axiosInstance.js'
 import modal_reserved from './modal/modal_reserved.vue'
+import modal_software from './modal/modal_software.vue'
+import modal_msoffice from './modal/modal_msoffice.vue'
 
 import Toast from 'primevue/toast'
 import Button from 'primevue/Button'
@@ -28,23 +30,23 @@ import InputText from 'primevue/inputtext'
 import InputNumber from 'primevue/inputnumber'
 import RadioButton from 'primevue/radioButton'
 import Textarea from 'primevue/textarea'
+import Modal_msoffice from './modal/modal_msoffice.vue'
 
 // Page title and modal state
 const pageTitle = ref('ICT Equipment')
-
 
 // Toast, router, route, and store instances
 const toast = useToast()
 const router = useRouter()
 const route = useRoute()
 const store = useStore()
-const isModalOpen = ref(!route.params.id);
-
+const isModalOpen = ref(!route.params.id)
 
 // Forms and API options
 const { form, specs_form, software_form, peripheral_form } = useForm()
 const {
   sex_opts,
+  status_opts,
   division_opts,
   section_opts,
   work_nature,
@@ -69,7 +71,9 @@ let selectedNetwork = ref(null)
 let selectedGPU = ref(null)
 let selectedWireless = ref(null)
 const selectedSoftware = ref({}) // Initialize as an empty object
-
+const isVisible = ref(false)
+const isMicrosoftOffice = ref(false)
+const modalData = ref('')
 // Computed properties
 const isDedicatedSelected = computed(() => selectedGPU.value === '2')
 const isWirelessSelected = computed(() => selectedNetwork.value === '2')
@@ -95,15 +99,15 @@ const retrieveData = async () => {
 
 // Check year and update shelf life
 const checkYear = () => {
-  const yearValue = form.year_acquired;
+  const yearValue = form.year_acquired
 
-  if (yearValue === "N/A" || yearValue === "n/a") {
-    form.shelf_life = "N/A";
+  if (yearValue === 'N/A' || yearValue === 'n/a') {
+    form.shelf_life = 'N/A'
   } else {
-    const year = parseInt(yearValue, 10);
-    form.shelf_life = !isNaN(year) ? (year <= 2017 ? "Beyond 5 years" : "Within 5 years") : "";
+    const year = parseInt(yearValue, 10)
+    form.shelf_life = !isNaN(year) ? (year <= 2017 ? 'Beyond 5 years' : 'Within 5 years') : ''
   }
-};
+}
 
 const network_type = ref([
   { name: 'LAN', key: '1' },
@@ -130,6 +134,16 @@ const remarksMap = {
   perpetual: '1',
   subscription: '2',
   evaluation: '3'
+}
+//Open modal
+const onRadioChange = (key, option) => {
+  modalData.value = `${key}: ${option}`
+  if (key == 'operating_system') {
+    isVisible.value = true // Show the modal
+  } else if (key == 'ms_office') {
+    isMicrosoftOffice.value = true
+    console.log(key)
+  }
 }
 
 // GENERAL INFORMATION
@@ -167,8 +181,9 @@ const saveGeneralInfo = async () => {
         params: { id },
         query: { api_token: localStorage.getItem('api_token') }
       })
-      location.reload();
-      window.location.href="/inventory/create/"+id+"?api_token="+localStorage.getItem('api_token');
+      location.reload()
+      window.location.href =
+        '/inventory/create/' + id + '?api_token=' + localStorage.getItem('api_token')
     }, 1000)
   } catch (error) {
     if (error.response?.status === 422) {
@@ -388,6 +403,13 @@ onMounted(() => {
       @proceed="saveGeneralInfo"
       @close="isModalOpen = false"
     />
+    <modal_software v-if="isVisible" :isLoading="isVisible" @close="isModalOpen = false" />
+    <Modal_msoffice
+      v-if="isMicrosoftOffice"
+      :isLoading="isMicrosoftOffice"
+      @close="isModalOpen = false"
+    />
+
     <Tabs value="0">
       <TabList>
         <Tab value="0" as="div" class="flex items-center gap-2">
@@ -436,6 +458,16 @@ onMounted(() => {
                   <label>Control No</label>
                 </FloatLabel>
               </div>
+              <div class="relative z-0 w-full mb-5 group">
+                <Select
+                  v-model="form.status"
+                  :options="status_opts"
+                  optionValue="id"
+                  optionLabel="name"
+                  placeholder="Current Status"
+                  class="w-full"
+                />
+              </div>
             </div>
             <div class="grid md:grid-cols-2 md:gap-6 mb-4">
               <div class="relative z-0 w-full mb-5 group">
@@ -458,7 +490,6 @@ onMounted(() => {
                   class="w-full"
                 />
               </div>
-              
             </div>
             <div class="grid md:grid-cols-3 md:gap-6 mb-4">
               <div class="relative z-0 w-full mb-5 group">
@@ -850,6 +881,7 @@ onMounted(() => {
                         :inputId="option.toLowerCase() + '-' + index"
                         :name="software.key"
                         :value="option.toLowerCase()"
+                        @change="onRadioChange(software.key, option)"
                       />
                       <label :for="option.toLowerCase() + '-' + index">{{ option }}</label>
                     </div>
@@ -957,6 +989,16 @@ onMounted(() => {
                         <label for="processor">Actual User</label>
                       </FloatLabel>
                     </div>
+                    <div class="flex items-center gap-2" v-if="peripheral_form.monitor1QrCode">
+                      <Select
+                        v-model="peripheral_form.monitor1Status"
+                        :options="status_opts"
+                        optionValue="id"
+                        optionLabel="name"
+                        placeholder="Current Status"
+                        class="w-full md:w-100"
+                      />
+                    </div>
                   </div>
                 </Fieldset>
               </div>
@@ -1042,24 +1084,35 @@ onMounted(() => {
                         <label for="processor">Actual User</label>
                       </FloatLabel>
                     </div>
+                    <div class="flex items-center gap-2" v-if="peripheral_form.monitor2QrCode">
+                      <Select
+                        v-model="peripheral_form.monitor2Status"
+                        :options="status_opts"
+                        optionValue="id"
+                        optionLabel="name"
+                        placeholder="Current Status"
+                        class="w-full md:w-100"
+                      />
+                    </div>
                   </div>
                 </Fieldset>
               </div>
+
               <div class="relative z-0 w-full mb-5 group">
                 <Fieldset legend="UPS">
-                  <div class="flex items-center gap-2 " v-if="peripheral_form.ups_qr_code">
+                  <div class="flex items-center gap-2" v-if="peripheral_form.ups_qr_code">
                     <QrcodeVue :value="peripheral_form.ups_qr_code" />
                   </div>
                   <div class="flex items-center gap-2 mt-7 mb-7">
-                      <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.ups_qr_code"
-                          class="w-full md:w-100"
-                        />
-                        <label for="processor">QR Code</label>
-                      </FloatLabel>
-                    </div>
+                    <FloatLabel>
+                      <InputText
+                        id="processor"
+                        v-model="peripheral_form.ups_qr_code"
+                        class="w-full md:w-100"
+                      />
+                      <label for="processor">QR Code</label>
+                    </FloatLabel>
+                  </div>
                   <div class="card flex mb-7 mt-3 flex-wrap gap-6">
                     <div class="flex items-center gap-2">
                       <FloatLabel>
@@ -1082,7 +1135,6 @@ onMounted(() => {
                         <label for="processor">Model</label>
                       </FloatLabel>
                     </div>
-                    
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
@@ -1127,6 +1179,19 @@ onMounted(() => {
                         />
                         <label for="processor">Actual User</label>
                       </FloatLabel>
+                    </div>
+                    <div
+                      class="relative z-0 w-full mb-5 group"
+                      v-if="peripheral_form.ups_qr_code"
+                    >
+                      <Select
+                        v-model="peripheral_form.ups_status"
+                        :options="status_opts"
+                        optionValue="id"
+                        optionLabel="name"
+                        placeholder="Current Status"
+                        class="w-full md:w-100"
+                      />
                     </div>
                   </div>
                 </Fieldset>

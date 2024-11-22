@@ -33,6 +33,9 @@ class PeripheralInformation extends Model
         'ups_actual_user',
         'ups_property_no',
         'ups_sn',
+        'monitor1Status',
+        'monitor2Status',
+        'ups_status',
         'created_at',
         'updated_at'
     ];

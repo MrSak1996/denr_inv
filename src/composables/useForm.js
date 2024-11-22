@@ -27,6 +27,7 @@ export function useForm() {
     remarks:'',
     year_acquired:'',
     shelf_life:'',
+    status:''
   })
 
   const specs_form = reactive({
@@ -60,6 +61,7 @@ export function useForm() {
     monitor1PropertyNumber: '',
     monitor1AccountPersonInPN: '',
     monitor1ActualUser: '',
+    monitor1Status:'',
     monitor2QrCode: '',
     monitor2BrandModel: '',
     monitor2Model: '',
@@ -67,6 +69,7 @@ export function useForm() {
     monitor2PropertyNumber: '',
     monitor2AccountPersonInPN: '',
     monitor2ActualUser: '',
+    monitor2Status:'',
     ups_qr_code: '',
     ups_brand: '',
     ups_model: '',
@@ -74,6 +77,8 @@ export function useForm() {
     ups_property_no: '',
     ups_accountPersonInPN: '',
     ups_qr_acctual_user: '',
+    ups_status:'',
+
     })
   return { form,specs_form,software_form,peripheral_form}
 }
