@@ -22,6 +22,10 @@ import { FilterMatchMode,FilterOperator } from '@primevue/core/api'
 import api from '../../../laravel-backend/resources/js/axiosInstance.js'
 
 const customers = ref([]) // Stores customer data
+const total_item = ref(0);
+const serviceable_count = ref(0);
+const unserviceable_count = ref(0);
+const outdated_count = ref(0);
 const filters = ref() // Stores table filters
 const visible = ref(false) // Controls visibility of dialogs
 // const representatives = ref([...])  // Array of representative data
@@ -41,9 +45,7 @@ const messages = ref([
   'Almost there, hang tight...'
 ])
 
-onMounted(() => {
-  fetchData()
-})
+
 
 // Start progress bar animation
 const startProgress = () => {
@@ -79,7 +81,8 @@ const fetchData = async () => {
   try {
     startProgress() // Start the progress bar
     const response = await api.get(`/getInventoryData`)
-    customers.value = getCustomers(response.data) // Process the fetched data
+    total_item.value = Number(response.data.count); // Set the count if it exists
+    customers.value = getRawData(response.data.data) // Process the fetched data
     loading.value = false
     completeProgress() // Stop the progress bar
   } catch (error) {
@@ -87,6 +90,17 @@ const fetchData = async () => {
     loading.value = false
     completeProgress() // Stop the progress bar even in case of error
   }
+}
+
+const getCountStatus = async () => {
+  const response = await api.get(`/getCountStatus`)
+  serviceable_count.value = getRawData(Number(response.data.serviceable_count)); // Set the count if it exists
+  unserviceable_count.value = getRawData(Number(response.data.unserviceable_count)); // Set the count if it exists
+}
+
+const getOutdatedEquipment = async () => {
+  const response = await api.get(`/getOutdatedEquipment`)
+  outdated_count.value = Number(response.data.count); // Set the count if it exists
 }
 
 // Initialize filter values
@@ -140,7 +154,7 @@ const addMore = () => {
 }
 
 // Process fetched customer data
-const getCustomers = (data: any) => {
+const getRawData = (data: any) => {
   return [...(data || [])].map((d: any) => {
     d.date = new Date(d.date)
     return d
@@ -201,6 +215,11 @@ const exportData = async () => {
   }
 }
 
+onMounted(() => {
+  fetchData()
+  getCountStatus()
+  getOutdatedEquipment()
+})
 // Page title
 const pageTitle = ref('Inventory Management')
 </script>
@@ -220,7 +239,11 @@ const pageTitle = ref('Inventory Management')
     <BreadcrumbDefault :pageTitle="pageTitle" />
 
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5 mb-4">
-      <DataStatsOne/> 
+      <DataStatsOne 
+      :total_equipment="total_item"
+      :total_serviceable_count="serviceable_count"
+      :total_unserviceable_count="unserviceable_count"
+      :outdated_equipment="outdated_count"/> 
     </div>
 
     <div class="flex flex-col gap-10">

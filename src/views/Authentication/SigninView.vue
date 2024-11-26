@@ -167,7 +167,7 @@ import api from '../../../laravel-backend/resources/js/axiosInstance.js'
               <div class="mt-6 text-center">
                 <p class="font-medium">
                   Don’t have any account?
-                  <router-link to="/auth/signup" class="text-primary">Sign up</router-link>
+                  <!-- <router-link to="/auth/signup" class="text-primary">Sign up</router-link> -->
                 </p>
               </div>
             </form>

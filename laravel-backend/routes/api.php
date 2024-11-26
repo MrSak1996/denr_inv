@@ -18,10 +18,29 @@ use App\Http\Controllers\Modules\Reports\ReportsController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
+Route::post('login',[UserController::class,'login']);
+Route::middleware('auth:sanctum')->post('/logout',[UserController::class, 'logout']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::middleware('auth:api')->group(function () {
+    Route::get('/authenticated', function (Request $request) {
+        return response()->json(['authenticated' => true]);
+    });
+});
+// Route::get('/authenticated', function (Request $request) {
+//     return response()->json(['authenticated' => auth()->check()]);
+// });
+
+// Route::post('logout', [UserController::class, 'logout']);
+
+
+
+// Route::middleware('auth:api')->group(function () {
+//     Route::get('/authenticated', function (Request $request) {
+//         return response()->json(['authenticated' => true]);
+//     });
+// });
 
 
 Route::middleware('api')->group(function () {
@@ -36,7 +55,9 @@ Route::middleware('api')->group(function () {
     Route::get('/retrieveSpecsData', [InventoryController::class, 'retrieveSpecsData']);
     Route::get('/retrieveSoftwareData', [InventoryController::class, 'retrieveSoftwareData']);
     Route::get('/retrievePeripheralsData', [InventoryController::class, 'retrievePeripheralsData']);
+    Route::get('/getCountStatus', [InventoryController::class, 'getCountStatus']);
     Route::get('/getInventoryData', [InventoryController::class, 'getInventoryData']);
+    Route::get('/getOutdatedEquipment', [InventoryController::class, 'getOutdatedEquipment']);
 
     Route::get('/export', [ReportsController::class, 'generateReport']);
     Route::get('/generatePDFReport', [ReportsController::class, 'generatePDFReport']);
@@ -50,5 +71,4 @@ Route::middleware('api')->group(function () {
     Route::post('/post_add_msoffice', [InventoryController::class, 'post_add_msoffice']);
 
 });
-Route::post('login', [UserController::class, 'login']);
-Route::post('logout', [UserController::class, 'logout']);
+// Route::post('logout', [UserController::class, 'logout']);

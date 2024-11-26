@@ -26,6 +26,30 @@ class InventoryController extends Controller
         return response()->json($results);
     }
 
+    // public function getInventoryStat()
+    // {
+    //     // Fetch equipment counts grouped by status in a single query
+    //     $results = DB::table('tbl_general_information   ')
+
+    //     $equipmentCounts = InventoryController::selectRaw('status, COUNT(*) as total')
+    //         ->groupBy('status')
+    //         ->get()
+    //         ->keyBy('status');
+
+    //     // Calculate totals and assign default values for missing statuses
+    //     $totalEquipment = $equipmentCounts->sum('total');
+    //     $serviceableEquipment = $equipmentCounts->get('serviceable')->total ?? 0;
+    //     $unserviceableEquipment = $equipmentCounts->get('unserviceable')->total ?? 0;
+    //     $outdatedEquipment = $equipmentCounts->get('outdated')->total ?? 0;
+
+    //     // Return the response as JSON
+    //     return response()->json([
+    //         'total_equipment' => $totalEquipment,
+    //         'serviceable_equipment' => $serviceableEquipment,
+    //         'unserviceable_equipment' => $unserviceableEquipment,
+    //         'outdated_equipment' => $outdatedEquipment,
+    //     ]);
+    // }
     public function getDivision()
     {
         $results = DB::table('tbl_division')
@@ -178,7 +202,7 @@ class InventoryController extends Controller
                 ups_sn as ups_serial_no,
                 monitor1Status, 
                 monitor2Status, 
-                ups_status', 
+                ups_status',
             ))
             ->where('control_id', $id)
             ->get();
@@ -258,8 +282,56 @@ class InventoryController extends Controller
                 'actual_division.division_title as actual_division_title'
             )
             ->get();
+        $rowCount = $equipmentData->count();
 
-        return response()->json($equipmentData);
+
+        return response()->json(
+            [
+                'data' => $equipmentData,
+                'count' => $rowCount
+            ]
+        );
+    }
+
+    public function getCountStatus($status = [1, 2])
+    {
+        // Count the number of records for each status (1 = Serviceable, 2 = Unserviceable)
+        $counts = DB::table('tbl_general_info as gi')
+            ->whereIn('status', $status)  // Filter by status values 1 and 2
+            ->select('status', DB::raw('count(*) as total'))
+            ->groupBy('status')  // Group by status to get counts for each status
+            ->get();
+
+        // Format the response to return total count for each status
+        $result = [
+            'serviceable_count' => 0,  // Default count for Serviceable
+            'unserviceable_count' => 0,  // Default count for Unserviceable
+        ];
+
+        // Assign the counts to corresponding keys
+        foreach ($counts as $count) {
+            if ($count->status == 1) {
+                $result['serviceable_count'] = $count->total;
+            } elseif ($count->status == 2) {
+                $result['unserviceable_count'] = $count->total;
+            }
+        }
+
+        // Return the result as JSON
+        return response()->json($result);
+    }
+
+    public function getOutdatedEquipment()
+    {
+        $outdatedEquipment = DB::table('tbl_general_info')
+                ->select('id', 'control_no', 'year_acquired')
+                ->where('year_acquired', '<=', DB::raw('YEAR(CURDATE()) - 5'))
+                ->get();
+        $rowCount = $outdatedEquipment->count();
+
+
+            // Return the results as a JSON response
+            return response()->json(['count'=>$rowCount]);
     }
 
     // C R U D
@@ -332,14 +404,14 @@ class InventoryController extends Controller
 
     public function post_insert_specs_info(Request $request)
     {
-        
+
         $request->merge([
             'specs_net' => (int) $request->input('specs_net'),
             'specs_gpu' => (int) $request->input('specs_gpu'),
             'specs_ram' => (int) $request->input('specs_ram'),
             'specs_net_iswireless' => (int) $request->input('specs_net_iswireless'),
         ]);
-        if ($request->input('specs_net') === 1 || $request->input('specs_net') == 3 ) {
+        if ($request->input('specs_net') === 1 || $request->input('specs_net') == 3) {
             $request->merge(['specs_net_iswireless' => null]);
         }
         // Validate input data

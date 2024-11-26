@@ -13,18 +13,16 @@ import { ref, onMounted } from 'vue'
 
 const message = ref<string>('')
 
-onMounted(async () => {
-  try {
-    const response = await api.get('/showData')
-    message.value = response.data.message
-  } catch (error) {
-  }
-})
+// onMounted(async () => {
+//   try {
+//     const response = await api.get('/showData')
+//     message.value = response.data.message
+//   } catch (error) {
+//   }
+// })
 </script>
 
 <template>
-  <div>{{ message }}e-commerce</div>
-
   <DefaultLayout>
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
       <DataStatsOne/>

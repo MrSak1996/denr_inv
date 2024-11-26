@@ -7,5 +7,13 @@ const api = axios.create({
   },
 });
 
-export default api;
+// Add an interceptor to include the Authorization header for every request
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('api_token'); // Store token securely
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+  return config;
+});
 
+export default api;

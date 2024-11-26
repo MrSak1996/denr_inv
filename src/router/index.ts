@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-
+import axios from 'axios'
 import SigninView from '@/views/Authentication/SigninView.vue'
 import SignupView from '@/views/Authentication/SignupView.vue'
 import CalendarView from '@/views/CalendarView.vue'
@@ -15,7 +15,11 @@ import ButtonsView from '@/views/UiElements/ButtonsView.vue'
 
 import InventoryView from '@/views/Inventory/InventoryView.vue'
 import InventoryCreate from '@/views/Inventory/InventoryCreate.vue'
-import SRF_FormCreateView from '@/views/SurveyRequestForm/SRF_FormCreateView.vue'
+
+// User Management
+import AccountsView from '@/views/UserManagement/index.vue';
+
+import api from '../../laravel-backend/resources/js/axiosInstance.js'
 
 const routes = [
   {
@@ -31,135 +35,94 @@ const routes = [
     name: 'eCommerce',
     component: ECommerceView,
     meta: {
-      title: 'eCommerce Dashboard'
-    }
+      title: 'eCommerce Dashboard',
+      requiresAuth: true,
+    },
+   
   },
   {
     path: '/inventory',
     name: 'Inventory',
     component: InventoryView,
     meta: {
-      title: 'Inventory Dashboard'
-    }
+      title: 'Inventory Dashboard',
+      requiresAuth: true,
+    },
+    
   },
   {
     path: '/inventory/create',
     name: 'InventoryCreate', // Unique name for the route
     component: InventoryCreate,
     meta: {
-      title: 'Inventory Add Item'
-    }
+      title: 'Inventory Add Item',
+      requiresAuth:true
+    },
   },
   {
     path: '/inventory/create/:id',
     name: 'InventoryEdit', // Different name for this route
     component: InventoryCreate,
     meta: {
-      title: 'Inventory Edit Item'
-    }
+      title: 'Update Item',
+      requiresAuth:true
+    },
   },  
   {
-    path: '/survey-request/view',
-    name: 'Survey Form List',
-    component: SRF_FormCreateView,
+    path: '/user-management/',
+    name: 'Account List', // Different name for this route
+    component: AccountsView,
     meta: {
-      title: 'Survey Form List'
-    }
-  },
-  {
-    path: '/calendar',
-    name: 'calendar',
-    component: CalendarView,
-    meta: {
-      title: 'Calendar'
-    }
-  },
-  {
-    path: '/profile',
-    name: 'profile',
-    component: ProfileView,
-    meta: {
-      title: 'Profile'
-    }
-  },
-  {
-    path: '/forms/form-elements',
-    name: 'formElements',
-    component: FormElementsView,
-    meta: {
-      title: 'Form Elements'
-    }
-  },
-  {
-    path: '/forms/form-layout',
-    name: 'formLayout',
-    component: FormLayoutView,
-    meta: {
-      title: 'Form Layout'
-    }
-  },
-  {
-    path: '/tables',
-    name: 'tables',
-    component: TablesView,
-    meta: {
-      title: 'Tables'
-    }
-  },
-  {
-    path: '/pages/settings',
-    name: 'settings',
-    component: SettingsView,
-    meta: {
-      title: 'Settings'
-    }
-  },
-  {
-    path: '/charts/basic-chart',
-    name: 'basicChart',
-    component: BasicChartView,
-    meta: {
-      title: 'Basic Chart'
-    }
-  },
-  {
-    path: '/ui-elements/alerts',
-    name: 'alerts',
-    component: AlertsView,
-    meta: {
-      title: 'Alerts'
-    }
-  },
-  {
-    path: '/ui-elements/buttons',
-    name: 'buttons',
-    component: ButtonsView,
-    meta: {
-      title: 'Buttons'
-    }
-  },
-  
-  {
-    path: '/auth/signup',
-    name: 'signup',
-    component: SignupView,
-    meta: {
-      title: 'Signup'
-    }
-  }
-]
+      title: 'Account List',
+      requiresAuth:true
+    },
+  },  
 
+ 
+
+];
+
+// Create router instance
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
-  scrollBehavior(to, from, savedPosition) {
-    return savedPosition || { left: 0, top: 0 }
-  }
-})
+});
 
+// Define global `beforeEach` guard
 router.beforeEach((to, from, next) => {
-  document.title = `DENR CALABARZON |  ${to.meta.title}`
-  next()
-})
+  const token = localStorage.getItem('api_token');
 
-export default router
+  // Set document title
+  document.title = `DENR CALABARZON | ${to.meta.title || 'Application'}`;
+
+  // Check if route requires authentication
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    if (!token) {
+      // Redirect to sign-in if no token is found
+      next({ name: 'signin' });
+    } else {
+      // Validate token with the backend
+      api
+        .get('/authenticated', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          if (response.data.authenticated) {
+            next(); // Proceed if token is valid
+          } else {
+            next({ name: 'signin' }); // Redirect to sign-in on invalid token
+          }
+        })
+        .catch(() => {
+          next({ name: 'signin' }); // Redirect to sign-in on error
+        });
+    }
+  } else {
+    next(); // Proceed if route does not require authentication
+  }
+});
+
+export default router;
+

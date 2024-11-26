@@ -11,6 +11,7 @@
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
+        "laravel/ui": "^4.5",
         "lavela/phpjasper": "^3.0",
         "maatwebsite/excel": "^1.1",
         "phpoffice/phpspreadsheet": "^3.4"
