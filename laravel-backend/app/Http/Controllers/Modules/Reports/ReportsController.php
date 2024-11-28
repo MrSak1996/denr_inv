@@ -202,7 +202,7 @@ class ReportsController extends Controller
             'port'     => env('3306'),
             'username' => env('root'),
             'password' => env(''),
-            'database' => env('denr_inventory'),
+            'database' => env('denr_staging'),
         ];
     }
 

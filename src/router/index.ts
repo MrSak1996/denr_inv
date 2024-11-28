@@ -18,6 +18,7 @@ import InventoryCreate from '@/views/Inventory/InventoryCreate.vue'
 
 // User Management
 import AccountsView from '@/views/UserManagement/index.vue';
+import AccountCreateView from '@/views/UserManagement/form_create.vue';
 
 import api from '../../laravel-backend/resources/js/axiosInstance.js'
 
@@ -74,7 +75,16 @@ const routes = [
     component: AccountsView,
     meta: {
       title: 'Account List',
-      requiresAuth:true
+      // requiresAuth:true
+    },
+  },  
+  {
+    path: '/user-management/accounts/create',
+    name: 'CreateAccount', // Different name for this route
+    component: AccountCreateView,
+    meta: {
+      title: 'CreateAccount',
+      // requiresAuth:true
     },
   },  
 

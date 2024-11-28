@@ -58,6 +58,7 @@ Route::middleware('api')->group(function () {
     Route::get('/getCountStatus', [InventoryController::class, 'getCountStatus']);
     Route::get('/getInventoryData', [InventoryController::class, 'getInventoryData']);
     Route::get('/getOutdatedEquipment', [InventoryController::class, 'getOutdatedEquipment']);
+    Route::get('/provinces/{provinceId}/cities', [UserController::class, 'getCitiesByProvince']);
 
     Route::get('/export', [ReportsController::class, 'generateReport']);
     Route::get('/generatePDFReport', [ReportsController::class, 'generatePDFReport']);

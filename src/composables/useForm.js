@@ -2,6 +2,7 @@
 import { reactive } from 'vue'
 
 export function useForm() {
+  //INVENTORY MANAGEMENT
   const form = reactive({
     control_no: '',
     qr_code: '',
@@ -79,6 +80,28 @@ export function useForm() {
     ups_qr_acctual_user: '',
     ups_status:'',
 
-    })
-  return { form,specs_form,software_form,peripheral_form}
+  })
+
+  //USER MANAGEMENT
+  const um_create_form = reactive({
+    region:'REGION IV-A (CALABARZON)',
+    province:'',
+    city_mun:'',
+    first_name: '',
+    middle_name: '',
+    last_name:'',
+    designation:'',
+    sex:'',
+    division:'',
+    position:'',
+    email:'',
+    contact_details:'',
+    role:'',
+    assign_module:'',
+    username:'',
+    password:'',
+
+
+  })
+  return { form,specs_form,software_form,peripheral_form,um_create_form}
 }

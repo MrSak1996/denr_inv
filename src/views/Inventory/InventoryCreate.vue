@@ -43,7 +43,7 @@ const store = useStore()
 const isModalOpen = ref(!route.params.id)
 
 // Forms and API options
-const { form, specs_form, software_form, peripheral_form } = useForm()
+const { form, specs_form, software_form, peripheral_form } = useForm()  
 const {
   sex_opts,
   status_opts,

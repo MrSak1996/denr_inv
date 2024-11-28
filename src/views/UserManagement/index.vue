@@ -244,7 +244,7 @@ const pageTitle = ref('User Management')
             Account Details
           </router-link>
           <router-link
-            to="/user-management/accounts?create"
+            to="/user-management/accounts/create"
             class="block w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 font-medium text-white text-center transition hover:bg-opacity-90"
           >
             Create Accounts
