@@ -8,6 +8,7 @@ export function useApi() {
   const equipment_type = ref([])
   const range_category = ref([])
   const employment_opts = ref([])
+  const roles_opts = ref([])
 
   const getControlNo = async (form) => {
     try {
@@ -80,6 +81,18 @@ export function useApi() {
       console.error('Error fetching employment types:', error)
     }
   }
+
+  const getUserRoles = async () => {
+    try {
+      const res = await api.get('/getUserRoles')
+      roles_opts.value = res.data.map((item) => ({
+        id: item.id,
+        name: item.roles
+      }))
+    } catch (error) {
+      console.error('Error fetching user role:', error)
+    }
+  }
   const province_opts = ref([
     { name: 'Cavite', id: 21 },
     { name: 'Laguna', id: 34 },
@@ -147,6 +160,7 @@ export function useApi() {
   return {
     sex_opts,
     province_opts,
+    roles_opts,
     status_opts,
     division_opts,
     section_opts,
@@ -162,6 +176,7 @@ export function useApi() {
     getNatureWork,
     getEquipment,
     getRangeCategory,
-    getEmploymentType
+    getEmploymentType,
+    getUserRoles
   }
 }

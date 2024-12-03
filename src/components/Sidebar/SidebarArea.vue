@@ -1,17 +1,21 @@
 <script setup lang="ts">
 import { useSidebarStore } from '@/stores/sidebar'
 import { onClickOutside } from '@vueuse/core'
-import { ref } from 'vue'
+import { ref,onMounted} from 'vue'
 import SidebarItem from './SidebarItem.vue'
 
 const target = ref(null)
-
+const designation = ref()
 const sidebarStore = useSidebarStore()
 
 onClickOutside(target, () => {
   sidebarStore.isSidebarOpen = false
 })
 
+onMounted(() => {
+      // Retrieve the designation from localStorage
+      designation.value= localStorage.getItem('designation') || 'Not Assigned'
+    })
 const menuGroups = ref([
   {
     name: 'MENU',
@@ -82,9 +86,8 @@ const menuGroups = ref([
         route: '#',
         children: [
           { label: 'Manage Accounts', route: '/user-management/' },
-          { label: 'User Activity Logs', route: '/' },
-          { label: 'Assigning User Roles', route: '/' },
-          { label: 'Resetting User Passwords', route: '/' }
+          { label: 'Manage Accounts', route: '/user-management/accounts/create' },
+          { label: 'User Activity Logs', route: '/user-management/accounts/logs' },
         ]
       }
       // {
@@ -365,7 +368,7 @@ const menuGroups = ref([
     <div class="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
       <router-link to="/ecommerce" class="flex items-center space-x-2">
         <img src="@/assets/images/logo/denr_logo.png" alt="Logo" class="h-15 w-15" />
-        <span class="text-xl font-semibold">DENR (CALABARZON)</span>
+        <span class="text-xl font-semibold">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DENR IV-A <br> ({{ designation}})</span>
       </router-link>
 
       <button class="block lg:hidden" @click="sidebarStore.isSidebarOpen = false">

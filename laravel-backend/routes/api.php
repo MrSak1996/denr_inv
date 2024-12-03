@@ -6,7 +6,8 @@ use App\Http\Controllers\ExampleController;
 use App\Http\Controllers\Modules\User\UserController;
 use App\Http\Controllers\Modules\Inventory\InventoryController;
 use App\Http\Controllers\Modules\Reports\ReportsController;
-
+use App\Http\Controllers\Modules\OTP\OTPController;
+use App\Http\Controllers\Modules\GoogleDrive\GoogleDriveController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,20 +29,6 @@ Route::middleware('auth:api')->group(function () {
         return response()->json(['authenticated' => true]);
     });
 });
-// Route::get('/authenticated', function (Request $request) {
-//     return response()->json(['authenticated' => auth()->check()]);
-// });
-
-// Route::post('logout', [UserController::class, 'logout']);
-
-
-
-// Route::middleware('auth:api')->group(function () {
-//     Route::get('/authenticated', function (Request $request) {
-//         return response()->json(['authenticated' => true]);
-//     });
-// });
-
 
 Route::middleware('api')->group(function () {
     Route::get('/showData', [ExampleController::class, 'showData']);
@@ -71,5 +58,18 @@ Route::middleware('api')->group(function () {
     Route::post('/post_add_os', [InventoryController::class, 'post_add_os']);
     Route::post('/post_add_msoffice', [InventoryController::class, 'post_add_msoffice']);
 
+    //USER MANAGEMENT
+    Route::post('post_save_userCred', [UserController::class, 'post_save_userCred']);
+    Route::get('/getUserRoles', [UserController::class, 'getUserRoles']);
+    Route::get('/getUsers', [UserController::class, 'getUsers']);
+
+    Route::post('/send-otp', [OTPController::class, 'sendOtp']);
+    Route::post('/verify-otp', [OTPController::class, 'verifyOtp']);
+
+    Route::post('/upload-image', [GoogleDriveController::class, 'uploadImage']);
+
+
+   
+
+
 });
-// Route::post('logout', [UserController::class, 'logout']);

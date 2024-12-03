@@ -1,55 +1,139 @@
 <script setup lang="ts">
 import DefaultAuthCard from '@/components/Auths/DefaultAuthCard.vue'
 import InputGroup from '@/components/Auths/InputGroup.vue'
-import Toast from 'primevue/toast';
+import InputOtp from 'primevue/inputotp'
+import Toast from 'primevue/toast'
 
-import { useToast } from 'primevue/usetoast';
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useToast } from 'primevue/usetoast'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 import api from '../../../laravel-backend/resources/js/axiosInstance.js'
+import modal_verify from './modal/modal_verify.vue'
 
-  const pageTitle = ref('Welcome to DENR-SRF');
-  const toast = useToast();
-  const router = useRouter();
-  const form = ref({
-      username: '',
-      password: '',
-  });
-  const errors = ref(null);
+const pageTitle = ref('Welcome to DENR-SRF')
+const toast = useToast()
+const router = useRouter()
 
-  const loginUser = async () => {
-      try {
-          const response = await api.post('/login', form.value);
-          if (response.data.status) {
-              localStorage.setItem('userId', response.data.userId);
-              localStorage.setItem('api_token', response.data.api_token);
-              toast.add({ severity: 'success', summary: 'Success', detail: 'Login successful', life: 3000 });
-              setTimeout(() => {
-                  router.push({ name: 'eCommerce', query: { api_token: response.data.api_token } });
-              }, 1000);
-          } else {
-            toast.add({ severity: 'error', summary: 'Error', detail: 'Invalid username or password', life: 3000 });
+const form = ref({
+  username: '',
+  password: ''
+})
+const errors = ref(null)
+let email = ref('')
+const otp = ref('')
+const message = ref('')
 
-              setTimeout(() => {
-                  router.push({ path: '/' });
-              }, 1000);
-          }
-      } catch (error) {
-          if (error.response && error.response.data) {
-              // Server returned an error response
-              errors.value = error.response.data.errors;
-          } else {
-              console.log(error);
-          }
+//otp modal
+const isModalOpen = ref(false)
+
+const loginUser = async () => {
+  try {
+    const response = await api.post('/login', form.value)
+    if (response.data.status) {
+      // If login is successful, send the OTP
+      localStorage.setItem('userId', response.data.userId)
+      localStorage.setItem('api_token', response.data.api_token)
+      const userEmail = response.data.email
+      email = response.data.email
+
+      if (!userEmail) {
+        toast.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Email not found for the provided username',
+          life: 3000
+        })
+        return
       }
-  };
 
+      await api.post('/send-otp', { email: userEmail })
+
+      // Show success message and open OTP modal
+      toast.add({
+        severity: 'success',
+        summary: 'OTP Sent',
+        detail: 'Check your email for the OTP',
+        life: 3000
+      })
+      isModalOpen.value = true // Open the modal
+    } else {
+      // Invalid login credentials
+      toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Invalid username or password',
+        life: 3000
+      })
+    }
+  } catch (error) {
+    if (error.response && error.response.data) {
+      // Server returned an error response
+      errors.value = error.response.data.errors
+    } else {
+      console.log(error)
+    }
+  }
+}
+
+const verifyOtp = async () => {
+  try {
+    const response = await api.post('/verify-otp', {
+      user_email: email,
+      otp: otp.value
+    })
+    message.value = response.data.message
+    if (response.data.status) {
+      
+      toast.add({ severity: 'success', summary: 'Success', detail: 'Login successful', life: 3000 })
+      setTimeout(() => {
+        router.push({ name: 'eCommerce', query: { api_token: response.data.api_token } })
+      }, 1000)
+    } 
+  } catch (error) {
+    message.value = error.response?.data?.message || 'Error verifying OTP'
+    toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: message.value,
+        life: 3000
+      })
+  }
+}
 </script>
-  
 
 <template>
   <Toast />
+  <div
+    v-if="isModalOpen"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+    role="dialog"
+    aria-labelledby="reserve-control-no"
+    aria-modal="true"
+  >
+    <div
+      class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-lg rounded-lg w-full max-w-2xl mx-4 lg:mx-auto transition-transform duration-300 transform scale-100"
+    >
+      <!-- Modal Header -->
+      <div class="flex justify-between items-center py-4 px-6 border-b dark:border-neutral-700">
+        <h3 id="reserve-control-no" class="text-lg font-semibold text-gray-800 dark:text-gray-200">
+          Verify OTP
+        </h3>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="flex flex-col justify-center items-center py-8 px-6">
+       <p>To complete the verification process, please enter the 6-digit OTP we’ve sent to your email.</p>
+        <InputOtp v-model="otp" integerOnly class="mb-4" :length="6" />
+        <button
+          class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center space-x-2 transition-all duration-150"
+          @click="verifyOtp"
+        >
+          <span>Submit</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <div class="flex h-screen overflow-hidden">
     <!-- ===== Content Area Start ===== -->
@@ -66,13 +150,13 @@ import api from '../../../laravel-backend/resources/js/axiosInstance.js'
             division="Planning and Management Division"
             :title="pageTitle"
           >
-           
-          <form  @submit.prevent="loginUser">
-            <InputGroup  
-            v-model="form.username"
-            label="Username" 
-            type="text"
-             placeholder="Enter your username">
+            <form @submit.prevent="loginUser">
+              <InputGroup
+                v-model="form.username"
+                label="Username"
+                type="text"
+                placeholder="Enter your username"
+              >
                 <svg
                   class="fill-current"
                   width="22"
@@ -91,7 +175,7 @@ import api from '../../../laravel-backend/resources/js/axiosInstance.js'
               </InputGroup>
 
               <InputGroup
-               v-model="form.password"
+                v-model="form.password"
                 label="Password"
                 type="password"
                 placeholder="6+ Characters, 1 Capital letter"

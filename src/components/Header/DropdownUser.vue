@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { onClickOutside } from '@vueuse/core'
-import { ref } from 'vue'
+import { ref,onMounted} from 'vue'
 import { useRouter } from 'vue-router';
 import api from '../../../laravel-backend/resources/js/axiosInstance.js'
 
 const target = ref(null)
 const dropdownOpen = ref(false)
 const router = useRouter();
-
+const current_user = ref();
+const designation = ref();
 // Close dropdown when clicking outside
 onClickOutside(target, () => {
   dropdownOpen.value = false
@@ -24,6 +25,44 @@ const logout = async () => {
     console.error('Logout failed:', error);
   }
 }
+const fetchCurUser = async () => {
+  // Retrieve the API token from localStorage
+  const api_token = localStorage.getItem('api_token');
+  
+  // Check if the token exists
+  if (!api_token) {
+    console.error('API token not found. Please log in.');
+    return;
+  }
+
+  try {
+    // Make the API call to fetch the current user
+    const response = await api.get(`/getUsers?api_token=${api_token}`, {
+      headers: {
+        Authorization: `Bearer ${api_token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    // Check if the response status is valid
+    if (response.status === 200 && response.data) {
+      current_user.value = response.data.data[0].name;
+      designation.value = response.data.data[0].roles;
+      localStorage.setItem('designation',designation.value)
+
+      
+      return response.data;
+    } else {
+      console.error('Failed to fetch current user: Invalid response');
+    }
+  } catch (error) {
+    // Handle any errors
+    console.error('Error fetching current user:', error.response?.data?.message || error.message);
+  }
+};
+onMounted(() => {
+  fetchCurUser()
+})
 </script>
 
 
@@ -35,8 +74,8 @@ const logout = async () => {
       @click.prevent="dropdownOpen = !dropdownOpen"
     >
       <span class="hidden text-right lg:block">
-        <span class="block text-sm font-medium text-black dark:text-white">Mark Kim Sacluti</span>
-        <span class="block text-xs font-medium">Computer Programmer II</span>
+        <span class="block text-sm font-medium text-black dark:text-white">{{ current_user }}</span>
+        <span class="block text-xs font-medium">{{ designation }}</span>
       </span>
 
       <span class="h-12 w-12 rounded-full">

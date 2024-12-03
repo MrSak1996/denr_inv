@@ -26,30 +26,6 @@ class InventoryController extends Controller
         return response()->json($results);
     }
 
-    // public function getInventoryStat()
-    // {
-    //     // Fetch equipment counts grouped by status in a single query
-    //     $results = DB::table('tbl_general_information   ')
-
-    //     $equipmentCounts = InventoryController::selectRaw('status, COUNT(*) as total')
-    //         ->groupBy('status')
-    //         ->get()
-    //         ->keyBy('status');
-
-    //     // Calculate totals and assign default values for missing statuses
-    //     $totalEquipment = $equipmentCounts->sum('total');
-    //     $serviceableEquipment = $equipmentCounts->get('serviceable')->total ?? 0;
-    //     $unserviceableEquipment = $equipmentCounts->get('unserviceable')->total ?? 0;
-    //     $outdatedEquipment = $equipmentCounts->get('outdated')->total ?? 0;
-
-    //     // Return the response as JSON
-    //     return response()->json([
-    //         'total_equipment' => $totalEquipment,
-    //         'serviceable_equipment' => $serviceableEquipment,
-    //         'unserviceable_equipment' => $unserviceableEquipment,
-    //         'outdated_equipment' => $outdatedEquipment,
-    //     ]);
-    // }
     public function getDivision()
     {
         $results = DB::table('tbl_division')
@@ -210,16 +186,21 @@ class InventoryController extends Controller
         return response()->json($results);
     }
 
-    public function getInventoryData()
+    public function getInventoryData(Request $request)
     {
+        $api_token = $request->query('api_token');
+
         $equipmentData = DB::table('tbl_general_info as gi')
             ->leftJoin('tbl_specification as s', 's.control_id', '=', 'gi.id')
             ->leftJoin('tbl_peripherals as p', 'p.control_id', '=', 'gi.id')
             ->leftJoin('tbl_division as acct_division', 'acct_division.id', '=', 'gi.acct_person_division_id')
             ->leftJoin('tbl_division as actual_division', 'actual_division.id', '=', 'gi.actual_user_division_id')
             ->leftJoin('tbl_equipment_type as eq_t', 'eq_t.id', '=', 'gi.equipment_type')
+            ->leftJoin('user_roles as ur', 'ur.id', '=', 'gi.registered_loc')
+            ->leftJoin('users as u', 'u.roles', '=', 'gi.registered_loc')
             ->select(
                 'gi.id',
+                'ur.roles as registered_loc',
                 'gi.status',
                 DB::raw("
                  CASE 
@@ -281,6 +262,7 @@ class InventoryController extends Controller
                 'gi.actual_user',
                 'actual_division.division_title as actual_division_title'
             )
+            ->where('u.api_token',$api_token)
             ->get();
         $rowCount = $equipmentData->count();
 
@@ -293,12 +275,16 @@ class InventoryController extends Controller
         );
     }
 
-    public function getCountStatus($status = [1, 2])
+    public function getCountStatus(Request $request, $status = [1, 2])
     {
+        $api_token = $request->query('api_token');
+
         // Count the number of records for each status (1 = Serviceable, 2 = Unserviceable)
         $counts = DB::table('tbl_general_info as gi')
-            ->whereIn('status', $status)  // Filter by status values 1 and 2
+            ->leftJoin('users as u','u.roles','=','gi.registered_loc')
             ->select('status', DB::raw('count(*) as total'))
+            ->whereIn('status', $status)  // Filter by status values 1 and 2
+            ->where('u.api_token',$api_token)
             ->groupBy('status')  // Group by status to get counts for each status
             ->get();
 
@@ -321,11 +307,15 @@ class InventoryController extends Controller
         return response()->json($result);
     }
 
-    public function getOutdatedEquipment()
+    public function getOutdatedEquipment(Request $request)
     {
-        $outdatedEquipment = DB::table('tbl_general_info')
-                ->select('id', 'control_no', 'year_acquired')
-                ->where('year_acquired', '<=', DB::raw('YEAR(CURDATE()) - 5'))
+        $api_token = $request->query('api_token');
+
+        $outdatedEquipment = DB::table('tbl_general_info as gi')
+                ->leftJoin('users as u','u.roles','=','gi.registered_loc')
+                ->select('gi.id', 'gi.control_no', 'gi.year_acquired')
+                ->where('gi.year_acquired', '<=', DB::raw('YEAR(CURDATE()) - 5'))
+                ->where('u.api_token',$api_token)
                 ->get();
         $rowCount = $outdatedEquipment->count();
 
@@ -338,6 +328,7 @@ class InventoryController extends Controller
     public function post_insert_gen_info(Request $req)
     {
         $validated = $req->validate([
+            'registered_loc' => 'required|integer',
             'control_no' => 'required|string',
             'qr_code' => 'nullable|string',
             'acct_person' => 'nullable|string',
@@ -367,6 +358,7 @@ class InventoryController extends Controller
         $equipment = GeneralInformation::updateOrCreate(
             ['control_no' => $validated['control_no']],
             [
+                'registered_loc' => $validated['registered_loc'],
                 'qr_code' => $validated['qr_code'],
                 'acct_person' => $validated['acct_person'],
                 'actual_user' => $validated['actual_user'],

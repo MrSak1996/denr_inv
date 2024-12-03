@@ -20,7 +20,7 @@ import Select from 'primevue/select'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import api from '../../../laravel-backend/resources/js/axiosInstance.js'
 
-const customers = ref([]) // Stores customer data
+const users = ref([]) // Stores customer data
 const total_item = ref(0)
 const serviceable_count = ref(0)
 const unserviceable_count = ref(0)
@@ -77,9 +77,8 @@ const updateMessage = () => {
 const fetchData = async () => {
   try {
     startProgress() // Start the progress bar
-    const response = await api.get(`/getInventoryData`)
-    total_item.value = Number(response.data.count) // Set the count if it exists
-    customers.value = getRawData(response.data.data) // Process the fetched data
+    const response = await api.get(`/getUsers`)
+    users.value = getRawData(response.data.data) // Process the fetched data
     loading.value = false
     completeProgress() // Stop the progress bar
   } catch (error) {
@@ -103,28 +102,16 @@ const getOutdatedEquipment = async () => {
 // Initialize filter values
 const initFilters = () => {
   filters.value = {
-    id: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    actual_division_title: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    acct_division_title: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    equipment_title: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    acct_person: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    qr_code: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    mon_qr_code1: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    mon_qr_code2: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    ups_qr_code: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    brand: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    full_specs: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    range_category: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    actual_user: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    status: {
-      operator: FilterOperator.OR,
-      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
-    },
-    control_no: {
-      operator: FilterOperator.OR,
-      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
-    }
+    global: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+    id: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+    roles: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+    name: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+    division_title: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+    position: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+    username: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+    email: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+    mobile_no: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+ 
   }
 }
 
@@ -270,7 +257,7 @@ const pageTitle = ref('User Management')
           <DataTable
             size="small"
             v-model:filters="filters"
-            :value="customers"
+            :value="users"
             paginator
             showGridlines
             :rows="10"
@@ -278,18 +265,14 @@ const pageTitle = ref('User Management')
             filterDisplay="menu"
             :loading="loading"
             :globalFilterFields="[
-              'control_no',
-              'acct_person',
-              'equipment_title',
-              'acct_person',
-              'qr_code',
-              'mon_qr_code1',
-              'mon_qr_code2',
-              'ups_qr_code',
-              'actual_division_title',
-              'acct_division_title',
-              'brand',
-              'status'
+              'id',
+              'roles',
+              'name',
+              'diviison_title',
+              'position',
+              'username',
+              'email',
+              'mobile_no',
             ]"
           >
             <template #header>
@@ -337,9 +320,9 @@ const pageTitle = ref('User Management')
                 <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
               </template>
             </Column>
-            <Column field="control_no" header="Designation" style="min-width: 5rem">
+            <Column field="roles" header="Designation" style="min-width: 5rem">
               <template #body="{ data }">
-                {{ data.control_no }}
+                {{ data.roles }}
                 <!-- Ensure this field exists in the data object -->
               </template>
               <template #filter="{ filterModel }">
@@ -347,9 +330,9 @@ const pageTitle = ref('User Management')
               </template>
             </Column>
 
-            <Column field="qr_code" header="Employee Name" style="min-width: 5rem">
+            <Column field="name" header="Employee Name" style="min-width: 5rem">
               <template #body="{ data }">
-                {{ data.qr_code }}
+                {{ data.name }}
 
                 <!-- Ensure this field exists in the data object -->
               </template>
@@ -358,9 +341,9 @@ const pageTitle = ref('User Management')
               </template>
             </Column>
 
-            <Column field="mon_qr_code1" header="Division" style="min-width: 5rem">
+            <Column field="division_title" header="Division" style="min-width: 5rem">
               <template #body="{ data }">
-                {{ data.mon_qr_code1 }}
+                {{ data.division_title }}
 
                 <!-- Ensure this field exists in the data object -->
               </template>
@@ -368,9 +351,9 @@ const pageTitle = ref('User Management')
                 <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
               </template>
             </Column>
-            <Column field="mon_qr_code2" header="Position" style="min-width: 5rem">
+            <Column field="position" header="Position" style="min-width: 5rem">
               <template #body="{ data }">
-                {{ data.mon_qr_code2 }}
+                {{ data.position }}
 
                 <!-- Ensure this field exists in the data object -->
               </template>
@@ -378,9 +361,9 @@ const pageTitle = ref('User Management')
                 <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
               </template>
             </Column>
-            <Column field="ups_qr_code" header="Username" style="min-width: 5rem">
+            <Column field="username" header="Username" style="min-width: 5rem">
               <template #body="{ data }">
-                {{ data.ups_qr_code }}
+                {{ data.username }}
 
                 <!-- Ensure this field exists in the data object -->
               </template>
@@ -388,18 +371,18 @@ const pageTitle = ref('User Management')
                 <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
               </template>
             </Column>
-            <Column field="actual_division_title" header="Active Email" style="min-width: 5rem">
+            <Column field="email" header="Active Email" style="min-width: 5rem">
               <template #body="{ data }">
-                {{ data.actual_division_title }}
+                {{ data.email }}
                 <!-- Ensure this field exists in the data object -->
               </template>
               <template #filter="{ filterModel }">
                 <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
               </template>
             </Column>
-            <Column field="equipment_title" header="Contact Details" style="min-width: 5rem">
+            <Column field="mobile_no" header="Contact Details" style="min-width: 5rem">
               <template #body="{ data }">
-                {{ data.equipment_title }}
+                {{ data.mobile_no }}
                 <!-- Ensure this field exists in the data object -->
               </template>
               <template #filter="{ filterModel }">

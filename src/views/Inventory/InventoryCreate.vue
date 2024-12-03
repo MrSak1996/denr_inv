@@ -43,7 +43,7 @@ const store = useStore()
 const isModalOpen = ref(!route.params.id)
 
 // Forms and API options
-const { form, specs_form, software_form, peripheral_form } = useForm()  
+const { form, specs_form, software_form, peripheral_form } = useForm()
 const {
   sex_opts,
   status_opts,
@@ -64,20 +64,21 @@ const {
   getEmploymentType
 } = useApi()
 
-// Additional setup
 const isButtonDisabled = ref(false)
 const errors = ref({})
 let selectedNetwork = ref(null)
 let selectedGPU = ref(null)
 let selectedWireless = ref(null)
-const selectedSoftware = ref({}) // Initialize as an empty object
+const selectedSoftware = ref({})
 const isVisible = ref(false)
 const isMicrosoftOffice = ref(false)
 const modalData = ref('')
-// Computed properties
+const role_id = ref(0)
 const isDedicatedSelected = computed(() => selectedGPU.value === '2')
 const isWirelessSelected = computed(() => selectedNetwork.value === '2')
-
+const image = ref(null)
+const uploadSuccess = ref(false)
+const uploadError = ref(null)
 // Functions
 const checkUrlAndDisableButton = () => {
   const url = window.location.href
@@ -129,6 +130,34 @@ const software_installed = ref([
   { title: 'Autocad', key: 'autocad' }
 ])
 
+const onFileChange = (event) => {
+  image.value = event.target.files[0]
+}
+
+// Upload image
+const uploadImage = async () => {
+  if (!image.value) return
+
+  const formData = new FormData()
+  formData.append('image', image.value)
+
+  try {
+    const response = await api.post('/upload-image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+
+    if (response.data.status) {
+      uploadSuccess.value = true
+      uploadError.value = null
+    }
+  } catch (error) {
+    uploadSuccess.value = false
+    uploadError.value = error.response?.data?.message || 'An error occurred.'
+  }
+}
+
 // Map remarks values to the corresponding options
 const remarksMap = {
   perpetual: '1',
@@ -152,7 +181,8 @@ const saveGeneralInfo = async () => {
     errors.value = {}
     const extractId = (item) => item?.id || null
     const requestData = {
-      ...form
+      ...form,
+      registered_loc: role_id.value
       // employmentType: extractId(form.employmentType),
       // selectedDivisiondd: extractId(form.selectedDivision),
       // selectedAcctDivision: extractId(form.selectedAcctDivision),
@@ -195,6 +225,38 @@ const saveGeneralInfo = async () => {
   }
 }
 
+const fetchCurUser = async () => {
+  // Retrieve the API token from localStorage
+  const api_token = localStorage.getItem('api_token')
+
+  // Check if the token exists
+  if (!api_token) {
+    console.error('API token not found. Please log in.')
+    return
+  }
+
+  try {
+    // Make the API call to fetch the current user
+    const response = await api.get(`/getUsers?api_token=${api_token}`, {
+      headers: {
+        Authorization: `Bearer ${api_token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    // Check if the response status is valid
+    if (response.status === 200 && response.data) {
+      role_id.value = response.data.data[0].role_id
+
+      return response.data
+    } else {
+      console.error('Failed to fetch current user: Invalid response')
+    }
+  } catch (error) {
+    // Handle any errors
+    console.error('Error fetching current user:', error.response?.data?.message || error.message)
+  }
+}
 //SPECS
 const saveSpecsInfo = async () => {
   try {
@@ -387,10 +449,16 @@ onMounted(() => {
   getEmploymentType()
   retrieveData()
   checkUrlAndDisableButton()
+  fetchCurUser()
   retrieveDataviaAPI(), retrieveSpecsData(), retrieveSoftwareData(), retrievePeripheralsData()
 })
 </script>
-
+<style>
+.upload-form {
+  max-width: 400px;
+  margin: 2rem auto;
+}
+</style>
 <template>
   <Toast />
 
@@ -657,6 +725,46 @@ onMounted(() => {
 
             <Button label="Save as Draft" type="submit" icon="pi pi-save" severity="primary" />
           </form>
+          <div>
+    <form @submit.prevent="uploadImage">
+      <label
+        @dragover.prevent="isDragging = true"
+        @dragleave.prevent="isDragging = false"
+        @drop.prevent="handleDrop"
+        class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors"
+        :class="{
+          'border-gray-300 bg-gray-100': !isDragging,
+          'border-blue-500 bg-blue-100': isDragging,
+        }"
+      >
+        <p class="text-gray-500" v-if="!image">Drag & drop your image here, or click to select</p>
+        <p class="text-gray-700" v-if="image">Selected: {{ image.name }}</p>
+      </label>
+
+      <input
+        type="file"
+        ref="fileInput"
+        @change="onFileChange"
+        class="hidden"
+        accept="image/*"
+      />
+
+      <button
+        type="submit"
+        class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
+        :disabled="!image"
+      >
+        Upload
+      </button>
+    </form>
+
+    <div v-if="uploadSuccess" class="mt-4 text-green-600">
+      Image uploaded successfully!
+    </div>
+    <div v-if="uploadError" class="mt-4 text-red-600">
+      Failed to upload image: {{ uploadError }}
+    </div>
+  </div>
         </TabPanel>
 
         <!--Specification-->
@@ -1180,10 +1288,7 @@ onMounted(() => {
                         <label for="processor">Actual User</label>
                       </FloatLabel>
                     </div>
-                    <div
-                      class="relative z-0 w-full mb-5 group"
-                      v-if="peripheral_form.ups_qr_code"
-                    >
+                    <div class="relative z-0 w-full mb-5 group" v-if="peripheral_form.ups_qr_code">
                       <Select
                         v-model="peripheral_form.ups_status"
                         :options="status_opts"

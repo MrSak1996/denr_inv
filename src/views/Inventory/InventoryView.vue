@@ -17,20 +17,20 @@ import Dialog from 'primevue/dialog'
 import Tag from 'primevue/tag'
 import Select from 'primevue/select'
 
-
-import { FilterMatchMode,FilterOperator } from '@primevue/core/api'
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import api from '../../../laravel-backend/resources/js/axiosInstance.js'
 
 const customers = ref([]) // Stores customer data
-const total_item = ref(0);
-const serviceable_count = ref(0);
-const unserviceable_count = ref(0);
-const outdated_count = ref(0);
+const total_item = ref(0)
+const serviceable_count = ref(0)
+const unserviceable_count = ref(0)
+const outdated_count = ref(0)
 const filters = ref() // Stores table filters
 const visible = ref(false) // Controls visibility of dialogs
 // const representatives = ref([...])  // Array of representative data
 const statuses = ref(['Serviceable', 'Unserviceable'])
 const loading = ref(false) // Tracks loading state
+const api_token = localStorage.getItem('api_token')
 
 // Progress bar state
 const progress = ref(0)
@@ -44,8 +44,6 @@ const messages = ref([
   'Preparing your data...',
   'Almost there, hang tight...'
 ])
-
-
 
 // Start progress bar animation
 const startProgress = () => {
@@ -77,12 +75,50 @@ const updateMessage = () => {
 }
 
 // Fetch customer data from the API
+const fetchCurUser = async () => {
+  // Retrieve the API token from localStorage
+  const api_token = localStorage.getItem('api_token')
+
+  // Check if the token exists
+  if (!api_token) {
+    console.error('API token not found. Please log in.')
+    return
+  }
+
+  try {
+    // Make the API call to fetch the current user
+    const response = await api.get(`/getUsers?api_token=${api_token}`, {
+      method: 'GET',
+      headers: {
+        required:true,
+        Authorization: `Bearer ${api_token}`,
+        'Content-Type': 'application/json'
+      },
+    })
+
+    // Parse the response
+    if (!response.ok) {
+      throw new Error('Failed to fetch current user')
+    }
+
+    const userData = await response.json()
+
+    // Handle the user data
+    console.log('Current user:', userData)
+    return userData
+  } catch (error) {
+    // Handle any errors
+    console.error('Error fetching current user:', error.message)
+  }
+}
+
 const fetchData = async () => {
   try {
     startProgress() // Start the progress bar
-    const response = await api.get(`/getInventoryData`)
-    total_item.value = Number(response.data.count); // Set the count if it exists
-    customers.value = getRawData(response.data.data) // Process the fetched data
+    const api_token = localStorage.getItem('api_token')
+    const response = await api.get(`/getInventoryData?api_token=${api_token}`)
+    total_item.value = Number(response.data.count) // Set the count if it exists
+    customers.value = response.data.data // Process the fetched data
     loading.value = false
     completeProgress() // Stop the progress bar
   } catch (error) {
@@ -93,37 +129,87 @@ const fetchData = async () => {
 }
 
 const getCountStatus = async () => {
-  const response = await api.get(`/getCountStatus`)
-  serviceable_count.value = getRawData(Number(response.data.serviceable_count)); // Set the count if it exists
-  unserviceable_count.value = getRawData(Number(response.data.unserviceable_count)); // Set the count if it exists
+  const response = await api.get(`/getCountStatus?api_token=${api_token}`)
+  serviceable_count.value = response.data.serviceable_count; // Set the count if it exists
+  unserviceable_count.value =Number(response.data.unserviceable_count) // Set the count if it exists
 }
 
 const getOutdatedEquipment = async () => {
-  const response = await api.get(`/getOutdatedEquipment`)
-  outdated_count.value = Number(response.data.count); // Set the count if it exists
+  const response = await api.get(`/getOutdatedEquipment?api_token=${api_token}`)
+  outdated_count.value = Number(response.data.count) // Set the count if it exists
 }
 
 // Initialize filter values
 const initFilters = () => {
   filters.value = {
-    id: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    actual_division_title: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    acct_division_title: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    equipment_title: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    acct_person: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    qr_code: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    mon_qr_code1: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    mon_qr_code2: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    ups_qr_code: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    brand: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    full_specs: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    range_category: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    actual_user: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    status: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-    control_no: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-    
-
+    id: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    global: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    actual_division_title: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    acct_division_title: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    equipment_title: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    acct_person: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    qr_code: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    mon_qr_code1: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    mon_qr_code2: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    ups_qr_code: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    brand: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    full_specs: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    range_category: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    actual_user: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    status: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    control_no: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    registered_loc: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    }
   }
 }
 
@@ -162,17 +248,15 @@ const getRawData = (data: any) => {
 }
 
 // Get severity based on status
-const getSeverity = (status:string) => {
-    switch (status) {
-        case 'Serviceable':
-            return 'success';
+const getSeverity = (status: string) => {
+  switch (status) {
+    case 'Serviceable':
+      return 'success'
 
-        case 'Unserviceable':
-            return 'danger';
-
-
-    }
-};
+    case 'Unserviceable':
+      return 'danger'
+  }
+}
 
 // View the record for a specific inventory item
 const viewRecord = (id: string) => {
@@ -184,13 +268,12 @@ const viewRecord = (id: string) => {
 
 const printRecord = async (id: string) => {
   try {
-      const url = `http://127.0.0.1:8000/api/generatePDFReport?id=${id}`;
-      window.open(url, '_blank');
+    const url = `http://127.0.0.1:8000/api/generatePDFReport?id=${id}`
+    window.open(url, '_blank')
   } catch (error) {
-    console.error('Error generating PDF:', error);
+    console.error('Error generating PDF:', error)
   }
-};
-
+}
 
 // Export inventory data to Excel
 const exportData = async () => {
@@ -219,6 +302,7 @@ onMounted(() => {
   fetchData()
   getCountStatus()
   getOutdatedEquipment()
+  fetchCurUser()
 })
 // Page title
 const pageTitle = ref('Inventory Management')
@@ -239,11 +323,12 @@ const pageTitle = ref('Inventory Management')
     <BreadcrumbDefault :pageTitle="pageTitle" />
 
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5 mb-4">
-      <DataStatsOne 
-      :total_equipment="total_item"
-      :total_serviceable_count="serviceable_count"
-      :total_unserviceable_count="unserviceable_count"
-      :outdated_equipment="outdated_count"/> 
+      <DataStatsOne
+        :total_equipment="total_item"
+        :total_serviceable_count="serviceable_count"
+        :total_unserviceable_count="unserviceable_count"
+        :outdated_equipment="outdated_count"
+      />
     </div>
 
     <div class="flex flex-col gap-10">
@@ -295,6 +380,7 @@ const pageTitle = ref('Inventory Management')
           :loading="loading"
           :globalFilterFields="[
             'control_no',
+            'registered_loc',
             'acct_person',
             'equipment_title',
             'acct_person',
@@ -356,20 +442,25 @@ const pageTitle = ref('Inventory Management')
             <template #body="{ data }">
               <div class="card flex justify-center">
                 <Button
-                  label="View"
                   @click="viewRecord(data.id)"
                   icon="pi pi-eye"
                   size="small"
                   class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 />
                 <Button
-                  label="Print"
-                  @click="printRecord(data.id)"
-                  icon="pi pi-print"
+                @click="printRecord(data.id)"
+                icon="pi pi-eye"
                   size="small"
-                  class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-blue-800"
-                  severity="info"
-                  />
+                  class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                />
+                <Button
+                icon="pi pi-cloud-upload"
+                size="small"
+                  class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                />
+                
+             
+
               </div>
             </template>
             <template #filter="{ filterModel }">
@@ -385,19 +476,37 @@ const pageTitle = ref('Inventory Management')
               <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
             </template>
           </Column>
-          <Column header="Status" field="status" :filterMenuStyle="{ width: '14rem' }" style="min-width: 12rem">
-                <template #body="{ data }">
-                    <Tag :value="data.status" :severity="getSeverity(data.status)" />
-                     
+          <Column field="registered_loc" header="Registered Location" style="min-width: 12rem">
+            <template #body="{ data }">
+              {{ data.registered_loc }}
+              <!-- Ensure this field exists in the data object -->
+            </template>
+            <template #filter="{ filterModel }">
+              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
+            </template>
+          </Column>
+          <Column
+            header="Status"
+            field="status"
+            :filterMenuStyle="{ width: '14rem' }"
+            style="min-width: 12rem"
+          >
+            <template #body="{ data }">
+              <Tag :value="data.status" :severity="getSeverity(data.status)" />
+            </template>
+            <template #filter="{ filterModel }">
+              <Select
+                v-model="filterModel.value"
+                :options="statuses"
+                placeholder="Select One"
+                showClear
+              >
+                <template #option="slotProps">
+                  <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)" />
                 </template>
-                <template #filter="{ filterModel }">
-                    <Select v-model="filterModel.value" :options="statuses" placeholder="Select One" showClear>
-                        <template #option="slotProps">
-                            <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)" />
-                        </template>
-                    </Select>
-                </template>
-            </Column>
+              </Select>
+            </template>
+          </Column>
           <Column field="qr_code" header="ICT Equipment QR Code" style="min-width: 12rem">
             <template #body="{ data }">
               <QrcodeVue

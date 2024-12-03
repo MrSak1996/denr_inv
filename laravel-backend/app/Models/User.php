@@ -17,8 +17,33 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+    protected $table = 'users';
+
     protected $fillable = [
-     'id', 'first_name', 'middle_name', 'last_name', 'ext_name', 'division_id', 'position_id', 'name', 'sex', 'mobile_no', 'complete_address', 'email', 'email_verified_at', 'username', 'password', 'remember_token', 'api_token', 'created_at', 'updated_at'
+        'id',
+        'region_c',
+        'province_c',
+        'city_mun_c',
+        'first_name',
+        'middle_name',
+        'last_name',
+        'ext_name',
+        'division_id',
+        'position_id',
+        'name',
+        'sex',
+        'mobile_no',
+        'complete_address',
+        'email',
+        'email_verified_at',
+        'username',
+        'password',
+        'remember_token',
+        'api_token',
+        'employment_status',
+        'roles',
+        'created_at',
+        'updated_at'
     ];
 
     /**
@@ -27,7 +52,30 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-       'id', 'first_name', 'middle_name', 'last_name', 'ext_name', 'division_id', 'position_id', 'name', 'sex', 'mobile_no', 'complete_address', 'email', 'email_verified_at', 'username', 'password', 'remember_token', 'api_token', 'created_at', 'updated_at'
+        'id',
+        'region_c',
+        'province_c',
+        'city_mun_c',
+        'first_name',
+        'middle_name',
+        'last_name',
+        'ext_name',
+        'division_id',
+        'position_id',
+        'name',
+        'sex',
+        'mobile_no',
+        'complete_address',
+        'email',
+        'email_verified_at',
+        'username',
+        'password',
+        'remember_token',
+        'api_token',
+        'employment_status',
+        'roles',
+        'created_at',
+        'updated_at'
     ];
 
     /**
