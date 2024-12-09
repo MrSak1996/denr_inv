@@ -286,22 +286,6 @@ const post_save_userCred = async () => {
             </button>
           </div>
         </form>
-        <!-- <div class="otp-form">
-          <h1>Send OTP</h1>
-          <form @submit.prevent="sendOtp">
-            <input v-model="email" type="email" placeholder="Enter your email" required />
-            <button class="bg-primary" type="submit">Send OTP</button>
-          </form>
-
-          <h1>Verify OTP</h1>
-          <form @submit.prevent="verifyOtp">
-            <input v-model="email" type="email" placeholder="Enter your email" required />
-            <input v-model="otp" type="text" placeholder="Enter OTP" required />
-            <button class="bg-primary" type="submit">Verify OTP</button>
-          </form>
-
-          <p>{{ message }}</p>
-        </div> -->
       </div>
     </div>
   </DefaultLayout>

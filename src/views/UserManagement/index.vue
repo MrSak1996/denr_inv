@@ -11,30 +11,26 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
+import Checkbox from 'primevue/checkbox'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
-import Dialog from 'primevue/dialog'
 import Tag from 'primevue/tag'
-import Select from 'primevue/select'
+
+import Fieldset from 'primevue/fieldset'
 
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import api from '../../../laravel-backend/resources/js/axiosInstance.js'
 
-const users = ref([]) // Stores customer data
-const total_item = ref(0)
-const serviceable_count = ref(0)
-const unserviceable_count = ref(0)
-const outdated_count = ref(0)
-const filters = ref() // Stores table filters
-const visible = ref(false) // Controls visibility of dialogs
-// const representatives = ref([...])  // Array of representative data
-const statuses = ref(['Serviceable', 'Unserviceable'])
-const loading = ref(false) // Tracks loading state
-
-// Progress bar state
+const users = ref([])
+const filters = ref()
+const loading = ref(false)
 const progress = ref(0)
+const user_id = ref(0)
 const isLoading = ref(false)
+const isModalOpen = ref(false)
 const currentMessage = ref('Loading, please wait...')
+const selectedCategory = ref('Production')
+
 const messages = ref([
   'Loading, please wait...',
   'Processing data...',
@@ -42,6 +38,15 @@ const messages = ref([
   'Fetching resources...',
   'Preparing your data...',
   'Almost there, hang tight...'
+])
+const usermanagement_roles = ref([
+  { name: 'User Management Section - Manage Accounts', key: 'A' },
+  { name: 'User Management Section - Viewing User Activity Logs', key: 'A' },
+  { name: 'User Management Section - Creating New Users', key: 'A' },
+  { name: 'User Management Section - Editing User Profiles', key: 'A' },
+  { name: 'User Management Section - Disabling/Enabling User Accounts', key: 'A' },
+  { name: 'User Management Section - Assigning User Roles', key: 'A' },
+  { name: 'User Management Section - Resetting User Passwords', key: 'A' }
 ])
 
 // Start progress bar animation
@@ -78,7 +83,7 @@ const fetchData = async () => {
   try {
     startProgress() // Start the progress bar
     const response = await api.get(`/getUsers`)
-    users.value = getRawData(response.data.data) // Process the fetched data
+    users.value = response.data.data // Process the fetched data
     loading.value = false
     completeProgress() // Stop the progress bar
   } catch (error) {
@@ -102,102 +107,57 @@ const getOutdatedEquipment = async () => {
 // Initialize filter values
 const initFilters = () => {
   filters.value = {
-    global: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-    id: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-    roles: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-    name: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-    division_title: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-    position: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-    username: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-    email: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-    mobile_no: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
- 
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    id: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    roles: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    name: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    division_title: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    position: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    username: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    email: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    },
+    mobile_no: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+    }
   }
 }
 
 initFilters()
-
-// Format date to 'MM/DD/YYYY'
-const formatDate = (value: Date) => {
-  return value.toLocaleDateString('en-US', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  })
-}
-
-// Format value to currency (USD)
-const formatCurrency = (value: number) => {
-  return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
-}
 
 // Clear all filters
 const clearFilter = () => {
   initFilters()
 }
 
-// Navigate to the create page for inventory
-const addMore = () => {
-  router.push({ path: '/inventory/create' })
+//Assigning roles
+
+const openModal = (id: number) => {
+  isModalOpen.value = true
+  user_id.value = id
 }
-
-// Process fetched customer data
-const getRawData = (data: any) => {
-  return [...(data || [])].map((d: any) => {
-    d.date = new Date(d.date)
-    return d
-  })
-}
-
-// Get severity based on status
-const getSeverity = (status: string) => {
-  switch (status) {
-    case 'Serviceable':
-      return 'success'
-
-    case 'Unserviceable':
-      return 'danger'
-  }
-}
-
-// View the record for a specific inventory item
-const viewRecord = (id: string) => {
-  router.push({
-    path: `/inventory/create/${id}`,
-    query: { api_token: localStorage.getItem('api_token') }
-  })
-}
-
-const printRecord = async (id: string) => {
-  try {
-    const url = `http://127.0.0.1:8000/api/generatePDFReport?id=${id}`
-    window.open(url, '_blank')
-  } catch (error) {
-    console.error('Error generating PDF:', error)
-  }
-}
-
-// Export inventory data to Excel
-const exportData = async () => {
-  try {
-    const response = await api.get('http://localhost:8000/api/export?export=true', {
-      responseType: 'blob'
-    })
-
-    const blob = new Blob([response.data], { type: response.headers['content-type'] })
-    const url = window.URL.createObjectURL(blob)
-
-    const link = document.createElement('a')
-    link.href = url
-    link.download = 'denr_ict_inv_2024.xlsx'
-    document.body.appendChild(link)
-    link.click()
-
-    link.remove()
-    window.URL.revokeObjectURL(url)
-  } catch (error) {
-    console.error('Error exporting data:', error)
-  }
+const closeModal = () => {
+  isModalOpen.value = false
 }
 
 onMounted(() => {
@@ -221,39 +181,93 @@ const pageTitle = ref('User Management')
     <BreadcrumbDefault :pageTitle="pageTitle" />
 
     <div class="grid grid-cols-12 gap-6 mb-4">
-      <!-- Buttons Column (Equivalent to Bootstrap col-lg-3) -->
-      <div class="col-span-12 md:col-span-2">
-        <div class="grid grid-cols-1 gap-4">
-          <router-link
-            to="/user-management/account-details"
-            class="block w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 font-medium text-white text-center transition hover:bg-opacity-90"
-          >
-            Account Details
-          </router-link>
-          <router-link
-            to="/user-management/accounts/create"
-            class="block w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 font-medium text-white text-center transition hover:bg-opacity-90"
-          >
-            Create Accounts
-          </router-link>
-          <router-link
-            to="/user-management/block-accounts"
-            class="block w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 font-medium text-white text-center transition hover:bg-opacity-90"
-          >
-            Block Accounts
-          </router-link>
-          <router-link
-            to="/user-management/newly-registered"
-            class="block w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 font-medium text-white text-center transition hover:bg-opacity-90"
-          >
-            Newly Registered Accounts
-          </router-link>
-        </div>
-      </div>
-
       <!-- DataTable Column (Equivalent to Bootstrap col-lg-9) -->
-      <div class="col-span-12 md:col-span-10">
+      <div class="col-span-12 md:col-span-12">
         <div class="bg-white p-4 rounded-lg shadow-md">
+          <!-- progress bar -->
+          <div
+            v-if="isLoading"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+            role="dialog"
+            tabindex="-1"
+            aria-labelledby="progress-modal"
+          >
+            <div
+              class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-sm rounded-xl w-full max-w-4xl mx-4 lg:mx-auto transition-transform duration-500 transform"
+            >
+              <!-- Modal Header -->
+              <div
+                class="modal-content flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700"
+              >
+                <h3 class="text-lg font-semibold">{{ currentMessage }}</h3>
+                <!-- Dynamic Message -->
+              </div>
+              <!-- Modal Body -->
+              <div class="flex flex-col justify-center items-center gap-x-2 py-6 px-4">
+                <!-- Progress Bar Container -->
+                <div class="w-full bg-gray-200 rounded-full h-4">
+                  <div
+                    class="bg-teal-500 h-4 rounded-full transition-all"
+                    :style="{ width: progress + '%' }"
+                  ></div>
+                </div>
+                <!-- Progress Percentage -->
+                <p class="mt-2 text-gray-700 dark:text-gray-300">{{ progress }}%</p>
+              </div>
+            </div>
+          </div>
+          <!-- assign roles -->
+          <div
+            v-if="isModalOpen"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+            role="dialog"
+            tabindex="-1"
+            aria-labelledby="progress-modal"
+          >
+            <div
+              class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-sm rounded-xl w-full max-w-lg mx-4 transition-transform duration-500 transform"
+            >
+              <!-- Modal Header -->
+              <div
+                class="flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700"
+              >
+                <h3 class="text-lg font-semibold">Roles & Permision</h3>
+                <button
+                  @click="closeModal"
+                  class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-400"
+                >
+                  ✖
+                </button>
+              </div>
+
+              <!-- Modal Body -->
+              <div class="p-4">
+                <Fieldset legend="Roles & Assignment">
+                  <div class="grid md:grid-cols-1 md:gap-6 mb-4 mt-4">
+                    <div class="card">
+                      <div class="card flex justify-left">
+                              <div class="flex flex-col gap-4">
+                                <div
+                                  v-for="category in usermanagement_roles"
+                                  :key="category.key"
+                                  class="flex items-center gap-2"
+                                >
+                                  <Checkbox
+                                    v-model="selectedCategory"
+                                    :inputId="category.key"
+                                    name="dynamic"
+                                    :value="category.name"
+                                  />
+                                  <p :for="category.key"> {{ category.name }}</p>
+                                </div>
+                              </div>
+                            </div>
+                    </div>
+                  </div>
+                </Fieldset>
+              </div>
+            </div>
+          </div>
           <DataTable
             size="small"
             v-model:filters="filters"
@@ -272,7 +286,7 @@ const pageTitle = ref('User Management')
               'position',
               'username',
               'email',
-              'mobile_no',
+              'mobile_no'
             ]"
           >
             <template #header>
@@ -302,14 +316,20 @@ const pageTitle = ref('User Management')
               <template #body="{ data }">
                 <div class="card flex justify-center">
                   <Button
-                    @click="viewRecord(data.id)"
                     icon="pi pi-eye"
                     size="small"
-                    class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    class="text-white mr-2 bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-blue-800"
+                    severity="info"
                   />
                   <Button
-                    @click="printRecord(data.id)"
-                    icon="pi pi-print"
+                    icon="pi pi-cog"
+                    size="small"
+                    class="text-white mr-2 bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-blue-800"
+                    severity="info"
+                  />
+                  <Button
+                    @click="openModal(data.id)"
+                    icon="pi pi-cog"
                     size="small"
                     class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-blue-800"
                     severity="info"

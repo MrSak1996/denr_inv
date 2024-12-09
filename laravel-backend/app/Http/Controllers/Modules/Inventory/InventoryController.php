@@ -22,8 +22,105 @@ class InventoryController extends Controller
         $results = DB::table('tbl_general_info as gi')
             ->select(DB::raw('COUNT(*)+1 as control_no'))
             ->whereYear('created_at', $cur_year)
-            ->get();
-        return response()->json($results);
+            ->first();
+        $counter = $results->control_no + 1;
+
+        if ($counter > 9999) {
+            $newCounter = $counter;
+        } elseif ($counter > 999) {
+            $newCounter = '0' . $counter;
+        } elseif ($counter < 10) {
+            $newCounter = '0000' . $counter;
+        } elseif ($counter < 99) {
+            $newCounter = '000' . $counter;
+        } elseif ($counter > 99 && $counter <= 999) {
+            $newCounter = '00' . $counter;
+        }
+        $controlNo = 'R4A-RICT-' . $newCounter;
+        return response()->json(['control_no' => $controlNo]);
+    }
+
+    public function generateQRCode(Request $req,$cur_year = '2024')
+    {
+        // Step 1: Retrieve province and municipality codes based on the user ID
+
+        $userId = $req->query('id');
+        $item_id = $req->query('item_id');
+        $form_tracker = $req->query('tab_form');
+
+
+        $userInfo = DB::table('users as u')
+            ->leftJoin('user_roles as ur', 'ur.id', '=', 'u.roles')
+            ->select(DB::raw('ur.code_title,ur.code'))
+            ->where('u.id', $userId)
+            ->first();
+
+        if (!$userInfo) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+        $ccode = '4A' . $userInfo->code_title . 'ICT-' . $userInfo->code;
+
+        // Step 2: Retrieve and increment the counter from tbl_config
+        $config = DB::table('tbl_config')->where('code', $ccode)->first();
+
+        if (!$config) {
+            return response()->json(['error' => 'Configuration not found'], 404);
+        }
+
+        $counter = $config->counter + 1;
+        // Step 3: Format the counter with leading zeros
+        if ($counter > 9999) {
+            $newCounter = $counter;
+        } elseif ($counter > 999) {
+            $newCounter = '0' . $counter;
+        } elseif ($counter < 10) {
+            $newCounter = '0000' . $counter;
+        } elseif ($counter < 99) {
+            $newCounter = '000' . $counter;
+        } elseif ($counter > 99 && $counter <= 999) {
+            $newCounter = '00' . $counter;
+        }
+
+        // Step 4: Update the counter in tbl_config
+        DB::table('tbl_config')
+            ->where('id', $config->id)
+            ->update(['counter' => $newCounter]);
+
+        // Step 5: Generate the control number
+        $controlNo = $ccode . '-' . $newCounter;
+
+        //Step 6: Save QR Code
+        switch ($form_tracker) {
+            case 'genForm':
+                DB::table('tbl_general_info')
+                ->where('id',$item_id)
+                ->update(['qr_code' => $controlNo]);
+                break;
+            case 'p1Form':
+                DB::table('tbl_peripherals')
+                ->where('control_id',$item_id)
+                ->update(['mon_qr_code1' => $controlNo]);
+                break;
+            case 'p2Form':
+                DB::table('tbl_peripherals')
+                ->where('control_id',$item_id)
+                ->update(['mon_qr_code2' => $controlNo]);
+                break;
+            case 'upsForm':
+                DB::table('tbl_peripherals')
+                ->where('control_id',$item_id)
+                ->update(['ups_qr_code' => $controlNo]);
+                break;
+            
+            default:
+                # code...
+                break;
+        }
+
+
+
+
+        return response()->json(['control_no' => $controlNo]);
     }
 
     public function getDivision()
@@ -262,7 +359,7 @@ class InventoryController extends Controller
                 'gi.actual_user',
                 'actual_division.division_title as actual_division_title'
             )
-            ->where('u.api_token',$api_token)
+            ->where('u.api_token', $api_token)
             ->get();
         $rowCount = $equipmentData->count();
 
@@ -281,10 +378,10 @@ class InventoryController extends Controller
 
         // Count the number of records for each status (1 = Serviceable, 2 = Unserviceable)
         $counts = DB::table('tbl_general_info as gi')
-            ->leftJoin('users as u','u.roles','=','gi.registered_loc')
+            ->leftJoin('users as u', 'u.roles', '=', 'gi.registered_loc')
             ->select('status', DB::raw('count(*) as total'))
             ->whereIn('status', $status)  // Filter by status values 1 and 2
-            ->where('u.api_token',$api_token)
+            ->where('u.api_token', $api_token)
             ->groupBy('status')  // Group by status to get counts for each status
             ->get();
 
@@ -312,21 +409,32 @@ class InventoryController extends Controller
         $api_token = $request->query('api_token');
 
         $outdatedEquipment = DB::table('tbl_general_info as gi')
-                ->leftJoin('users as u','u.roles','=','gi.registered_loc')
-                ->select('gi.id', 'gi.control_no', 'gi.year_acquired')
-                ->where('gi.year_acquired', '<=', DB::raw('YEAR(CURDATE()) - 5'))
-                ->where('u.api_token',$api_token)
-                ->get();
+            ->leftJoin('users as u', 'u.roles', '=', 'gi.registered_loc')
+            ->select('gi.id', 'gi.control_no', 'gi.year_acquired')
+            ->where('gi.year_acquired', '<=', DB::raw('YEAR(CURDATE()) - 5'))
+            ->where('u.api_token', $api_token)
+            ->get();
         $rowCount = $outdatedEquipment->count();
 
 
-            // Return the results as a JSON response
-            return response()->json(['count'=>$rowCount]);
+        // Return the results as a JSON response
+        return response()->json(['count' => $rowCount]);
     }
 
     // C R U D
     public function post_insert_gen_info(Request $req)
     {
+
+
+        $user_id = $req->input('id');
+        $userInfo = DB::table('users')
+            ->select('roles') // `users.` prefix is unnecessary here.
+            ->where('id', $user_id)
+            ->get();
+
+        $registered_loc = $userInfo[0]->roles;
+
+
         $validated = $req->validate([
             'registered_loc' => 'required|integer',
             'control_no' => 'required|string',
@@ -358,7 +466,7 @@ class InventoryController extends Controller
         $equipment = GeneralInformation::updateOrCreate(
             ['control_no' => $validated['control_no']],
             [
-                'registered_loc' => $validated['registered_loc'],
+                'registered_loc' => $registered_loc,
                 'qr_code' => $validated['qr_code'],
                 'acct_person' => $validated['acct_person'],
                 'actual_user' => $validated['actual_user'],

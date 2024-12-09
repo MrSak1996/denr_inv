@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import router from '@/router'
+import { useRoute } from 'vue-router'
+import { useApi } from '@/composables/useApi'
+const { fetchCurUser } = useApi()
+const route = useRoute()
 
+import router from '@/router'
+import form_dash from './form_dash.vue';
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import DataStatsOne from '@/components/DataStats/DataStatsOne.vue'
-
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
-
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import InputText from 'primevue/inputtext'
@@ -20,22 +23,24 @@ import Select from 'primevue/select'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import api from '../../../laravel-backend/resources/js/axiosInstance.js'
 
-const customers = ref([]) // Stores customer data
+const customers = ref([])
+const qr_code = ref()
 const total_item = ref(0)
 const serviceable_count = ref(0)
 const unserviceable_count = ref(0)
 const outdated_count = ref(0)
-const filters = ref() // Stores table filters
-const visible = ref(false) // Controls visibility of dialogs
-// const representatives = ref([...])  // Array of representative data
-const statuses = ref(['Serviceable', 'Unserviceable'])
-const loading = ref(false) // Tracks loading state
-const api_token = localStorage.getItem('api_token')
-
-// Progress bar state
+const filters = ref()
+const loading = ref(false)
 const progress = ref(0)
 const isLoading = ref(false)
+const isUploading = ref(false)
+const image = ref(null)
+const isModalOpen = ref(false)
+const openQR = ref(false)
+const uploadSuccess = ref(false)
+const uploadError = ref()
 const currentMessage = ref('Loading, please wait...')
+const statuses = ref(['Serviceable', 'Unserviceable'])
 const messages = ref([
   'Loading, please wait...',
   'Processing data...',
@@ -44,8 +49,17 @@ const messages = ref([
   'Preparing your data...',
   'Almost there, hang tight...'
 ])
+const userId = route.query.id
+const user_role =ref(0)
+const designation =ref('')
+const api_token = route.query.api_token
 
-// Start progress bar animation
+const loadUserData = async () => {
+  const userData = await fetchCurUser()
+  user_role.value = userData.data[0].role_id
+  designation.value = userData.data[0].roles
+}
+
 const startProgress = () => {
   progress.value = 0
   isLoading.value = true
@@ -60,7 +74,6 @@ const startProgress = () => {
   }, 500)
 }
 
-// Complete progress bar animation
 const completeProgress = () => {
   progress.value = 100
   setTimeout(() => {
@@ -68,48 +81,9 @@ const completeProgress = () => {
   }, 500)
 }
 
-// Random message for progress updates
 const updateMessage = () => {
   const randomIndex = Math.floor(Math.random() * messages.value.length)
   currentMessage.value = messages.value[randomIndex]
-}
-
-// Fetch customer data from the API
-const fetchCurUser = async () => {
-  // Retrieve the API token from localStorage
-  const api_token = localStorage.getItem('api_token')
-
-  // Check if the token exists
-  if (!api_token) {
-    console.error('API token not found. Please log in.')
-    return
-  }
-
-  try {
-    // Make the API call to fetch the current user
-    const response = await api.get(`/getUsers?api_token=${api_token}`, {
-      method: 'GET',
-      headers: {
-        required:true,
-        Authorization: `Bearer ${api_token}`,
-        'Content-Type': 'application/json'
-      },
-    })
-
-    // Parse the response
-    if (!response.ok) {
-      throw new Error('Failed to fetch current user')
-    }
-
-    const userData = await response.json()
-
-    // Handle the user data
-    console.log('Current user:', userData)
-    return userData
-  } catch (error) {
-    // Handle any errors
-    console.error('Error fetching current user:', error.message)
-  }
 }
 
 const fetchData = async () => {
@@ -130,8 +104,8 @@ const fetchData = async () => {
 
 const getCountStatus = async () => {
   const response = await api.get(`/getCountStatus?api_token=${api_token}`)
-  serviceable_count.value = response.data.serviceable_count; // Set the count if it exists
-  unserviceable_count.value =Number(response.data.unserviceable_count) // Set the count if it exists
+  serviceable_count.value = response.data.serviceable_count // Set the count if it exists
+  unserviceable_count.value = Number(response.data.unserviceable_count) // Set the count if it exists
 }
 
 const getOutdatedEquipment = async () => {
@@ -139,17 +113,13 @@ const getOutdatedEquipment = async () => {
   outdated_count.value = Number(response.data.count) // Set the count if it exists
 }
 
-// Initialize filter values
 const initFilters = () => {
   filters.value = {
     id: {
       operator: FilterOperator.OR,
       constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
     },
-    global: {
-      operator: FilterOperator.OR,
-      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
-    },
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     actual_division_title: {
       operator: FilterOperator.OR,
       constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
@@ -215,39 +185,14 @@ const initFilters = () => {
 
 initFilters()
 
-// Format date to 'MM/DD/YYYY'
-const formatDate = (value: Date) => {
-  return value.toLocaleDateString('en-US', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  })
-}
-
-// Format value to currency (USD)
-const formatCurrency = (value: number) => {
-  return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
-}
-
-// Clear all filters
 const clearFilter = () => {
   initFilters()
 }
 
-// Navigate to the create page for inventory
 const addMore = () => {
-  router.push({ path: '/inventory/create' })
+  router.push({ name: 'InventoryCreate', query: { id: userId, api_token: api_token } })
 }
 
-// Process fetched customer data
-const getRawData = (data: any) => {
-  return [...(data || [])].map((d: any) => {
-    d.date = new Date(d.date)
-    return d
-  })
-}
-
-// Get severity based on status
 const getSeverity = (status: string) => {
   switch (status) {
     case 'Serviceable':
@@ -258,7 +203,6 @@ const getSeverity = (status: string) => {
   }
 }
 
-// View the record for a specific inventory item
 const viewRecord = (id: string) => {
   router.push({
     path: `/inventory/create/${id}`,
@@ -275,7 +219,66 @@ const printRecord = async (id: string) => {
   }
 }
 
-// Export inventory data to Excel
+const simulateUpload = () => {
+  isUploading.value = true
+  progress.value = 0
+
+  const interval = setInterval(() => {
+    if (progress.value < 100) {
+      progress.value += 10 // Increment progress
+    } else {
+      clearInterval(interval)
+      isUploading.value = false
+      uploadSuccess.value = true // Mark upload as successful
+      setTimeout(() => closeModal(), 2000) // Auto close modal after completion
+    }
+  }, 500)
+}
+
+const openModal = (id: String) => {
+  isModalOpen.value = true
+  qr_code.value = id
+}
+
+const closeModal = () => {
+  isModalOpen.value = false
+  resetForm()
+}
+
+const onFileChange = (event) => {
+  image.value = event.target.files[0]
+}
+
+const triggerFileInput = () => {
+  document.querySelector("input[type='file']").click()
+}
+
+const uploadImage = async () => {
+  if (!image.value) return
+
+  const formData = new FormData()
+  formData.append('image', image.value)
+  formData.append('destination_folder', designation.value)
+  formData.append('qr_code', qr_code.value)
+  try {
+    simulateUpload()
+
+    const response = await api.post('/upload-image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+
+    if (response.data.status) {
+      uploadSuccess.value = true
+      uploadError.value = null
+    }
+  } catch (error) {
+    uploadSuccess.value = false
+    uploadError.value = error.response?.data?.message || 'An error occurred.'
+  }
+}
+
 const exportData = async () => {
   try {
     const response = await api.get('http://localhost:8000/api/export?export=true', {
@@ -298,11 +301,19 @@ const exportData = async () => {
   }
 }
 
+const resetForm = () => {
+  image.value = null
+  progress.value = 0
+  isUploading.value = false
+  uploadSuccess.value = false
+  uploadError.value = ''
+}
+
 onMounted(() => {
+  loadUserData()
   fetchData()
   getCountStatus()
   getOutdatedEquipment()
-  fetchCurUser()
 })
 // Page title
 const pageTitle = ref('Inventory Management')
@@ -310,8 +321,10 @@ const pageTitle = ref('Inventory Management')
 
 <style scoped>
 .p-dialog-mask {
-  background: rgba(0, 0, 0, 0.7); /* Adjust the overlay color and opacity */
+  background: rgba(0, 0, 0, 0.7);
+  /* Adjust the overlay color and opacity */
 }
+
 .wrap-text {
   white-space: normal;
   word-wrap: break-word;
@@ -331,10 +344,10 @@ const pageTitle = ref('Inventory Management')
       />
     </div>
 
-    <div class="flex flex-col gap-10">
-      <div
-        class="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1"
-      >
+     <form_dash :role_id="user_role" :office="designation" :total_equipment="total_item" />
+
+    <div class="flex flex-col gap-10 mt-4">
+      <div class="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1" >
         <!--Progress Bar-->
         <div
           v-if="isLoading"
@@ -367,6 +380,74 @@ const pageTitle = ref('Inventory Management')
             </div>
           </div>
         </div>
+        <div
+          v-if="isModalOpen"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          role="dialog"
+          tabindex="-1"
+          aria-labelledby="progress-modal"
+        >
+          <div
+            class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-sm rounded-xl w-full max-w-lg mx-4 transition-transform duration-500 transform"
+          >
+            <!-- Modal Header -->
+            <div
+              class="flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700"
+            >
+              <h3 class="text-lg font-semibold">Attach MOV's</h3>
+              <button
+                @click="closeModal"
+                class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-400"
+              >
+                ✖
+              </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-4">
+              <!-- Upload Form -->
+              <form @submit.prevent="uploadImage">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Upload Image</label>
+                <div
+                  class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-blue-400"
+                  @click="triggerFileInput"
+                >
+                  <p v-if="!image" class="text-gray-400">Click to select an image file</p>
+                  <p v-else class="text-gray-700 font-medium">{{ image.name }}</p>
+                  <input type="file" @change="onFileChange" accept="image/*" class="hidden" />
+                </div>
+
+                <button
+                  type="submit"
+                  class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 w-full"
+                  :disabled="!image || isUploading"
+                >
+                  Upload
+                </button>
+              </form>
+
+              <!-- Progress Bar -->
+              <div v-if="isUploading" class="mt-6">
+                <div class="w-full bg-gray-200 rounded-full h-4">
+                  <div
+                    class="bg-blue-500 h-4 rounded-full transition-all duration-300"
+                    :style="{ width: progress + '%' }"
+                  ></div>
+                </div>
+                <p class="mt-2 text-center text-sm text-gray-600">{{ progress }}% completed</p>
+              </div>
+
+              <!-- Success/Error Messages -->
+              <div v-if="uploadSuccess" class="mt-4 text-green-600">
+                Image uploaded successfully!
+              </div>
+              <div v-if="uploadError" class="mt-4 text-red-600">
+                Failed to upload image: {{ uploadError }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- end of progress bar -->
 
         <DataTable
           size="small"
@@ -448,19 +529,17 @@ const pageTitle = ref('Inventory Management')
                   class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 />
                 <Button
-                @click="printRecord(data.id)"
-                icon="pi pi-eye"
+                  @click="printRecord(data.id)"
+                  icon="pi pi-print"
                   size="small"
                   class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 />
                 <Button
-                icon="pi pi-cloud-upload"
-                size="small"
+                  @click="openModal(data.control_no)"
+                  icon="pi pi-cloud-upload"
+                  size="small"
                   class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 />
-                
-             
-
               </div>
             </template>
             <template #filter="{ filterModel }">
@@ -469,6 +548,7 @@ const pageTitle = ref('Inventory Management')
           </Column>
           <Column field="control_no" header="Control No" style="min-width: 12rem">
             <template #body="{ data }">
+              <Tag value="new" severity="success" class="text-center" /><br>
               {{ data.control_no }}
               <!-- Ensure this field exists in the data object -->
             </template>

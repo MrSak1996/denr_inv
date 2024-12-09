@@ -25,7 +25,7 @@ class OTPController extends Controller
         ]);
 
         // Send OTP via email
-        Mail::raw("Your OTP code is: $otpCode ", function ($message) use ($request) {
+        Mail::raw("A sign in attempt requires further verification because we did not recognize your device. To complete the sign in, enter the verification code on the unrecognized device. \n Verification code: $otpCode ", function ($message) use ($request) {
             $message->to($request->email)
                 ->subject('Login | OTP');
         });

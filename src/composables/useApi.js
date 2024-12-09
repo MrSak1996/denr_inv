@@ -9,15 +9,58 @@ export function useApi() {
   const range_category = ref([])
   const employment_opts = ref([])
   const roles_opts = ref([])
+  const designation = ref();
 
-  const getControlNo = async (form) => {
+  const fetchCurUser = async () => {
+    // Retrieve the API token from localStorage
+    const api_token = localStorage.getItem('api_token');
+    
+    // Check if the token exists
+    if (!api_token) {
+      console.error('API token not found. Please log in.');
+      return;
+    }
+  
     try {
-      const res = await api.get('/getControlNo')
-      const controlNo = res.data[0].control_no
-      const paddedControlNo = String(controlNo).padStart(4, '0')
-      form.control_no = `R4A-RICT-${paddedControlNo}`
+      // Make the API call to fetch the current user
+      const response = await api.get(`/getUsers?api_token=${api_token}`, {
+        headers: {
+          Authorization: `Bearer ${api_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      // Check if the response status is valid
+      if (response.status === 200 && response.data) {
+        designation.value = response.data.data[0].roles;
+        return response.data;
+      } else {
+        console.error('Failed to fetch current user: Invalid response');
+      }
     } catch (error) {
-      console.error('Error fetching control number:', error)
+      // Handle any errors
+      console.error('Error fetching current user:', error.response?.data?.message || error.message);
+    }
+  };
+
+  const getControlNo = async (form, userId) => {
+    try {
+      const res = await api.get(`/getControlNo?id=${userId}`)
+      const controlNo = res.data.control_no
+      const paddedControlNo = String(controlNo).padStart(4, '0')
+      form.control_no = paddedControlNo
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  const generateQRCode = async (form,tab_form,item_id,userId) => {
+    try {
+      const res = await api.get('/generateQRCode?id='+userId+"&item_id="+item_id+"&tab_form="+tab_form)
+      const controlNo = res.data.control_no
+      const paddedControlNo = String(controlNo).padStart(4, '0')
+      form.qr_code = paddedControlNo
+    } catch (error) {
+      console.error(error)
     }
   }
 
@@ -98,9 +141,8 @@ export function useApi() {
     { name: 'Laguna', id: 34 },
     { name: 'Rizal', id: 58 },
     { name: 'Batangas', id: 10 },
-    { name: 'Quezon', id: 56 },
+    { name: 'Quezon', id: 56 }
   ])
-
 
   const status_opts = ref([
     { name: 'Serviceable', id: 1 },
@@ -171,7 +213,9 @@ export function useApi() {
     capacity_opts,
     ram_opts,
     ram_capacity_opts,
+    fetchCurUser,
     getControlNo,
+    generateQRCode,
     getDivision,
     getNatureWork,
     getEquipment,

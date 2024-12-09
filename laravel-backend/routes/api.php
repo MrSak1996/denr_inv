@@ -33,6 +33,7 @@ Route::middleware('auth:api')->group(function () {
 Route::middleware('api')->group(function () {
     Route::get('/showData', [ExampleController::class, 'showData']);
     Route::get('/getControlNo', [InventoryController::class, 'getControlNo']);
+    Route::get('/generateQRCode', [InventoryController::class, 'generateQRCode']);
     Route::get('/getDivision', [InventoryController::class, 'getDivision']);
     Route::get('/getNatureWork', [InventoryController::class, 'getNatureWork']);
     Route::get('/getEquipment', [InventoryController::class, 'getEquipment']);

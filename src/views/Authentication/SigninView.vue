@@ -78,6 +78,8 @@ const loginUser = async () => {
 
 const verifyOtp = async () => {
   try {
+    const userId = localStorage.getItem('userId');
+    const api_token = localStorage.getItem('api_token');
     const response = await api.post('/verify-otp', {
       user_email: email,
       otp: otp.value
@@ -87,7 +89,7 @@ const verifyOtp = async () => {
       
       toast.add({ severity: 'success', summary: 'Success', detail: 'Login successful', life: 3000 })
       setTimeout(() => {
-        router.push({ name: 'eCommerce', query: { api_token: response.data.api_token } })
+        router.push({ name: 'eCommerce', query: { id: userId,api_token:api_token, } })
       }, 1000)
     } 
   } catch (error) {

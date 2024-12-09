@@ -57,6 +57,7 @@ const {
   ram_opts,
   ram_capacity_opts,
   getControlNo,
+  generateQRCode,
   getDivision,
   getNatureWork,
   getEquipment,
@@ -79,6 +80,9 @@ const isWirelessSelected = computed(() => selectedNetwork.value === '2')
 const image = ref(null)
 const uploadSuccess = ref(false)
 const uploadError = ref(null)
+const userId = !route.query.id ? localStorage.getItem('userId') : route.query.id
+const item_id = route.params.id // Access the route parameter 'id'
+const api_token = route.query.api_token
 // Functions
 const checkUrlAndDisableButton = () => {
   const url = window.location.href
@@ -130,33 +134,7 @@ const software_installed = ref([
   { title: 'Autocad', key: 'autocad' }
 ])
 
-const onFileChange = (event) => {
-  image.value = event.target.files[0]
-}
-
 // Upload image
-const uploadImage = async () => {
-  if (!image.value) return
-
-  const formData = new FormData()
-  formData.append('image', image.value)
-
-  try {
-    const response = await api.post('/upload-image', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
-
-    if (response.data.status) {
-      uploadSuccess.value = true
-      uploadError.value = null
-    }
-  } catch (error) {
-    uploadSuccess.value = false
-    uploadError.value = error.response?.data?.message || 'An error occurred.'
-  }
-}
 
 // Map remarks values to the corresponding options
 const remarksMap = {
@@ -182,7 +160,8 @@ const saveGeneralInfo = async () => {
     const extractId = (item) => item?.id || null
     const requestData = {
       ...form,
-      registered_loc: role_id.value
+      registered_loc: role_id.value,
+      id: userId
       // employmentType: extractId(form.employmentType),
       // selectedDivisiondd: extractId(form.selectedDivision),
       // selectedAcctDivision: extractId(form.selectedAcctDivision),
@@ -213,7 +192,7 @@ const saveGeneralInfo = async () => {
       })
       location.reload()
       window.location.href =
-        '/inventory/create/' + id + '?api_token=' + localStorage.getItem('api_token')
+        '/inventory/create?id=' + id + '?api_token=' + localStorage.getItem('api_token')
     }, 1000)
   } catch (error) {
     if (error.response?.status === 422) {
@@ -225,38 +204,6 @@ const saveGeneralInfo = async () => {
   }
 }
 
-const fetchCurUser = async () => {
-  // Retrieve the API token from localStorage
-  const api_token = localStorage.getItem('api_token')
-
-  // Check if the token exists
-  if (!api_token) {
-    console.error('API token not found. Please log in.')
-    return
-  }
-
-  try {
-    // Make the API call to fetch the current user
-    const response = await api.get(`/getUsers?api_token=${api_token}`, {
-      headers: {
-        Authorization: `Bearer ${api_token}`,
-        'Content-Type': 'application/json'
-      }
-    })
-
-    // Check if the response status is valid
-    if (response.status === 200 && response.data) {
-      role_id.value = response.data.data[0].role_id
-
-      return response.data
-    } else {
-      console.error('Failed to fetch current user: Invalid response')
-    }
-  } catch (error) {
-    // Handle any errors
-    console.error('Error fetching current user:', error.response?.data?.message || error.message)
-  }
-}
 //SPECS
 const saveSpecsInfo = async () => {
   try {
@@ -401,7 +348,6 @@ const retrieveSpecsData = async () => {
 
       Object.assign(specs_form, response.data[0])
     } catch (error) {
-      console.error('Error retrieving data:', error)
     }
   }
 }
@@ -441,7 +387,7 @@ const retrievePeripheralsData = async () => {
 }
 
 onMounted(() => {
-  getControlNo(form)
+  getControlNo(form, userId)
   getDivision()
   getNatureWork()
   getEquipment()
@@ -449,7 +395,6 @@ onMounted(() => {
   getEmploymentType()
   retrieveData()
   checkUrlAndDisableButton()
-  fetchCurUser()
   retrieveDataviaAPI(), retrieveSpecsData(), retrieveSoftwareData(), retrievePeripheralsData()
 })
 </script>
@@ -647,9 +592,19 @@ onMounted(() => {
             <div class="grid md:grid-cols-4 md:gap-6 mb-4">
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
-                  <InputText id="qr_code" v-model="form.qr_code" class="w-full" />
+                  <InputText id="qr_code" v-model="form.qr_code" class="w-full pr-16" />
                   <label for="qr_code">QR Code</label>
                 </FloatLabel>
+                <!-- Button inside the input field -->
+                <Button
+                  v-if="!form.qr_code"
+                  class="absolute top-1/2 right-2 transform -translate-y-1/2 px-2 py-2"
+                  style="top: -21px; left: 258px"
+                  size="small"
+                  @click="generateQRCode(form,'genForm', item_id, userId)"
+                >
+                  Generate
+                </Button>
               </div>
 
               <div class="relative z-0 w-full mb-5 group">
@@ -725,46 +680,6 @@ onMounted(() => {
 
             <Button label="Save as Draft" type="submit" icon="pi pi-save" severity="primary" />
           </form>
-          <div>
-    <form @submit.prevent="uploadImage">
-      <label
-        @dragover.prevent="isDragging = true"
-        @dragleave.prevent="isDragging = false"
-        @drop.prevent="handleDrop"
-        class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors"
-        :class="{
-          'border-gray-300 bg-gray-100': !isDragging,
-          'border-blue-500 bg-blue-100': isDragging,
-        }"
-      >
-        <p class="text-gray-500" v-if="!image">Drag & drop your image here, or click to select</p>
-        <p class="text-gray-700" v-if="image">Selected: {{ image.name }}</p>
-      </label>
-
-      <input
-        type="file"
-        ref="fileInput"
-        @change="onFileChange"
-        class="hidden"
-        accept="image/*"
-      />
-
-      <button
-        type="submit"
-        class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
-        :disabled="!image"
-      >
-        Upload
-      </button>
-    </form>
-
-    <div v-if="uploadSuccess" class="mt-4 text-green-600">
-      Image uploaded successfully!
-    </div>
-    <div v-if="uploadError" class="mt-4 text-red-600">
-      Failed to upload image: {{ uploadError }}
-    </div>
-  </div>
         </TabPanel>
 
         <!--Specification-->
@@ -1029,6 +944,14 @@ onMounted(() => {
                         />
                         <label for="qr_code">QR Code</label>
                       </FloatLabel>
+                      <Button
+                        v-if="!peripheral_form.monitor1QrCode"
+                        style="top: -0.5px; left: -88px"
+                        size="small"
+                        @click="generateQRCode(peripheral_form,'p1Form', item_id, userId)"
+                      >
+                        Generate
+                      </Button>
                     </div>
 
                     <div class="flex items-center gap-2">
@@ -1117,15 +1040,26 @@ onMounted(() => {
                     <QrcodeVue :value="peripheral_form.monitor2QrCode" />
                   </div>
                   <div class="card flex mb-7 mt-7 flex-wrap gap-6">
+                   
                     <div class="flex items-center gap-2">
+                      
                       <FloatLabel>
                         <InputText
                           id="processor"
                           v-model="peripheral_form.monitor2QrCode"
-                          class="w-full md:w-100"
+                          class="w-full md:w-80"
                         />
                         <label for="processor">QR Code</label>
                       </FloatLabel>
+                      <Button
+                        v-if="!peripheral_form.monitor2QrCode"
+                        style="top: -0.5px; left: -88px"
+                        size="small"
+                        @click="generateQRCode(peripheral_form,'p2Form', item_id, userId)"
+                      >
+                        Generate
+                      </Button>
+                   
                     </div>
 
                     <div class="flex items-center gap-2">
@@ -1216,10 +1150,18 @@ onMounted(() => {
                       <InputText
                         id="processor"
                         v-model="peripheral_form.ups_qr_code"
-                        class="w-full md:w-100"
+                        class="w-full md:w-80"
                       />
                       <label for="processor">QR Code</label>
                     </FloatLabel>
+                    <Button
+                        v-if="!peripheral_form.ups_qr_code"
+                        style="top: -0.5px; left: -88px"
+                        size="small"
+                        @click="generateQRCode(peripheral_form,'upsForm', item_id, userId)"
+                      >
+                        Generate
+                      </Button>
                   </div>
                   <div class="card flex mb-7 mt-3 flex-wrap gap-6">
                     <div class="flex items-center gap-2">

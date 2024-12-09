@@ -45,6 +45,10 @@ const routes = [
     path: '/inventory',
     name: 'Inventory',
     component: InventoryView,
+    props: route => ({
+      id: route.query.id,
+      api_token: route.query.api_token,
+    }),
     meta: {
       title: 'Inventory Dashboard',
       requiresAuth: true,
@@ -55,6 +59,10 @@ const routes = [
     path: '/inventory/create',
     name: 'InventoryCreate', // Unique name for the route
     component: InventoryCreate,
+    // props: route => ({
+    //   id: route.query.id,
+    //   api_token: route.query.api_token,
+    // }),
     meta: {
       title: 'Inventory Add Item',
       requiresAuth:true
@@ -64,11 +72,16 @@ const routes = [
     path: '/inventory/create/:id',
     name: 'InventoryEdit', // Different name for this route
     component: InventoryCreate,
+    props: route => ({
+      id: route.query.id,
+      api_token: route.query.api_token,
+    }),
     meta: {
       title: 'Update Item',
       requiresAuth:true
     },
   },  
+
   {
     path: '/user-management/',
     name: 'Account List', // Different name for this route
