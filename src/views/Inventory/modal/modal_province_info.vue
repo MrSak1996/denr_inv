@@ -19,15 +19,20 @@ const chartData = {
   labels: ['Desktop', 'Tablet', 'Mobile', 'Unknown']
 }
 
+const chartOffices = {
+  series: [100],
+  labels: ['Division']
+}
+
 const chartDataBySex = {
   series: [
     {
-      name: 'Product One',
+      name: 'Male',
       data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30, 45]
     },
 
     {
-      name: 'Product Two',
+      name: 'Female',
       data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39, 51]
     }
   ],
@@ -68,105 +73,36 @@ const apexOptions = {
   ]
 }
 
-const apexOptions_bySex = {
+const overallOffices = {
+  chart: {
+    type: 'donut',
+    width: 380
+  },
+  colors: ['#3C50E0', '#6577F3', '#8FD0EF', '#0FADCF'],
+  labels: chartData.labels,
   legend: {
     show: false,
-    position: 'top',
-    horizontalAlign: 'left'
+    position: 'bottom'
   },
-  colors: ['#3C50E0', '#80CAEE'],
-  chart: {
-    fontFamily: 'Satoshi, sans-serif',
-    height: 335,
-    type: 'area',
-    dropShadow: {
-      enabled: true,
-      color: '#623CEA14',
-      top: 10,
-      blur: 4,
-      left: 0,
-      opacity: 0.1
-    },
-
-    toolbar: {
-      show: false
-    }
-  },
-  responsive: [
-    {
-      breakpoint: 1024,
-      options: {
-        chart: {
-          height: 300
-        }
-      }
-    },
-    {
-      breakpoint: 1366,
-      options: {
-        chart: {
-          height: 350
-        }
-      }
-    }
-  ],
-  stroke: {
-    width: [2, 2],
-    curve: 'straight'
-  },
-
-  labels: {
-    show: false,
-    position: 'top'
-  },
-  grid: {
-    xaxis: {
-      lines: {
-        show: true
-      }
-    },
-    yaxis: {
-      lines: {
-        show: true
-      }
+  plotOptions: {
+    pie: {
+      startAngle: -90,
+      endAngle: 90
     }
   },
   dataLabels: {
     enabled: false
   },
-  markers: {
-    size: 4,
-    colors: '#fff',
-    strokeColors: ['#3056D3', '#80CAEE'],
-    strokeWidth: 3,
-    strokeOpacity: 0.9,
-    strokeDashArray: 0,
-    fillOpacity: 1,
-    discrete: [],
-    hover: {
-      size: undefined,
-      sizeOffset: 5
-    }
-  },
-  xaxis: {
-    type: 'category',
-    categories: chartData.labels,
-    axisBorder: {
-      show: false
-    },
-    axisTicks: {
-      show: false
-    }
-  },
-  yaxis: {
-    title: {
-      style: {
-        fontSize: '0px'
+  responsive: [
+    {
+      breakpoint: 640,
+      options: {
+        chart: {
+          width: 200
+        }
       }
-    },
-    min: 0,
-    max: 100
-  }
+    }
+  ]
 }
 
 const apexOptions_byOffice = {
@@ -223,68 +159,6 @@ const apexOptions_byOffice = {
     }
   }
 }
-
-const apexOptions_byYear = ref({
-  chart: {
-    height: 150,
-    type: 'radialBar'
-  },
-  plotOptions: {
-    radialBar: {
-      offsetY: 0,
-      startAngle: 0,
-      endAngle: 270,
-      hollow: {
-        margin: 5,
-        size: '30%',
-        background: 'transparent',
-        image: undefined
-      },
-      dataLabels: {
-        name: {
-          show: false
-        },
-        value: {
-          show: false
-        }
-      },
-      barLabels: {
-        enabled: true,
-        useSeriesColors: true,
-        offsetX: -8,
-        fontSize: '16px',
-        formatter: (seriesName, opts) => {
-          return seriesName + ':  ' + opts.w.globals.series[opts.seriesIndex]
-        }
-      }
-    }
-  },
-  colors: ['#1ab7ea', '#0084ff', '#39539E', '#0077B5'],
-  labels: chartData.labels,
-  legend: {
-    show: true,
-    position: 'right', // Adjust the position as needed (e.g., 'top', 'right', 'bottom', 'left')
-    markers: {
-      width: 12,
-      height: 12,
-      radius: 12
-    },
-    itemMargin: {
-      horizontal: 10,
-      vertical: 5
-    }
-  },
-  responsive: [
-    {
-      breakpoint: 480,
-      options: {
-        legend: {
-          show: false
-        }
-      }
-    }
-  ]
-})
 
 const series = ref([
   { name: 'Marine Sprite', data: [44, 55, 41, 37, 22, 43, 21] },
@@ -352,36 +226,76 @@ const apexOption_Equipment = ref({
   }
 })
 
-const apexOption_semiDounut = ref({
-  chart: {
-    type: 'donut'
-  },
-  plotOptions: {
-    pie: {
-      startAngle: -90,
-      endAngle: 90,
-      offsetY: 10
+const barchartData = {
+  series: [
+    {
+      name: 'Sales',
+      data: [44, 55, 41, 67, 22, 43, 65]
+    },
+    {
+      name: 'Revenue',
+      data: [13, 23, 20, 8, 13, 27, 15]
     }
-  },
-  grid: {
-    padding: {
-      bottom: -100
+  ],
+  labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+}
+const barChart = {
+  colors: ['#3056D3', '#80CAEE'],
+  chart: {
+    type: 'bar',
+    height: 335,
+    stacked: true,
+    toolbar: {
+      show: false
+    },
+    zoom: {
+      enabled: false
     }
   },
   responsive: [
     {
-      breakpoint: 480,
+      breakpoint: 1536,
       options: {
-        chart: {
-          width: 200
-        },
-        legend: {
-          position: 'bottom'
+        plotOptions: {
+          bar: {
+            borderRadius: 0,
+            columnWidth: '25%'
+          }
         }
       }
     }
-  ]
-})
+  ],
+  plotOptions: {
+    bar: {
+      horizontal: false,
+      borderRadius: 0,
+      columnWidth: '25%',
+      borderRadiusApplication: 'end',
+      borderRadiusWhenStacked: 'last'
+    }
+  },
+  dataLabels: {
+    enabled: false
+  },
+  xaxis: {
+    type: 'category',
+    categories: chartData.labels
+  },
+  legend: {
+    position: 'top',
+    horizontalAlign: 'left',
+    fontFamily: 'Satoshi',
+    fontWeight: 500,
+    fontSize: '14px',
+
+    markers: {
+      radius: 99
+    }
+  },
+  fill: {
+    opacity: 1
+  }
+}
 </script>
 
 <template>
@@ -407,19 +321,59 @@ const apexOption_semiDounut = ref({
         <div class="col-span-12 grid grid-cols-4 gap-4">
           <div class="bg-teal-700 text-white p-4 rounded-lg shadow text-center">
             <h4 class="text-xl font-bold">Overall Offices</h4>
-            <p class="text-4xl font-extrabold">--</p>
+            <div class="h-[100px] w-full bg-gray-0 rounded-lg flex items-center justify-center">
+              <VueApexCharts
+              class="mt-17"
+                type="donut"
+                width="150"
+                height="150"
+                :options="overallOffices"
+                :series="chartOffices.series"
+                ref="chart"
+              />
+            </div>
           </div>
           <div class="bg-teal-700 text-white p-4 rounded-lg shadow text-center">
             <h4 class="text-xl font-bold">Total Actual Users</h4>
-            <p class="text-4xl font-extrabold">--</p>
+            <div class="h-[100px] w-full bg-gray-0 rounded-lg flex items-center justify-center">
+              <VueApexCharts
+              class="mt-17"
+                type="donut"
+                width="150"
+                height="150"
+                :options="overallOffices"
+                :series="chartOffices.series"
+                ref="chart"
+              />
+            </div>
           </div>
           <div class="bg-teal-700 text-white p-4 rounded-lg shadow text-center">
             <h4 class="text-xl font-bold">Accountable Users</h4>
-            <p class="text-4xl font-extrabold">--</p>
+            <div class="h-[100px] w-full bg-gray-0 rounded-lg flex items-center justify-center">
+              <VueApexCharts
+              class="mt-17"
+                type="donut"
+                width="150"
+                height="150"
+                :options="overallOffices"
+                :series="chartOffices.series"
+                ref="chart"
+              />
+            </div>
           </div>
           <div class="bg-teal-700 text-white p-4 rounded-lg shadow text-center">
             <h4 class="text-xl font-bold">Offices</h4>
-            <p class="text-4xl font-extrabold">--</p>
+            <div class="h-[100px] w-full bg-gray-0 rounded-lg flex items-center justify-center">
+              <VueApexCharts
+              class="mt-17"
+                type="donut"
+                width="150"
+                height="150"
+                :options="overallOffices"
+                :series="chartOffices.series"
+                ref="chart"
+              />
+            </div>
           </div>
         </div>
 
@@ -470,10 +424,11 @@ const apexOption_semiDounut = ref({
           <h5 class="text-lg font-bold mb-2">Equipment by Year Acquired</h5>
           <div class="h-auto w-full bg-gray-0 rounded-lg flex items-center justify-center">
             <VueApexCharts
-              type="radialBar"
-              :height="apexOptions_byYear.chart.height"
-              :options="apexOptions"
-              :series="chartData.series"
+              type="bar"
+              height="335"
+              :options="barChart"
+              :series="barchartData.series"
+              ref="chart"
             />
           </div>
         </div>
@@ -493,10 +448,11 @@ const apexOption_semiDounut = ref({
           <h5 class="text-lg font-bold mb-2">Equipment by Year Acquired</h5>
           <div class="h-auto w-full bg-gray-0 rounded-lg flex items-center justify-center">
             <VueApexCharts
-              type="radialBar"
-              :height="apexOptions_byYear.chart.height"
-              :options="apexOptions"
-              :series="chartData.series"
+              type="bar"
+              height="335"
+              :options="barChart"
+              :series="barchartData.series"
+              ref="chart"
             />
           </div>
         </div>
