@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, defineProps, defineEmits } from 'vue'
+import { ref, computed  } from 'vue'
 import { saveAs } from 'file-saver'
 import JSZip from 'jszip'
 import { generateQRCodeWithLogo, formatQRCodeText } from './qrCodeUtils.js'

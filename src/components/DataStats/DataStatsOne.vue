@@ -37,7 +37,6 @@ watch(() => props.total_unserviceable_count, (newValue) => {
 });
 
 
-
 watch(() => props.outdated_equipment, (newValue) => {
   outdatedCount.value = newValue;
 });

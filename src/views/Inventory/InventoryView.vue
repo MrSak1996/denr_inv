@@ -336,15 +336,21 @@ const pageTitle = ref('Inventory Management')
     <BreadcrumbDefault :pageTitle="pageTitle" />
 
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5 mb-4">
-      <DataStatsOne
+      <!-- <DataStatsOne
         :total_equipment="total_item"
         :total_serviceable_count="serviceable_count"
         :total_unserviceable_count="unserviceable_count"
         :outdated_equipment="outdated_count"
-      />
+      /> -->
     </div>
 
-     <form_dash :role_id="user_role" :office="designation" :total_equipment="total_item" />
+     <form_dash 
+     :role_id="user_role" 
+     :office="designation" 
+     :total_equipment="total_item"
+     :total_serviceable_count="serviceable_count"
+     :total_unserviceable_count="unserviceable_count"
+     :outdated_equipment="outdated_count" />
 
     <div class="flex flex-col gap-10 mt-4">
       <div class="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1" >
