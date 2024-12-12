@@ -53,16 +53,16 @@ export function useApi() {
       console.error(error)
     }
   }
-  const generateQRCode = async (form,tab_form,item_id,userId) => {
-    try {
-      const res = await api.get('/generateQRCode?id='+userId+"&item_id="+item_id+"&tab_form="+tab_form)
-      const controlNo = res.data.control_no
-      const paddedControlNo = String(controlNo).padStart(4, '0')
-      form.qr_code = paddedControlNo
-    } catch (error) {
-      console.error(error)
-    }
-  }
+  // const generateQRCode = async (form,tab_form,item_id,userId) => {
+  //   try {
+  //     const res = await api.get('/generateQRCode?id='+userId+"&item_id="+item_id+"&tab_form="+tab_form)
+  //     const controlNo = res.data.control_no
+  //     const paddedControlNo = String(controlNo).padStart(4, '0')
+  //     form.qr_code = paddedControlNo
+  //   } catch (error) {
+  //     console.error(error)
+  //   }
+  // }
 
   const getDivision = async () => {
     try {
@@ -215,7 +215,6 @@ export function useApi() {
     ram_capacity_opts,
     fetchCurUser,
     getControlNo,
-    generateQRCode,
     getDivision,
     getNatureWork,
     getEquipment,

@@ -10,26 +10,9 @@ import api from '../../../laravel-backend/resources/js/axiosInstance.js'
 import modal_reserved from './modal/modal_reserved.vue'
 import modal_software from './modal/modal_software.vue'
 import modal_msoffice from './modal/modal_msoffice.vue'
-
-import Toast from 'primevue/toast'
-import Button from 'primevue/button'
-import Tabs from 'primevue/tabs'
-import TabList from 'primevue/tablist'
-import TabPanel from 'primevue/tabpanel'
-import Tab from 'primevue/tab'
-import TabPanels from 'primevue/tabpanels'
+import modal_review_form from './modal/modal_review_form.vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
-import DefaultLayout from '@/layouts/DefaultLayout.vue'
-import Select from 'primevue/select'
-import Checkbox from 'primevue/checkbox'
-import Badge from 'primevue/badge'
-import Divider from 'primevue/divider'
-import Fieldset from 'primevue/fieldset'
-import FloatLabel from 'primevue/floatlabel'
-import InputText from 'primevue/inputtext'
-import InputNumber from 'primevue/inputnumber'
-// import RadioButton from 'primevue/radioButton'
-import Textarea from 'primevue/textarea'
+
 import Modal_msoffice from './modal/modal_msoffice.vue'
 
 // Page title and modal state
@@ -57,7 +40,6 @@ const {
   ram_opts,
   ram_capacity_opts,
   getControlNo,
-  generateQRCode,
   getDivision,
   getNatureWork,
   getEquipment,
@@ -72,6 +54,7 @@ let selectedGPU = ref(null)
 let selectedWireless = ref(null)
 const selectedSoftware = ref({})
 const isVisible = ref(false)
+const openReviewForm = ref(true)
 const isMicrosoftOffice = ref(false)
 const modalData = ref('')
 const role_id = ref(0)
@@ -192,7 +175,7 @@ const saveGeneralInfo = async () => {
       })
       location.reload()
       window.location.href =
-        '/inventory/create?id=' + id + '?api_token=' + localStorage.getItem('api_token')
+        '/inventory/create/' + id + '?api_token=' + localStorage.getItem('api_token')
     }, 1000)
   } catch (error) {
     if (error.response?.status === 422) {
@@ -347,8 +330,7 @@ const retrieveSpecsData = async () => {
       selectedWireless.value = String(response.data[0].specs_net_iswireless)
 
       Object.assign(specs_form, response.data[0])
-    } catch (error) {
-    }
+    } catch (error) {}
   }
 }
 
@@ -386,6 +368,46 @@ const retrievePeripheralsData = async () => {
   }
 }
 
+const generateQRCode = async (form, tab_form, item_id, userId) => {
+  try {
+    switch (tab_form) {
+      case 'genForm':
+        saveGeneralInfo()
+        break
+      case 'p1Form':
+        savePeripheralInfo()
+        break
+      case 'p2Form':
+        savePeripheralInfo()
+        break
+      case 'upsForm':
+        savePeripheralInfo()
+        break
+      default:
+        break
+    }
+
+    const res = await api.get(
+      '/generateQRCode?id=' + userId + '&item_id=' + item_id + '&tab_form=' + tab_form
+    )
+    const controlNo = res.data.control_no
+    const paddedControlNo = String(controlNo).padStart(4, '0')
+    form.qr_code = paddedControlNo
+    // setTimeout(() => {
+      toast.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Data saved successfully!',
+        life: 3000
+      })
+
+      retrievePeripheralsData()
+    // }, 3000)
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 onMounted(() => {
   getControlNo(form, userId)
   getDivision()
@@ -403,20 +425,26 @@ onMounted(() => {
   max-width: 400px;
   margin: 2rem auto;
 }
+.badge-align-left{
+  margin-left: 42%;
+  margin-top:10px;
+}
 </style>
 <template>
   <Toast />
 
   <DefaultLayout>
     <BreadcrumbDefault :pageTitle="pageTitle" />
-    <modal_reserved
+    <!-- <modal_reserved
       v-if="isModalOpen"
       :controlNo="form.control_no"
       :isLoading="isModalOpen"
       @proceed="saveGeneralInfo"
       @close="isModalOpen = false"
-    />
+    /> -->
     <modal_software v-if="isVisible" :isLoading="isVisible" @close="isModalOpen = false" />
+    <modal_review_form v-if="openReviewForm" :genForm="form" :open="openReviewForm" @close="openReviewForm = false" />
+    
     <Modal_msoffice
       v-if="isMicrosoftOffice"
       :isLoading="isMicrosoftOffice"
@@ -448,6 +476,7 @@ onMounted(() => {
           <i class="pi pi-desktop" />
           <span class="font-bold whitespace-nowrap">Monitor & UPS</span>
         </Tab>
+        <Badge value="Draft" size="large" severity="info" class="badge-align-left"></Badge>
       </TabList>
 
       <TabPanels>
@@ -601,7 +630,7 @@ onMounted(() => {
                   class="absolute top-1/2 right-2 transform -translate-y-1/2 px-2 py-2"
                   style="top: -21px; left: 258px"
                   size="small"
-                  @click="generateQRCode(form,'genForm', item_id, userId)"
+                  @click="generateQRCode(form, 'genForm', item_id, userId)"
                 >
                   Generate
                 </Button>
@@ -948,7 +977,7 @@ onMounted(() => {
                         v-if="!peripheral_form.monitor1QrCode"
                         style="top: -0.5px; left: -88px"
                         size="small"
-                        @click="generateQRCode(peripheral_form,'p1Form', item_id, userId)"
+                        @click="generateQRCode(peripheral_form, 'p1Form', item_id, userId)"
                       >
                         Generate
                       </Button>
@@ -1040,9 +1069,7 @@ onMounted(() => {
                     <QrcodeVue :value="peripheral_form.monitor2QrCode" />
                   </div>
                   <div class="card flex mb-7 mt-7 flex-wrap gap-6">
-                   
                     <div class="flex items-center gap-2">
-                      
                       <FloatLabel>
                         <InputText
                           id="processor"
@@ -1055,11 +1082,10 @@ onMounted(() => {
                         v-if="!peripheral_form.monitor2QrCode"
                         style="top: -0.5px; left: -88px"
                         size="small"
-                        @click="generateQRCode(peripheral_form,'p2Form', item_id, userId)"
+                        @click="generateQRCode(peripheral_form, 'p2Form', item_id, userId)"
                       >
                         Generate
                       </Button>
-                   
                     </div>
 
                     <div class="flex items-center gap-2">
@@ -1155,13 +1181,13 @@ onMounted(() => {
                       <label for="processor">QR Code</label>
                     </FloatLabel>
                     <Button
-                        v-if="!peripheral_form.ups_qr_code"
-                        style="top: -0.5px; left: -88px"
-                        size="small"
-                        @click="generateQRCode(peripheral_form,'upsForm', item_id, userId)"
-                      >
-                        Generate
-                      </Button>
+                      v-if="!peripheral_form.ups_qr_code"
+                      style="top: -0.5px; left: -88px"
+                      size="small"
+                      @click="generateQRCode(peripheral_form, 'upsForm', item_id, userId)"
+                    >
+                      Generate
+                    </Button>
                   </div>
                   <div class="card flex mb-7 mt-3 flex-wrap gap-6">
                     <div class="flex items-center gap-2">
@@ -1253,7 +1279,7 @@ onMounted(() => {
               @click="btnBack()"
             />
 
-            <Button label="Save as Draft" type="submit" icon="pi pi-save" severity="primary" />
+            <Button label="Submit" type="submit" icon="pi pi-save" severity="primary" />
           </form>
         </TabPanel>
       </TabPanels>

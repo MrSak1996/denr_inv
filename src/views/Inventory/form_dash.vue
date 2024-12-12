@@ -199,7 +199,7 @@ const value = ref([
           <div class="col-span-2">
             <!-- Added PENRO CAVITE title -->
             <div class="text-center mb-2">
-              <h2 class="text-2xl font-bold text-teal-700">PENRO CAVITE</h2>
+              <h2 class="text-2xl font-bold text-teal-700">STATISTICAL DATA</h2>
             </div>
             <div class="card">
               <MeterGroup :value="value" labelPosition="start">

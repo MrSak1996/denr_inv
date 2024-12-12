@@ -18,13 +18,22 @@ use DB;
 class InventoryController extends Controller
 {
     public function getControlNo($cur_year = '2024')
-    {
+{
+    try {
+        // Start transaction
+        DB::beginTransaction();
+
+        // Lock the table or use a unique counter table for safe concurrent access
         $results = DB::table('tbl_general_info as gi')
             ->select(DB::raw('COUNT(*)+1 as control_no'))
             ->whereYear('created_at', $cur_year)
+            ->lockForUpdate() // Prevent other transactions from modifying the count
             ->first();
-        $counter = $results->control_no + 1;
 
+        // Increment the counter
+        $counter = $results->control_no;
+
+        // Pad the counter to ensure proper formatting
         if ($counter > 9999) {
             $newCounter = $counter;
         } elseif ($counter > 999) {
@@ -36,9 +45,29 @@ class InventoryController extends Controller
         } elseif ($counter > 99 && $counter <= 999) {
             $newCounter = '00' . $counter;
         }
+
+        // Generate control number
         $controlNo = 'R4A-RICT-' . $newCounter;
+
+        // Insert the new record with the generated control number
+        DB::table('tbl_general_info')->insert([
+            'control_no' => $controlNo,
+            'created_at' => now(),
+            'updated_at' => now(),
+            // Other fields you might want to include
+        ]);
+
+        // Commit transaction
+        DB::commit();
+
         return response()->json(['control_no' => $controlNo]);
+    } catch (\Exception $e) {
+        // Rollback transaction in case of error
+        DB::rollBack();
+        return response()->json(['error' => $e], 500);
     }
+}
+
 
     public function generateQRCode(Request $req,$cur_year = '2024')
     {
@@ -47,7 +76,6 @@ class InventoryController extends Controller
         $userId = $req->query('id');
         $item_id = $req->query('item_id');
         $form_tracker = $req->query('tab_form');
-
 
         $userInfo = DB::table('users as u')
             ->leftJoin('user_roles as ur', 'ur.id', '=', 'u.roles')
@@ -58,7 +86,7 @@ class InventoryController extends Controller
         if (!$userInfo) {
             return response()->json(['error' => 'User not found'], 404);
         }
-        $ccode = '4A' . $userInfo->code_title . 'ICT-' . $userInfo->code;
+        $ccode = '4A' . $userInfo->code_title . 'ICT';
 
         // Step 2: Retrieve and increment the counter from tbl_config
         $config = DB::table('tbl_config')->where('code', $ccode)->first();
@@ -102,6 +130,7 @@ class InventoryController extends Controller
                 ->update(['mon_qr_code1' => $controlNo]);
                 break;
             case 'p2Form':
+                
                 DB::table('tbl_peripherals')
                 ->where('control_id',$item_id)
                 ->update(['mon_qr_code2' => $controlNo]);
@@ -278,7 +307,7 @@ class InventoryController extends Controller
                 ups_status',
             ))
             ->where('control_id', $id)
-            ->get();
+            ->get();    
 
         return response()->json($results);
     }
@@ -360,6 +389,7 @@ class InventoryController extends Controller
                 'actual_division.division_title as actual_division_title'
             )
             ->where('u.api_token', $api_token)
+            ->orderBy('id','desc')
             ->get();
         $rowCount = $equipmentData->count();
 

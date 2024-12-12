@@ -78,7 +78,7 @@ const overallOffices = {
     type: 'donut',
     width: 380
   },
-  colors: ['#3C50E0', '#6577F3', '#8FD0EF', '#0FADCF'],
+  colors: ['#8FD0EF', '#6577F3', '#8FD0EF', '#0FADCF'],
   labels: chartData.labels,
   legend: {
     show: false,

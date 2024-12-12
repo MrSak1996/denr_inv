@@ -7,18 +7,7 @@ const route = useRoute()
 
 import router from '@/router'
 import form_dash from './form_dash.vue';
-import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
-import DataStatsOne from '@/components/DataStats/DataStatsOne.vue'
-import DefaultLayout from '@/layouts/DefaultLayout.vue'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import InputText from 'primevue/inputtext'
-import Button from 'primevue/button'
-import IconField from 'primevue/iconfield'
-import InputIcon from 'primevue/inputicon'
-import Dialog from 'primevue/dialog'
-import Tag from 'primevue/tag'
-import Select from 'primevue/select'
+
 
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import api from '../../../laravel-backend/resources/js/axiosInstance.js'

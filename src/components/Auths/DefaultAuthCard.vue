@@ -29,7 +29,7 @@ const props = defineProps({
             <!-- <img class="dark:hidden" src="@/assets/images/logo/logo-dark.svg" alt="Logo" /> -->
           </router-link>
 
-          <p class="font-medium 2xl:px-20">Lorem Ipsum</p>
+          <p class="font-medium 2xl:px-20">Inventory Management System</p>
 
           <span class="mt-15 inline-block">
             <img src="@/assets/images/illustration/illustration-03.svg" alt="illustration" />

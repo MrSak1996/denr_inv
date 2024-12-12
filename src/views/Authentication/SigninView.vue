@@ -11,7 +11,7 @@ import { useRouter } from 'vue-router'
 import api from '../../../laravel-backend/resources/js/axiosInstance.js'
 import modal_verify from './modal/modal_verify.vue'
 
-const pageTitle = ref('Welcome to DENR-SRF')
+const pageTitle = ref('Welcome to ICT Inventory System')
 const toast = useToast()
 const router = useRouter()
 
@@ -211,7 +211,7 @@ const verifyOtp = async () => {
                 />
               </div>
 
-              <button
+              <!-- <button
                 class="flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray p-4 font-medium hover:bg-opacity-70 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-70"
               >
                 <span>
@@ -248,7 +248,7 @@ const verifyOtp = async () => {
                   </svg>
                 </span>
                 Sign in with Google
-              </button>
+              </button> -->
 
               <div class="mt-6 text-center">
                 <p class="font-medium">
