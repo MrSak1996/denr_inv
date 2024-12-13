@@ -2,15 +2,16 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useApi } from '@/composables/useApi'
-const { fetchCurUser } = useApi()
-const route = useRoute()
-
+import { useInventory } from '@/composables/useInventory.ts';
 import router from '@/router'
 import form_dash from './form_dash.vue';
-
-
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import api from '../../../laravel-backend/resources/js/axiosInstance.js'
+
+const { fetchCurUser } = useApi()
+const { printRecord } = useInventory();
+
+const route = useRoute()
 
 const customers = ref([])
 const qr_code = ref()
@@ -26,7 +27,7 @@ const isUploading = ref(false)
 const image = ref(null)
 const isModalOpen = ref(false)
 const openQR = ref(false)
-const uploadSuccess = ref(false)
+const uploadSuccess = ref(false)  
 const uploadError = ref()
 const currentMessage = ref('Loading, please wait...')
 const statuses = ref(['Serviceable', 'Unserviceable'])
@@ -199,14 +200,9 @@ const viewRecord = (id: string) => {
   })
 }
 
-const printRecord = async (id: string) => {
-  try {
-    const url = `http://127.0.0.1:8000/api/generatePDFReport?id=${id}`
-    window.open(url, '_blank')
-  } catch (error) {
-    console.error('Error generating PDF:', error)
-  }
-}
+const handlePrint = (id) => {
+  printRecord(id); // Example ID
+};
 
 const simulateUpload = () => {
   isUploading.value = true
@@ -298,6 +294,8 @@ const resetForm = () => {
   uploadError.value = ''
 }
 
+
+
 onMounted(() => {
   loadUserData()
   fetchData()
@@ -318,12 +316,13 @@ const pageTitle = ref('Inventory Management')
   white-space: normal;
   word-wrap: break-word;
 }
+
+
 </style>
 
 <template>
   <DefaultLayout>
     <BreadcrumbDefault :pageTitle="pageTitle" />
-
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5 mb-4">
       <!-- <DataStatsOne
         :total_equipment="total_item"
@@ -524,7 +523,7 @@ const pageTitle = ref('Inventory Management')
                   class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 />
                 <Button
-                  @click="printRecord(data.id)"
+                  @click="handlePrint(data.id)"
                   icon="pi pi-print"
                   size="small"
                   class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"

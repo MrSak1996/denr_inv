@@ -18,58 +18,38 @@ use DB;
 class InventoryController extends Controller
 {
     public function getControlNo($cur_year = '2024')
-{
-    try {
-        // Start transaction
-        DB::beginTransaction();
+    {
+        try {
+            DB::beginTransaction();
 
-        // Lock the table or use a unique counter table for safe concurrent access
-        $results = DB::table('tbl_general_info as gi')
-            ->select(DB::raw('COUNT(*)+1 as control_no'))
-            ->whereYear('created_at', $cur_year)
-            ->lockForUpdate() // Prevent other transactions from modifying the count
-            ->first();
+            $results = DB::table('tbl_general_info as gi')
+                ->select(DB::raw('COUNT(*)+1 as control_no'))
+                ->whereYear('created_at', $cur_year)
+                ->lockForUpdate()
+                ->first();
 
-        // Increment the counter
-        $counter = $results->control_no;
+            $counter = $results->control_no ?? 1; // Default to 1 if no records exist
+            $newCounter = str_pad($counter, 5, '0', STR_PAD_LEFT);
+            $controlNo = 'R4A-RICT-' . $newCounter;
 
-        // Pad the counter to ensure proper formatting
-        if ($counter > 9999) {
-            $newCounter = $counter;
-        } elseif ($counter > 999) {
-            $newCounter = '0' . $counter;
-        } elseif ($counter < 10) {
-            $newCounter = '0000' . $counter;
-        } elseif ($counter < 99) {
-            $newCounter = '000' . $counter;
-        } elseif ($counter > 99 && $counter <= 999) {
-            $newCounter = '00' . $counter;
+            DB::table('tbl_general_info')->insert([
+                'control_no' => $controlNo,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::commit();
+            return response()->json(['control_no' => $controlNo]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        // Generate control number
-        $controlNo = 'R4A-RICT-' . $newCounter;
-
-        // Insert the new record with the generated control number
-        DB::table('tbl_general_info')->insert([
-            'control_no' => $controlNo,
-            'created_at' => now(),
-            'updated_at' => now(),
-            // Other fields you might want to include
-        ]);
-
-        // Commit transaction
-        DB::commit();
-
-        return response()->json(['control_no' => $controlNo]);
-    } catch (\Exception $e) {
-        // Rollback transaction in case of error
-        DB::rollBack();
-        return response()->json(['error' => $e], 500);
     }
-}
 
 
-    public function generateQRCode(Request $req,$cur_year = '2024')
+
+    public function generateQRCode(Request $req, $cur_year = '2024')
     {
         // Step 1: Retrieve province and municipality codes based on the user ID
 
@@ -121,26 +101,26 @@ class InventoryController extends Controller
         switch ($form_tracker) {
             case 'genForm':
                 DB::table('tbl_general_info')
-                ->where('id',$item_id)
-                ->update(['qr_code' => $controlNo]);
+                    ->where('id', $item_id)
+                    ->update(['qr_code' => $controlNo]);
                 break;
             case 'p1Form':
                 DB::table('tbl_peripherals')
-                ->where('control_id',$item_id)
-                ->update(['mon_qr_code1' => $controlNo]);
+                    ->where('control_id', $item_id)
+                    ->update(['mon_qr_code1' => $controlNo]);
                 break;
             case 'p2Form':
-                
+
                 DB::table('tbl_peripherals')
-                ->where('control_id',$item_id)
-                ->update(['mon_qr_code2' => $controlNo]);
+                    ->where('control_id', $item_id)
+                    ->update(['mon_qr_code2' => $controlNo]);
                 break;
             case 'upsForm':
                 DB::table('tbl_peripherals')
-                ->where('control_id',$item_id)
-                ->update(['ups_qr_code' => $controlNo]);
+                    ->where('control_id', $item_id)
+                    ->update(['ups_qr_code' => $controlNo]);
                 break;
-            
+
             default:
                 # code...
                 break;
@@ -307,7 +287,7 @@ class InventoryController extends Controller
                 ups_status',
             ))
             ->where('control_id', $id)
-            ->get();    
+            ->get();
 
         return response()->json($results);
     }
@@ -389,7 +369,7 @@ class InventoryController extends Controller
                 'actual_division.division_title as actual_division_title'
             )
             ->where('u.api_token', $api_token)
-            ->orderBy('id','desc')
+            ->orderBy('id', 'desc')
             ->get();
         $rowCount = $equipmentData->count();
 
@@ -449,6 +429,20 @@ class InventoryController extends Controller
 
         // Return the results as a JSON response
         return response()->json(['count' => $rowCount]);
+    }
+
+    public function checkItemStatus(Request $request)
+    {
+        $itemId = $request->query('itemId');
+
+        // Perform the join query
+        $exists = DB::table('tbl_general_info as gi')
+            ->join('tbl_item_status as is', 'gi.item_status', '=', 'is.id')
+            ->select('is.status_title')
+            ->where('gi.id', $itemId)
+            ->get();
+
+        return response()->json($exists);
     }
 
     // C R U D
@@ -520,6 +514,7 @@ class InventoryController extends Controller
                 'remarks' => $validated['remarks'],
                 'status' => $validated['status'],
                 'shelf_life' => $validated['shelf_life'],
+                'item_status' => 1, //DRAFT
                 'created_at' => now(),
                 'updated_at' => now(),
             ]
@@ -747,5 +742,14 @@ class InventoryController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function post_final_review(Request $request)
+    {
+        $id = $request->input('id');
+
+        DB::table('tbl_general_info')
+        ->where('id', $id)
+        ->update(['item_status' => 2]);
     }
 }

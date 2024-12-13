@@ -9,11 +9,11 @@ import { useForm } from '@/composables/useForm'
 import api from '../../../laravel-backend/resources/js/axiosInstance.js'
 import modal_reserved from './modal/modal_reserved.vue'
 import modal_software from './modal/modal_software.vue'
-import modal_msoffice from './modal/modal_msoffice.vue'
 import modal_review_form from './modal/modal_review_form.vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
-
 import Modal_msoffice from './modal/modal_msoffice.vue'
+import { useInventory } from '@/composables/useInventory.ts';
+const { checkItemStatus } = useInventory();
 
 // Page title and modal state
 const pageTitle = ref('ICT Equipment')
@@ -53,8 +53,11 @@ let selectedNetwork = ref(null)
 let selectedGPU = ref(null)
 let selectedWireless = ref(null)
 const selectedSoftware = ref({})
+let software = ref([])
+
+const item_status = ref("")
 const isVisible = ref(false)
-const openReviewForm = ref(true)
+const openReviewForm = ref(false)
 const isMicrosoftOffice = ref(false)
 const modalData = ref('')
 const role_id = ref(0)
@@ -330,7 +333,7 @@ const retrieveSpecsData = async () => {
       selectedWireless.value = String(response.data[0].specs_net_iswireless)
 
       Object.assign(specs_form, response.data[0])
-    } catch (error) {}
+    } catch (error) { }
   }
 }
 
@@ -339,6 +342,7 @@ const retrieveSoftwareData = async () => {
   if (id) {
     try {
       const response = await api.get(`/retrieveSoftwareData?id=${id}`)
+      software.value = response.data;
 
       response.data.forEach((software) => {
         // Reverse the mapping: match the value from 'remarksMap' and find the option
@@ -394,22 +398,35 @@ const generateQRCode = async (form, tab_form, item_id, userId) => {
     const paddedControlNo = String(controlNo).padStart(4, '0')
     form.qr_code = paddedControlNo
     // setTimeout(() => {
-      toast.add({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Data saved successfully!',
-        life: 3000
-      })
+    toast.add({
+      severity: 'success',
+      summary: 'Success',
+      detail: 'Data saved successfully!',
+      life: 3000
+    })
 
-      retrievePeripheralsData()
+    retrievePeripheralsData()
     // }, 3000)
   } catch (error) {
     console.error(error)
   }
 }
 
+const status_checker = async() =>{
+  try {
+    const res = await checkItemStatus('7');
+    item_status.value = res;
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 onMounted(() => {
-  getControlNo(form, userId)
+  const id = route.params.id;
+  if (!id) {
+    getControlNo(form, userId)
+  }
+  status_checker()
   getDivision()
   getNatureWork()
   getEquipment()
@@ -425,9 +442,10 @@ onMounted(() => {
   max-width: 400px;
   margin: 2rem auto;
 }
-.badge-align-left{
-  margin-left: 42%;
-  margin-top:10px;
+
+.badge-align-left {
+  margin-left: 40%;
+  margin-top: 10px;
 }
 </style>
 <template>
@@ -443,13 +461,20 @@ onMounted(() => {
       @close="isModalOpen = false"
     /> -->
     <modal_software v-if="isVisible" :isLoading="isVisible" @close="isModalOpen = false" />
-    <modal_review_form v-if="openReviewForm" :genForm="form" :open="openReviewForm" @close="openReviewForm = false" />
-    
-    <Modal_msoffice
-      v-if="isMicrosoftOffice"
-      :isLoading="isMicrosoftOffice"
-      @close="isModalOpen = false"
-    />
+    <modal_review_form 
+    v-if="openReviewForm" 
+    :genForm="form" 
+    :periForm="peripheral_form"
+    :division="division_opts"
+    :wnature="work_nature"
+    :emp_type="employment_opts"
+    :equipment="equipment_type"
+    :category="range_category"
+    :softwareData="software"
+    :open="openReviewForm" 
+    @close="openReviewForm = false" />
+
+    <Modal_msoffice v-if="isMicrosoftOffice" :isLoading="isMicrosoftOffice" @close="isModalOpen = false" />
 
     <Tabs value="0">
       <TabList>
@@ -462,11 +487,8 @@ onMounted(() => {
           <span class="font-bold whitespace-nowrap">Specification</span>
         </Tab>
         <Tab v-slot="slotProps" value="2" asChild>
-          <div
-            :class="['flex items-center gap-2', slotProps.class]"
-            @click="slotProps.onClick"
-            v-bind="slotProps.a11yAttrs"
-          >
+          <div :class="['flex items-center gap-2', slotProps.class]" @click="slotProps.onClick"
+            v-bind="slotProps.a11yAttrs">
             <i class="pi pi-code" />
             <span class="font-bold whitespace-nowrap">Major Software Installed</span>
             <!-- <Badge value="2" /> -->
@@ -476,7 +498,7 @@ onMounted(() => {
           <i class="pi pi-desktop" />
           <span class="font-bold whitespace-nowrap">Monitor & UPS</span>
         </Tab>
-        <Badge value="Draft" size="large" severity="info" class="badge-align-left"></Badge>
+        <Badge :value="item_status" size="large" severity="danger" class="badge-align-left"></Badge>
       </TabList>
 
       <TabPanels>
@@ -491,46 +513,23 @@ onMounted(() => {
             <div class="grid md:grid-cols-2 md:gap-6 mb-4">
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
-                  <InputText
-                    v-model="form.control_no"
-                    :value="form.control_no"
-                    class="w-full"
-                    readonly="true"
-                  />
+                  <InputText v-model="form.control_no" :value="form.control_no" class="w-full" readonly="true" />
                   <label>Control No</label>
                 </FloatLabel>
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select
-                  v-model="form.status"
-                  :options="status_opts"
-                  optionValue="id"
-                  optionLabel="name"
-                  placeholder="Current Status"
-                  class="w-full"
-                />
+                <Select v-model="form.status" :options="status_opts" optionValue="id" optionLabel="name"
+                  placeholder="Current Status" class="w-full" />
               </div>
             </div>
             <div class="grid md:grid-cols-2 md:gap-6 mb-4">
               <div class="relative z-0 w-full mb-5 group">
-                <Select
-                  v-model="form.selectedDivision"
-                  :options="division_opts"
-                  optionValue="id"
-                  optionLabel="name"
-                  placeholder="Division"
-                  class="w-full"
-                />
+                <Select v-model="form.selectedDivision" :options="division_opts" optionValue="id" optionLabel="name"
+                  placeholder="Division" class="w-full" />
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select
-                  v-model="form.selectedSection"
-                  :options="section_opts"
-                  optionValue="id"
-                  optionLabel="name"
-                  placeholder="Section"
-                  class="w-full"
-                />
+                <Select v-model="form.selectedSection" :options="section_opts" optionValue="id" optionLabel="name"
+                  placeholder="Section" class="w-full" />
               </div>
             </div>
             <div class="grid md:grid-cols-3 md:gap-6 mb-4">
@@ -541,35 +540,18 @@ onMounted(() => {
                 </FloatLabel>
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select
-                  v-model="form.sex"
-                  :options="sex_opts"
-                  optionValue="value"
-                  optionLabel="name"
-                  placeholder="Sex"
-                  class="w-full"
-                />
+                <Select v-model="form.sex" :options="sex_opts" optionValue="value" optionLabel="name" placeholder="Sex"
+                  class="w-full" />
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select
-                  v-model="form.selectedAcctDivision"
-                  :options="division_opts"
-                  optionValue="id"
-                  optionLabel="name"
-                  placeholder="Division"
-                  class="w-full"
-                />
+                <Select v-model="form.selectedAcctDivision" :options="division_opts" optionValue="id" optionLabel="name"
+                  placeholder="Division" class="w-full" />
               </div>
             </div>
             <div class="grid md:grid-cols-2 md:gap-6 mb-4">
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
-                  <InputText
-                    id="year_acquired"
-                    @input="checkYear"
-                    v-model="form.year_acquired"
-                    class="w-full"
-                  />
+                  <InputText id="year_acquired" @input="checkYear" v-model="form.year_acquired" class="w-full" />
                   <label for="year_acquired">Year Acquired</label>
                 </FloatLabel>
               </div>
@@ -588,34 +570,16 @@ onMounted(() => {
                 </FloatLabel>
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select
-                  v-model="form.selectedWorkNature"
-                  :options="work_nature"
-                  optionValue="id"
-                  optionLabel="name"
-                  placeholder="Nature of Works"
-                  class="w-full"
-                />
+                <Select v-model="form.selectedWorkNature" :options="work_nature" optionValue="id" optionLabel="name"
+                  placeholder="Nature of Works" class="w-full" />
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select
-                  v-model="form.selectedActualDivision"
-                  :options="division_opts"
-                  optionLabel="name"
-                  optionValue="id"
-                  placeholder="Division"
-                  class="w-full"
-                />
+                <Select v-model="form.selectedActualDivision" :options="division_opts" optionLabel="name"
+                  optionValue="id" placeholder="Division" class="w-full" />
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select
-                  v-model="form.employmentType"
-                  :options="employment_opts"
-                  optionLabel="name"
-                  optionValue="id"
-                  placeholder="Employment Type"
-                  class="w-full"
-                />
+                <Select v-model="form.employmentType" :options="employment_opts" optionLabel="name" optionValue="id"
+                  placeholder="Employment Type" class="w-full" />
               </div>
             </div>
             <div class="grid md:grid-cols-4 md:gap-6 mb-4">
@@ -625,26 +589,16 @@ onMounted(() => {
                   <label for="qr_code">QR Code</label>
                 </FloatLabel>
                 <!-- Button inside the input field -->
-                <Button
-                  v-if="!form.qr_code"
-                  class="absolute top-1/2 right-2 transform -translate-y-1/2 px-2 py-2"
-                  style="top: -21px; left: 258px"
-                  size="small"
-                  @click="generateQRCode(form, 'genForm', item_id, userId)"
-                >
+                <Button v-if="!form.qr_code" class="absolute top-1/2 right-2 transform -translate-y-1/2 px-2 py-2"
+                  style="top: -21px; left: 258px" size="small"
+                  @click="generateQRCode(form, 'genForm', item_id, userId)">
                   Generate
                 </Button>
               </div>
 
               <div class="relative z-0 w-full mb-5 group">
-                <Select
-                  v-model="form.selectedEquipmentType"
-                  :options="equipment_type"
-                  optionValue="id"
-                  optionLabel="name"
-                  placeholder="Equipment Type"
-                  class="w-full"
-                />
+                <Select v-model="form.selectedEquipmentType" :options="equipment_type" optionValue="id"
+                  optionLabel="name" placeholder="Equipment Type" class="w-full" />
               </div>
 
               <div class="relative z-0 w-full mb-5 group">
@@ -655,14 +609,8 @@ onMounted(() => {
               </div>
 
               <div class="relative z-0 w-full mb-5 group">
-                <Select
-                  v-model="form.selectedRangeCategory"
-                  :options="range_category"
-                  optionLabel="name"
-                  optionValue="id"
-                  placeholder="Range Category"
-                  class="w-full"
-                />
+                <Select v-model="form.selectedRangeCategory" :options="range_category" optionLabel="name"
+                  optionValue="id" placeholder="Range Category" class="w-full" />
               </div>
             </div>
             <div class="grid md:grid-cols-4 md:gap-6 mb-4">
@@ -699,13 +647,7 @@ onMounted(() => {
                 </FloatLabel>
               </div>
             </div>
-            <Button
-              label="Back"
-              icon="pi pi-undo"
-              class="mr-4"
-              severity="primary"
-              @click="btnBack()"
-            />
+            <Button label="Back" icon="pi pi-undo" class="mr-4" severity="primary" @click="btnBack()" />
 
             <Button label="Save as Draft" type="submit" icon="pi pi-save" severity="primary" />
           </form>
@@ -728,36 +670,18 @@ onMounted(() => {
                 </FloatLabel>
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select
-                  v-model="specs_form.specs_hdd_capacity"
-                  :options="capacity_opts"
-                  optionValue="value"
-                  optionLabel="name"
-                  placeholder="Capacity"
-                  class="w-full"
-                />
+                <Select v-model="specs_form.specs_hdd_capacity" :options="capacity_opts" optionValue="value"
+                  optionLabel="name" placeholder="Capacity" class="w-full" />
               </div>
             </div>
             <div class="grid md:grid-cols-4 md:gap-6">
               <div class="relative z-0 w-full mb-5 group">
-                <Select
-                  v-model="specs_form.specs_ram"
-                  :options="ram_opts"
-                  optionValue="id"
-                  optionLabel="name"
-                  placeholder="RAM Type"
-                  class="w-full"
-                />
+                <Select v-model="specs_form.specs_ram" :options="ram_opts" optionValue="id" optionLabel="name"
+                  placeholder="RAM Type" class="w-full" />
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select
-                  v-model="specs_form.specs_ram_capacity"
-                  :options="ram_capacity_opts"
-                  optionValue="value"
-                  optionLabel="name"
-                  placeholder="RAM Capacity"
-                  class="w-full"
-                />
+                <Select v-model="specs_form.specs_ram_capacity" :options="ram_capacity_opts" optionValue="value"
+                  optionLabel="name" placeholder="RAM Capacity" class="w-full" />
               </div>
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
@@ -767,14 +691,8 @@ onMounted(() => {
               </div>
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
-                  <Select
-                    v-model="specs_form.specs_ssd_capacity"
-                    :options="capacity_opts"
-                    optionValue="value"
-                    optionLabel="name"
-                    placeholder="Capacity"
-                    class="w-full"
-                  />
+                  <Select v-model="specs_form.specs_ssd_capacity" :options="capacity_opts" optionValue="value"
+                    optionLabel="name" placeholder="Capacity" class="w-full" />
                 </FloatLabel>
               </div>
             </div>
@@ -784,21 +702,12 @@ onMounted(() => {
                 <Fieldset legend="GPU">
                   <div class="card flex flex-wrap gap-6">
                     <div v-for="gpu in gpu_type" :key="gpu.key" class="flex items-center gap-2">
-                      <RadioButton
-                        v-model="selectedGPU"
-                        :inputId="gpu.key"
-                        name="dynamdic"
-                        :value="gpu.key"
-                      />
+                      <RadioButton v-model="selectedGPU" :inputId="gpu.key" name="dynamdic" :value="gpu.key" />
                       <label :for="gpu.key">{{ gpu.name }}</label>
                     </div>
                     <FloatLabel>
-                      <InputText
-                        id="gpu_dedic_info"
-                        v-model="specs_form.specs_gpu_dedic_info"
-                        class="w-full md:w-100"
-                        :disabled="!isDedicatedSelected"
-                      />
+                      <InputText id="gpu_dedic_info" v-model="specs_form.specs_gpu_dedic_info" class="w-full md:w-100"
+                        :disabled="!isDedicatedSelected" />
                       <label for="gpu_dedic_info">Dedicated Information</label>
                     </FloatLabel>
                   </div>
@@ -808,39 +717,21 @@ onMounted(() => {
               <div class="relative z-0 w-full mb-5 group">
                 <Fieldset legend="Network">
                   <div class="card flex flex-wrap gap-6 mb-6">
-                    <div
-                      v-for="category in network_type"
-                      :key="category.key"
-                      class="flex items-center gap-2"
-                    >
-                      <RadioButton
-                        v-model="selectedNetwork"
-                        :inputId="category.key"
-                        name="dynamic"
-                        :value="category.key"
-                      />
+                    <div v-for="category in network_type" :key="category.key" class="flex items-center gap-2">
+                      <RadioButton v-model="selectedNetwork" :inputId="category.key" name="dynamic"
+                        :value="category.key" />
                       <label :for="category.key">{{ category.name }}</label>
                     </div>
                     <label>If Wireless:</label>
                     <div class="flex items-center gap-2">
-                      <RadioButton
-                        v-model="selectedWireless"
-                        :disabled="!isWirelessSelected"
-                        inputId="networkBuiltIn"
-                        name="networkBuiltIn"
-                        value="1"
-                      />
+                      <RadioButton v-model="selectedWireless" :disabled="!isWirelessSelected" inputId="networkBuiltIn"
+                        name="networkBuiltIn" value="1" />
                       <label for="networkBuiltIn">Built-In</label>
                     </div>
 
                     <div class="flex items-center gap-2">
-                      <RadioButton
-                        v-model="selectedWireless"
-                        inputId="networkDongle"
-                        name="networkDongle"
-                        value="2"
-                        :disabled="!isWirelessSelected"
-                      />
+                      <RadioButton v-model="selectedWireless" inputId="networkDongle" name="networkDongle" value="2"
+                        :disabled="!isWirelessSelected" />
                       <label for="networkDongle">With Dongle</label>
                     </div>
                   </div>
@@ -900,13 +791,7 @@ onMounted(() => {
               </div>
             </div>
 
-            <Button
-              label="Back"
-              icon="pi pi-undo"
-              class="mr-4"
-              severity="primary"
-              @click="btnBack()"
-            />
+            <Button label="Back" icon="pi pi-undo" class="mr-4" severity="primary" @click="btnBack()" />
 
             <Button label="Save as Draft" type="submit" icon="pi pi-save" severity="primary" />
           </form>
@@ -916,25 +801,15 @@ onMounted(() => {
         <TabPanel value="2" as="p" class="m-0">
           <form @submit.prevent="saveSoftwareInfo">
             <div class="grid md:grid-cols-2 md:gap-6 mb-4">
-              <div
-                v-for="(software, index) in software_installed"
-                :key="software.key + '-' + index"
-                class="relative z-0 w-full mb-5 group"
-              >
+              <div v-for="(software, index) in software_installed" :key="software.key + '-' + index"
+                class="relative z-0 w-full mb-5 group">
                 <Fieldset :legend="software.title">
                   <div class="card flex flex-wrap gap-9">
-                    <div
-                      v-for="option in ['perpetual', 'subscription', 'evaluation']"
-                      :key="option"
-                      class="flex items-center gap-3"
-                    >
-                      <RadioButton
-                        v-model="selectedSoftware[software.key]"
-                        :inputId="option.toLowerCase() + '-' + index"
-                        :name="software.key"
-                        :value="option.toLowerCase()"
-                        @change="onRadioChange(software.key, option)"
-                      />
+                    <div v-for="option in ['perpetual', 'subscription', 'evaluation']" :key="option"
+                      class="flex items-center gap-3">
+                      <RadioButton v-model="selectedSoftware[software.key]"
+                        :inputId="option.toLowerCase() + '-' + index" :name="software.key" :value="option.toLowerCase()"
+                        @change="onRadioChange(software.key, option)" />
                       <label :for="option.toLowerCase() + '-' + index">{{ option }}</label>
                     </div>
                   </div>
@@ -942,13 +817,7 @@ onMounted(() => {
               </div>
             </div>
 
-            <Button
-              label="Back"
-              icon="pi pi-undo"
-              class="mr-4"
-              severity="primary"
-              @click="btnBack()"
-            />
+            <Button label="Back" icon="pi pi-undo" class="mr-4" severity="primary" @click="btnBack()" />
 
             <Button label="Save as Draft" type="submit" icon="pi pi-save" severity="primary" />
           </form>
@@ -966,52 +835,34 @@ onMounted(() => {
                   <div class="card flex mb-7 mt-7 flex-wrap gap-6">
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText
-                          id="qr_code"
-                          v-model="peripheral_form.monitor1QrCode"
-                          class="w-full md:w-100"
-                        />
+                        <InputText id="qr_code" v-model="peripheral_form.monitor1QrCode" class="w-full md:w-100" />
                         <label for="qr_code">QR Code</label>
                       </FloatLabel>
-                      <Button
-                        v-if="!peripheral_form.monitor1QrCode"
-                        style="top: -0.5px; left: -88px"
-                        size="small"
-                        @click="generateQRCode(peripheral_form, 'p1Form', item_id, userId)"
-                      >
+                      <Button v-if="!peripheral_form.monitor1QrCode" style="top: -0.5px; left: -88px" size="small"
+                        @click="generateQRCode(peripheral_form, 'p1Form', item_id, userId)">
                         Generate
                       </Button>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.monitor1BrandModel"
-                          class="w-full md:w-100"
-                        />
+                        <InputText id="processor" v-model="peripheral_form.monitor1BrandModel"
+                          class="w-full md:w-100" />
                         <label for="processor">Brand</label>
                       </FloatLabel>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.monitor1Model"
-                          class="w-full md:w-100"
-                        />
+                        <InputText id="processor" v-model="peripheral_form.monitor1Model" class="w-full md:w-100" />
                         <label for="processor">Model</label>
                       </FloatLabel>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.monitor1SerialNumber"
-                          class="w-full md:w-100"
-                        />
+                        <InputText id="processor" v-model="peripheral_form.monitor1SerialNumber"
+                          class="w-full md:w-100" />
                         <label for="processor">Serial Number</label>
                       </FloatLabel>
                     </div>
@@ -1019,45 +870,30 @@ onMounted(() => {
                   <div class="card flex flex-wrap gap-6">
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.monitor1PropertyNumber"
-                          class="w-full md:w-100"
-                        />
+                        <InputText id="processor" v-model="peripheral_form.monitor1PropertyNumber"
+                          class="w-full md:w-100" />
                         <label for="processor">Property No</label>
                       </FloatLabel>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.monitor1AccountPersonInPN"
-                          class="w-full md:w-100"
-                        />
+                        <InputText id="processor" v-model="peripheral_form.monitor1AccountPersonInPN"
+                          class="w-full md:w-100" />
                         <label for="processor">Accountable Person as seen in PN</label>
                       </FloatLabel>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.monitor1ActualUser"
-                          class="w-full md:w-100"
-                        />
+                        <InputText id="processor" v-model="peripheral_form.monitor1ActualUser"
+                          class="w-full md:w-100" />
                         <label for="processor">Actual User</label>
                       </FloatLabel>
                     </div>
                     <div class="flex items-center gap-2" v-if="peripheral_form.monitor1QrCode">
-                      <Select
-                        v-model="peripheral_form.monitor1Status"
-                        :options="status_opts"
-                        optionValue="id"
-                        optionLabel="name"
-                        placeholder="Current Status"
-                        class="w-full md:w-100"
-                      />
+                      <Select v-model="peripheral_form.monitor1Status" :options="status_opts" optionValue="id"
+                        optionLabel="name" placeholder="Current Status" class="w-full md:w-100" />
                     </div>
                   </div>
                 </Fieldset>
@@ -1071,50 +907,32 @@ onMounted(() => {
                   <div class="card flex mb-7 mt-7 flex-wrap gap-6">
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.monitor2QrCode"
-                          class="w-full md:w-80"
-                        />
+                        <InputText id="processor" v-model="peripheral_form.monitor2QrCode" class="w-full md:w-80" />
                         <label for="processor">QR Code</label>
                       </FloatLabel>
-                      <Button
-                        v-if="!peripheral_form.monitor2QrCode"
-                        style="top: -0.5px; left: -88px"
-                        size="small"
-                        @click="generateQRCode(peripheral_form, 'p2Form', item_id, userId)"
-                      >
+                      <Button v-if="!peripheral_form.monitor2QrCode" style="top: -0.5px; left: -88px" size="small"
+                        @click="generateQRCode(peripheral_form, 'p2Form', item_id, userId)">
                         Generate
                       </Button>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.monitor2BrandModel"
-                          class="w-full md:w-100"
-                        />
+                        <InputText id="processor" v-model="peripheral_form.monitor2BrandModel"
+                          class="w-full md:w-100" />
                         <label for="processor">Brand Model</label>
                       </FloatLabel>
                     </div>
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.monitor2Model"
-                          class="w-full md:w-100"
-                        />
+                        <InputText id="processor" v-model="peripheral_form.monitor2Model" class="w-full md:w-100" />
                         <label for="processor">Model</label>
                       </FloatLabel>
                     </div>
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.monitor2SerialNumber"
-                          class="w-full md:w-100"
-                        />
+                        <InputText id="processor" v-model="peripheral_form.monitor2SerialNumber"
+                          class="w-full md:w-100" />
                         <label for="processor">Serial Number</label>
                       </FloatLabel>
                     </div>
@@ -1122,45 +940,30 @@ onMounted(() => {
                   <div class="card flex flex-wrap gap-6">
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.monitor2PropertyNumber"
-                          class="w-full md:w-100"
-                        />
+                        <InputText id="processor" v-model="peripheral_form.monitor2PropertyNumber"
+                          class="w-full md:w-100" />
                         <label for="processor">Property No</label>
                       </FloatLabel>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.monitor2AccountPersonInPN"
-                          class="w-full md:w-100"
-                        />
+                        <InputText id="processor" v-model="peripheral_form.monitor2AccountPersonInPN"
+                          class="w-full md:w-100" />
                         <label for="processor">Accountable Person as seen in PN</label>
                       </FloatLabel>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.monitor2ActualUser"
-                          class="w-full md:w-100"
-                        />
+                        <InputText id="processor" v-model="peripheral_form.monitor2ActualUser"
+                          class="w-full md:w-100" />
                         <label for="processor">Actual User</label>
                       </FloatLabel>
                     </div>
                     <div class="flex items-center gap-2" v-if="peripheral_form.monitor2QrCode">
-                      <Select
-                        v-model="peripheral_form.monitor2Status"
-                        :options="status_opts"
-                        optionValue="id"
-                        optionLabel="name"
-                        placeholder="Current Status"
-                        class="w-full md:w-100"
-                      />
+                      <Select v-model="peripheral_form.monitor2Status" :options="status_opts" optionValue="id"
+                        optionLabel="name" placeholder="Current Status" class="w-full md:w-100" />
                     </div>
                   </div>
                 </Fieldset>
@@ -1173,52 +976,32 @@ onMounted(() => {
                   </div>
                   <div class="flex items-center gap-2 mt-7 mb-7">
                     <FloatLabel>
-                      <InputText
-                        id="processor"
-                        v-model="peripheral_form.ups_qr_code"
-                        class="w-full md:w-80"
-                      />
+                      <InputText id="processor" v-model="peripheral_form.ups_qr_code" class="w-full md:w-80" />
                       <label for="processor">QR Code</label>
                     </FloatLabel>
-                    <Button
-                      v-if="!peripheral_form.ups_qr_code"
-                      style="top: -0.5px; left: -88px"
-                      size="small"
-                      @click="generateQRCode(peripheral_form, 'upsForm', item_id, userId)"
-                    >
+                    <Button v-if="!peripheral_form.ups_qr_code" style="top: -0.5px; left: -88px" size="small"
+                      @click="generateQRCode(peripheral_form, 'upsForm', item_id, userId)">
                       Generate
                     </Button>
                   </div>
                   <div class="card flex mb-7 mt-3 flex-wrap gap-6">
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.ups_brand"
-                          class="w-full md:w-100"
-                        />
+                        <InputText id="processor" v-model="peripheral_form.ups_brand" class="w-full md:w-100" />
                         <label for="processor">Brand</label>
                       </FloatLabel>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.ups_model"
-                          class="w-full md:w-100"
-                        />
+                        <InputText id="processor" v-model="peripheral_form.ups_model" class="w-full md:w-100" />
                         <label for="processor">Model</label>
                       </FloatLabel>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.ups_serial_no"
-                          class="w-full md:w-100"
-                        />
+                        <InputText id="processor" v-model="peripheral_form.ups_serial_no" class="w-full md:w-100" />
                         <label for="processor">Serial Number</label>
                       </FloatLabel>
                     </div>
@@ -1226,60 +1009,39 @@ onMounted(() => {
                   <div class="card flex flex-wrap gap-6">
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.ups_property_no"
-                          class="w-full lg:w-100"
-                        />
+                        <InputText id="processor" v-model="peripheral_form.ups_property_no" class="w-full lg:w-100" />
                         <label for="processor">Property Number</label>
                       </FloatLabel>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.ups_accountPersonInPN"
-                          class="w-full md:w-100"
-                        />
+                        <InputText id="processor" v-model="peripheral_form.ups_accountPersonInPN"
+                          class="w-full md:w-100" />
                         <label for="processor">Accountable Person as seen in PN:</label>
                       </FloatLabel>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.ups_qr_acctual_user"
-                          class="w-full md:w-100"
-                        />
+                        <InputText id="processor" v-model="peripheral_form.ups_qr_acctual_user"
+                          class="w-full md:w-100" />
                         <label for="processor">Actual User</label>
                       </FloatLabel>
                     </div>
                     <div class="relative z-0 w-full mb-5 group" v-if="peripheral_form.ups_qr_code">
-                      <Select
-                        v-model="peripheral_form.ups_status"
-                        :options="status_opts"
-                        optionValue="id"
-                        optionLabel="name"
-                        placeholder="Current Status"
-                        class="w-full md:w-100"
-                      />
+                      <Select v-model="peripheral_form.ups_status" :options="status_opts" optionValue="id"
+                        optionLabel="name" placeholder="Current Status" class="w-full md:w-100" />
                     </div>
                   </div>
                 </Fieldset>
               </div>
             </div>
 
-            <Button
-              label="Back"
-              icon="pi pi-undo"
-              class="mr-4"
-              severity="primary"
-              @click="btnBack()"
-            />
+            <Button label="Back" icon="pi pi-undo" class="mr-4" severity="warn" @click="btnBack()" />
 
-            <Button label="Submit" type="submit" icon="pi pi-save" severity="primary" />
+            <Button label="Save as Draft" type="submit" icon="pi pi-save" severity="info" class="mr-4" />
+            <Button label="Submit" @click="openReviewForm = true" icon="pi pi-verified" severity="primary" />
           </form>
         </TabPanel>
       </TabPanels>

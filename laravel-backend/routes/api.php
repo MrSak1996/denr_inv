@@ -50,6 +50,7 @@ Route::middleware('api')->group(function () {
 
     Route::get('/export', [ReportsController::class, 'generateReport']);
     Route::get('/generatePDFReport', [ReportsController::class, 'generatePDFReport']);
+    Route::get('/checkItemStatus', [InventoryController::class, 'checkItemStatus']);
 
 
     Route::post('post_insert_gen_info', [InventoryController::class, 'post_insert_gen_info']);
@@ -58,15 +59,15 @@ Route::middleware('api')->group(function () {
     Route::post('/post_insert_peripheral', [InventoryController::class, 'post_insert_peripheral']);
     Route::post('/post_add_os', [InventoryController::class, 'post_add_os']);
     Route::post('/post_add_msoffice', [InventoryController::class, 'post_add_msoffice']);
+    Route::post('post_final_review', [InventoryController::class, 'post_final_review']);
+
 
     //USER MANAGEMENT
     Route::post('post_save_userCred', [UserController::class, 'post_save_userCred']);
     Route::get('/getUserRoles', [UserController::class, 'getUserRoles']);
     Route::get('/getUsers', [UserController::class, 'getUsers']);
-
     Route::post('/send-otp', [OTPController::class, 'sendOtp']);
     Route::post('/verify-otp', [OTPController::class, 'verifyOtp']);
-
     Route::post('/upload-image', [GoogleDriveController::class, 'uploadImage']);
 
 

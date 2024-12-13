@@ -11,6 +11,7 @@ export function useApi() {
   const roles_opts = ref([])
   const designation = ref();
 
+
   const fetchCurUser = async () => {
     // Retrieve the API token from localStorage
     const api_token = localStorage.getItem('api_token');
@@ -136,6 +137,17 @@ export function useApi() {
       console.error('Error fetching user role:', error)
     }
   }
+
+  
+  
+  const predefinedSoftware = ref([
+    { label: "Operating System", key: "operating_system" },
+    { label: "Microsoft Office", key: "ms_office" },
+    { label: "Adobe PDF", key: "adobe_pdf" },
+    { label: "ARCGIS", key: "arcgis" },
+    { label: "Adobe Photoshop", key: "adobe_photoshop" }
+  ]);
+
   const province_opts = ref([
     { name: 'Cavite', id: 21 },
     { name: 'Laguna', id: 34 },
@@ -200,6 +212,7 @@ export function useApi() {
   ])
 
   return {
+    
     sex_opts,
     province_opts,
     roles_opts,
@@ -213,6 +226,7 @@ export function useApi() {
     capacity_opts,
     ram_opts,
     ram_capacity_opts,
+    predefinedSoftware,
     fetchCurUser,
     getControlNo,
     getDivision,

@@ -1,6 +1,9 @@
 import QRCode from 'qrcode'
 
-export async function generateQRCodeWithLogo(text, logoUrl) {
+// Default logo URL (you can replace this with the actual path to your default logo)
+const defaultLogoUrl = '../../../assets/images/logo/denr_logo.png';
+
+export async function generateQRCodeWithLogo(text, logoUrl = defaultLogoUrl) {
   const qrCanvas = document.createElement('canvas')
   await QRCode.toCanvas(qrCanvas, text, {
     width: 400,
