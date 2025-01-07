@@ -32,6 +32,7 @@
     "vue": "^3.3.11",
     "vue-router": "^4.2.5",
     "vue3-apexcharts": "^1.4.4",
+    "vue3-qrcode-reader": "^0.0.1",
     "vuex": "^4.0.2"
   },
   "devDependencies": {

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+
 import { computed } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { useInventory } from '@/composables/useInventory.ts'
@@ -52,6 +54,14 @@ const props = defineProps({
   softwareData: {
     type: Array,
     required: true
+  },
+  specsData: {
+    type: Object,
+    required: true
+  },
+  item_id:{
+    type:Number,
+    required:true
   }
 })
 
@@ -89,15 +99,18 @@ const closeModal = () => {
 }
 
 const handlePrint = () => {
-  printRecord(route.params.id) // Example ID
-}
+  const idToPrint = props.item_id ? props.item_id : route.params.id; // Access item_id via props
+  printRecord(idToPrint);
+};
 
-const submitFinalReview = async () =>{
+
+const submitFinalReview = async () => {
 
   try {
+    const item_id = props.item_id ? props.item_id : route.params.id; // Access item_id via props
 
     const requestData = {
-      id: route.params.id
+      id:item_id
     }
     // Make the API call
     const response = await api.post('/post_final_review', requestData)
@@ -120,9 +133,42 @@ const submitFinalReview = async () =>{
       })
     }, 1000)
   } catch (error) {
-      console.error('Validation errors:',error)
+    console.error('Validation errors:', error)
   }
 }
+
+const ram_opts = ref([
+  { name: 'Static RAM', id: '1' },
+  { name: 'Dynamic RAM', id: '2' },
+  { name: 'Synchronous Dynamic RAM (SDRAM)', id: '3' },
+  { name: 'Single Data Rate Synchronous Dynamic RAM', id: '4' },
+  { name: 'DDR2', id: '5' },
+  { name: 'DDR3', id: '6' },
+  { name: 'DDR4', id: '7' },
+  { name: 'GDDR', id: '8' },
+  { name: 'SDRAM', id: '9' },
+  { name: 'GDDR2', id: '10' },
+  { name: 'GDDR3', id: '11' },
+  { name: 'GDDR4', id: '12' },
+  { name: 'GDDR5', id: '13' },
+  { name: 'Flash Memory', id: '14' }
+]);
+
+const network_type = ref([
+  { name: 'LAN', key: '1' },
+  { name: 'Wireless', key: '2' },
+  { name: 'Both', key: '3' }
+])
+
+const getRamName = (id) => {
+  const ram = ram_opts.value.find(option => option.id === id.toString());
+  return ram ? ram.name : 'Unknown RAM'; // Fallback if no match is found
+};
+
+const getNetworkType = (key) => {
+  const network = network_type.value.find(option => option.key === key.toString());
+  return network ? network.name : 'Unknown Network'; // Fallback if no match is found
+};
 
 </script>
 <style>
@@ -133,16 +179,10 @@ const submitFinalReview = async () =>{
 }
 </style>
 <template>
-  <div
-    v-if="open"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-    role="dialog"
-    tabindex="-1"
-    aria-labelledby="progress-modal"
-  >
+  <div v-if="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog"
+    tabindex="-1" aria-labelledby="progress-modal">
     <div
-      class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-lg rounded-lg w-130 h-[80vh] max-w-2xl mx-4 lg:mx-auto transition-transform duration-300 transform scale-100"
-    >
+      class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-lg rounded-lg w-130 h-[80vh] max-w-2xl mx-4 lg:mx-auto transition-transform duration-300 transform scale-100">
       <!-- Modal Header -->
       <div class="flex justify-between items-center py-4 px-6 border-b dark:border-neutral-700">
         <h3 id="reserve-control-no" class="text-lg font-semibold text-gray-800 dark:text-gray-200">
@@ -159,9 +199,7 @@ const submitFinalReview = async () =>{
               <tr>
                 <th colspan="4" class="px-2 py-1 text-left text-sm font-bold text-gray-700">
                   GENERAL INFORMATION
-                  <span class="float-right text-xs font-normal text-gray-500"
-                    >RICT Inventory Form v.1 2023</span
-                  >
+                  <span class="float-right text-xs font-normal text-gray-500">RICT Inventory Form v.1 2023</span>
                 </th>
               </tr>
             </thead>
@@ -221,6 +259,55 @@ const submitFinalReview = async () =>{
             </tbody>
           </table>
 
+          <table class="table-auto w-full border border-gray-300 mt-4">
+            <thead class="bg-gray-200">
+              <tr>
+                <th colspan="4" class="px-2 py-1 text-left text-sm font-bold text-gray-700">
+                  SPECIFICATION
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-300">
+              <tr>
+                <td class="px-2 py-1 text-sm font-medium text-gray-700">Processor:</td>
+                <td class="px-2 py-1 text-sm text-gray-600">{{ specsData.specs_processor }}</td>
+                <td class="px-2 py-1 text-sm font-medium text-gray-700">RAM Type:</td>
+                <td class="px-2 py-1 text-sm text-gray-600">{{ getRamName(specsData.specs_ram) }}</td>
+              </tr>
+              <tr>
+                <td class="px-2 py-1 text-sm font-medium text-gray-700">GPU:</td>
+                <td class="px-2 py-1 text-sm text-gray-600">
+                  {{ specsData.specs_gpu == 1 ? 'Built-In' : 'Dedicated ' + specsData.specs_gpu_dedic_info }}
+                </td>
+                <td class="px-2 py-1 text-sm font-medium text-gray-700">RAM Capacity:</td>
+                <td class="px-2 py-1 text-sm text-gray-600">{{ specsData.specs_ram_capacity }}</td>
+              </tr>
+              <tr>
+                <td class="px-2 py-1 text-sm font-medium text-gray-700">No. of HDD:</td>
+                <td class="px-2 py-1 text-sm text-gray-600"> {{ specsData.specs_hdd == null || specsData.specs_hdd == 0 ? '~' : specsData.specs_hdd }}</td>
+                <td class="px-2 py-1 text-sm font-medium text-gray-700">No. of SSD:</td>
+                <td class="px-2 py-1 text-sm text-gray-600"> {{ specsData.specs_ssd == null ? '~' : specsData.specs_ssd }}</td>
+              </tr>
+              <tr>
+                <td class="px-2 py-1 text-sm font-medium text-gray-700">HDD Capacity:</td>
+                <td class="px-2 py-1 text-sm text-gray-600">
+                  {{ specsData.specs_hdd_capacity == null ? '~' : specsData.specs_hdd_capacity }}</td>
+                <td class="px-2 py-1 text-sm font-medium text-gray-700">SSD Capacity:</td>
+                <td class="px-2 py-1 text-sm text-gray-600"> {{ specsData.specs_ssd_capacity == null ? '~' : specsData.specs_ssd_capacity }}</td>
+              </tr>
+
+              <tr>
+                <td class="px-2 py-1 text-sm font-medium text-gray-700">Network:</td>
+                <td class="px-2 py-1 text-sm text-gray-600">{{ getNetworkType(specsData.specs_net) }}</td>
+                <td class="px-2 py-1 text-sm font-medium text-gray-700">If Wireless:</td>
+                <td class="px-2 py-1 text-sm text-gray-600"> {{ specsData.specs_net_iswireless == null ? '~' : specsData.specs_net_iswireless }}</td>
+
+              </tr>
+
+
+            </tbody>
+          </table>
+
           <table class="table-auto w-full border border-gray-200 mt-4">
             <thead class="bg-gray-100">
               <tr>
@@ -230,10 +317,7 @@ const submitFinalReview = async () =>{
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
-              <tr
-                v-for="(row, index) in predefinedSoftware.slice(0, predefinedSoftware.length / 2)"
-                :key="index"
-              >
+              <tr v-for="(row, index) in predefinedSoftware.slice(0, predefinedSoftware.length / 2)" :key="index">
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">{{ row.label }}:</td>
                 <td class="px-2 py-1 text-sm text-gray-600">
                   {{ getRemarks(row.key) }}
@@ -337,14 +421,8 @@ const submitFinalReview = async () =>{
           </table>
         </div>
         <div class="flex justify-end items-center w-full">
-          <Button
-            @click="handlePrint()"
-            severity="teal"
-            label="Print"
-            icon="pi pi-file-export"
-            class="mt-4 mr-4"
-          />
-          <Button @click = "submitFinalReview" severity="info" label="Submit" icon="pi pi-save" class="mt-4" />
+          <Button @click="handlePrint()" severity="teal" label="Print" icon="pi pi-file-export" class="mt-4 mr-4" />
+          <Button @click="submitFinalReview" severity="info" label="Submit" icon="pi pi-save" class="mt-4" />
         </div>
       </div>
     </div>

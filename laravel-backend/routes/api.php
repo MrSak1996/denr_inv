@@ -8,6 +8,7 @@ use App\Http\Controllers\Modules\Inventory\InventoryController;
 use App\Http\Controllers\Modules\Reports\ReportsController;
 use App\Http\Controllers\Modules\OTP\OTPController;
 use App\Http\Controllers\Modules\GoogleDrive\GoogleDriveController;
+use App\Http\Controllers\Modules\Settings\SettingsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +20,11 @@ use App\Http\Controllers\Modules\GoogleDrive\GoogleDriveController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+Route::options('{any}', function () {
+    return response()->json([], 204);
+})->where('any', '.*');
+
+
 Route::post('login',[UserController::class,'login']);
 Route::middleware('auth:sanctum')->post('/logout',[UserController::class, 'logout']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -45,12 +51,14 @@ Route::middleware('api')->group(function () {
     Route::get('/retrievePeripheralsData', [InventoryController::class, 'retrievePeripheralsData']);
     Route::get('/getCountStatus', [InventoryController::class, 'getCountStatus']);
     Route::get('/getInventoryData', [InventoryController::class, 'getInventoryData']);
+    Route::get('/fetchTransaction', [InventoryController::class, 'fetchTransaction']);
     Route::get('/getOutdatedEquipment', [InventoryController::class, 'getOutdatedEquipment']);
     Route::get('/provinces/{provinceId}/cities', [UserController::class, 'getCitiesByProvince']);
 
     Route::get('/export', [ReportsController::class, 'generateReport']);
     Route::get('/generatePDFReport', [ReportsController::class, 'generatePDFReport']);
     Route::get('/checkItemStatus', [InventoryController::class, 'checkItemStatus']);
+    Route::get('/getOTPStatus', [SettingsController::class, 'getOTPStatus']);
 
 
     Route::post('post_insert_gen_info', [InventoryController::class, 'post_insert_gen_info']);

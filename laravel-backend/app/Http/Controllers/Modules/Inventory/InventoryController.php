@@ -17,37 +17,64 @@ use DB;
 
 class InventoryController extends Controller
 {
-    public function getControlNo($cur_year = '2024')
+    public function getControlNo(Request $req)
     {
         try {
             DB::beginTransaction();
 
+            // Validate if userId exists
+            $userId = $req->query('id');
+            if (!$userId) {
+                return response()->json(['error' => 'User ID is required.'], 400);
+            }
+
+            // Fetch user data and validate existence
+            $user = DB::table('users')
+                ->select('roles')
+                ->where('id', $userId)
+                ->first();
+
+            if (!$user) {
+                return response()->json(['error' => 'User not found.'], 404);
+            }
+
+            $registered_loc = $user->roles; // Get the role of the user
+
+            // Fetch the current counter for the year 2025
             $results = DB::table('tbl_general_info as gi')
                 ->select(DB::raw('COUNT(*)+1 as control_no'))
-                ->whereYear('created_at', $cur_year)
+                ->whereYear('created_at', 2025)
                 ->lockForUpdate()
                 ->first();
 
             $counter = $results->control_no ?? 1; // Default to 1 if no records exist
+
+            // Generate the control number
             $newCounter = str_pad($counter, 5, '0', STR_PAD_LEFT);
             $controlNo = 'R4A-RICT-' . $newCounter;
 
+            // Insert the new record into the database
             DB::table('tbl_general_info')->insert([
                 'control_no' => $controlNo,
+                'registered_loc' => $registered_loc,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
 
             DB::commit();
+
+            // Return the generated control number
             return response()->json(['control_no' => $controlNo]);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error($e->getMessage());
-            return response()->json(['error' => $e->getMessage()], 500);
+
+            // Log the error for debugging
+            \Log::error('Error generating control number: ' . $e->getMessage());
+
+            // Return a generic error message
+            return response()->json(['error' => $e], 500);
         }
     }
-
-
 
     public function generateQRCode(Request $req, $cur_year = '2024')
     {
@@ -95,7 +122,7 @@ class InventoryController extends Controller
             ->update(['counter' => $newCounter]);
 
         // Step 5: Generate the control number
-        $controlNo = $ccode . '-' . $newCounter;
+        $controlNo = $ccode . '' . $newCounter;
 
         //Step 6: Save QR Code
         switch ($form_tracker) {
@@ -382,6 +409,46 @@ class InventoryController extends Controller
         );
     }
 
+    public function fetchTransaction(Request $request)
+    {
+        try {
+            // Fetch transaction logs with the specified columns
+            $transaction_logs = DB::table('inventory_transaction_logs as i')
+                ->select(
+                    'i.id',
+                    'transaction_type',
+                    'i.inventory_id',
+                    'g.equipment_type',
+                    'e.quantity',
+                    'i.previous_quantity',
+                    'i.current_quantity',
+                    'i.source_location',
+                    'i.destination_location',
+                    'i.transaction_date',
+                    'i.remarks',
+                    DB::raw('CONCAT(u.first_name, " ", u.last_name) AS updated_by'),
+                    'g.qr_code',
+                    'i.created_at',
+                    'i.updated_at'
+                )
+                ->leftJoin('tbl_general_info as g', 'g.id', '=', 'i.inventory_id')
+                ->leftJoin('users as u', 'u.id', '=', 'i.user_id')
+                ->leftJoin('tbl_equipment_type as e', 'e.id', '=', 'g.equipment_type')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $transaction_logs
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
     public function getCountStatus(Request $request, $status = [1, 2])
     {
         $api_token = $request->query('api_token');
@@ -452,12 +519,11 @@ class InventoryController extends Controller
 
         $user_id = $req->input('id');
         $userInfo = DB::table('users')
-            ->select('roles') // `users.` prefix is unnecessary here.
+            ->select('roles') 
             ->where('id', $user_id)
             ->get();
 
         $registered_loc = $userInfo[0]->roles;
-
 
         $validated = $req->validate([
             'registered_loc' => 'required|integer',
@@ -486,7 +552,6 @@ class InventoryController extends Controller
             'shelf_life' => 'nullable|string',
         ]);
 
-        // Insert the data into the GeneralInformation model
         $equipment = GeneralInformation::updateOrCreate(
             ['control_no' => $validated['control_no']],
             [
@@ -517,10 +582,15 @@ class InventoryController extends Controller
                 'item_status' => 1, //DRAFT
                 'created_at' => now(),
                 'updated_at' => now(),
-            ]
+            ]   
         );
 
-        // Return a response with the created ID and a success message
+        if (!empty($validated['selectedEquipmentType'])) {
+            DB::table('tbl_equipment_type')
+                ->where('id', $validated['selectedEquipmentType']) // Assuming 'id' is the primary key
+                ->increment('quantity'); // Increment the quantity by 1
+        }
+
         return response()->json([
             'message' => 'Data saved successfully.',
             'id' => $equipment->id, // Returning the ID of the newly created record
@@ -749,7 +819,7 @@ class InventoryController extends Controller
         $id = $request->input('id');
 
         DB::table('tbl_general_info')
-        ->where('id', $id)
-        ->update(['item_status' => 2]);
+            ->where('id', $id)
+            ->update(['item_status' => 2]);
     }
 }

@@ -37,7 +37,7 @@ import TabList from 'primevue/tablist'
 import TabPanel from 'primevue/tabpanel'
 import TabPanels from 'primevue/tabpanels'
 import Tab from 'primevue/tab'
-import RadioButton from 'primevue/radioButton'
+import RadioButton from 'primevue/radiobutton'
 import Textarea from 'primevue/textarea'
 
 const app = createApp(App)

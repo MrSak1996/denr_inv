@@ -17,6 +17,9 @@ export default {
     },
     extend: {
       colors: {
+        teal: {
+          DEFAULT: 'rgb(15, 118, 110)', // Custom teal color
+        },
         current: 'currentColor',
         transparent: 'transparent',
         white: '#FFFFFF',

@@ -412,7 +412,7 @@ class ReportsController extends Controller
                 'username' => env('DB_USERNAME', 'root'),
                 'password' => env('DB_PASSWORD', ''),
                 'host' => env('DB_HOST', 'localhost'),
-                'database' => env('DB_DATABASE', 'denr_inventory'),
+                'database' => env('DB_DATABASE', 'denr_staging'),
                 'port' => env('DB_PORT', '3306'),
             ],
             true,

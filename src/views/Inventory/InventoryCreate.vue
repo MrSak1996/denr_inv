@@ -143,24 +143,15 @@ const onRadioChange = (key, option) => {
 const saveGeneralInfo = async () => {
   try {
     errors.value = {}
-    const extractId = (item) => item?.id || null
     const requestData = {
       ...form,
       registered_loc: role_id.value,
       id: userId
-      // employmentType: extractId(form.employmentType),
-      // selectedDivisiondd: extractId(form.selectedDivision),
-      // selectedAcctDivision: extractId(form.selectedAcctDivision),
-      // selectedActualDivision: extractId(form.selectedActualDivision),
-      // selectedWorkNature: extractId(form.selectedWorkNature),
-      // selectedSection: extractId(form.selectedSection),
-      // selectedRangeCategory: extractId(form.selectedRangeCategory),
-      // selectedEquipmentType: extractId(form.selectedEquipmentType)
     }
 
     const response = await api.post('/post_insert_gen_info', requestData)
     // console.log(requestData)
-    store.dispatch('saveFormData', form)
+    // store.dispatch('saveFormData', form)
 
     setTimeout(() => {
       toast.add({
@@ -176,9 +167,8 @@ const saveGeneralInfo = async () => {
         params: { id },
         query: { api_token: localStorage.getItem('api_token') }
       })
-      location.reload()
-      window.location.href =
-        '/inventory/create/' + id + '?api_token=' + localStorage.getItem('api_token')
+      // location.reload()
+
     }, 1000)
   } catch (error) {
     if (error.response?.status === 422) {
@@ -374,57 +364,90 @@ const retrievePeripheralsData = async () => {
 
 const generateQRCode = async (form, tab_form, item_id, userId) => {
   try {
+    // Call the save function based on the tab_form
     switch (tab_form) {
       case 'genForm':
-        saveGeneralInfo()
-        break
+        await saveGeneralInfo();
+        break;
       case 'p1Form':
-        savePeripheralInfo()
-        break
+        await savePeripheralInfo();
+        break;
       case 'p2Form':
-        savePeripheralInfo()
-        break
+        await savePeripheralInfo();
+        break;
       case 'upsForm':
-        savePeripheralInfo()
-        break
+        await savePeripheralInfo();
+        break;
       default:
-        break
+        throw new Error('Invalid tab_form provided');
     }
 
+    // Generate QR code for the specific case
     const res = await api.get(
-      '/generateQRCode?id=' + userId + '&item_id=' + item_id + '&tab_form=' + tab_form
-    )
-    const controlNo = res.data.control_no
-    const paddedControlNo = String(controlNo).padStart(4, '0')
-    form.qr_code = paddedControlNo
-    // setTimeout(() => {
+      `/generateQRCode?id=${userId}&item_id=${item_id}&tab_form=${tab_form}`
+    );
+
+    // Get and format the control number
+    const controlNo = res.data.control_no;
+    const paddedControlNo = String(controlNo).padStart(4, '0');
+    form.qr_code = paddedControlNo;
+
+    // Show success message
     toast.add({
       severity: 'success',
       summary: 'Success',
-      detail: 'Data saved successfully!',
-      life: 3000
-    })
+      detail: 'QR code generated and data saved successfully!',
+      life: 3000,
+    });
 
-    retrievePeripheralsData()
-    // }, 3000)
+    // Retrieve peripherals data if applicable
+    retrievePeripheralsData();
   } catch (error) {
-    console.error(error)
+    console.error('Error generating QR code:', error);
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Failed to generate QR code. Please try again.',
+      life: 3000,
+    });
   }
-}
+};
 
-const status_checker = async() =>{
+const status_checker = async () => {
   try {
-    const res = await checkItemStatus('7');
+    const res = await checkItemStatus(route.params.id);
     item_status.value = res;
   } catch (error) {
     console.log(error)
   }
 }
 
+const qrCodeValue = computed(() => {
+  // Check if the URL contains the 'create_new' parameter
+  if (route.query.create_new) {
+    return ""; // Set input to null if 'create_new' exists
+  }
+  return form.qr_code; // Else use the value from the form
+});
+const closeModal = () => {
+  isVisible.value = false
+  isMicrosoftOffice.value = false  // Close the modal by setting isLoading to false
+}
 onMounted(() => {
   const id = route.params.id;
   if (!id) {
     getControlNo(form, userId)
+    setTimeout(() => {
+      toast.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: 'Control Number saved successfully!',
+        life: 3000
+      })
+      // window.location.href =
+      //   '/inventory/create/' + id + '?api_token=' + localStorage.getItem('api_token')
+    }, 1000)
+
   }
   status_checker()
   getDivision()
@@ -460,21 +483,21 @@ onMounted(() => {
       @proceed="saveGeneralInfo"
       @close="isModalOpen = false"
     /> -->
-    <modal_software v-if="isVisible" :isLoading="isVisible" @close="isModalOpen = false" />
-    <modal_review_form 
-    v-if="openReviewForm" 
+    <modal_software  v-if="isVisible" :isLoading="isVisible" @close="closeModal" />
+
+    <modal_review_form v-if="openReviewForm" 
     :genForm="form" 
-    :periForm="peripheral_form"
+    :periForm="peripheral_form" 
     :division="division_opts"
-    :wnature="work_nature"
-    :emp_type="employment_opts"
-    :equipment="equipment_type"
+    :wnature="work_nature" 
+    :emp_type="employment_opts" 
+    :equipment="equipment_type" 
     :category="range_category"
     :softwareData="software"
     :open="openReviewForm" 
     @close="openReviewForm = false" />
 
-    <Modal_msoffice v-if="isMicrosoftOffice" :isLoading="isMicrosoftOffice" @close="isModalOpen = false" />
+    <Modal_msoffice v-if="isMicrosoftOffice" :isLoading="isMicrosoftOffice" @close="closeModal" />
 
     <Tabs value="0">
       <TabList>
@@ -585,9 +608,10 @@ onMounted(() => {
             <div class="grid md:grid-cols-4 md:gap-6 mb-4">
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
-                  <InputText id="qr_code" v-model="form.qr_code" class="w-full pr-16" />
+                  <InputText id="qr_code" v-model="form.qr_code" class="w-full pr-16"  />
                   <label for="qr_code">QR Code</label>
                 </FloatLabel>
+
                 <!-- Button inside the input field -->
                 <Button v-if="!form.qr_code" class="absolute top-1/2 right-2 transform -translate-y-1/2 px-2 py-2"
                   style="top: -21px; left: 258px" size="small"

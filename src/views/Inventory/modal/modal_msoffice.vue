@@ -24,13 +24,25 @@
           <!-- Display controlNo for debugging -->
          
           <InputText v-model="ms_office" class="w-full mb-4" placeholder="Enter MS Office version" />
+          <div class="flex space-x-4">
+          <!-- Proceed button -->
           <button
-            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center space-x-2 transition-all duration-150"
+             class="text-white bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2 px-4 rounded-lg flex items-center space-x-2 transition-all duration-150"
             @click="proceed"
           >
             <i class="pi pi-save"></i>
             <span>Proceed</span>
           </button>
+
+          <!-- Cancel button -->
+          <button
+             class="text-white bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2 px-4 rounded-lg flex items-center space-x-2 transition-all duration-150"
+            @click="closeModal"
+          >
+          <i class="pi pi-save"></i>
+          <span>Cancel</span>
+        </button>
+        </div>
         </div>
       </div>
     </div>

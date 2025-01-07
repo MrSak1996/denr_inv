@@ -41,8 +41,8 @@ export function useForm() {
     specs_ssd: 0,
     specs_ssd_capacity:'',
     specs_gpu_dedic_info:'',
-    // specs_net: null,
-    // specs_net_iswireless: '',
+    specs_net: null,
+    specs_net_iswireless: '',
   })
 
   const software_form = reactive({

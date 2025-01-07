@@ -20,7 +20,16 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:8080','http://127.0.0.1:8000/api/login','http://localhost:8000','http://192.168.0.173:8080'],
+    'allowed_origins' => [
+        'http://172.18.45.191:8080',
+        'http://192.168.0.173:8080',
+        'http://localhost:8080',
+        'http://localhost:8000',
+        'http://127.0.0.1:8000/api/',
+        'http://127.0.0.1:8000/api/login',
+        'http://127.0.0.1:8000/api/logout',
+        'http://127.0.0.1:8080/api/login',
+    ],
 
     'allowed_origins_patterns' => [],
 

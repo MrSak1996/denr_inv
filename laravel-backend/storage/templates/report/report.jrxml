@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="b49968f3-0b5d-4aae-9b9a-582f28777eb9">
 	<property name="ireport.zoom" value="1.9277164471476966"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="944"/>
+	<property name="ireport.y" value="591"/>
 	<parameter name="id" class="java.lang.String">
 		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
 	</parameter>
@@ -1035,7 +1035,7 @@ where gi.id = $P{id}]]>
 				<textFieldExpression><![CDATA[$F{monitor1AccountPersonInPN}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="163" y="551" width="196" height="20" isPrintWhenDetailOverflows="true" uuid="9d7db214-ba8d-47c1-97e5-5ca52dd71e11"/>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="163" y="551" width="196" height="20" isPrintWhenDetailOverflows="true" uuid="9d7db214-ba8d-47c1-97e5-5ca52dd71e11"/>
 				<textElement verticalAlignment="Middle">
 					<font size="10"/>
 				</textElement>

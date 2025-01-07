@@ -10,7 +10,7 @@ class GoogleDriveController extends Controller
 {
     public function uploadImage(Request $request)
     {
-        // Validate the incoming file
+        // Validate the incoming filedrive
         $request->validate([
             'image' => 'required|file|mimes:jpg,png,jpeg,gif|max:2048',
             'destination_folder' => 'required|string|max:255',

@@ -15,12 +15,14 @@ import ButtonsView from '@/views/UiElements/ButtonsView.vue'
 
 import InventoryView from '@/views/Inventory/InventoryView.vue'
 import InventoryCreate from '@/views/Inventory/InventoryCreate.vue'
+import InventoryTransaction from '@/views/Inventory/InventoryTransaction.vue'
 
 // User Management
 import AccountsView from '@/views/UserManagement/index.vue';
 import AccountCreateView from '@/views/UserManagement/form_create.vue';
 
 import api from '../../laravel-backend/resources/js/axiosInstance.js'
+import QRCodeScanner from '@/views/Inventory/QRCodeScanner.vue'
 
 const routes = [
   {
@@ -51,7 +53,7 @@ const routes = [
     }),
     meta: {
       title: 'Inventory Dashboard',
-      requiresAuth: true,
+      requiresAuth: false,
     },
     
   },
@@ -81,7 +83,19 @@ const routes = [
       requiresAuth:true
     },
   },  
-
+  {
+    path: '/inventory/transactions',
+    name: 'InventoryTransaction', // Different name for this route
+    component: InventoryTransaction,
+    props: route => ({
+      id: route.query.id,
+      api_token: route.query.api_token,
+    }),
+    meta: {
+      title: 'Update Item',
+      requiresAuth:true
+    },
+  },  
   {
     path: '/user-management/',
     name: 'Account List', // Different name for this route
@@ -97,6 +111,15 @@ const routes = [
     component: AccountCreateView,
     meta: {
       title: 'CreateAccount',
+      // requiresAuth:true
+    },
+  },  
+  {
+    path: '/scanner',
+    name: 'Scanner', // Different name for this route
+    component: QRCodeScanner,
+    meta: {
+      title: 'Scanner',
       // requiresAuth:true
     },
   },  

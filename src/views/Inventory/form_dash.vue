@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineProps,watch } from 'vue'
+import { ref,watch } from 'vue'
 
 import modal_gen_qr from './modal/modal_gen_qr.vue'
 import modal_province_info from './modal/modal_province_info.vue'

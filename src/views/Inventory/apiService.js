@@ -10,6 +10,8 @@ export const fetchCurUser = async (apiToken) => {
   }
 }
 
+
+
 export const fetchData = async (apiToken) => {
   try {
     const response = await api.get(`/getInventoryData?api_token=${apiToken}`)

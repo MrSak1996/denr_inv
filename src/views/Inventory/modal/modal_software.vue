@@ -22,13 +22,26 @@
           Please select the installed operating system:
         </p>
         <InputText v-model="software" class="w-full mb-4" />
-        <button
-          class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center space-x-2 transition-all duration-150"
-          @click="proceed"
-        >
+         <!-- Button container with Flexbox -->
+         <div class="flex space-x-4">
+          <!-- Proceed button -->
+          <button
+             class="text-white bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2 px-4 rounded-lg flex items-center space-x-2 transition-all duration-150"
+            @click="proceed"
+          >
+            <i class="pi pi-save"></i>
+            <span>Proceed</span>
+          </button>
+
+          <!-- Cancel button -->
+          <button
+             class="text-white bg-teal-700 hover:bg-teal-800 text-white font-semibold py-2 px-4 rounded-lg flex items-center space-x-2 transition-all duration-150"
+            @click="closeModal"
+          >
           <i class="pi pi-save"></i>
-          <span>Proceed</span>
+          <span>Cancel</span>
         </button>
+        </div>
       </div>
     </div>
   </div>
@@ -40,9 +53,9 @@ import { useToast } from 'primevue/usetoast'
 import { useRoute } from 'vue-router'
 import InputText from 'primevue/inputtext'
 import api from '../../../../laravel-backend/resources/js/axiosInstance.js'
+
 const toast = useToast()
 const route = useRoute()
-
 
 // Props
 defineProps({
@@ -60,7 +73,7 @@ const software = ref('')
 
 // Methods
 const closeModal = () => {
-  emit('close')
+  emit('close')  // Emit close event to parent to set isLoading to false
 }
 
 const proceed = async () => {
@@ -70,7 +83,7 @@ const proceed = async () => {
       os_installed: software.value
     }
     const response = await api.post('/post_add_os', requestData)
-    
+
     setTimeout(() => {
       toast.add({
         severity: 'success',
@@ -78,9 +91,9 @@ const proceed = async () => {
         detail: 'Data saved successfully!',
         life: 3000
       })
-      emit("close");
 
-     
+      // Close the modal after saving
+      emit('close')  // Emit close event to parent to set isLoading to false
     }, 1000)
   } catch (error) {
     console.log(error)

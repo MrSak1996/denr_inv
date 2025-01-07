@@ -5,8 +5,10 @@ import InputOtp from 'primevue/inputotp'
 import Toast from 'primevue/toast'
 
 import { useToast } from 'primevue/usetoast'
-import { ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useInventory } from '@/composables/useInventory.ts'
+const { OTPsettings } = useInventory()
 
 import api from '../../../laravel-backend/resources/js/axiosInstance.js'
 import modal_verify from './modal/modal_verify.vue'
@@ -26,6 +28,7 @@ const message = ref('')
 
 //otp modal
 const isModalOpen = ref(false)
+const otp_checker = ref(false)
 
 const loginUser = async () => {
   try {
@@ -34,29 +37,37 @@ const loginUser = async () => {
       // If login is successful, send the OTP
       localStorage.setItem('userId', response.data.userId)
       localStorage.setItem('api_token', response.data.api_token)
-      const userEmail = response.data.email
-      email = response.data.email
 
-      if (!userEmail) {
+      const res = await OTPsettings()
+      otp_checker.value = res
+
+      if (otp_checker.value === true) {
+        isModalOpen.value = true
+        email.value = response.data.email
+        const userEmail = response.data.email
+
+        if (!userEmail) {
+          toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Email not found for the provided username',
+            life: 3000
+          })
+          return
+        }
+
+        await api.post('/send-otp', { email: userEmail })
+        // Show success message and open OTP modal
         toast.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Email not found for the provided username',
+          severity: 'success',
+          summary: 'OTP Sent',
+          detail: 'Check your email for the OTP',
           life: 3000
         })
-        return
+      } else {
+        isModalOpen.value = false;
+        toDashboard();
       }
-
-      await api.post('/send-otp', { email: userEmail })
-
-      // Show success message and open OTP modal
-      toast.add({
-        severity: 'success',
-        summary: 'OTP Sent',
-        detail: 'Check your email for the OTP',
-        life: 3000
-      })
-      isModalOpen.value = true // Open the modal
     } else {
       // Invalid login credentials
       toast.add({
@@ -67,6 +78,8 @@ const loginUser = async () => {
       })
     }
   } catch (error) {
+    isModalOpen.value = false // Ensure the modal stays closed on error
+
     if (error.response && error.response.data) {
       // Server returned an error response
       errors.value = error.response.data.errors
@@ -78,30 +91,59 @@ const loginUser = async () => {
 
 const verifyOtp = async () => {
   try {
-    const userId = localStorage.getItem('userId');
-    const api_token = localStorage.getItem('api_token');
+  
     const response = await api.post('/verify-otp', {
-      user_email: email,
+      user_email: email.value,
       otp: otp.value
     })
     message.value = response.data.message
     if (response.data.status) {
-      
-      toast.add({ severity: 'success', summary: 'Success', detail: 'Login successful', life: 3000 })
-      setTimeout(() => {
-        router.push({ name: 'eCommerce', query: { id: userId,api_token:api_token, } })
-      }, 1000)
-    } 
+      toDashboard();
+    }
   } catch (error) {
     message.value = error.response?.data?.message || 'Error verifying OTP'
     toast.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: message.value,
-        life: 3000
-      })
+      severity: 'error',
+      summary: 'Error',
+      detail: message.value,
+      life: 3000
+    })
   }
 }
+
+const toDashboard = async () => {
+  const userId = localStorage.getItem('userId')
+  const api_token = localStorage.getItem('api_token')
+
+  if (!userId || !api_token) {
+    // Handle missing userId or api_token
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Unable to redirect: missing user information',
+      life: 3000
+    })
+    return
+  }
+
+  // Display success toast and redirect after a delay
+  toast.add({
+    severity: 'success',
+    summary: 'Success',
+    detail: 'Login successful',
+    life: 3000
+  })
+
+  setTimeout(() => {
+    router.push({ 
+      name: 'eCommerce', 
+      query: { id: userId, api_token: api_token } 
+    })
+  }, 1000)
+}
+
+
+onMounted(() => {})
 </script>
 
 <template>
@@ -125,7 +167,10 @@ const verifyOtp = async () => {
 
       <!-- Modal Body -->
       <div class="flex flex-col justify-center items-center py-8 px-6">
-       <p>To complete the verification process, please enter the 6-digit OTP we’ve sent to your email.</p>
+        <p>
+          To complete the verification process, please enter the 6-digit OTP we’ve sent to your
+          email.
+        </p>
         <InputOtp v-model="otp" integerOnly class="mb-4" :length="6" />
         <button
           class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center space-x-2 transition-all duration-150"
