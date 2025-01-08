@@ -6,6 +6,7 @@ use App\Models\GeneralInformation;
 use App\Models\SpecificationInformation;
 use App\Models\SoftwareInstall;
 use App\Models\PeripheralInformation;
+use App\Models\InventoryTransaction;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -232,7 +233,9 @@ class InventoryController extends Controller
                 updated_at'
             ))
             ->where('id', $id)
+            ->orWhere('qr_code', $id) // Add OR condition for qr_code
             ->get();
+
 
         return response()->json($results);
     }
@@ -322,6 +325,8 @@ class InventoryController extends Controller
     public function getInventoryData(Request $request)
     {
         $api_token = $request->query('api_token');
+        $designation = $request->query('designation');
+
 
         $equipmentData = DB::table('tbl_general_info as gi')
             ->leftJoin('tbl_specification as s', 's.control_id', '=', 'gi.id')
@@ -336,11 +341,11 @@ class InventoryController extends Controller
                 'ur.roles as registered_loc',
                 'gi.status',
                 DB::raw("
-                 CASE 
-                            WHEN gi.status = 1 THEN 'Serviceable'
-                            WHEN gi.status = 2 THEN 'Unserviceable'
-                            ELSE ''
-                END as status"),
+            CASE 
+                WHEN gi.status = 1 THEN 'Serviceable'
+                WHEN gi.status = 2 THEN 'Unserviceable'
+                ELSE ''
+            END as status"),
                 'gi.qr_code',
                 'p.mon_qr_code1',
                 'p.mon_qr_code2',
@@ -350,54 +355,62 @@ class InventoryController extends Controller
                 'eq_t.equipment_title',
                 'gi.brand',
                 DB::raw("CONCAT(
-                        COALESCE(s.processor, ''), CHAR(10),
-                        CASE 
-                            WHEN s.ram_type = 1 THEN 'Static RAM'
-                            WHEN s.ram_type = 2 THEN '(SDRAM)'
-                            WHEN s.ram_type = 4 THEN 'Single Data Rate Synchronous Dynamic RAM'
-                            WHEN s.ram_type = 5 THEN 'DDR2'
-                            WHEN s.ram_type = 6 THEN 'DDR3'
-                            WHEN s.ram_type = 7 THEN 'DDR4'
-                            WHEN s.ram_type = 8 THEN 'GDDR'
-                            WHEN s.ram_type = 9 THEN 'SDRAM'
-                            WHEN s.ram_type = 10 THEN 'GDDR2'
-                            WHEN s.ram_type = 11 THEN 'GDDR3'
-                            WHEN s.ram_type = 12 THEN 'GDDR4'
-                            WHEN s.ram_type = 13 THEN 'GDDR5'
-                            WHEN s.ram_type = 14 THEN 'Flash Memory'
-                            ELSE 'Unknown RAM'
-                        END, CHAR(10),
-                        COALESCE(s.ram_capacity, ''), CHAR(10),
-                        COALESCE(s.dedicated_information, ''), CHAR(10),
-                        CONCAT('HDD NO: ', COALESCE(s.no_of_hdd, '0')), CHAR(10),
-                        CONCAT('SSD NO: ', COALESCE(s.no_of_ssd, '0')), CHAR(10),
-                        COALESCE(s.ssd_capacity, ''), CHAR(10),
-                        CASE 
-                            WHEN s.specs_gpu = 1 THEN 'Built In'
-                            WHEN s.specs_gpu = 2 THEN 'Dedicated'
-                            ELSE 'Unknown'
-                        END, CHAR(10),
-                        CASE 
-                            WHEN s.wireless_type = 1 THEN 'LAN'
-                            WHEN s.wireless_type = 2 THEN 'Wireless'
-                            WHEN s.wireless_type = 3 THEN 'Both'
-                            ELSE 'Unknown'
-                        END
-                    ) as full_specs"),
+            COALESCE(s.processor, ''), CHAR(10),
+            CASE 
+                WHEN s.ram_type = 1 THEN 'Static RAM'
+                WHEN s.ram_type = 2 THEN '(SDRAM)'
+                WHEN s.ram_type = 4 THEN 'Single Data Rate Synchronous Dynamic RAM'
+                WHEN s.ram_type = 5 THEN 'DDR2'
+                WHEN s.ram_type = 6 THEN 'DDR3'
+                WHEN s.ram_type = 7 THEN 'DDR4'
+                WHEN s.ram_type = 8 THEN 'GDDR'
+                WHEN s.ram_type = 9 THEN 'SDRAM'
+                WHEN s.ram_type = 10 THEN 'GDDR2'
+                WHEN s.ram_type = 11 THEN 'GDDR3'
+                WHEN s.ram_type = 12 THEN 'GDDR4'
+                WHEN s.ram_type = 13 THEN 'GDDR5'
+                WHEN s.ram_type = 14 THEN 'Flash Memory'
+                ELSE 'Unknown RAM'
+            END, CHAR(10),
+            COALESCE(s.ram_capacity, ''), CHAR(10),
+            COALESCE(s.dedicated_information, ''), CHAR(10),
+            CONCAT('HDD NO: ', COALESCE(s.no_of_hdd, '0')), CHAR(10),
+            CONCAT('SSD NO: ', COALESCE(s.no_of_ssd, '0')), CHAR(10),
+            COALESCE(s.ssd_capacity, ''), CHAR(10),
+            CASE 
+                WHEN s.specs_gpu = 1 THEN 'Built In'
+                WHEN s.specs_gpu = 2 THEN 'Dedicated'
+                ELSE 'Unknown'
+            END, CHAR(10),
+            CASE 
+                WHEN s.wireless_type = 1 THEN 'LAN'
+                WHEN s.wireless_type = 2 THEN 'Wireless'
+                WHEN s.wireless_type = 3 THEN 'Both'
+                ELSE 'Unknown'
+            END
+        ) as full_specs"),
                 DB::raw("CASE 
-                        WHEN gi.range_category = 1 THEN 'Entry Level'
-                        WHEN gi.range_category = 2 THEN 'Mid Level'
-                        WHEN gi.range_category = 3 THEN 'High End Level'
-                        ELSE 'Unknown'
-                    END as range_category"),
+            WHEN gi.range_category = 1 THEN 'Entry Level'
+            WHEN gi.range_category = 2 THEN 'Mid Level'
+            WHEN gi.range_category = 3 THEN 'High End Level'
+            ELSE 'Unknown'
+        END as range_category"),
                 'gi.acct_person',
                 'acct_division.division_title as acct_division_title',
                 'gi.actual_user',
                 'actual_division.division_title as actual_division_title'
             )
-            ->where('u.api_token', $api_token)
-            ->orderBy('id', 'desc')
-            ->get();
+            ->orderBy('id', 'desc');
+
+        // Apply the condition for designation
+        if ($designation !== "Regional Office") {
+            $equipmentData->where('u.api_token', $api_token);
+        }
+
+        // Execute the query
+        $equipmentData = $equipmentData->get();
+
+
         $rowCount = $equipmentData->count();
 
 
@@ -519,7 +532,7 @@ class InventoryController extends Controller
 
         $user_id = $req->input('id');
         $userInfo = DB::table('users')
-            ->select('roles') 
+            ->select('roles')
             ->where('id', $user_id)
             ->get();
 
@@ -552,6 +565,8 @@ class InventoryController extends Controller
             'shelf_life' => 'nullable|string',
         ]);
 
+
+
         $equipment = GeneralInformation::updateOrCreate(
             ['control_no' => $validated['control_no']],
             [
@@ -582,8 +597,17 @@ class InventoryController extends Controller
                 'item_status' => 1, //DRAFT
                 'created_at' => now(),
                 'updated_at' => now(),
-            ]   
+            ]
         );
+
+        $transactionLog = InventoryTransaction::create([
+            'transaction_type' => "Add",
+            'inventory_id' => $equipment->id, // Use the newly inserted inventory ID
+            'item_name' => $equipment->equipment_type,
+            'transaction_date' => now(),
+            'remarks' => "",
+            'user_id' => $user_id
+        ]);
 
         if (!empty($validated['selectedEquipmentType'])) {
             DB::table('tbl_equipment_type')
@@ -593,7 +617,8 @@ class InventoryController extends Controller
 
         return response()->json([
             'message' => 'Data saved successfully.',
-            'id' => $equipment->id, // Returning the ID of the newly created record
+            'id' => $equipment->id,
+            'logs' => $transactionLog->id
         ], 200);
     }
 

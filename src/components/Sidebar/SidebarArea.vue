@@ -2,6 +2,8 @@
 import { useSidebarStore } from '@/stores/sidebar'
 import { onClickOutside } from '@vueuse/core'
 import { ref,onMounted,computed} from 'vue'
+import { useApi } from '../../composables/useApi.js';
+
 import SidebarItem from './SidebarItem.vue'
 import { useRoute } from 'vue-router'
 import api from '../../../laravel-backend/resources/js/axiosInstance.js'
@@ -12,13 +14,16 @@ const sidebarStore = useSidebarStore()
 const route = useRoute()
 const userId = (!route.query.id) ? localStorage.getItem('userId'):route.query.id;
 const api_token = route.query.api_token
-
+const {
+  fetchCurUser,
+} = useApi()
 onClickOutside(target, () => {
   sidebarStore.isSidebarOpen = false
 })
+
+
 onMounted(() => { 
-  designation.value= localStorage.getItem('designation') || 'Not Assigned' 
-  fetchCurUser
+  loadUserData()
 })
 const dashboardIcon =  `
 <svg
@@ -117,37 +122,10 @@ const filteredMenuGroups = computed(() => {
   });
 });
 
-const fetchCurUser = async () => {
-  // Retrieve the API token from localStorage
-  const api_token = localStorage.getItem('api_token');
-  
-  // Check if the token exists
-  if (!api_token) {
-    console.error('API token not found. Please log in.');
-    return;
-  }
-
-  try {
-    // Make the API call to fetch the current user
-    const response = await api.get(`/getUsers?api_token=${api_token}`, {
-      headers: {
-        Authorization: `Bearer ${api_token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    // Check if the response status is valid
-    if (response.status === 200 && response.data) {
-      designation.value = response.data.data[0].roles;
-      return response.data;
-    } else {
-      console.error('Failed to fetch current user: Invalid response');
-    }
-  } catch (error) {
-    // Handle any errors
-    console.error('Error fetching current user:', error.response?.data?.message || error.message);
-  }
-};
+const loadUserData = async () => {
+  const userData = await fetchCurUser()
+  designation.value = userData.data[0].roles
+}
 
 </script>
 

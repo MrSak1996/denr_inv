@@ -319,7 +319,7 @@ const barChart = {
       <div class="p-6 grid grid-cols-12 gap-4">
         <!-- Top Statistics -->
         <div class="col-span-12 grid grid-cols-4 gap-4">
-          <div class="bg-teal-700 text-white p-4 rounded-lg shadow text-center">
+          <div class="bg-white-500 text-black p-4 rounded-lg shadow text-center">
             <h4 class="text-xl font-bold">Overall Offices</h4>
             <div class="h-[100px] w-full bg-gray-0 rounded-lg flex items-center justify-center">
               <VueApexCharts

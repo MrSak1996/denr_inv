@@ -1,89 +1,89 @@
 <script setup lang="ts">
-import { ref,watch } from 'vue'
+  import { ref,watch } from 'vue'
 
-import modal_gen_qr from './modal/modal_gen_qr.vue'
-import modal_province_info from './modal/modal_province_info.vue'
-import Button from 'primevue/button'
-import MeterGroup from 'primevue/metergroup'
-import Card from 'primevue/card'
-const openQR = ref(false)
-const openProInfo = ref(false)
-const total = ref(0);
-const serviceableCount = ref(0);
-const unserviceableCount = ref(0);
-const outdatedCount = ref(0);
+  import modal_gen_qr from './modal/modal_gen_qr.vue'
+  import modal_province_info from './modal/modal_province_info.vue'
+  import Button from 'primevue/button'
+  import MeterGroup from 'primevue/metergroup'
+  import Card from 'primevue/card'
+  const openQR = ref(false)
+  const openProInfo = ref(false)
+  const total = ref(0);
+  const serviceableCount = ref(0);
+  const unserviceableCount = ref(0);
+  const outdatedCount = ref(0);
 
-const props = defineProps({
-  role_id: {
-    type: Number
-  },
-  office: {
-    type: String
-  },
-  total_equipment: {
-    type: Number,
-    required: true
-  },
-  total_serviceable_count: {
-    type: Number,
-    required: true
-  },
-  total_unserviceable_count: {
-    type: Number,
-    required: true
-  },
-  outdated_equipment: {
-    type: Number,
-    required: true
-  }
-})
+  const props = defineProps({
+    role_id: {
+      type: Number
+    },
+    office: {
+      type: String
+    },
+    total_equipment: {
+      type: Number,
+      required: true
+    },
+    total_serviceable_count: {
+      type: Number,
+      required: true
+    },
+    total_unserviceable_count: {
+      type: Number,
+      required: true
+    },
+    outdated_equipment: {
+      type: Number,
+      required: true
+    }
+  })
 
-watch(() => props.total_equipment, (newValue) => {
-  total.value = newValue;
-});
+  watch(() => props.total_equipment, (newValue) => {
+    total.value = newValue;
+  });
 
-watch(() => props.total_serviceable_count, (newValue) => {
-  serviceableCount.value = newValue;
-});
+  watch(() => props.total_serviceable_count, (newValue) => {
+    serviceableCount.value = newValue;
+  });
 
-watch(() => props.total_unserviceable_count, (newValue) => {
-  unserviceableCount.value = newValue;
-});
+  watch(() => props.total_unserviceable_count, (newValue) => {
+    unserviceableCount.value = newValue;
+  });
 
-watch(() => props.outdated_equipment, (newValue) => {
-  outdatedCount.value = newValue;
-});
+  watch(() => props.outdated_equipment, (newValue) => {
+    outdatedCount.value = newValue;
+  });
 
-const value = ref([
-  {
-    label: 'Total Equipment',
-    color1: '#34d399',
-    color2: '#fbbf24',
-    value: total,
-    icon: 'pi pi-table'
-  },
-  {
-    label: 'Total Serviceable Equipment',
-    color1: '#fbbf24',
-    color2: '#60a5fa',
-    value: serviceableCount,
-    icon: 'pi pi-inbox'
-  },
-  {
-    label: 'Total Unserviceable Equipment',
-    color1: '#60a5fa',
-    color2: '#c084fc',
-    value: unserviceableCount,
-    icon: 'pi pi-image'
-  },
-  {
-    label: 'Total Outdated Equipment',
-    color1: '#60a5fa',
-    color2: '#c084fc',
-    value: outdatedCount,
-    icon: 'pi pi-image'
-  }
-])
+  const value = ref([
+    {
+      label: 'Total Equipment',
+      color1: '#34d399',
+      color2: '#fbbf24',
+      value: total,
+      icon: 'pi pi-table'
+    },
+    {
+      label: 'Total Serviceable Equipment',
+      color1: '#fbbf24',
+      color2: '#60a5fa',
+      value: serviceableCount,
+      icon: 'pi pi-inbox'
+    },
+    {
+      label: 'Total Unserviceable Equipment',
+      color1: '#60a5fa',
+      color2: '#c084fc',
+      value: unserviceableCount,
+      icon: 'pi pi-image'
+    },
+    {
+      label: 'Total Outdated Equipment',
+      color1: '#60a5fa',
+      color2: '#c084fc',
+      value: outdatedCount,
+      icon: 'pi pi-image'
+    }
+  ])
 
 </script>
 <template>

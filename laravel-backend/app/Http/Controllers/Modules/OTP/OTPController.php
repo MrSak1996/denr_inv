@@ -32,7 +32,7 @@ class OTPController extends Controller
 
         return response()->json(['message' => 'OTP sent successfully!'], 200);
     }
-
+    
     public function verifyOtp(Request $request)
     {
         $request->validate([

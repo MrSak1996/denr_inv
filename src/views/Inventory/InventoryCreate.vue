@@ -150,8 +150,6 @@ const saveGeneralInfo = async () => {
     }
 
     const response = await api.post('/post_insert_gen_info', requestData)
-    // console.log(requestData)
-    // store.dispatch('saveFormData', form)
 
     setTimeout(() => {
       toast.add({
@@ -485,7 +483,7 @@ onMounted(() => {
     /> -->
     <modal_software  v-if="isVisible" :isLoading="isVisible" @close="closeModal" />
 
-    <modal_review_form v-if="openReviewForm" 
+    <!-- <modal_review_form v-if="openReviewForm" 
     :genForm="form" 
     :periForm="peripheral_form" 
     :division="division_opts"
@@ -495,7 +493,7 @@ onMounted(() => {
     :category="range_category"
     :softwareData="software"
     :open="openReviewForm" 
-    @close="openReviewForm = false" />
+    @close="openReviewForm = false" /> -->
 
     <Modal_msoffice v-if="isMicrosoftOffice" :isLoading="isMicrosoftOffice" @close="closeModal" />
 
@@ -1065,7 +1063,7 @@ onMounted(() => {
             <Button label="Back" icon="pi pi-undo" class="mr-4" severity="warn" @click="btnBack()" />
 
             <Button label="Save as Draft" type="submit" icon="pi pi-save" severity="info" class="mr-4" />
-            <Button label="Submit" @click="openReviewForm = true" icon="pi pi-verified" severity="primary" />
+            <!-- <Button label="Submit" @click="openReviewForm = true" icon="pi pi-verified" severity="primary" /> -->
           </form>
         </TabPanel>
       </TabPanels>

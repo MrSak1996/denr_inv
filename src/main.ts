@@ -39,10 +39,13 @@ import TabPanels from 'primevue/tabpanels'
 import Tab from 'primevue/tab'
 import RadioButton from 'primevue/radiobutton'
 import Textarea from 'primevue/textarea'
+import FocusTrap from 'primevue/focustrap';
+import DataStatsOne from './components/DataStats/DataStatsOne.vue';
 
 const app = createApp(App)
 
 // Global registration of the QRCode component
+app.component('DataStatsOne',DataStatsOne)
 app.component('QrcodeVue', QrcodeVue)
 app.component('DataTable', DataTable)
 app.component('BreadcrumbDefault', BreadcrumbDefault)
@@ -70,6 +73,7 @@ app.component('TabPanel',TabPanel)
 app.component('Tab',Tab)
 app.component('Textarea',Textarea)
 app.component('RadioButton',RadioButton)
+app.directive('focustrap', FocusTrap);
 
 app.use(createPinia())
 app.use(ToastService)

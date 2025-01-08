@@ -161,12 +161,12 @@ const network_type = ref([
 ])
 
 const getRamName = (id) => {
-  const ram = ram_opts.value.find(option => option.id === id.toString());
+  const ram = ram_opts.value.find(option => option.id === id);
   return ram ? ram.name : 'Unknown RAM'; // Fallback if no match is found
 };
 
 const getNetworkType = (key) => {
-  const network = network_type.value.find(option => option.key === key.toString());
+  const network = network_type.value.find(option => option.key === key);
   return network ? network.name : 'Unknown Network'; // Fallback if no match is found
 };
 
@@ -422,7 +422,7 @@ const getNetworkType = (key) => {
         </div>
         <div class="flex justify-end items-center w-full">
           <Button @click="handlePrint()" severity="teal" label="Print" icon="pi pi-file-export" class="mt-4 mr-4" />
-          <Button @click="submitFinalReview" severity="info" label="Submit" icon="pi pi-save" class="mt-4" />
+          <!-- <Button @click="submitFinalReview" severity="info" label="Submit" icon="pi pi-save" class="mt-4" /> -->
         </div>
       </div>
     </div>
