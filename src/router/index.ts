@@ -80,7 +80,7 @@ const routes = [
     }),
     meta: {
       title: 'Update Item',
-      requiresAuth:true
+      // requiresAuth:true
     },
   },  
   {

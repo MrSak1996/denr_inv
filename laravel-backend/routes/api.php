@@ -9,7 +9,6 @@ use App\Http\Controllers\Modules\Reports\ReportsController;
 use App\Http\Controllers\Modules\OTP\OTPController;
 use App\Http\Controllers\Modules\GoogleDrive\GoogleDriveController;
 use App\Http\Controllers\Modules\Settings\SettingsController;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -37,11 +36,25 @@ Route::middleware('auth:api')->group(function () {
 });
 
 Route::middleware('api')->group(function () {
+    
+    // REACT NATIVE API
+    Route::get('/fetchNativeAPI',[InventoryController::class,'fetchNativeAPI']);
+
     Route::get('/showData', [ExampleController::class, 'showData']);
     Route::get('/getControlNo', [InventoryController::class, 'getControlNo']);
     Route::get('/generateQRCode', [InventoryController::class, 'generateQRCode']);
     Route::get('/getDivision', [InventoryController::class, 'getDivision']);
-    Route::get('/getNatureWork', [InventoryController::class, 'getNatureWork']);
+    Route::get('/fetchRangeEntry', [InventoryController::class, 'fetchRangeEntry']);
+    // react native api
+    Route::get('/getNatureWork', [InventoryController::class, 'getNatureWork']); 
+    Route::get('/fetchEmploymentType', [InventoryController::class, 'fetchEmploymentType']); 
+    Route::get('/fetchNatureWork', [InventoryController::class, 'fetchNatureWork']);
+    Route::get('/fetchEquipment', [InventoryController::class, 'fetchEquipment']);
+    Route::get('/fetchDivisionData', [InventoryController::class, 'fetchDivisionData']);
+    Route::post('/updateUser', [InventoryController::class, 'updateUser']);
+    Route::post('/updatePeripherals', [InventoryController::class, 'updatePeripherals']);
+
+    // end
     Route::get('/getEquipment', [InventoryController::class, 'getEquipment']);
     Route::get('/getRangeCategory', [InventoryController::class, 'getRangeCategory']);
     Route::get('/getEmploymentType', [InventoryController::class, 'getEmploymentType']);
@@ -68,6 +81,7 @@ Route::middleware('api')->group(function () {
     Route::post('/post_add_os', [InventoryController::class, 'post_add_os']);
     Route::post('/post_add_msoffice', [InventoryController::class, 'post_add_msoffice']);
     Route::post('post_final_review', [InventoryController::class, 'post_final_review']);
+
 
 
     //USER MANAGEMENT

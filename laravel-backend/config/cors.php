@@ -23,6 +23,7 @@ return [
     'allowed_origins' => [
         'http://172.18.45.191:8080',
         'http://192.168.0.173:8080',
+        'http://192.168.0.173:8080/inventory/create',
         'http://localhost:8080',
         'http://localhost:8000',
         'http://127.0.0.1:8000/api/',

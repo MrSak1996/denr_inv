@@ -400,7 +400,36 @@ class InventoryController extends Controller
                 'gi.actual_user',
                 'actual_division.division_title as actual_division_title'
             )
-            ->orderBy('id', 'desc');
+            ->orderBy('id', 'desc')
+            ->groupBy(
+            'gi.id',
+            'ur.roles',
+            'gi.status',
+            'gi.qr_code',
+            'p.mon_qr_code1',
+            'p.mon_qr_code2',
+            'p.ups_qr_code',
+            'gi.control_no',
+            'actual_division.division_title',
+            'eq_t.equipment_title',
+            'gi.brand',
+            'gi.range_category',
+            'gi.acct_person',
+            'acct_division.division_title',
+            'gi.actual_user',
+            's.processor',
+            's.ram_type',
+            's.ram_capacity',
+            's.dedicated_information',
+            's.no_of_hdd',
+            's.no_of_ssd',
+            's.ssd_capacity',
+            's.specs_gpu',
+            's.wireless_type',
+            'gi.range_category'
+            
+        );
+          
 
         // Apply the condition for designation
         if ($designation !== "Regional Office") {
@@ -421,7 +450,6 @@ class InventoryController extends Controller
             ]
         );
     }
-
     public function fetchTransaction(Request $request)
     {
         try {
@@ -524,6 +552,389 @@ class InventoryController extends Controller
 
         return response()->json($exists);
     }
+    // REACT NATIVE API
+
+    public function fetchNativeAPI(Request $req)
+    {
+        $qr_code_val = $req->query('id');
+        $data = DB::table('tbl_general_info as g')
+            ->leftJoin('tbl_specification as s', 's.control_id', '=', 'g.id')
+            ->leftJoin('tbl_software_install as si', 'si.control_id', '=', 'g.id')
+            ->leftJoin('tbl_division as d', 'd.id', '=', 'g.division_id')
+            ->leftJoin('tbl_employment_type as et', 'et.id', '=', 'g.actual_employment_type')
+            ->leftJoin('tbl_nature_of_work as nw', 'nw.id', '=', 'g.work_nature_id')
+            ->leftJoin('tbl_equipment_type as e', 'e.id', '=', 'g.equipment_type')
+            ->leftJoin('tbl_range_category as rc', 'rc.id', '=', 'g.range_category')
+            ->leftJoin('tbl_peripherals as p', 'p.control_id', '=', 'g.id')
+            ->select(
+                'g.id as control_id',
+                'g.control_no',
+                'g.qr_code',
+                'g.division_id',
+                'd.division_title',
+                'g.acct_person',
+                'g.actual_user',
+                'g.actual_employment_type',
+                'et.employment_title',
+                'g.work_nature_id',
+                'nw.nature_work_title',
+                'g.equipment_type',
+                'e.equipment_title',
+                'g.property_no',
+                'g.serial_no',
+                'g.brand',
+                'g.model',
+                'g.year_acquired',
+                's.specs_net',
+                's.specs_gpu',
+                's.ram_type',
+                'g.acquisition_cost',
+                'g.range_category',
+                'rc.range_title',
+                's.processor',
+                's.dedicated_information',
+                's.ram_capacity',
+                's.no_of_hdd',
+                's.hdd_capacity',
+                's.wireless_type',
+                'g.os_installed',
+                'p.mon_brand_model1',
+                'p.mon_brand_model2',
+                'p.monitor1Model',
+                'mon_brand_model1',
+                'mon_brand_model2',
+                'monitor1Model',
+                'monitor2Model',
+                'mon_sn1',
+                'mon_sn2',
+                'mon_qr_code1',
+                'mon_qr_code2',
+                'mon_pro_no1',
+                'mon_pro_no2',
+                'mon_acct_user1',
+                'mon_acct_user2',
+                'mon_actual_user1',
+                'mon_actual_user2',
+                'ups_qr_code',
+                'ups_brand',
+                'ups_model',
+                'ups_acct_user',
+                'ups_actual_user',
+                'ups_property_no',
+                'ups_sn',
+                'monitor1Status',
+                'monitor2Status'
+            )
+            ->where('g.qr_code', $qr_code_val)
+            ->groupBy(
+                'g.id',
+                'g.qr_code',
+                'g.control_no',
+                'g.division_id',
+                'd.division_title',
+                'g.acct_person',
+                'g.actual_user',
+                'g.actual_employment_type',
+                'et.employment_title',
+                'g.work_nature_id',
+                'nw.nature_work_title',
+                'g.equipment_type',
+                'e.equipment_title',
+                'g.property_no',
+                'g.serial_no',
+                'g.brand',
+                'g.model',
+                'g.year_acquired',
+                's.specs_net',
+                'g.acquisition_cost',
+                'g.range_category',
+                'rc.range_title',
+                's.processor',
+                's.specs_gpu',
+                's.dedicated_information',
+                's.ram_type',
+                's.ram_capacity',
+                's.no_of_hdd',
+                's.hdd_capacity',
+                's.wireless_type',
+                'g.os_installed',
+                'p.mon_brand_model1',
+                'p.mon_brand_model2',
+                'p.monitor1Model',
+                'mon_brand_model1',
+                'mon_brand_model2',
+                'monitor1Model',
+                'monitor2Model',
+                'mon_sn1',
+                'mon_sn2',
+                'mon_qr_code1',
+                'mon_qr_code2',
+                'mon_pro_no1',
+                'mon_pro_no2',
+                'mon_acct_user1',
+                'mon_acct_user2',
+                'mon_actual_user1',
+                'mon_actual_user2',
+                'ups_qr_code',
+                'ups_brand',
+                'ups_model',
+                'ups_acct_user',
+                'ups_actual_user',
+                'ups_property_no',
+                'ups_sn',
+                'monitor1Status',
+                'monitor2Status',
+            )
+            ->get();
+
+        return response()->json($data);
+    }
+    public function fetchNatureWork()
+    {
+        // Fetch data from the database
+        $data = DB::table('tbl_nature_of_work')->get(['id', 'nature_work_title']); // Assuming 'nature_of_work' is the table name
+
+        // Transform the data
+        $transformedData = $data->map(function ($item) {
+            return [
+                'label' => $item->nature_work_title,
+                'id' => $item->id
+            ];
+        });
+
+        // Return the transformed data as JSON
+        return response()->json($transformedData);
+    }
+    public function fetchRangeEntry()
+    {
+        // Fetch data from the database
+        $data = DB::table('tbl_range_category')->get(['id', 'range_title']); // Assuming 'nature_of_work' is the table name
+
+        // Transform the data
+        $transformedData = $data->map(function ($item) {
+            return [
+                'label' => $item->range_title,
+                'id' => $item->id
+            ];
+        });
+
+        // Return the transformed data as JSON
+        return response()->json($transformedData);
+    }
+    public function fetchEmploymentType()
+    {
+        // Fetch data from the database
+        $data = DB::table('tbl_employment_type')->get(['id', 'employment_title']); // Assuming 'nature_of_work' is the table name
+
+        // Transform the data
+        $transformedData = $data->map(function ($item) {
+            return [
+                'label' => $item->employment_title,
+                'id' => $item->id
+            ];
+        });
+
+        // Return the transformed data as JSON
+        return response()->json($transformedData);
+    }
+    public function fetchEquipment()
+    {
+        $results = DB::table('tbl_equipment_type')->get(['id', 'equipment_title']);
+        $transformedData = $results->map(function ($item) {
+            return [
+                'label' => $item->equipment_title,
+                'id' => $item->id
+            ];
+        });
+
+        // Return the transformed data as JSON
+        return response()->json($transformedData);
+    }
+    public function fetchDivisionData()
+    {
+        $results = DB::table('tbl_division')->get(['id', 'division_title']);
+        $transformedData = $results->map(function ($item) {
+            return [
+                'label' => $item->division_title,
+                'id' => $item->id
+            ];
+        });
+
+        // Return the transformed data as JSON
+        return response()->json($transformedData);
+    }
+
+    public function updateUser(Request $request)
+    {
+        try {
+            // Validate incoming data
+            $validatedData = $request->validate([
+                'qr_code' => 'required|string',
+                'division' => 'nullable|string',
+                'user' => 'nullable|string',
+                'control_no' => 'nullable|string',
+                'division_id' => 'nullable|numeric',
+                'acct_person' => 'nullable|string',
+                'actual_user' => 'nullable|string',
+                'actual_employment_type' => 'nullable|numeric',
+                'employment_title' => 'nullable|string',
+                'work_nature_id' => 'nullable|numeric',
+                'equipment_type' => 'nullable|numeric',
+                'equipment_title' => 'nullable|string',
+                'property_no' => 'nullable|string',
+                'serial_no' => 'nullable|string',
+                'brand' => 'nullable|string',
+                'model' => 'nullable|string',
+                'year_acquired' => 'nullable|integer',
+                'acquisition_cost' => 'nullable|numeric',
+                'range_category' => 'nullable|numeric',
+                'range_title' => 'nullable|string',
+                'os_installed' => 'nullable|string',
+                'processor' => 'nullable|string',
+                'specs_net' => 'nullable|numeric',
+                'specs_gpu' => 'nullable|numeric',
+                'dedicated_information' => 'nullable|string',
+                'ram_type' => 'nullable|numeric',
+                'ram_capacity' => 'nullable|string',
+                'no_of_hdd' => 'nullable|integer',
+                'hdd_capacity' => 'nullable|string',
+                'wireless_type' => 'nullable|numeric',
+            ]);
+
+            // Start a transaction
+            DB::beginTransaction();
+
+            // Find the existing record by qr_code
+            $data = GeneralInformation::where('qr_code', $validatedData['qr_code'])->first();
+            if (!$data) {
+                return response()->json([
+                    'message' => 'Record not found for the given QR Code.',
+                ], 404);
+            }
+
+            // Update the record with the validated data
+            $data->update($validatedData);
+
+            // Update specifications data
+            DB::table('tbl_specification')
+                ->where('control_id', $data->id)
+                ->update([
+                    'processor' => $validatedData['processor'],
+                    'specs_net' => $validatedData['specs_net'],
+                    'specs_gpu' => $validatedData['specs_gpu'],
+                    'dedicated_information' => $validatedData['dedicated_information'],
+                    'ram_type' => $validatedData['ram_type'],
+                    'ram_capacity' => $validatedData['ram_capacity'],
+                    'no_of_hdd' => $validatedData['no_of_hdd'],
+                    'hdd_capacity' => $validatedData['hdd_capacity'],
+                    // 'wireless_type' => $validatedData['wireless_type'],
+                ]);
+
+            // Commit the transaction
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Record updated successfully!',
+                'data' => $data,
+            ], 200);
+        } catch (\Exception $e) {
+            // Rollback the transaction if an exception occurs
+            DB::rollback();
+
+            return response()->json([
+                'message' => 'Failed to update the record.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function updatePeripherals(Request $request)
+    {
+        try {
+            // Validate incoming data
+            $validatedData = $request->validate([
+                'control_id' => 'nullable|numeric',
+                'mon_brand_model1' => 'nullable|string',
+                'mon_brand_model2' => 'nullable|string',
+                'monitor1Model' => 'nullable|string',
+                'monitor2Model' => 'nullable|string',
+                'mon_sn1' => 'nullable|string',
+                'mon_sn2' => 'nullable|string',
+                'mon_qr_code1' => 'nullable|string',
+                'mon_qr_code2' => 'nullable|string',
+                'mon_pro_no1' => 'nullable|string',
+                'mon_pro_no2' => 'nullable|string',
+                'mon_acct_user1' => 'nullable|string',
+                'mon_acct_user2' => 'nullable|string',
+                'mon_actual_user1' => 'nullable|string',
+                'mon_actual_user2' => 'nullable|string',
+                'ups_qr_code' => 'nullable|string',
+                'ups_brand' => 'nullable|string',
+                'ups_model' => 'nullable|string',
+                'ups_acct_user' => 'nullable|string',
+                'ups_actual_user' => 'nullable|string',
+                'ups_property_no' => 'nullable|string',
+                'ups_sn' => 'nullable|string',
+                'monitor1Status' => 'nullable|numeric',
+                'monitor2Status' => 'nullable|numeric',
+            ]);
+            DB::beginTransaction();
+
+            // Perform the update query
+            $updateResult = DB::table('tbl_peripherals')
+                ->where('control_id', $request->input('control_id'))
+                ->update([
+                    'mon_brand_model1' => $request->input('mon_brand_model1'),
+                    'mon_brand_model2' => $request->input('mon_brand_model2'),
+                    'monitor1Model' => $request->input('monitor1Model'),
+                    'monitor2Model' => $request->input('monitor2Model'),
+                    'mon_sn1' => $request->input('mon_sn1'),
+                    'mon_sn2' => $request->input('mon_sn2'),
+                    'mon_qr_code1' => $request->input('mon_qr_code1'),
+                    'mon_qr_code2' => $request->input('mon_qr_code2'),
+                    'mon_pro_no1' => $request->input('mon_pro_no1'),
+                    'mon_pro_no2' => $request->input('mon_pro_no2'),
+                    'mon_acct_user1' => $request->input('mon_acct_user1'),
+                    'mon_acct_user2' => $request->input('mon_acct_user2'),
+                    'mon_actual_user1' => $request->input('mon_actual_user1'),
+                    'mon_actual_user2' => $request->input('mon_actual_user2'),
+                    'ups_qr_code' => $request->input('ups_qr_code'),
+                    'ups_brand' => $request->input('ups_brand'),
+                    'ups_model' => $request->input('ups_model'),
+                    'ups_acct_user' => $request->input('ups_acct_user'),
+                    'ups_actual_user' => $request->input('ups_actual_user'),
+                    'ups_property_no' => $request->input('ups_property_no'),
+                    'ups_sn' => $request->input('ups_sn'),
+                    'monitor1Status' => $request->input('monitor1Status'),
+                    'monitor2Status' => $request->input('monitor2Status'),
+                ]);
+
+            // Commit the transaction
+            DB::commit();
+
+            // Check if the update was successful
+            if ($updateResult) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Peripheral updated successfully.',
+                ], 200);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'No updates were made. Please ensure the control ID exists.',
+                ], 400);
+            }
+        } catch (\Exception $e) {
+            // Rollback the transaction if an exception occurs
+            DB::rollback();
+
+            return response()->json([
+                'message' => 'Failed to update the record.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
 
     // C R U D
     public function post_insert_gen_info(Request $req)
