@@ -48,7 +48,14 @@ const uploadSuccess = ref(false)
 const uploadError = ref()
 const currentMessage = ref('Loading, please wait...')
 const statuses = ref(['Serviceable', 'Unserviceable'])
-const messages = ref([ 'Loading, please wait...', 'Processing data...', 'Initializing data...', 'Fetching resources...', 'Preparing your data...', 'Almost there, hang tight...' ])
+const messages = ref([
+  'Loading, please wait...',
+  'Processing data...',
+  'Initializing data...',
+  'Fetching resources...',
+  'Preparing your data...',
+  'Almost there, hang tight...'
+])
 const userId = route.query.id
 const item = ref(null)
 const user_role = ref(0)
@@ -92,7 +99,9 @@ const fetchData = async () => {
     startProgress() // Start the progress bar
     const api_token = localStorage.getItem('api_token')
     const designation = localStorage.getItem('designation')
-    const response = await api.get(`/getInventoryData?api_token=${api_token}&designation=${designation}`)
+    const response = await api.get(
+      `/getInventoryData?api_token=${api_token}&designation=${designation}`
+    )
     total_item.value = Number(response.data.count) // Set the count if it exists
     customers.value = response.data.data // Process the fetched data
     loading.value = false
@@ -330,19 +339,21 @@ const retrieveDataviaAPI = async (id) => {
       const response = await api.get(`/retriveDataviaAPI?id=${id}`)
       Object.assign(form, response.data[0])
 
-      // software data
       const res = await api.get(`/retrieveSoftwareData?id=${id}`)
       software.value = res.data
       response.data.forEach((software) => {
-        // Reverse the mapping: match the value from 'remarksMap' and find the option
         const selectedOption = Object.keys(remarksMap).find(
           (key) => remarksMap[key] === software.remarks
         )
       })
 
-      //specs data
       const specs_res = await api.get(`/retrieveSpecsData?id=${id}`)
       Object.assign(specs_form, specs_res.data[0])
+
+      const peri_res = await api.get(`/retrievePeripheralsData?id=${id}`)
+      Object.assign(peripheral_form, peri_res.data[0])
+
+
     } catch (error) {
       console.error('Error retrieving data:', error)
     }
@@ -350,27 +361,25 @@ const retrieveDataviaAPI = async (id) => {
   }
 }
 
-
 onMounted(() => {
   loadUserData()
   fetchData()
   getCountStatus()
   getOutdatedEquipment()
-
 })
 
 const pageTitle = ref('Inventory Management')
 </script>
 
 <style scoped>
-  .p-dialog-mask {
-    background: rgba(0, 0, 0, 0.7);
-  }
+.p-dialog-mask {
+  background: rgba(0, 0, 0, 0.7);
+}
 
-  .wrap-text {
-    white-space: normal;
-    word-wrap: break-word;
-  }
+.wrap-text {
+  white-space: normal;
+  word-wrap: break-word;
+}
 </style>
 
 <template>
@@ -385,19 +394,15 @@ const pageTitle = ref('Inventory Management')
       />
     </div>
 
-    <!-- <form_dash
+    <form_dash
       :role_id="user_role"
       :office="designation"
       :total_equipment="total_item"
       :total_serviceable_count="serviceable_count"
       :total_unserviceable_count="unserviceable_count"
       :outdated_equipment="outdated_count"
-    /> -->
-    <modal_qr_scan
-      v-if="openScanForm"
-      :isLoading="openScanForm"
-      @close="openScanForm = false"
     />
+    <modal_qr_scan v-if="openScanForm" :isLoading="openScanForm" @close="openScanForm = false" />
     <!-- <modal_qr_scan
       v-if="openScanForm"
       :isLoading="openScanForm"
