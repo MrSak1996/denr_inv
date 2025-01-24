@@ -55,6 +55,7 @@ Route::middleware('api')->group(function () {
     Route::post('/updatePeripherals', [InventoryController::class, 'updatePeripherals']);
 
     // end
+    
     Route::get('/getEquipment', [InventoryController::class, 'getEquipment']);
     Route::get('/getRangeCategory', [InventoryController::class, 'getRangeCategory']);
     Route::get('/getEmploymentType', [InventoryController::class, 'getEmploymentType']);
@@ -86,6 +87,7 @@ Route::middleware('api')->group(function () {
 
     //USER MANAGEMENT
     Route::post('post_save_userCred', [UserController::class, 'post_save_userCred']);
+    Route::post('post_update_user', [UserController::class, 'post_update_user']);
     Route::get('/getUserRoles', [UserController::class, 'getUserRoles']);
     Route::get('/getUsers', [UserController::class, 'getUsers']);
     Route::post('/send-otp', [OTPController::class, 'sendOtp']);

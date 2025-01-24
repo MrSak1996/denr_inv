@@ -81,6 +81,7 @@ class UserController extends Controller
     public function post_save_userCred(Request $req)
     {
         $validated = $req->validate([
+            'geo_code' => 'nullable|string|max:100', // Optional, string, max length 100
             'region' => 'nullable|string|max:100', // Optional, string, max length 100
             'province' => 'nullable|integer', // Optional, string, max length 100
             'city_mun' => 'nullable|string|max:100', // Optional, string, max length 100
@@ -106,6 +107,7 @@ class UserController extends Controller
         $user_opts = User::updateOrCreate(
             ['id' => $validated['id'] ?? null], // Use 'id' as the unique identifier; if not provided, create a new record
             [
+                'geo_id' => $validated['geo_code'] ?? null,
                 'region_c' => $validated['region'] ?? null,
                 'province_c' => $validated['province'] ?? null,
                 'city_mun_c' => $validated['city_mun'] ?? null,
@@ -185,6 +187,7 @@ class UserController extends Controller
     public function getUsers(Request $request)
     {
         $api_token = $request->query('api_token');
+        $id = $request->query('id');
 
         try {
             // Start building the query
@@ -192,19 +195,36 @@ class UserController extends Controller
                 ->leftJoin('tbl_division as d', 'd.id', '=', 'u.division_id')
                 ->leftJoin('tbl_employment_type as e', 'e.id', '=', 'u.employment_status')
                 ->leftJoin('user_roles as ur', 'ur.id', '=', 'u.roles')
+                ->leftJoin('geo_map as g', 'g.geo_code', '=','u.geo_id')
                 ->select(
                     'u.id',
+                    'u.first_name',
+                    'u.middle_name',
+                    'u.last_name',
+                    'u.position',
+                    'u.complete_address',
+                    'u.username',
                     'u.roles as role_id',
                     'ur.roles',
+                    'u.sex',
+                    'u.employment_status',
                     DB::raw('CONCAT(u.first_name, " ", u.last_name) as name'),
                     'd.division_title',
-                    'u.position',
                     'u.username',
                     'u.email',
-                    'u.mobile_no'
+                    'u.mobile_no',
+                    'u.province_c',
+                    'u.city_mun_c',
+                    'u.division_id',
+                    'g.prov_name',
+                    'g.mun_name'
                 );
         
             // Conditionally add the where clause
+            if($id)
+            {
+                     $query->where('u.id', $id);
+            }
             if ($api_token) {
                 $query->where('u.api_token', $api_token);
             }
@@ -226,4 +246,7 @@ class UserController extends Controller
             ], 500);
         }
     }
+
+   
+
 }

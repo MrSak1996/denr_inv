@@ -21,6 +21,7 @@ class User extends Authenticatable
 
     protected $fillable = [
         'id',
+        'geo_id',
         'region_c',
         'province_c',
         'city_mun_c',

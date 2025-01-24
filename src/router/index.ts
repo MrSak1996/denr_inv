@@ -20,6 +20,8 @@ import InventoryTransaction from '@/views/Inventory/InventoryTransaction.vue'
 // User Management
 import AccountsView from '@/views/UserManagement/index.vue';
 import AccountCreateView from '@/views/UserManagement/form_create.vue';
+import AccountEditView from '@/views/UserManagement/form_edit.vue';
+
 
 import api from '../../laravel-backend/resources/js/axiosInstance.js'
 import QRCodeScanner from '@/views/Inventory/QRCodeScanner.vue'
@@ -105,6 +107,15 @@ const routes = [
       // requiresAuth:true
     },
   },  
+  {
+    path: '/user-management/accounts/create/:id',
+    name: 'EditAccount', // Different name for this route
+    component: AccountEditView,
+    meta: {
+      title: 'EditAccount',
+      // requiresAuth:true
+    },
+  },
   {
     path: '/user-management/accounts/create',
     name: 'CreateAccount', // Different name for this route

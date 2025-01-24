@@ -150,6 +150,11 @@ const clearFilter = () => {
   initFilters()
 }
 
+
+const editAccount = (id) => {
+  router.push({name: 'EditAccount',params:{id}});
+}
+
 //Assigning roles
 
 const openModal = (id: number) => {
@@ -159,6 +164,7 @@ const openModal = (id: number) => {
 const closeModal = () => {
   isModalOpen.value = false
 }
+
 
 onMounted(() => {
   fetchData()
@@ -312,33 +318,27 @@ const pageTitle = ref('User Management')
             </template>
             <!-- <template #empty> No customers found. </template>
           <template #loading> Loading customers data. Please wait. </template> -->
-            <Column field="id" header="Employee No." style="width: 1rem">
+            <Column field="id" header="Action" style="width: 1rem;">
               <template #body="{ data }">
                 <div class="card flex justify-center">
                   <Button
-                    icon="pi pi-eye"
+                  @click="editAccount(data.id)"
+                    icon="pi pi-file-edit"
                     size="small"
                     class="text-white mr-2 bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-blue-800"
                     severity="info"
                   />
-                  <Button
-                    icon="pi pi-cog"
-                    size="small"
-                    class="text-white mr-2 bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-blue-800"
-                    severity="info"
-                  />
-                  <Button
+                
+                  <!-- <Button
                     @click="openModal(data.id)"
                     icon="pi pi-cog"
                     size="small"
                     class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-blue-800"
                     severity="info"
-                  />
+                  /> -->
                 </div>
               </template>
-              <template #filter="{ filterModel }">
-                <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
-              </template>
+             
             </Column>
             <Column field="roles" header="Designation" style="min-width: 5rem">
               <template #body="{ data }">
