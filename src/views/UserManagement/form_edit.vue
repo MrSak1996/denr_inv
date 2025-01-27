@@ -22,6 +22,7 @@ import RadioButton from 'primevue/radiobutton'
 import Checkbox from 'primevue/checkbox'
 import Select from 'primevue/select'
 import Tag from 'primevue/tag'
+import { InputOtp } from 'primevue';
 
 import api from '../../../laravel-backend/resources/js/axiosInstance.js'
 

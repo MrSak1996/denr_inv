@@ -195,7 +195,7 @@ class UserController extends Controller
                 ->leftJoin('tbl_division as d', 'd.id', '=', 'u.division_id')
                 ->leftJoin('tbl_employment_type as e', 'e.id', '=', 'u.employment_status')
                 ->leftJoin('user_roles as ur', 'ur.id', '=', 'u.roles')
-                ->leftJoin('geo_map as g', 'g.geo_code', '=','u.geo_id')
+                ->leftJoin('geo_map as g', 'g.geo_code', '=', 'u.geo_id')
                 ->select(
                     'u.id',
                     'u.first_name',
@@ -219,16 +219,15 @@ class UserController extends Controller
                     'g.prov_name',
                     'g.mun_name'
                 );
-        
+
             // Conditionally add the where clause
-            if($id)
-            {
-                     $query->where('u.id', $id);
+            if ($id) {
+                $query->where('u.id', $id);
             }
             if ($api_token) {
                 $query->where('u.api_token', $api_token);
             }
-        
+
             // Execute the query
             $results = $query->get();
 
@@ -247,6 +246,40 @@ class UserController extends Controller
         }
     }
 
-   
+    public function post_update_user(Request $req)
+    {
+        $validated = $req->validate([]);
 
+
+        // Insert the data into the GeneralInformation model
+        $user_opts = User::updateOrCreate(
+            ['id' => $validated['id'] ?? null],
+            [
+                'geo_id'            => $validated['geo_code'] ?? null,
+                'region_c'          => $validated['region'] ?? null,
+                'province_c'        => $validated['province'] ?? null,
+                'city_mun_c'        => $validated['city_mun'] ?? null,
+                'first_name'        => $validated['first_name'],
+                'middle_name'       => $validated['middle_name'] ?? null,
+                'last_name'         => $validated['last_name'],
+                'complete_address'  => $validated['complete_address'],
+                'designation'       => $validated['designation'] ?? null,
+                'sex'               => $validated['sex'] ?? null,
+                'division_id'       => $validated['division'] ?? null,
+                'employment_status' => $validated['employment_status'] ?? null,
+                'position'          => $validated['position'] ?? null,
+                'email'             => $validated['email'] ?? null,
+                'mobile_no'         => $validated['contact_details'] ?? null,
+                'roles'             => $validated['roles'] ?? null,
+                'username'          => $validated['username'],
+                'password'          => bcrypt($validated['password']),
+                'created_at'        => now(),
+                'updated_at'        => now(),
+            ]
+        );
+        return response()->json([
+            'message' => 'Data saved successfully.',
+            'id' => $user_opts->id,
+        ], 200);
+    }
 }

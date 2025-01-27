@@ -76,19 +76,14 @@ const menuGroups = ref([
   {
     name: 'MENU',
     menuItems: [
-      {
-        icon: dashboardIcon,
-        label: 'Dashboard',
-        route: '#',
-        children: [{ label: 'eCommerce', route: '/ecommerce' }]
-      },
+    
       {
         icon: inventoryIcon,
-        label: 'Inventory',
+        label: 'Dashboard',
         route: '#',
         children:[
           { label: 'ICT Equipment',route:`/inventory?id=${userId}&api_token=${api_token}` },
-          { label: 'Inventory Transactions',route:`/inventory/transactions?id=${userId}&api_token=${api_token}`},
+          { label: 'Summary',route:`/inventory/summary?id=${userId}&api_token=${api_token}`},
        
         ]
       },
@@ -99,7 +94,6 @@ const menuGroups = ref([
         children: [
           { label: 'Manage Accounts', route: '/user-management/' },
           { label: 'Create Accounts', route: '/user-management/accounts/create' },
-          { label: 'User Activity Logs', route: '/user-management/' },
         ]
       }
      

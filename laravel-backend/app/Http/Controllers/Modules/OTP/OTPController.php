@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Modules\OTP;
 
 use App\Http\Controllers\Controller;
 use App\Models\OTP;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
@@ -46,7 +47,8 @@ class OTPController extends Controller
             ->first();
 
 
-        if ($otpRecord) {
+        
+            if ($otpRecord) {
             $otpRecord->update(['is_verified' => true]);
             return response()->json(
                 [

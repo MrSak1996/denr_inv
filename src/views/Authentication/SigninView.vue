@@ -171,7 +171,15 @@ onMounted(() => {})
           To complete the verification process, please enter the 6-digit OTP we’ve sent to your
           email.
         </p>
-        <InputOtp v-model="otp" integerOnly class="mb-4" :length="6" />
+        
+        <InputOtp v-model="otp" integerOnly class="mb-4" :length="6" style="gap: 0">
+                <template #default="{ attrs, events, index }">
+                    <input type="text" v-bind="attrs" v-on="events" class="custom-otp-input" />
+                    <div v-if="index === 3" class="px-4">
+                        <i class="pi pi-minus" />
+                    </div>
+                </template>
+            </InputOtp>
         <button
           class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center space-x-2 transition-all duration-150"
           @click="verifyOtp"
@@ -252,7 +260,7 @@ onMounted(() => {})
                 <input
                   type="submit"
                   value="Sign In"
-                  class="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 font-medium text-white transition hover:bg-opacity-90"
+                  class="w-full cursor-pointer rounded-lg border border-teal bg-teal p-4 font-medium text-white transition hover:bg-opacity-90"
                 />
               </div>
 
@@ -297,7 +305,7 @@ onMounted(() => {})
 
               <div class="mt-6 text-center">
                 <p class="font-medium">
-                  Don’t have any account?
+                  DENR IV-A Regional Information and Communications Technology (RICT) © 2025 All Right Reserved .
                   <!-- <router-link to="/auth/signup" class="text-primary">Sign up</router-link> -->
                 </p>
               </div>
@@ -310,3 +318,40 @@ onMounted(() => {})
     </div>
   </div>
 </template>
+<style scoped>
+.custom-otp-input {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+    appearance: none;
+    text-align: center;
+    transition: all 0.2s;
+    border-radius: 0;
+    border: 1px solid var(--p-inputtext-border-color);
+    background: transparent;
+    outline-offset: -2px;
+    outline-color: transparent;
+    border-right: 0 none;
+    transition: outline-color 0.3s;
+    color: var(--p-inputtext-color);
+}
+
+.custom-otp-input:focus {
+    outline: 2px solid var(--p-focus-ring-color);
+}
+
+.custom-otp-input:first-child,
+.custom-otp-input:nth-child(5) {
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+
+.custom-otp-input:nth-child(3),
+.custom-otp-input:last-child {
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+    border-right-width: 1px;
+    border-right-style: solid;
+    border-color: var(--p-inputtext-border-color);
+}
+</style>

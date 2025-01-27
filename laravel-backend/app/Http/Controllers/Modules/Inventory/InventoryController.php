@@ -406,34 +406,34 @@ class InventoryController extends Controller
             )
             ->orderBy('id', 'desc')
             ->groupBy(
-            'gi.id',
-            'ur.roles',
-            'gi.status',
-            'gi.qr_code',
-            'p.mon_qr_code1',
-            'p.mon_qr_code2',
-            'p.ups_qr_code',
-            'gi.control_no',
-            'actual_division.division_title',
-            'eq_t.equipment_title',
-            'gi.brand',
-            'gi.range_category',
-            'gi.acct_person',
-            'acct_division.division_title',
-            'gi.actual_user',
-            's.processor',
-            's.ram_type',
-            's.ram_capacity',
-            's.dedicated_information',
-            's.no_of_hdd',
-            's.no_of_ssd',
-            's.ssd_capacity',
-            's.specs_gpu',
-            's.wireless_type',
-            'gi.range_category'
-            
-        );
-          
+                'gi.id',
+                'ur.roles',
+                'gi.status',
+                'gi.qr_code',
+                'p.mon_qr_code1',
+                'p.mon_qr_code2',
+                'p.ups_qr_code',
+                'gi.control_no',
+                'actual_division.division_title',
+                'eq_t.equipment_title',
+                'gi.brand',
+                'gi.range_category',
+                'gi.acct_person',
+                'acct_division.division_title',
+                'gi.actual_user',
+                's.processor',
+                's.ram_type',
+                's.ram_capacity',
+                's.dedicated_information',
+                's.no_of_hdd',
+                's.no_of_ssd',
+                's.ssd_capacity',
+                's.specs_gpu',
+                's.wireless_type',
+                'gi.range_category'
+
+            );
+
 
         // Apply the condition for designation
         if ($designation !== "Regional Office") {
@@ -1010,6 +1010,7 @@ class InventoryController extends Controller
                 'status' => $validated['status'],
                 'shelf_life' => $validated['shelf_life'],
                 'item_status' => 1, //DRAFT
+                'updated_by' => $user_id,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]
@@ -1020,7 +1021,7 @@ class InventoryController extends Controller
             'inventory_id' => $equipment->id, // Use the newly inserted inventory ID
             'item_name' => $equipment->equipment_type,
             'transaction_date' => now(),
-            'remarks' => "",
+            'remarks' => 1,
             'user_id' => $user_id
         ]);
 
@@ -1261,5 +1262,41 @@ class InventoryController extends Controller
         DB::table('tbl_general_info')
             ->where('id', $id)
             ->update(['item_status' => 2]);
+    }
+
+    public function getSummaryData(Request $req)
+    {
+        $user_id = $req->query('id');
+        $results = DB::table('tbl_general_info as g')
+        ->select([
+            'e.id as equipment_id', // Grouped field
+            DB::raw('MAX(e.equipment_title) as equipment_title'), // Use aggregate function
+            DB::raw('COUNT(*) as total_count'), // Aggregate function for count
+            DB::raw('MAX(d.division_title) as division_title'), // Aggregate function for division title
+            DB::raw('MAX(g.created_at) as created_at'), // Aggregate function for created_at
+            DB::raw("
+                CASE 
+                    WHEN MAX(g.status) = 1 THEN 'Serviceable'
+                    WHEN MAX(g.status) = 2 THEN 'Unserviceable'
+                    ELSE ''
+                END as status
+            "), // Aggregate CASE statement
+            DB::raw('MAX(u.username) as username'), // Aggregate function for username
+            DB::raw('MAX(ur.roles) as roles') // Aggregate function for roles
+        ])
+        ->leftJoin('tbl_equipment_type as e', 'g.equipment_type', '=', 'e.id')
+        ->leftJoin('tbl_division as d', 'd.id', '=', 'g.division_id')
+        ->leftJoin('user_roles as ur', 'ur.id', '=', 'g.registered_loc')
+        ->leftJoin('users as u', 'u.roles', '=', 'g.registered_loc')
+
+        ->where('u.id',$user_id)
+        ->groupBy('e.id') // Group only by equipment ID
+        ->get();
+      
+            return response()->json([
+                'status' => true,
+                'data' => $results,
+            ]);
+       
     }
 }

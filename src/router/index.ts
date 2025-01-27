@@ -25,6 +25,7 @@ import AccountEditView from '@/views/UserManagement/form_edit.vue';
 
 import api from '../../laravel-backend/resources/js/axiosInstance.js'
 import QRCodeScanner from '@/views/Inventory/QRCodeScanner.vue'
+import summaryVue from '@/views/Inventory/summary.vue'
 
 const routes = [
   {
@@ -86,9 +87,9 @@ const routes = [
     },
   },  
   {
-    path: '/inventory/transactions',
-    name: 'InventoryTransaction', // Different name for this route
-    component: InventoryTransaction,
+    path: '/inventory/summary',
+    name: 'Summary', // Different name for this route
+    component: summaryVue,
     props: route => ({
       id: route.query.id,
       api_token: route.query.api_token,

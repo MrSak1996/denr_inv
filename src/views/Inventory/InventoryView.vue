@@ -12,6 +12,8 @@ import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import api from '../../../laravel-backend/resources/js/axiosInstance.js'
 import modal_qr_scan from './modal/modal_qr_scan.vue'
 import modal_review_form from './modal/modal_review_form.vue'
+import modal_gen_qr from './modal/modal_gen_qr.vue'
+
 
 const {
   fetchCurUser,
@@ -386,12 +388,12 @@ const pageTitle = ref('Inventory Management')
   <DefaultLayout>
     <BreadcrumbDefault :pageTitle="pageTitle" />
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5 mb-4">
-      <DataStatsOne
+      <!-- <DataStatsOne
         :total_equipment="total_item"
         :total_serviceable_count="serviceable_count"
         :total_unserviceable_count="unserviceable_count"
         :outdated_equipment="outdated_count"
-      />
+      /> -->
     </div>
 
     <form_dash
@@ -426,6 +428,8 @@ const pageTitle = ref('Inventory Management')
       :item_id="item"
       @close="openReviewForm = false"
     />
+    <modal_gen_qr v-if="openQR" :open="openQR" @close="openQR = false"></modal_gen_qr>
+
     <div class="flex flex-col gap-10 mt-4">
       <div
         class="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1"
@@ -594,6 +598,9 @@ const pageTitle = ref('Inventory Management')
                 @click="openScanForm = true"
                 outlined
               />
+
+        <Button severity="danger" label="Generate QR Code" @click="openQR = true" />
+
 
               <!-- Additional space between buttons and search field -->
               <div class="ml-auto flex items-center">
