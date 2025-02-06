@@ -36,6 +36,7 @@ const total_item = ref(0)
 const serviceable_count = ref(0)
 const unserviceable_count = ref(0)
 const outdated_count = ref(0)
+const invalid_data_count = ref(0)
 const filters = ref()
 const loading = ref(false)
 const openScanForm = ref(false)
@@ -100,9 +101,10 @@ const fetchData = async () => {
   try {
     startProgress() // Start the progress bar
     const api_token = localStorage.getItem('api_token')
-    const designation = localStorage.getItem('designation')
+
+    await loadUserData();
     const response = await api.get(
-      `/getInventoryData?api_token=${api_token}&designation=${designation}`
+      `/vw-gen-info?api_token=${api_token}&designation=${designation.value}`
     )
     total_item.value = Number(response.data.count) // Set the count if it exists
     customers.value = response.data.data // Process the fetched data
@@ -116,14 +118,23 @@ const fetchData = async () => {
 }
 
 const getCountStatus = async () => {
-  const response = await api.get(`/getCountStatus?api_token=${api_token}`)
-  serviceable_count.value = response.data.serviceable_count // Set the count if it exists
-  unserviceable_count.value = Number(response.data.unserviceable_count) // Set the count if it exists
+  await loadUserData();
+
+  const response = await api.get(`/getCountStatus?api_token=${api_token}&designation=${user_role.value}`)
+  serviceable_count.value = response.data[0].serviceable 
+  unserviceable_count.value = Number(response.data[0].unserviceable)
 }
 
 const getOutdatedEquipment = async () => {
-  const response = await api.get(`/getOutdatedEquipment?api_token=${api_token}`)
-  outdated_count.value = Number(response.data.count) // Set the count if it exists
+  await loadUserData();
+  
+  const response = await api.get(`/getOutdatedEquipment?api_token=${api_token}&designation=${user_role.value}`)
+  outdated_count.value = Number(response.data[0].count) // Set the count if it exists
+}
+
+const getInvalidData = async () => {
+  const response = await api.get(`/vw-invalid-data?api_token=${api_token}`)
+  invalid_data_count.value = Number(response.data[0].count) // Set the count if it exists
 }
 
 const initFilters = () => {
@@ -189,7 +200,7 @@ const initFilters = () => {
       operator: FilterOperator.OR,
       constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
     },
-    registered_loc: {
+    roles: {
       operator: FilterOperator.OR,
       constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
     }
@@ -201,6 +212,7 @@ initFilters()
 const clearFilter = () => {
   initFilters()
 }
+
 const addMore = () => {
   router.push({
     name: 'InventoryCreate',
@@ -295,7 +307,11 @@ const uploadImage = async () => {
 
 const exportData = async () => {
   try {
-    const response = await api.get('http://localhost:8000/api/export?export=true', {
+    const api_token = localStorage.getItem('api_token')
+    const designation = localStorage.getItem('designation')
+
+    
+    const response = await api.get(`http://localhost:8000/api/export?export=true&api_token=${api_token}&designation=${designation}`, {
       responseType: 'blob'
     })
 
@@ -368,6 +384,7 @@ onMounted(() => {
   fetchData()
   getCountStatus()
   getOutdatedEquipment()
+  getInvalidData()
 })
 
 const pageTitle = ref('Inventory Management')
@@ -388,22 +405,23 @@ const pageTitle = ref('Inventory Management')
   <DefaultLayout>
     <BreadcrumbDefault :pageTitle="pageTitle" />
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5 mb-4">
-      <!-- <DataStatsOne
+      <DataStatsOne
         :total_equipment="total_item"
         :total_serviceable_count="serviceable_count"
         :total_unserviceable_count="unserviceable_count"
         :outdated_equipment="outdated_count"
-      /> -->
+      />
     </div>
 
-    <form_dash
+    <!-- <form_dash
       :role_id="user_role"
       :office="designation"
       :total_equipment="total_item"
       :total_serviceable_count="serviceable_count"
       :total_unserviceable_count="unserviceable_count"
       :outdated_equipment="outdated_count"
-    />
+      :invalid_data="invalid_data_count"
+    /> -->
     <modal_qr_scan v-if="openScanForm" :isLoading="openScanForm" @close="openScanForm = false" />
     <!-- <modal_qr_scan
       v-if="openScanForm"
@@ -541,13 +559,13 @@ const pageTitle = ref('Inventory Management')
           :value="customers"
           paginator
           showGridlines
-          :rows="10"
+          :rows="5"
           dataKey="id"
           filterDisplay="menu"
           :loading="loading"
           :globalFilterFields="[
             'control_no',
-            'registered_loc',
+            'roles',
             'acct_person',
             'equipment_title',
             'acct_person',
@@ -563,8 +581,9 @@ const pageTitle = ref('Inventory Management')
         >
           <template #header>
             <div class="flex items-center gap-4 justify-start">
+
               <Button
-                class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                severity="info"              
                 type="button"
                 icon="pi pi-filter-slash"
                 label="Clear"
@@ -658,9 +677,9 @@ const pageTitle = ref('Inventory Management')
               <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
             </template>
           </Column>
-          <Column field="registered_loc" header="Registered Location" style="min-width: 12rem">
+          <Column field="roles" header="Registered Location" style="min-width: 12rem">
             <template #body="{ data }">
-              {{ data.registered_loc }}
+              {{ data.roles }}
               <!-- Ensure this field exists in the data object -->
             </template>
             <template #filter="{ filterModel }">

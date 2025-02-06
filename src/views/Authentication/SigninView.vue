@@ -135,10 +135,11 @@ const toDashboard = async () => {
   })
 
   setTimeout(() => {
-    router.push({ 
-      name: 'eCommerce', 
-      query: { id: userId, api_token: api_token } 
-    })
+    window.location.href = "/inventory?id="+userId+"&api_token="+api_token;
+    // router.push({ 
+    //   name: 'Inventory', 
+    //   query: { id: userId, api_token: api_token } 
+    // })
   }, 1000)
 }
 

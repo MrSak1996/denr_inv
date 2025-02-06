@@ -67,7 +67,7 @@ const image = ref(null)
 const uploadSuccess = ref(false)
 const uploadError = ref(null)
 const userId = !route.query.id ? localStorage.getItem('userId') : route.query.id
-const item_id = route.params.id // Access the route parameter 'id'
+const item_id = route.params.id; // Access the route parameter 'id'
 const api_token = route.query.api_token
 // Functions
 const checkUrlAndDisableButton = () => {

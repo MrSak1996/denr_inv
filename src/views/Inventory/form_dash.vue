@@ -11,6 +11,7 @@ const total = ref(0)
 const serviceableCount = ref(0)
 const unserviceableCount = ref(0)
 const outdatedCount = ref(0)
+const invalidDataCount = ref(0)
 
 const props = defineProps({
   role_id: {
@@ -34,6 +35,10 @@ const props = defineProps({
   outdated_equipment: {
     type: Number,
     required: true
+  },
+  invalid_data:{
+    type:Number,
+    required:true
   }
 })
 
@@ -65,6 +70,15 @@ watch(
   }
 )
 
+watch(
+  () => props.invalid_data,
+  (newValue) => {
+    invalidDataCount.value = newValue
+  }
+)
+
+
+
 const value = ref([
   {
     label: 'Total Equipment',
@@ -93,6 +107,13 @@ const value = ref([
     color2: '#c084fc',
     value: outdatedCount,
     icon: 'pi pi-image'
+  },
+  {
+    label: 'Invalid Data',
+    color1: '#60a5fa',
+    color2: '#c084fc',
+    value: invalidDataCount,
+    icon: 'pi pi-database'
   }
 ])
 </script>
@@ -140,7 +161,10 @@ const value = ref([
               <h3 class="text-lg font-bold">CENRO Lipa City</h3>
               <p class="text-sm">Manage Data</p>
             </div>
-            <button class="bg-white text-teal-700 font-bold py-2 px-4 rounded-lg hover:bg-teal-100">
+            <button 
+            @click="openProInfo = true"
+            
+            class="bg-white text-teal-700 font-bold py-2 px-4 rounded-lg hover:bg-teal-100">
               Open
             </button>
           </div>
@@ -152,7 +176,10 @@ const value = ref([
               <h3 class="text-lg font-bold">CENRO Calaca</h3>
               <p class="text-sm">Manage Data</p>
             </div>
-            <button class="bg-white text-teal-700 font-bold py-2 px-4 rounded-lg hover:bg-teal-100">
+            <button 
+            @click="openProInfo = true"
+            
+            class="bg-white text-teal-700 font-bold py-2 px-4 rounded-lg hover:bg-teal-100">
               Open
             </button>
           </div>
@@ -164,7 +191,10 @@ const value = ref([
               <h3 class="text-lg font-bold">CENRO Calauag</h3>
               <p class="text-sm">Manage Data</p>
             </div>
-            <button class="bg-white text-teal-700 font-bold py-2 px-4 rounded-lg hover:bg-teal-100">
+            <button 
+            @click="openProInfo = true"
+          
+            class="bg-white text-teal-700 font-bold py-2 px-4 rounded-lg hover:bg-teal-100">
               Open
             </button>
           </div>
@@ -175,7 +205,10 @@ const value = ref([
               <h3 class="text-lg font-bold">CENRO Catanauan</h3>
               <p class="text-sm">Manage Data</p>
             </div>
-            <button class="bg-white text-teal-700 font-bold py-2 px-4 rounded-lg hover:bg-teal-100">
+            <button 
+            @click="openProInfo = true"
+            
+            class="bg-white text-teal-700 font-bold py-2 px-4 rounded-lg hover:bg-teal-100">
               Open
             </button>
           </div>
@@ -186,7 +219,9 @@ const value = ref([
               <h3 class="text-lg font-bold">CENRO Tayabas</h3>
               <p class="text-sm">Manage Data</p>
             </div>
-            <button class="bg-white text-teal-700 font-bold py-2 px-4 rounded-lg hover:bg-teal-100">
+            <button 
+            @click="openProInfo = true"
+            class="bg-white text-teal-700 font-bold py-2 px-4 rounded-lg hover:bg-teal-100">
               Open
             </button>
           </div>
@@ -198,7 +233,9 @@ const value = ref([
               <h3 class="text-lg font-bold">CENRO Real</h3>
               <p class="text-sm">Manage Data</p>
             </div>
-            <button class="bg-white text-teal-700 font-bold py-2 px-4 rounded-lg hover:bg-teal-100">
+            <button 
+            @click="openProInfo = true"
+            class="bg-white text-teal-700 font-bold py-2 px-4 rounded-lg hover:bg-teal-100">
               Open
             </button>
           </div>
@@ -272,7 +309,8 @@ const value = ref([
                 <p class="text-sm">Manage Data</p>
               </div>
               <button
-                class="bg-white text-teal-700 font-bold py-2 px-4 rounded-lg hover:bg-teal-100"
+              @click="openProInfo = true"
+              class="bg-white text-teal-700 font-bold py-2 px-4 rounded-lg hover:bg-teal-100"
               >
                 Open
               </button>
@@ -300,7 +338,8 @@ const value = ref([
                 <p class="text-sm">Manage Data</p>
               </div>
               <button
-                class="bg-white text-teal-700 font-bold py-2 px-4 rounded-lg hover:bg-teal-100"
+              @click="openProInfo = true"
+              class="bg-white text-teal-700 font-bold py-2 px-4 rounded-lg hover:bg-teal-100"
               >
                 Open
               </button>
@@ -313,7 +352,8 @@ const value = ref([
                 <p class="text-sm">Manage Data</p>
               </div>
               <button
-                class="bg-white text-teal-700 font-bold py-2 px-4 rounded-lg hover:bg-teal-100"
+              @click="openProInfo = true"
+              class="bg-white text-teal-700 font-bold py-2 px-4 rounded-lg hover:bg-teal-100"
               >
                 Open
               </button>
@@ -326,7 +366,8 @@ const value = ref([
                 <p class="text-sm">Manage Data</p>
               </div>
               <button
-                class="bg-white text-teal-700 font-bold py-2 px-4 rounded-lg hover:bg-teal-100"
+              @click="openProInfo = true"
+              class="bg-white text-teal-700 font-bold py-2 px-4 rounded-lg hover:bg-teal-100"
               >
                 Open
               </button>
@@ -339,7 +380,8 @@ const value = ref([
                 <p class="text-sm">Manage Data</p>
               </div>
               <button
-                class="bg-white text-teal-700 font-bold py-2 px-4 rounded-lg hover:bg-teal-100"
+              @click="openProInfo = true"
+              class="bg-white text-teal-700 font-bold py-2 px-4 rounded-lg hover:bg-teal-100"
               >
                 Open
               </button>

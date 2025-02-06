@@ -33,7 +33,7 @@ class ReportsController extends Controller
             $sheet = $spreadsheet->getActiveSheet();
 
             // Fetch data from the database
-            $data = $this->getInventoryData();
+            $data = $this->getInventoryData(request());
 
             // Define common style for wrapping text and borders
             $styleArray = [
@@ -108,8 +108,10 @@ class ReportsController extends Controller
         }
     }
 
-    public function getInventoryData()
+    public function getInventoryData(Request $request)
     {
+        $api_token = $request->query('api_token');
+        $designation = $request->query('designation');
 
         $equipmentData = DB::table('tbl_general_info as gi')
             ->leftJoin('tbl_specification as s', 's.control_id', '=', 'gi.id')
@@ -119,6 +121,8 @@ class ReportsController extends Controller
             ->leftJoin('tbl_equipment_type as eq_t', 'eq_t.id', '=', 'gi.equipment_type')
             ->leftJoin('tbl_employment_type as emp', 'emp.id', '=', 'gi.actual_employment_type')
             ->leftJoin('tbl_nature_of_work as nw', 'nw.id', '=', 'gi.work_nature_id')
+            ->leftJoin('users as u', 'u.roles', '=', 'gi.registered_loc')
+
             ->select(
                 'gi.id',
                 'gi.control_no',
@@ -166,9 +170,15 @@ class ReportsController extends Controller
                 'actual_division.division_title as actual_division_title',
                 'nw.nature_work_title',
                 'gi.remarks',
-                DB::raw("CONCAT(gi.qr_code, CHAR(10), 'MONITOR 1:', p.mon_qr_code1, CHAR(10), 'MONITOR 2:', p.mon_qr_code2, CHAR(10), 'UPS:', p.ups_qr_code) AS rict_code")
-            )
-            ->get();
+                DB::raw("CONCAT( 'QR Code: ', COALESCE(gi.qr_code, 'N/A'), CHAR(10), 'MONITOR 1 QR Code: ', COALESCE(p.mon_qr_code1, 'N/A'), CHAR(10), 'MONITOR 2 QR Code:', COALESCE(p.mon_qr_code2, 'N/A'), CHAR(10), 'UPS QR Code: ', COALESCE(p.ups_qr_code, 'N/A') ) AS rict_code")
+            );
+
+            if ($designation !== "Regional Office") {
+                $equipmentData->where('u.api_token', $api_token);
+            }
+            $equipmentData = $equipmentData->get();
+
+            
 
         return $equipmentData;
     }

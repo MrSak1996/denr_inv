@@ -33,7 +33,8 @@ const routes = [
     name: 'signin',
     component: SigninView,
     meta: {
-      title: 'Signin'
+      title: 'Signin',
+      
     }
   },
   {
@@ -105,7 +106,7 @@ const routes = [
     component: AccountsView,
     meta: {
       title: 'Account List',
-      // requiresAuth:true
+      requiresAuth:true
     },
   },  
   {

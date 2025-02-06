@@ -44,7 +44,6 @@ class InventoryController extends Controller
             // Fetch the current counter for the year 2025
             $results = DB::table('tbl_general_info as gi')
                 ->select(DB::raw('COUNT(*)+1 as control_no'))
-                ->whereYear('created_at', 2025)
                 ->lockForUpdate()
                 ->first();
 
@@ -58,6 +57,7 @@ class InventoryController extends Controller
             DB::table('tbl_general_info')->insert([
                 'control_no' => $controlNo,
                 'registered_loc' => $registered_loc,
+                'updated_by' => $userId,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -404,7 +404,8 @@ class InventoryController extends Controller
                 'gi.actual_user',
                 'actual_division.division_title as actual_division_title'
             )
-            ->orderBy('id', 'desc')
+            ->orderBy('id', 'asc')
+            // ->where('qr_code', 'LIKE', '%-%')
             ->groupBy(
                 'gi.id',
                 'ur.roles',
@@ -433,12 +434,16 @@ class InventoryController extends Controller
                 'gi.range_category'
 
             );
-
-
-        // Apply the condition for designation
         if ($designation !== "Regional Office") {
-            $equipmentData->where('u.api_token', $api_token);
+            $equipmentData->where('u.api_token', $api_token)
+                ->where('g.qr_code', 'LIKE', '%4AICT%')
+                ->whereNotNull('g.division_id')
+                ->whereNotNull('g.equipment_type')
+                ->whereNotNull('g.year_acquired')
+                ->whereRaw("g.division_id != '' AND g.equipment_type != '' AND g.year_acquired != ''");
         }
+
+
 
         // Execute the query
         $equipmentData = $equipmentData->get();
@@ -450,10 +455,12 @@ class InventoryController extends Controller
         return response()->json(
             [
                 'data' => $equipmentData,
-                'count' => $rowCount
+                'count' => $rowCount,
+                'total' => $rowCount
             ]
         );
     }
+
     public function fetchTransaction(Request $request)
     {
         try {
@@ -494,53 +501,29 @@ class InventoryController extends Controller
     }
 
 
-    public function getCountStatus(Request $request, $status = [1, 2])
+    public function getCountStatus(Request $request)
     {
-        $api_token = $request->query('api_token');
-
-        // Count the number of records for each status (1 = Serviceable, 2 = Unserviceable)
-        $counts = DB::table('tbl_general_info as gi')
-            ->leftJoin('users as u', 'u.roles', '=', 'gi.registered_loc')
-            ->select('status', DB::raw('count(*) as total'))
-            ->whereIn('status', $status)  // Filter by status values 1 and 2
-            ->where('u.api_token', $api_token)
-            ->groupBy('status')  // Group by status to get counts for each status
-            ->get();
-
-        // Format the response to return total count for each status
-        $result = [
-            'serviceable_count' => 0,  // Default count for Serviceable
-            'unserviceable_count' => 0,  // Default count for Unserviceable
-        ];
-
-        // Assign the counts to corresponding keys
-        foreach ($counts as $count) {
-            if ($count->status == 1) {
-                $result['serviceable_count'] = $count->total;
-            } elseif ($count->status == 2) {
-                $result['unserviceable_count'] = $count->total;
-            }
+        $designation = $request->query('designation');
+        $query = DB::table('vw_count_status');
+        if (!empty($designation)) {
+            $query->where('registered_loc', $designation);
         }
+        $data = $query->get();
 
-        // Return the result as JSON
-        return response()->json($result);
+        return response()->json($data);
     }
 
     public function getOutdatedEquipment(Request $request)
     {
         $api_token = $request->query('api_token');
+        $designation = $request->query('designation');
+        $query = DB::table('vw_count_outdated');
+        if (!empty($designation)) {
+            $query->where('registered_loc', $designation);
+        }
+        $data = $query->get();
 
-        $outdatedEquipment = DB::table('tbl_general_info as gi')
-            ->leftJoin('users as u', 'u.roles', '=', 'gi.registered_loc')
-            ->select('gi.id', 'gi.control_no', 'gi.year_acquired')
-            ->where('gi.year_acquired', '<=', DB::raw('YEAR(CURDATE()) - 5'))
-            ->where('u.api_token', $api_token)
-            ->get();
-        $rowCount = $outdatedEquipment->count();
-
-
-        // Return the results as a JSON response
-        return response()->json(['count' => $rowCount]);
+        return response()->json($data);
     }
 
     public function checkItemStatus(Request $request)
@@ -1266,37 +1249,13 @@ class InventoryController extends Controller
 
     public function getSummaryData(Request $req)
     {
-        $user_id = $req->query('id');
-        $results = DB::table('tbl_general_info as g')
-        ->select([
-            'e.id as equipment_id', // Grouped field
-            DB::raw('MAX(e.equipment_title) as equipment_title'), // Use aggregate function
-            DB::raw('COUNT(*) as total_count'), // Aggregate function for count
-            DB::raw('MAX(d.division_title) as division_title'), // Aggregate function for division title
-            DB::raw('MAX(g.created_at) as created_at'), // Aggregate function for created_at
-            DB::raw("
-                CASE 
-                    WHEN MAX(g.status) = 1 THEN 'Serviceable'
-                    WHEN MAX(g.status) = 2 THEN 'Unserviceable'
-                    ELSE ''
-                END as status
-            "), // Aggregate CASE statement
-            DB::raw('MAX(u.username) as username'), // Aggregate function for username
-            DB::raw('MAX(ur.roles) as roles') // Aggregate function for roles
-        ])
-        ->leftJoin('tbl_equipment_type as e', 'g.equipment_type', '=', 'e.id')
-        ->leftJoin('tbl_division as d', 'd.id', '=', 'g.division_id')
-        ->leftJoin('user_roles as ur', 'ur.id', '=', 'g.registered_loc')
-        ->leftJoin('users as u', 'u.roles', '=', 'g.registered_loc')
-
-        ->where('u.id',$user_id)
-        ->groupBy('e.id') // Group only by equipment ID
-        ->get();
-      
-            return response()->json([
-                'status' => true,
-                'data' => $results,
-            ]);
-       
+        
+        $data = DB::table('vw_ict_equipment')->get();
+        return response()->json(
+            [
+                'data' => $data,
+            ]
+        );
+     
     }
 }

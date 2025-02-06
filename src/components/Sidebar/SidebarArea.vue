@@ -78,22 +78,25 @@ const menuGroups = ref([
     menuItems: [
     
       {
-        icon: inventoryIcon,
+        icon: dashboardIcon,
         label: 'Dashboard',
         route: '#',
         children:[
           { label: 'ICT Equipment',route:`/inventory?id=${userId}&api_token=${api_token}` },
-          { label: 'Summary',route:`/inventory/summary?id=${userId}&api_token=${api_token}`},
-       
         ]
+      },
+      {
+        icon: inventoryIcon,
+        label: 'Summary',
+        route:`/inventory/summary?id=${userId}&api_token=${api_token}`
       },
       {
         icon: userMgnmtIcon,
         label: 'User Management',
         route: '#',
         children: [
-          { label: 'Manage Accounts', route: '/user-management/' },
-          { label: 'Create Accounts', route: '/user-management/accounts/create' },
+          { label: 'Manage Accounts', route: `/user-management/?id=${userId}&api_token=${api_token}`},
+          { label: 'Create Accounts', route: `/user-management/accounts/create?id=${userId}&api_token=${api_token}`},
         ]
       }
      
@@ -107,7 +110,11 @@ const filteredMenuGroups = computed(() => {
     return {
       ...group,
       menuItems: group.menuItems.filter(menuItem => {
-        if (menuItem.label === 'User Management' && designation.value !== 'Regional Office') {
+        // Exclude both "User Management" and "Summary" if designation is not "Regional Office"
+        if (
+          (menuItem.label === 'User Management' || menuItem.label === 'Summary') &&
+          designation.value !== 'Regional Office'
+        ) {
           return false;
         }
         return true;
@@ -115,6 +122,7 @@ const filteredMenuGroups = computed(() => {
     };
   });
 });
+
 
 const loadUserData = async () => {
   const userData = await fetchCurUser()
@@ -176,24 +184,7 @@ const loadUserData = async () => {
           </div>
         </template>
       </nav>
-      <!-- Sidebar Menu -->
-
-      <!-- Promo Box -->
-      <!-- <div
-        class="mx-auto mb-10 w-full max-w-60 rounded-sm border border-strokedark bg-boxdark py-6 px-4 text-center shadow-default"
-      >
-        <h3 class="mb-1 font-semibold text-white">TailAdmin Pro</h3>
-        <p class="mb-4 text-xs">Get All Dashboards and 300+ UI Elements</p>
-        <a
-          href="https://tailadmin.com/pricing"
-          target="_blank"
-          rel="nofollow"
-          class="flex items-center justify-center rounded-md bg-primary p-2 font-medium text-white hover:bg-opacity-90"
-        >
-          Purchase Now
-        </a>
-      </div> -->
-      <!-- Promo Box -->
+    
     </div>
   </aside>
 </template>

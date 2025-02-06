@@ -90,34 +90,26 @@ const initFilters = () => {
       constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
     },
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    roles: {
-      operator: FilterOperator.OR,
-      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
-    },
     equipment_title: {
       operator: FilterOperator.OR,
       constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
     },
-    total_count: {
+    year_202: {
       operator: FilterOperator.OR,
       constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
     },
-    division_title: {
+    year_2023: {
       operator: FilterOperator.OR,
       constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
     },
-    created_at: {
+    year_2022: {
       operator: FilterOperator.OR,
       constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
     },
-    status: {
+    below_2021: {
       operator: FilterOperator.OR,
       constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
     },
-    username: {
-      operator: FilterOperator.OR,
-      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
-    }
   }
 }
 
@@ -141,7 +133,7 @@ onMounted(() => {
   loadUserData()
 })
 // Page title
-const pageTitle = ref('Summary')
+const pageTitle = ref('TOTAL NUMBER OF FUNCTIONING UNITS BY YEAR ACQUIRED')
 </script>
 <template>
   <DefaultLayout>
@@ -192,14 +184,11 @@ const pageTitle = ref('Summary')
           filterDisplay="menu"
           :loading="loading"
           :globalFilterFields="[
-            'action',
-            'roles',
             'equipment_title',
-            'total_count',
-            'division_title',
-            'created_at',
-            'status',
-            'username'
+            'year_2024',
+            'year_2023',
+            'year_2023',
+            'below_2021',
           ]"
         >
           <template #header>
@@ -231,40 +220,45 @@ const pageTitle = ref('Summary')
             </template>
           </Column>
           <Column
-            header="Quantity"
-            field="total_count"
+            header="2025"
+            field="year_2025"
             :filterMenuStyle="{ width: '14rem' }"
             style="min-width: 5rem"
           >
             <template #body="{ data }">
-              {{ data.total_count }}
+              {{ data.year_2025 }}
             </template>
           </Column>
-          <Column field="division_title" header="Current Location" style="min-width: 5rem">
+          <Column
+            header="2024"
+            field="year_2024"
+            :filterMenuStyle="{ width: '14rem' }"
+            style="min-width: 5rem"
+          >
             <template #body="{ data }">
-              {{ data.division_title }}
+              {{ data.year_2024 }}
+            </template>
+          </Column>
+          <Column field="year_2023" header="2023" style="min-width: 5rem">
+            <template #body="{ data }">
+              {{ data.year_2023 }}
             </template>
           </Column>
 
-          <Column field="created_at" header="Date Added" style="min-width: 5rem">
+          <Column field="year_2022" header="2022" style="min-width: 5rem">
             <template #body="{ data }">
-              {{ data.created_at }}
+              {{ data.year_2022 }}
               <!-- Ensure this field exists in the data object -->
             </template>
           </Column>
 
-          <Column field="status" header="Status" style="min-width: 5rem">
+          <Column field="below_2021" header="2021 Below" style="min-width: 5rem">
             <template #body="{ data }">
-              {{ data.status }}
+              {{ data.below_2021 }}
               <!-- Ensure this field exists in the data object -->
             </template>
           </Column>
-          <Column field="username" header="Updated By" style="min-width: 5rem">
-            <template #body="{ data }">
-              {{ data.username }}
-              <!-- Ensure this field exists in the data object -->
-            </template>
-          </Column>
+          
         </DataTable>
       </div>
     </div>

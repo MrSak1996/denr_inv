@@ -319,7 +319,7 @@ const barChart = {
       <div class="p-6 grid grid-cols-12 gap-4">
         <!-- Top Statistics -->
         <div class="col-span-12 grid grid-cols-4 gap-4">
-          <div class="bg-white-500 text-black p-4 rounded-lg shadow text-center">
+          <div class="bg-white-500 text-black p-4 rounded-lg shadow text-center border-2 border-teal-900 border-solid">
             <h4 class="text-xl font-bold">Overall Offices</h4>
             <div class="h-[100px] w-full bg-gray-0 rounded-lg flex items-center justify-center">
               <VueApexCharts
@@ -333,7 +333,7 @@ const barChart = {
               />
             </div>
           </div>
-          <div class="bg-teal-700 text-white p-4 rounded-lg shadow text-center">
+          <div class="bg-white-500 text-black p-4 rounded-lg shadow text-center border-2 border-teal-900 border-solid">
             <h4 class="text-xl font-bold">Total Actual Users</h4>
             <div class="h-[100px] w-full bg-gray-0 rounded-lg flex items-center justify-center">
               <VueApexCharts
@@ -347,7 +347,7 @@ const barChart = {
               />
             </div>
           </div>
-          <div class="bg-teal-700 text-white p-4 rounded-lg shadow text-center">
+          <div class="bg-white-500 text-black p-4 rounded-lg shadow text-center border-2 border-teal-900 border-solid">
             <h4 class="text-xl font-bold">Accountable Users</h4>
             <div class="h-[100px] w-full bg-gray-0 rounded-lg flex items-center justify-center">
               <VueApexCharts
@@ -361,7 +361,7 @@ const barChart = {
               />
             </div>
           </div>
-          <div class="bg-teal-700 text-white p-4 rounded-lg shadow text-center">
+          <div class="bg-white-500 text-black p-4 rounded-lg shadow text-center border-2 border-teal-900 border-solid">
             <h4 class="text-xl font-bold">Offices</h4>
             <div class="h-[100px] w-full bg-gray-0 rounded-lg flex items-center justify-center">
               <VueApexCharts
@@ -378,7 +378,7 @@ const barChart = {
         </div>
 
         <!-- Left Donut Charts -->
-        <div class="col-span-3 p-2 rounded-lg shadow h-60">
+        <div class="col-span-3 p-2 rounded-lg shadow h-60 border-2 border-teal-900">
           <h5 class="text-lg font-bold mb-2">Type of ICT Equipment</h5>
           <div class="h-auto w-full bg-gray-0 rounded-lg flex items-center justify-center">
             <VueApexCharts
@@ -391,7 +391,7 @@ const barChart = {
             />
           </div>
         </div>
-        <div class="col-span-6 p-2 rounded-lg shadow h-60">
+        <div class="col-span-6 p-2 rounded-lg shadow h-60 border-2 border-teal-900">
           <h5 class="text-lg font-bold">Type of ICT Equipment by Sex</h5>
           <div class="h-auto w-full bg-gray-0 rounded-lg flex items-center justify-center">
             <VueApexCharts
@@ -404,8 +404,8 @@ const barChart = {
             />
           </div>
         </div>
-        <div class="col-span-3 p-4 rounded-lg shadow h-60">
-          <h5 class="text-lg font-bold mb-2">Year Acquired</h5>
+        <div class="col-span-3 p-4 rounded-lg shadow h-60 border-2 border-teal-900">
+          <h5 class="text-lg font-bold mb-2">Equipment by Office</h5>
           <div class="h-auto w-full bg-gray-0 rounded-lg flex items-center justify-center">
             <VueApexCharts
               type="donut"
@@ -420,7 +420,7 @@ const barChart = {
 
         <!-- Right Section -->
 
-        <div class="col-span-3 p-4 rounded-lg shadow">
+        <div class="col-span-3 p-4 rounded-lg shadow border-2 border-teal-900">
           <h5 class="text-lg font-bold mb-2">Equipment by Year Acquired</h5>
           <div class="h-auto w-full bg-gray-0 rounded-lg flex items-center justify-center">
             <VueApexCharts
@@ -432,8 +432,8 @@ const barChart = {
             />
           </div>
         </div>
-        <div class="col-span-6 p-4 rounded-lg shadow">
-          <h5 class="text-lg font-bold mb-2">Equipment by Office</h5>
+        <div class="col-span-6 p-4 rounded-lg shadow border-2 border-teal-900">
+          <h5 class="text-lg font-bold mb-2">Count of Equipment per Division</h5>
           <div class="h-auto w-full bg-gray-0 rounded-lg flex items-center justify-center">
             <VueApexCharts
               type="bar"
@@ -444,7 +444,7 @@ const barChart = {
             />
           </div>
         </div>
-        <div class="col-span-3 p-4 rounded-lg shadow">
+        <div class="col-span-3 p-4 rounded-lg shadow border-2 border-teal-900">
           <h5 class="text-lg font-bold mb-2">Equipment by Year Acquired</h5>
           <div class="h-auto w-full bg-gray-0 rounded-lg flex items-center justify-center">
             <VueApexCharts

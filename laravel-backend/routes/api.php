@@ -9,6 +9,11 @@ use App\Http\Controllers\Modules\Reports\ReportsController;
 use App\Http\Controllers\Modules\OTP\OTPController;
 use App\Http\Controllers\Modules\GoogleDrive\GoogleDriveController;
 use App\Http\Controllers\Modules\Settings\SettingsController;
+
+use App\Http\Controllers\Modules\Inventory\VwGenInfoController;
+use App\Http\Controllers\Modules\Inventory\VwInvalidDataController;
+use App\Models\VwInvalidData;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -53,9 +58,15 @@ Route::middleware('api')->group(function () {
     Route::get('/fetchDivisionData', [InventoryController::class, 'fetchDivisionData']);
     Route::post('/updateUser', [InventoryController::class, 'updateUser']);
     Route::post('/updatePeripherals', [InventoryController::class, 'updatePeripherals']);
-
     // end
+
+
+    // VIEWS FUNCTION
+    Route::get('/vw-gen-info', [VwGenInfoController::class, 'index']);
+    Route::get('/vw-invalid-data', [VwInvalidDataController::class, 'getInvalidData']);
+    //END
     
+    Route::get('/getQRCodeTemp', [InventoryController::class, 'getQRCodeTemp']);
     Route::get('/getEquipment', [InventoryController::class, 'getEquipment']);
     Route::get('/getRangeCategory', [InventoryController::class, 'getRangeCategory']);
     Route::get('/getEmploymentType', [InventoryController::class, 'getEmploymentType']);

@@ -1,28 +1,22 @@
 <script setup>
-import { ref, computed  } from 'vue'
+import { ref, computed } from 'vue'
 import { saveAs } from 'file-saver'
 import JSZip from 'jszip'
 import { generateQRCodeWithLogo, formatQRCodeText } from './qrCodeUtils.js'
+import { useApi } from '@/composables/useApi'
 
+const { fetchCurUser } = useApi()
 const baseNumber = ref(1)
 const quantity = ref(10)
-const logoUrl = ref('')
 const generating = ref(false)
 const progress = ref(0)
 const error = ref('')
+const qr_code_temp = ref('');
+
+// Set a default logo URL
+const logoUrl = ref(new URL('../../../assets/images/logo/denr_logo.png', import.meta.url).href)
 
 const totalCodes = computed(() => quantity.value)
-
-const handleLogoChange = (event) => {
-  const file = event.target.files[0]
-  if (file) {
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      logoUrl.value = e.target.result
-    }
-    reader.readAsDataURL(file)
-  }
-}
 
 const generateQRCodes = async () => {
   if (quantity.value <= 0) {
@@ -58,7 +52,7 @@ const generateQRCodes = async () => {
     }
 
     const content = await zip.generateAsync({ type: 'blob' })
-    saveAs(content, `4AICT-${String(baseNumber.value).padStart(2, '0')}-batch.zip`)
+    saveAs(content, `4AICT${String(baseNumber.value).padStart(2, '0')}-batch.zip`)
   } catch (err) {
     error.value = 'Error generating QR codes'
     console.error(err)
@@ -68,7 +62,13 @@ const generateQRCodes = async () => {
   }
 }
 
-// Define props
+const getQRCodeTemp = async () => {
+  const userData = await fetchCurUser()
+  user_role.value = userData.data[0].role_id
+  const response = await api.get(`/getQRCodeTemp?api_token=${api_token}&user_role=${user_role.value}`)
+  qr_code_temp.value = response.data[0].qr_code;
+}
+
 const emit = defineEmits(['close', 'proceed'])
 
 const props = defineProps({
@@ -77,6 +77,7 @@ const props = defineProps({
     default: false
   }
 })
+
 const closeModal = () => {
   emit('close')
 }
@@ -95,7 +96,7 @@ const closeModal = () => {
     >
       <!-- Modal Header -->
       <div class="flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700">
-        <h3 class="text-lg font-semibold">Gerate QR Code</h3>
+        <h3 class="text-lg font-semibold">Generate QR Code</h3>
         <button
           @click="closeModal"
           class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-400"
@@ -130,17 +131,7 @@ const closeModal = () => {
             </div>
           </div>
 
-          <div class="logo-input">
-            <label for="logo" class="logo-label">Custom Logo (optional)</label>
-            <input
-              type="file"
-              id="logo"
-              accept="image/*"
-              @change="handleLogoChange"
-              class="logo-file-input"
-              :disabled="generating"
-            />
-          </div>
+         
         </div>
 
         <div v-if="error" class="error">{{ error }}</div>
@@ -148,9 +139,9 @@ const closeModal = () => {
         <div class="preview">
           <p>Will generate {{ totalCodes }} QR codes</p>
           <p>
-            Format: 4AICT-{{ String(baseNumber).padStart(2, '0') }}-001 to 4AICT-{{
+            Format: 4AICT0001 to 4AICT-{{
               String(baseNumber).padStart(2, '0')
-            }}-{{ String(quantity).padStart(3, '0') }}
+            }}{{ String(quantity).padStart(3, '0') }}
           </p>
         </div>
 
@@ -215,16 +206,17 @@ input:disabled {
   cursor: not-allowed;
 }
 
-.logo-input {
+.logo-preview {
+  text-align: center;
   margin-top: 1rem;
 }
 
-.logo-file-input {
-  width: 100%;
-  padding: 0.5rem;
+.logo-img {
+  width: 100px;
+  height: auto;
+  margin-top: 0.5rem;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 0.9rem;
 }
 
 .preview {

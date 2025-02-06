@@ -10,6 +10,7 @@ import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import FloatLabel from 'primevue/floatlabel'
 import InputText from 'primevue/inputtext'
+import Toast from 'primevue/toast'
 
 import Accordion from 'primevue/accordion'
 import AccordionPanel from 'primevue/accordionpanel'
@@ -24,7 +25,15 @@ import Tag from 'primevue/tag'
 import api from '../../../laravel-backend/resources/js/axiosInstance.js'
 
 const { um_create_form } = useForm()
-const { province_opts, division_opts, employment_opts, getDivision, getEmploymentType,getUserRoles,roles_opts} = useApi()
+const {
+  province_opts,
+  division_opts,
+  employment_opts,
+  getDivision,
+  getEmploymentType,
+  getUserRoles,
+  roles_opts
+} = useApi()
 
 let city_mun_opts = ref([])
 const errors = ref({})
@@ -32,9 +41,7 @@ const geo_code = ref('')
 watch(
   () => um_create_form.city_mun,
   (newCityMun) => {
-    const selectedMunicipality = city_mun_opts.value.find(
-      (item) => item.id === newCityMun
-    )
+    const selectedMunicipality = city_mun_opts.value.find((item) => item.id === newCityMun)
     if (selectedMunicipality) {
       um_create_form.geo_code = selectedMunicipality.code
     } else {
@@ -49,8 +56,8 @@ watch(
     if (newProvince) {
       try {
         // Fetch cities for the selected province
-        const response = await api.get(`/provinces/${newProvince}/cities`);
-        
+        const response = await api.get(`/provinces/${newProvince}/cities`)
+
         // Check if response data is valid and is an array
         if (response.data && Array.isArray(response.data)) {
           // Map the response data to the expected format
@@ -58,32 +65,30 @@ watch(
             id: item.mun_code,
             name: item.mun_name,
             code: item.geo_code
-          }));
+          }))
 
           // Update the form with the province and associated cities
-          um_create_form.province = newProvince;
-          um_create_form.city_mun = city_mun_opts.value;
+          um_create_form.province = newProvince
+          um_create_form.city_mun = city_mun_opts.value
         } else {
           // Handle unexpected response structure
-          console.error('Unexpected response structure:', response);
-          city_mun_opts.value = [];
+          console.error('Unexpected response structure:', response)
+          city_mun_opts.value = []
         }
       } catch (error) {
         // Log the error if the API call fails
-        console.error('Error fetching cities:', error);
-        city_mun_opts.value = [];
+        console.error('Error fetching cities:', error)
+        city_mun_opts.value = []
       }
     } else {
       // If no province is selected, reset city options
-      city_mun_opts.value = [];
+      city_mun_opts.value = []
     }
   }
-);
+)
 
 onMounted(() => {
-  getDivision(),
-  getEmploymentType(),
-  getUserRoles()
+  getDivision(), getEmploymentType(), getUserRoles()
 })
 // Page title
 const pageTitle = ref('Create User Account')
@@ -107,8 +112,6 @@ const usermanagement_roles = ref([
   { name: 'User Management Section - Resetting User Passwords', key: 'A' }
 ])
 
-
-
 const sex_opts = ref([
   { name: 'Male', id: 1 },
   { name: 'Female', id: 2 },
@@ -120,46 +123,62 @@ const toast = useToast()
 const post_save_userCred = async () => {
   try {
     errors.value = {}
-    const requestData = {
-      ...um_create_form
-    }
+    const requestData = { ...um_create_form }
 
     const response = await api.post('/post_save_userCred', requestData)
-    setTimeout(() => {
+
+    if (!response) {
       toast.add({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Data saved successfully!',
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No response from server!',
         life: 3000
       })
+    } else {
+      setTimeout(() => {
+        toast.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Data saved successfully!',
+          life: 3000
+        })
 
-      const id = response.data.id
-      // router.push({
-      //   name: 'InventoryEdit',
-      //   params: { id },
-      //   query: { api_token: localStorage.getItem('api_token') }
-      // })
-      // location.reload()
-    }, 2000)
+        const id = response.data.id
+        router.push({
+          name: 'Account List',
+          params: { id },
+          query: { api_token: localStorage.getItem('api_token') }
+        })
+      }, 2000)
+    }
   } catch (error) {
     if (error.response?.status === 422) {
-      errors.value = error.response.data.message
-      console.error('Validation errors:', errors.value)
+      errors.value = error.response.data.errors
+      const errorMessages = Object.values(errors.value).flat().join(' ')
+      toast.add({
+        severity: 'warn',
+        summary: 'Validation Error',
+        detail: errorMessages,
+        life: 5000
+      })
     } else {
       console.error('Error saving form:', error)
+      toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Failed to save data. Please try again later.',
+        life: 5000
+      })
     }
   }
 }
 </script>
 
 <template>
+  <Toast />
   <DefaultLayout>
     <BreadcrumbDefault :pageTitle="pageTitle" />
     <div class="grid grid-cols-12 mb-4">
-      <!-- Buttons Column (Equivalent to Bootstrap col-lg-3) -->
-      
-
-      <!-- DataTable Column (Equivalent to Bootstrap col-lg-9) -->
       <div class="col-span-12">
         <form @submit.prevent="post_save_userCred">
           <div class="bg-white p-4 rounded-lg shadow-md">
@@ -167,84 +186,148 @@ const post_save_userCred = async () => {
               <div class="grid md:grid-cols-2 md:gap-6 mb-4 mt-4">
                 <div class="relative z-0 w-full mb-5 group">
                   <FloatLabel>
-                    <InputText v-model="um_create_form.region" :value="um_create_form.region" class="w-full" />
+                    <InputText
+                      v-model="um_create_form.region"
+                      :value="um_create_form.region"
+                      class="w-full"
+                    />
                     <label>Region</label>
                   </FloatLabel>
                   <FloatLabel>
-                    <InputText hidden v-model="um_create_form.geo_code" :value="um_create_form.geo_code" class="w-full" />
+                    <InputText
+                      hidden
+                      v-model="um_create_form.geo_code"
+                      :value="um_create_form.geo_code"
+                      class="w-full"
+                    />
                   </FloatLabel>
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
                   <FloatLabel>
-                    <InputText v-model="um_create_form.first_name" :value="um_create_form.first_name" class="w-full" />
+                    <InputText
+                      v-model="um_create_form.first_name"
+                      :value="um_create_form.first_name"
+                      class="w-full"
+                    />
                     <label>First Name</label>
                   </FloatLabel>
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
-                  <Select v-model="um_create_form.province" :options="province_opts" optionValue="id" optionLabel="name"
-                    placeholder="Province" class="w-full" />
+                  <Select
+                    v-model="um_create_form.province"
+                    :options="province_opts"
+                    optionValue="id"
+                    optionLabel="name"
+                    placeholder="Province"
+                    class="w-full"
+                  />
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
                   <FloatLabel>
-                    <InputText v-model="um_create_form.middle_name" :value="um_create_form.middle_name"
-                      class="w-full" />
+                    <InputText
+                      v-model="um_create_form.middle_name"
+                      :value="um_create_form.middle_name"
+                      class="w-full"
+                    />
                     <label>Middle Name</label>
                   </FloatLabel>
                 </div>
               </div>
               <div class="grid md:grid-cols-2 md:gap-6 mb-4 mt-4">
                 <div class="relative z-0 w-full mb-5 group">
-                  <Select v-model="um_create_form.city_mun" :options="city_mun_opts" optionValue="id" optionLabel="name"
-                    placeholder="City/Municipalities" class="w-full" />
+                  <Select
+                    v-model="um_create_form.city_mun"
+                    :options="city_mun_opts"
+                    optionValue="id"
+                    optionLabel="name"
+                    placeholder="City/Municipalities"
+                    class="w-full"
+                  />
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
                   <FloatLabel>
-                    <InputText v-model="um_create_form.last_name" :value="um_create_form.last_name" class="w-full" />
+                    <InputText
+                      v-model="um_create_form.last_name"
+                      :value="um_create_form.last_name"
+                      class="w-full"
+                    />
                     <label>Last Name</label>
                   </FloatLabel>
                 </div>
               </div>
               <div class="grid md:grid-cols-2 md:gap-6 mb-4 mt-4">
                 <div class="relative z-0 w-full mb-5 group">
-                  <Select v-model="um_create_form.division" :options="division_opts" optionValue="id" optionLabel="name"
-                    placeholder="Division" class="w-full" />
+                  <Select
+                    v-model="um_create_form.division"
+                    :options="division_opts"
+                    optionValue="id"
+                    optionLabel="name"
+                    placeholder="Division"
+                    class="w-full"
+                  />
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
-                  <Select v-model="um_create_form.employment_status" :options="employment_opts" optionLabel="name"
-                    optionValue="id" placeholder="Employment Type" class="w-full" />
+                  <Select
+                    v-model="um_create_form.employment_status"
+                    :options="employment_opts"
+                    optionLabel="name"
+                    optionValue="id"
+                    placeholder="Employment Type"
+                    class="w-full"
+                  />
                 </div>
               </div>
               <div class="grid md:grid-cols-4 md:gap-6 mb-4 mt-4">
                 <div class="relative z-0 w-full mb-5 group">
                   <FloatLabel>
-                    <InputText v-model="um_create_form.position" :value="um_create_form.position" class="w-full" />
+                    <InputText
+                      v-model="um_create_form.position"
+                      :value="um_create_form.position"
+                      class="w-full"
+                    />
                     <label>Position</label>
                   </FloatLabel>
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
                   <FloatLabel>
-                    <InputText v-model="um_create_form.email" :value="um_create_form.email" class="w-full" />
+                    <InputText
+                      v-model="um_create_form.email"
+                      :value="um_create_form.email"
+                      class="w-full"
+                    />
                     <label>Email Address</label>
                   </FloatLabel>
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
                   <FloatLabel>
-                    <InputText v-model="um_create_form.contact_details" :value="um_create_form.contact_details"
-                      class="w-full" />
+                    <InputText
+                      v-model="um_create_form.contact_details"
+                      :value="um_create_form.contact_details"
+                      class="w-full"
+                    />
                     <label>Contact Details</label>
                   </FloatLabel>
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
-                  <Select v-model="um_create_form.sex" :options="sex_opts" optionValue="id" optionLabel="name"
-                    placeholder="Gender" class="w-full" />
+                  <Select
+                    v-model="um_create_form.sex"
+                    :options="sex_opts"
+                    optionValue="id"
+                    optionLabel="name"
+                    placeholder="Gender"
+                    class="w-full"
+                  />
                 </div>
               </div>
 
               <div class="grid md:grid-cols-1 md:gap-6 mb-4 mt-4">
                 <div class="relative z-0 w-full mb-5 group">
                   <FloatLabel>
-                    <InputText v-model="um_create_form.complete_address" :value="um_create_form.complete_address"
-                      class="w-full" />
+                    <InputText
+                      v-model="um_create_form.complete_address"
+                      :value="um_create_form.complete_address"
+                      class="w-full"
+                    />
                     <label>Complete Address</label>
                   </FloatLabel>
                 </div>
@@ -254,23 +337,37 @@ const post_save_userCred = async () => {
               <div class="grid md:grid-cols-3 md:gap-6 mb-4 mt-4">
                 <div class="relative z-0 w-full mb-5 group">
                   <FloatLabel>
-                    <InputText v-model="um_create_form.username" :value="um_create_form.username" class="w-full" />
+                    <InputText
+                      v-model="um_create_form.username"
+                      :value="um_create_form.username"
+                      class="w-full"
+                    />
                     <label>Username</label>
                   </FloatLabel>
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
                   <FloatLabel>
-                    <InputText v-model="um_create_form.password" :value="um_create_form.password" class="w-full" />
+                    <InputText
+                      v-model="um_create_form.password"
+                      :value="um_create_form.password"
+                      class="w-full"
+                    />
                     <label>Password</label>
                   </FloatLabel>
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
-                  <Select v-model="um_create_form.roles" :options="roles_opts" optionValue="id"
-                    optionLabel="name" placeholder="User Role" class="w-full" />
+                  <Select
+                    v-model="um_create_form.roles"
+                    :options="roles_opts"
+                    optionValue="id"
+                    optionLabel="name"
+                    placeholder="User Role"
+                    class="w-full"
+                  />
                 </div>
               </div>
             </Fieldset>
-            <Fieldset legend="Roles & Assignment">
+            <!-- <Fieldset legend="Roles & Assignment">
               <div class="grid md:grid-cols-1 md:gap-6 mb-4 mt-4">
                 <div class="card">
                   <Accordion value="0">
@@ -308,11 +405,13 @@ const post_save_userCred = async () => {
                   </Accordion>
                 </div>
               </div>
-            </Fieldset>
-            <button type="button" @click="post_save_userCred()"
-              class="block mt-4 w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 font-medium text-white text-center transition hover:bg-opacity-90">
-              Save
-            </button>
+            </Fieldset> -->
+            <input
+              type="submit"
+              class="block mt-4 w-full cursor-pointer rounded-lg border border-teal bg-teal p-4 font-medium text-white text-center transition hover:bg-opacity-90"
+              value="Save"
+            />
+            
           </div>
         </form>
       </div>
