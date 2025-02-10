@@ -1,6 +1,6 @@
 // src/composables/useApi.js
 import { ref } from 'vue'
-import api from '../../laravel-backend/resources/js/axiosInstance.js'
+import api from '../../laravel-backend/resources/js/axiosInstance.ts'
 
 export function useApi() {
   const division_opts = ref([])
@@ -10,6 +10,8 @@ export function useApi() {
   const employment_opts = ref([])
   const roles_opts = ref([])
   const designation = ref();
+  const qr_code_temp = ref();
+  const user_role = ref();
 
 
   const fetchCurUser = async () => {
@@ -43,7 +45,24 @@ export function useApi() {
       console.error('Error fetching current user:', error.response?.data?.message || error.message);
     }
   };
+  const getQRCodeTemp = async () => {
+    const user = await fetchCurUser();
+  user_role.value = user.data[0].role_id
 
+  
+    try {
+      const { data, status } = await api.get(`/getQRCodeTemp?user_role=${user_role.value}`);
+  
+      if (status === 200 && data?.length) {
+        qr_code_temp.value = data[0].code;
+        
+      } else {
+        console.error("QR Code data not found.");
+      }
+    } catch (error) {
+      console.error("Error fetching QR Code:", error.response?.data?.message || error.message);
+    }
+  };
   const getControlNo = async (form, userId) => {
     try {
       const res = await api.get(`/getControlNo?id=${userId}`)
@@ -138,6 +157,8 @@ export function useApi() {
     }
   }
 
+ 
+  
   
   
   const predefinedSoftware = ref([
@@ -171,6 +192,7 @@ export function useApi() {
     { name: 'Male', value: 'Male' },
     { name: 'Female', value: 'Female' }
   ])
+
   const capacity_opts = ref([
     { name: '1 TB', value: '1 TB' },
     { name: '2 TB', value: '2 TB' },
@@ -225,9 +247,11 @@ export function useApi() {
     employment_opts,
     capacity_opts,
     ram_opts,
+    qr_code_temp,
     ram_capacity_opts,
     predefinedSoftware,
     fetchCurUser,
+    getQRCodeTemp,
     getControlNo,
     getDivision,
     getNatureWork,

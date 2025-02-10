@@ -1,4 +1,4 @@
-import api from '../../laravel-backend/resources/js/axiosInstance.js'
+import api from '../../laravel-backend/resources/js/axiosInstance.ts'
 
 export const useInventory = () => {
   // Function to open the PDF report

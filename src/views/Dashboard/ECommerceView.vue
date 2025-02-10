@@ -8,7 +8,7 @@ import MapOne from '@/components/Maps/MapOne.vue'
 import TableOne from '@/components/Tables/TableOne.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 
-import api from '../../../laravel-backend/resources/js/axiosInstance.js'
+import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
 import { ref, onMounted } from 'vue'
 
 const message = ref<string>('')

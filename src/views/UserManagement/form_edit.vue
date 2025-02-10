@@ -24,7 +24,7 @@ import Select from 'primevue/select'
 import Tag from 'primevue/tag'
 import { InputOtp } from 'primevue';
 
-import api from '../../../laravel-backend/resources/js/axiosInstance.js'
+import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
 
 const { um_create_form } = useForm()
 const { province_opts, division_opts, employment_opts, getDivision, getEmploymentType,getUserRoles,roles_opts} = useApi()

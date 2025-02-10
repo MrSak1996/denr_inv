@@ -6,7 +6,7 @@ import { useApi } from '@/composables/useApi'
 import { useInventory } from '@/composables/useInventory.ts'
 import { useToast } from 'primevue/usetoast'
 import { useRouter, useRoute } from 'vue-router'
-import api from '../../../../laravel-backend/resources/js/axiosInstance.js'
+import api from '../../../../laravel-backend/resources/js/axiosInstance.ts'
 
 const { printRecord } = useInventory()
 const { predefinedSoftware } = useApi()

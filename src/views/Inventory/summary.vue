@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router'
 import { useApi } from '@/composables/useApi'
 import { useInventory } from '@/composables/useInventory.ts'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
-import api from '../../../laravel-backend/resources/js/axiosInstance.js'
+import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
 import router from '@/router'
 
 const { fetchCurUser } = useApi()

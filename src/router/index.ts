@@ -23,7 +23,7 @@ import AccountCreateView from '@/views/UserManagement/form_create.vue';
 import AccountEditView from '@/views/UserManagement/form_edit.vue';
 
 
-import api from '../../laravel-backend/resources/js/axiosInstance.js'
+import api from '../../laravel-backend/resources/js/axiosInstance.ts'
 import QRCodeScanner from '@/views/Inventory/QRCodeScanner.vue'
 import summaryVue from '@/views/Inventory/summary.vue'
 

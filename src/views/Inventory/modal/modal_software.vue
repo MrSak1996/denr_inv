@@ -52,7 +52,7 @@ import { ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useRoute } from 'vue-router'
 import InputText from 'primevue/inputtext'
-import api from '../../../../laravel-backend/resources/js/axiosInstance.js'
+import api from '../../../../laravel-backend/resources/js/axiosInstance.ts'
 
 const toast = useToast()
 const route = useRoute()

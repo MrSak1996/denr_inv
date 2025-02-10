@@ -48,7 +48,8 @@ export async function generateQRCodeWithLogo(text, logoUrl = defaultLogoUrl) {
   })
 }
 
-export function formatQRCodeText(baseNumber, increment) {
+export function formatQRCodeText(qr_format, baseNumber, increment) {
   const formattedIncrement = String(increment).padStart(5, '0');
-  return `4AICT${formattedIncrement}`;
+  return `${qr_format}${formattedIncrement}`;
 }
+

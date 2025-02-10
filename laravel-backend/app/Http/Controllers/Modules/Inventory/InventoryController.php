@@ -1249,13 +1249,25 @@ class InventoryController extends Controller
 
     public function getSummaryData(Request $req)
     {
-        
+
         $data = DB::table('vw_ict_equipment')->get();
         return response()->json(
             [
                 'data' => $data,
             ]
         );
-     
+    }
+
+    public function getQRCodeTemp(Request $req)
+    {
+        $user_role = $req->query('user_role');
+
+        $sql = DB::table('tbl_config as tc')
+            ->select('tc.id', 'tc.code') 
+            ->leftJoin('user_roles as ur', 'ur.id', '=', 'tc.id')
+            ->where('tc.id', $user_role)
+            ->get();
+
+        return response()->json($sql);
     }
 }

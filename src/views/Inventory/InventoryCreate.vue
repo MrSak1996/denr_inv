@@ -6,7 +6,7 @@ import { useStore } from 'vuex'
 import { useApi } from '@/composables/useApi'
 import { useForm } from '@/composables/useForm'
 
-import api from '../../../laravel-backend/resources/js/axiosInstance.js'
+import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
 import modal_reserved from './modal/modal_reserved.vue'
 import modal_software from './modal/modal_software.vue'
 import modal_review_form from './modal/modal_review_form.vue'

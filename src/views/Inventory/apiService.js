@@ -1,4 +1,4 @@
-import api from '../../../laravel-backend/resources/js/axiosInstance.js'
+import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
 
 export const fetchCurUser = async (apiToken) => {
   try {

@@ -2,7 +2,7 @@
 import { onClickOutside } from '@vueuse/core'
 import { ref,onMounted} from 'vue'
 import { useRouter } from 'vue-router';
-import api from '../../../laravel-backend/resources/js/axiosInstance.js'
+import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
 
 const target = ref(null)
 const dropdownOpen = ref(false)

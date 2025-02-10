@@ -6,7 +6,7 @@ import { useApi } from '../../composables/useApi.js';
 
 import SidebarItem from './SidebarItem.vue'
 import { useRoute } from 'vue-router'
-import api from '../../../laravel-backend/resources/js/axiosInstance.js'
+import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
 
 const target = ref(null)
 const designation = ref()

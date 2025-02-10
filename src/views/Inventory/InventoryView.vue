@@ -9,7 +9,7 @@ import { useInventory } from '@/composables/useInventory.ts'
 import router from '@/router'
 import form_dash from './form_dash.vue'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
-import api from '../../../laravel-backend/resources/js/axiosInstance.js'
+import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
 import modal_qr_scan from './modal/modal_qr_scan.vue'
 import modal_review_form from './modal/modal_review_form.vue'
 import modal_gen_qr from './modal/modal_gen_qr.vue'
@@ -128,8 +128,8 @@ const getCountStatus = async () => {
 const getOutdatedEquipment = async () => {
   await loadUserData();
   
-  const response = await api.get(`/getOutdatedEquipment?api_token=${api_token}&designation=${user_role.value}`)
-  outdated_count.value = Number(response.data[0].count) // Set the count if it exists
+    const response = await api.get(`/getOutdatedEquipment?api_token=${api_token}&designation=${user_role.value}`)
+    outdated_count.value = Number(response.data[0].count) // Set the count if it exists
 }
 
 const getInvalidData = async () => {
@@ -523,7 +523,7 @@ const pageTitle = ref('Inventory Management')
 
                 <button
                   type="submit"
-                  class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 w-full"
+                  class="mt-4 px-4 py-2 bg-teal-900 text-white rounded-md hover:bg-teal-900 w-full"
                   :disabled="!image || isUploading"
                 >
                   Upload

@@ -1,17 +1,18 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed,onMounted } from 'vue'
 import { saveAs } from 'file-saver'
 import JSZip from 'jszip'
 import { generateQRCodeWithLogo, formatQRCodeText } from './qrCodeUtils.js'
 import { useApi } from '@/composables/useApi'
+import api from '../../../../laravel-backend/resources/js/axiosInstance.ts'
 
-const { fetchCurUser } = useApi()
+
+const { qr_code_temp,getQRCodeTemp } = useApi()
 const baseNumber = ref(1)
 const quantity = ref(10)
 const generating = ref(false)
 const progress = ref(0)
 const error = ref('')
-const qr_code_temp = ref('');
 
 // Set a default logo URL
 const logoUrl = ref(new URL('../../../assets/images/logo/denr_logo.png', import.meta.url).href)
@@ -42,7 +43,7 @@ const generateQRCodes = async () => {
     const zip = new JSZip()
 
     for (let i = 0; i < quantity.value; i++) {
-      const text = formatQRCodeText(baseNumber.value, i + 1)
+      const text = formatQRCodeText(qr_code_temp.value,baseNumber.value, i + 1)
       const qrCode = await generateQRCodeWithLogo(text, logoUrl.value)
 
       const imageData = qrCode.split(',')[1]
@@ -52,7 +53,7 @@ const generateQRCodes = async () => {
     }
 
     const content = await zip.generateAsync({ type: 'blob' })
-    saveAs(content, `4AICT${String(baseNumber.value).padStart(2, '0')}-batch.zip`)
+    saveAs(content, `QRCode.zip`)
   } catch (err) {
     error.value = 'Error generating QR codes'
     console.error(err)
@@ -62,12 +63,6 @@ const generateQRCodes = async () => {
   }
 }
 
-const getQRCodeTemp = async () => {
-  const userData = await fetchCurUser()
-  user_role.value = userData.data[0].role_id
-  const response = await api.get(`/getQRCodeTemp?api_token=${api_token}&user_role=${user_role.value}`)
-  qr_code_temp.value = response.data[0].qr_code;
-}
 
 const emit = defineEmits(['close', 'proceed'])
 
@@ -81,6 +76,9 @@ const props = defineProps({
 const closeModal = () => {
   emit('close')
 }
+onMounted(() => {
+  getQRCodeTemp();
+})
 </script>
 
 <template>
@@ -139,7 +137,7 @@ const closeModal = () => {
         <div class="preview">
           <p>Will generate {{ totalCodes }} QR codes</p>
           <p>
-            Format: 4AICT0001 to 4AICT-{{
+            Format: {{ qr_code_temp }}0001 to {{qr_code_temp}}{{
               String(baseNumber).padStart(2, '0')
             }}{{ String(quantity).padStart(3, '0') }}
           </p>
