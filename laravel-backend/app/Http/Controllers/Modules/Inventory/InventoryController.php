@@ -469,13 +469,12 @@ class InventoryController extends Controller
                 ->select(
                     'i.id',
                     'transaction_type',
+                    'i.gen_info_id',
                     'i.inventory_id',
-                    'g.equipment_type',
-                    'e.quantity',
-                    'i.previous_quantity',
-                    'i.current_quantity',
-                    'i.source_location',
-                    'i.destination_location',
+                    'i.accountable_user',
+                    'e.equipment_title',
+                    'd.division_title as source_location',
+                    'dd.division_title as destination_location',
                     'i.transaction_date',
                     'i.remarks',
                     DB::raw('CONCAT(u.first_name, " ", u.last_name) AS updated_by'),
@@ -483,9 +482,12 @@ class InventoryController extends Controller
                     'i.created_at',
                     'i.updated_at'
                 )
-                ->leftJoin('tbl_general_info as g', 'g.id', '=', 'i.inventory_id')
+                ->leftJoin('tbl_general_info as g', 'g.id', '=', 'i.gen_info_id')
+                ->leftJoin('tbl_division as d', 'd.id', '=', 'i.source_location')
+                ->leftJoin('tbl_division as dd', 'dd.id', '=', 'i.destination_location')
                 ->leftJoin('users as u', 'u.id', '=', 'i.user_id')
                 ->leftJoin('tbl_equipment_type as e', 'e.id', '=', 'g.equipment_type')
+                ->orderByDesc('i.id')
                 ->get();
 
             return response()->json([
@@ -1001,10 +1003,10 @@ class InventoryController extends Controller
 
         $transactionLog = InventoryTransaction::create([
             'transaction_type' => "Add",
-            'inventory_id' => $equipment->id, // Use the newly inserted inventory ID
-            'item_name' => $equipment->equipment_type,
+            'inventory_id' => $equipment->id,
             'transaction_date' => now(),
             'remarks' => 1,
+            'source_location' => $equipment->division_id,
             'user_id' => $user_id
         ]);
 
@@ -1263,11 +1265,80 @@ class InventoryController extends Controller
         $user_role = $req->query('user_role');
 
         $sql = DB::table('tbl_config as tc')
-            ->select('tc.id', 'tc.code') 
+            ->select('tc.id', 'tc.code')
             ->leftJoin('user_roles as ur', 'ur.id', '=', 'tc.id')
             ->where('tc.id', $user_role)
             ->get();
 
         return response()->json($sql);
+    }
+    public function get_equipment(Request $req)
+    {
+        try {
+            $item_id = $req->query('item_id');
+
+            $results = DB::table('tbl_equipment_type')
+                ->select(DB::raw('id,equipment_title'))
+                ->where('id', $item_id)
+                ->get();
+            return response()->json($results);
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+    }
+
+    public function transfer(Request $req)
+    {
+        try {
+            // Validate incoming request
+            $validatedData = $req->validate([
+                'source_div' => 'required|exists:tbl_division,id',
+                'target_div' => 'required|exists:tbl_division,id',
+                'acct_person' => 'nullable|string|max:255',
+                'actual_user' => 'nullable|string|max:255',
+                'status' => 'required|numeric',
+                'remarks' => 'nullable|string',
+                'item_id' => 'nullable|numeric',
+                'gen_info_id' => 'nullable|numeric',
+            ]);
+
+            $transactionLog = InventoryTransaction::create([
+                'transaction_type' => "Transfer",
+                'gen_info_id' => $validatedData['gen_info_id'],
+                'accountable_user' => $validatedData['acct_person'],
+                'inventory_id' => $validatedData['item_id'],
+                'transaction_date' => now(),
+                'remarks' => $validatedData['remarks'] ?? '',
+                'status' => $validatedData['status'],
+                'source_location' => $validatedData['source_div'],
+                'destination_location' => $validatedData['target_div'],
+                'user_id' => $req->input('id')
+            ]);
+
+            GeneralInformation::where('id', $validatedData['gen_info_id'])->update([
+                'division_id' => $validatedData['target_div'],
+                'acct_person' => $validatedData['acct_person'],
+                'actual_user' => $validatedData['actual_user'],
+            ]);
+
+            PeripheralInformation::where('control_id', $validatedData['gen_info_id'])->update([
+                'mon_actual_user1' => $validatedData['acct_person'],
+
+            ]);
+
+
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Transfer recorded successfully!',
+                'data' => $transactionLog
+            ], 201);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while processing the transfer.',
+                'error' => $th->getMessage()
+            ], 500);
+        }
     }
 }

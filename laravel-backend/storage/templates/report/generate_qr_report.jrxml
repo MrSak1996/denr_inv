@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="generate_qr_report" language="groovy" columnCount="6" printOrder="Horizontal" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="133" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="01e12f4c-5a5b-4f90-8cd8-35b7c280d78b">
+	<property name="ireport.zoom" value="2.1435888100000056"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="qrcode_paths" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select id from tbl_general_info]]>
+	</queryString>
+	<field name="id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<detail>
+		<band height="123">
+			<image scaleImage="FillFrame">
+				<reportElement stretchType="RelativeToBandHeight" x="7" y="2" width="117" height="117" backcolor="#000000" uuid="bcd1d2cf-bc9e-4408-9b54-ccdb60de70b3"/>
+				<graphicElement>
+					<pen lineWidth="1.0"/>
+				</graphicElement>
+				<imageExpression><![CDATA["C:\\Users\\DENR-IVA\\Downloads\\QRCode\\" + $P{qrcode_paths}]]></imageExpression>
+			</image>
+		</band>
+	</detail>
+</jasperReport>

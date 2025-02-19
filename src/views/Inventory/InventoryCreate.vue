@@ -9,6 +9,7 @@ import { useForm } from '@/composables/useForm'
 import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
 import modal_reserved from './modal/modal_reserved.vue'
 import modal_software from './modal/modal_software.vue'
+import modal_transfer_item from './modal/modal_transfer_item.vue'
 import modal_review_form from './modal/modal_review_form.vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import Modal_msoffice from './modal/modal_msoffice.vue'
@@ -24,7 +25,7 @@ const router = useRouter()
 const route = useRoute()
 const store = useStore()
 const isModalOpen = ref(!route.params.id)
-
+const form_option = ref();
 // Forms and API options
 const { form, specs_form, software_form, peripheral_form } = useForm()
 const {
@@ -69,6 +70,7 @@ const uploadError = ref(null)
 const userId = !route.query.id ? localStorage.getItem('userId') : route.query.id
 const item_id = route.params.id; // Access the route parameter 'id'
 const api_token = route.query.api_token
+const openTransferModal = ref(false);
 // Functions
 const checkUrlAndDisableButton = () => {
   const url = window.location.href
@@ -138,6 +140,10 @@ const onRadioChange = (key, option) => {
     console.log(key)
   }
 }
+const transferItem = async (form_val: string) => {
+  openTransferModal.value = true;
+  form_option.value = form_val; // Corrected assignment
+};
 
 // GENERAL INFORMATION
 const saveGeneralInfo = async () => {
@@ -482,6 +488,24 @@ onMounted(() => {
       @close="isModalOpen = false"
     /> -->
     <modal_software  v-if="isVisible" :isLoading="isVisible" @close="closeModal" />
+    <modal_transfer_item 
+    v-if="openTransferModal"
+    :form="form_option" 
+    :openModal="openTransferModal"
+    :gen_info_id="route.params.id"
+    :division="division_opts"
+    :status="status_opts"
+    :userID="userId"
+    :inventory_id="form.selectedEquipmentType ?? 0"
+    :acct_person="form.acct_person"
+    :actual_user="form.actual_user"
+    :monitor1AccountPersonInPN="peripheral_form.monitor1AccountPersonInPN"
+    :monitor1ActualUser="peripheral_form.monitor1ActualUser"
+    :monitor1QrCode = "peripheral_form.monitor1QrCode"
+    :monitor1Model = "peripheral_form.monitor1Model"
+    :monitor1BrandModel = "peripheral_form.monitor1BrandModel"
+    :form_option="form_option"
+    @close="openTransferModal = false" />
 
     <!-- <modal_review_form v-if="openReviewForm" 
     :genForm="form" 
@@ -539,19 +563,16 @@ onMounted(() => {
                 </FloatLabel>
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select v-model="form.status" :options="status_opts" optionValue="id" optionLabel="name"
+                <Select filter v-model="form.status" :options="status_opts" optionValue="id" optionLabel="name"
                   placeholder="Current Status" class="w-full" />
               </div>
             </div>
             <div class="grid md:grid-cols-2 md:gap-6 mb-4">
               <div class="relative z-0 w-full mb-5 group">
-                <Select v-model="form.selectedDivision" :options="division_opts" optionValue="id" optionLabel="name"
+                <Select filter  v-model="form.selectedDivision" :options="division_opts" optionValue="id" optionLabel="name"
                   placeholder="Division" class="w-full" />
               </div>
-              <div class="relative z-0 w-full mb-5 group">
-                <Select v-model="form.selectedSection" :options="section_opts" optionValue="id" optionLabel="name"
-                  placeholder="Section" class="w-full" />
-              </div>
+             
             </div>
             <div class="grid md:grid-cols-3 md:gap-6 mb-4">
               <div class="relative z-0 w-full mb-5 group">
@@ -561,11 +582,11 @@ onMounted(() => {
                 </FloatLabel>
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select v-model="form.sex" :options="sex_opts" optionValue="value" optionLabel="name" placeholder="Sex"
+                <Select filter v-model="form.sex" :options="sex_opts" optionValue="value" optionLabel="name" placeholder="Sex"
                   class="w-full" />
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select v-model="form.selectedAcctDivision" :options="division_opts" optionValue="id" optionLabel="name"
+                <Select filter v-model="form.selectedAcctDivision" :options="division_opts" optionValue="id" optionLabel="name"
                   placeholder="Division" class="w-full" />
               </div>
             </div>
@@ -591,15 +612,15 @@ onMounted(() => {
                 </FloatLabel>
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select v-model="form.selectedWorkNature" :options="work_nature" optionValue="id" optionLabel="name"
+                <Select filter v-model="form.selectedWorkNature" :options="work_nature" optionValue="id" optionLabel="name"
                   placeholder="Nature of Works" class="w-full" />
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select v-model="form.selectedActualDivision" :options="division_opts" optionLabel="name"
+                <Select filter v-model="form.selectedActualDivision" :options="division_opts" optionLabel="name"
                   optionValue="id" placeholder="Division" class="w-full" />
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select v-model="form.employmentType" :options="employment_opts" optionLabel="name" optionValue="id"
+                <Select filter v-model="form.employmentType" :options="employment_opts" optionLabel="name" optionValue="id"
                   placeholder="Employment Type" class="w-full" />
               </div>
             </div>
@@ -619,7 +640,7 @@ onMounted(() => {
               </div>
 
               <div class="relative z-0 w-full mb-5 group">
-                <Select v-model="form.selectedEquipmentType" :options="equipment_type" optionValue="id"
+                <Select filter v-model="form.selectedEquipmentType" :options="equipment_type" optionValue="id"
                   optionLabel="name" placeholder="Equipment Type" class="w-full" />
               </div>
 
@@ -631,7 +652,7 @@ onMounted(() => {
               </div>
 
               <div class="relative z-0 w-full mb-5 group">
-                <Select v-model="form.selectedRangeCategory" :options="range_category" optionLabel="name"
+                <Select filter v-model="form.selectedRangeCategory" :options="range_category" optionLabel="name"
                   optionValue="id" placeholder="Range Category" class="w-full" />
               </div>
             </div>
@@ -669,8 +690,8 @@ onMounted(() => {
                 </FloatLabel>
               </div>
             </div>
-            <Button label="Back" icon="pi pi-undo" class="mr-4" severity="primary" @click="btnBack()" />
 
+            <Button @click="transferItem('gen_info')" label="Transfer Item" type="button" icon="pi pi-star" class="mr-4" severity="primary" />
             <Button label="Save as Draft" type="submit" icon="pi pi-save" severity="primary" />
           </form>
         </TabPanel>
@@ -692,17 +713,17 @@ onMounted(() => {
                 </FloatLabel>
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select v-model="specs_form.specs_hdd_capacity" :options="capacity_opts" optionValue="value"
+                <Select filter v-model="specs_form.specs_hdd_capacity" :options="capacity_opts" optionValue="value"
                   optionLabel="name" placeholder="Capacity" class="w-full" />
               </div>
             </div>
             <div class="grid md:grid-cols-4 md:gap-6">
               <div class="relative z-0 w-full mb-5 group">
-                <Select v-model="specs_form.specs_ram" :options="ram_opts" optionValue="id" optionLabel="name"
+                <Select filter v-model="specs_form.specs_ram" :options="ram_opts" optionValue="id" optionLabel="name"
                   placeholder="RAM Type" class="w-full" />
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select v-model="specs_form.specs_ram_capacity" :options="ram_capacity_opts" optionValue="value"
+                <Select filter v-model="specs_form.specs_ram_capacity" :options="ram_capacity_opts" optionValue="value"
                   optionLabel="name" placeholder="RAM Capacity" class="w-full" />
               </div>
               <div class="relative z-0 w-full mb-5 group">
@@ -713,7 +734,7 @@ onMounted(() => {
               </div>
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
-                  <Select v-model="specs_form.specs_ssd_capacity" :options="capacity_opts" optionValue="value"
+                  <Select filter v-model="specs_form.specs_ssd_capacity" :options="capacity_opts" optionValue="value"
                     optionLabel="name" placeholder="Capacity" class="w-full" />
                 </FloatLabel>
               </div>
@@ -813,7 +834,6 @@ onMounted(() => {
               </div>
             </div>
 
-            <Button label="Back" icon="pi pi-undo" class="mr-4" severity="primary" @click="btnBack()" />
 
             <Button label="Save as Draft" type="submit" icon="pi pi-save" severity="primary" />
           </form>
@@ -839,7 +859,6 @@ onMounted(() => {
               </div>
             </div>
 
-            <Button label="Back" icon="pi pi-undo" class="mr-4" severity="primary" @click="btnBack()" />
 
             <Button label="Save as Draft" type="submit" icon="pi pi-save" severity="primary" />
           </form>
@@ -914,7 +933,7 @@ onMounted(() => {
                       </FloatLabel>
                     </div>
                     <div class="flex items-center gap-2" v-if="peripheral_form.monitor1QrCode">
-                      <Select v-model="peripheral_form.monitor1Status" :options="status_opts" optionValue="id"
+                      <Select filter v-model="peripheral_form.monitor1Status" :options="status_opts" optionValue="id"
                         optionLabel="name" placeholder="Current Status" class="w-full md:w-100" />
                     </div>
                   </div>
@@ -984,7 +1003,7 @@ onMounted(() => {
                       </FloatLabel>
                     </div>
                     <div class="flex items-center gap-2" v-if="peripheral_form.monitor2QrCode">
-                      <Select v-model="peripheral_form.monitor2Status" :options="status_opts" optionValue="id"
+                      <Select filter v-model="peripheral_form.monitor2Status" :options="status_opts" optionValue="id"
                         optionLabel="name" placeholder="Current Status" class="w-full md:w-100" />
                     </div>
                   </div>
@@ -1052,7 +1071,7 @@ onMounted(() => {
                       </FloatLabel>
                     </div>
                     <div class="relative z-0 w-full mb-5 group" v-if="peripheral_form.ups_qr_code">
-                      <Select v-model="peripheral_form.ups_status" :options="status_opts" optionValue="id"
+                      <Select filter v-model="peripheral_form.ups_status" :options="status_opts" optionValue="id"
                         optionLabel="name" placeholder="Current Status" class="w-full md:w-100" />
                     </div>
                   </div>
@@ -1060,7 +1079,7 @@ onMounted(() => {
               </div>
             </div>
 
-            <Button label="Back" icon="pi pi-undo" class="mr-4" severity="warn" @click="btnBack()" />
+            <Button @click="transferItem('peri_form')" label="Transfer Item" type="button" icon="pi pi-star" class="mr-4" severity="primary" />
 
             <Button label="Save as Draft" type="submit" icon="pi pi-save" severity="info" class="mr-4" />
             <!-- <Button label="Submit" @click="openReviewForm = true" icon="pi pi-verified" severity="primary" /> -->

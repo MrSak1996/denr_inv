@@ -41,6 +41,7 @@ class UserController extends Controller
                 'message' => 'Success',
                 'api_token' => $token,
                 'user_role' => $user->user_role,
+                'roles' => $user->roles,
                 'userId' => $user->id,
             ]);
         } else {

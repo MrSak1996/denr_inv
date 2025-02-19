@@ -11,6 +11,8 @@ export const useInventory = () => {
     }
   };
 
+  
+
   const OTPsettings = async () => {
     try {
       const response = await api.get(`/getOTPStatus`)

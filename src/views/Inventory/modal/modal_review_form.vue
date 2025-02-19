@@ -7,7 +7,6 @@ import { useInventory } from '@/composables/useInventory.ts'
 import { useToast } from 'primevue/usetoast'
 import { useRouter, useRoute } from 'vue-router'
 import api from '../../../../laravel-backend/resources/js/axiosInstance.ts'
-
 const { printRecord } = useInventory()
 const { predefinedSoftware } = useApi()
 const route = useRoute()
@@ -170,6 +169,8 @@ const getNetworkType = (key) => {
   return network ? network.name : 'Unknown Network'; // Fallback if no match is found
 };
 
+
+
 </script>
 <style>
 .p-button {
@@ -179,6 +180,9 @@ const getNetworkType = (key) => {
 }
 </style>
 <template>
+  <modal_transfer_item
+  
+  />
   <div v-if="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog"
     tabindex="-1" aria-labelledby="progress-modal">
     <div
@@ -199,7 +203,7 @@ const getNetworkType = (key) => {
               <tr>
                 <th colspan="4" class="px-2 py-1 text-left text-sm font-bold text-gray-700">
                   GENERAL INFORMATION
-                  <span class="float-right text-xs font-normal text-gray-500">RICT Inventory Form v.1 2023</span>
+                  <span class="float-right text-xs font-normal text-gray-500"></span>
                 </th>
               </tr>
             </thead>

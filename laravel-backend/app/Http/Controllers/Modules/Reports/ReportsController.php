@@ -173,12 +173,12 @@ class ReportsController extends Controller
                 DB::raw("CONCAT( 'QR Code: ', COALESCE(gi.qr_code, 'N/A'), CHAR(10), 'MONITOR 1 QR Code: ', COALESCE(p.mon_qr_code1, 'N/A'), CHAR(10), 'MONITOR 2 QR Code:', COALESCE(p.mon_qr_code2, 'N/A'), CHAR(10), 'UPS QR Code: ', COALESCE(p.ups_qr_code, 'N/A') ) AS rict_code")
             );
 
-            if ($designation !== "Regional Office") {
-                $equipmentData->where('u.api_token', $api_token);
-            }
-            $equipmentData = $equipmentData->get();
+        if ($designation !== "Regional Office") {
+            $equipmentData->where('u.api_token', $api_token);
+        }
+        $equipmentData = $equipmentData->get();
 
-            
+
 
         return $equipmentData;
     }
@@ -234,7 +234,7 @@ class ReportsController extends Controller
             $resultDataOpts = $this->fetchData(new InventoryController, 'retriveDataviaAPI', $id);
             $resultData = $this->fetchData(new InventoryController, 'retrieveSoftwareData', $id);
             $specsDataOpts = $this->fetchData(new InventoryController, 'retrieveSpecsData', $id);
-          
+
 
             // Generate parameters
             $worknatureRemarks = $this->prepareWorknatureRemarks($resultDataOpts, $paths['check_icon'], $paths['uncheck_icon']);
@@ -280,7 +280,7 @@ class ReportsController extends Controller
         $response = $controller->{$method}($newRequest);
         return json_decode($response->getContent(), true);
     }
-    
+
     private function prepareNetworkInfoRemarks($specsDataOpts, $checkIcon, $uncheckIcon)
     {
         $networkMapping = [
@@ -290,7 +290,7 @@ class ReportsController extends Controller
         ];
 
         $networkRemarks = array_fill_keys(
-            array_map(fn($key, $value) => "{$key}_{$value}", array_keys($networkMapping),$networkMapping),
+            array_map(fn($key, $value) => "{$key}_{$value}", array_keys($networkMapping), $networkMapping),
             $uncheckIcon
         );
 
@@ -313,7 +313,7 @@ class ReportsController extends Controller
         ];
 
         $gpuRemarks = array_fill_keys(
-            array_map(fn($key, $value) => "{$key}_{$value}", array_keys($gpuMapping),$gpuMapping),
+            array_map(fn($key, $value) => "{$key}_{$value}", array_keys($gpuMapping), $gpuMapping),
             $uncheckIcon
         );
 
@@ -327,6 +327,7 @@ class ReportsController extends Controller
 
         return $gpuRemarks;
     }
+
     private function prepareWorknatureRemarks($resultDataOpts, $checkIcon, $uncheckIcon)
     {
         $workMapping = [
@@ -412,7 +413,7 @@ class ReportsController extends Controller
     private function generatePDF($paths, $jasperParams, $ext)
     {
         $jasper = new JasperPHP();
-         $jasper->process(
+        $jasper->process(
             $paths['input'],
             $paths['output'],
             [$ext],
@@ -430,5 +431,74 @@ class ReportsController extends Controller
         )->execute();
 
         return "{$paths['output']}/report.{$ext}";
+    }
+
+    public function uploadQRFiles(Request $request)
+    {
+        $request->validate([
+            'files' => 'required',
+            'files.*' => 'image|mimes:jpeg,png,jpg|max:2048'
+        ]);
+
+
+        foreach ($request->file('files') as $file) {
+            $filename = $file->getClientOriginalName();
+        }
+        $paths = [
+            'input' => storage_path('templates/report/generate_qr_report.jasper'),
+            'output' => storage_path('templates/report/'),
+        ];
+
+        $jasperParams = [
+            'qrcode_paths' => $filename
+        ];
+        
+       
+        $file = $this->generateQRPDF($paths,$jasperParams,'.pdf');
+        if (!file_exists($file)) {
+            return response()->json(['error' => 'Report generation failed!'], 500);
+        } 
+
+        return response()->file($file, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="qr.pdf"',
+        ]);
+       
+    }
+
+    
+
+    private function generateQRPDF($paths, $jasperParams, $ext)
+    {
+        $jasper = new JasperPHP();
+        $jasper->process(
+            $paths['input'],
+            $paths['output'],
+            [$ext],
+            $jasperParams,
+            [
+                'driver' => 'mysql',
+                'username' => env('DB_USERNAME', 'root'),
+                'password' => env('DB_PASSWORD', ''),
+                'host' => env('DB_HOST', 'localhost'),
+                'database' => env('DB_DATABASE', 'denr_staging'),
+                'port' => env('DB_PORT', '3306'),
+            ],
+            true,
+            true
+        )->execute();
+
+        // ✅ Manually log the command being executed
+        return "{$paths['output']}/generate_qr_report.{$ext}";
+
+        // $command = $process->output();
+        // \Log::info('JasperPHP Command:', ['command' => $command]);
+
+        // // ✅ Return command output for debugging
+        // return response()->json([
+        //     'success' => false,
+        //     'message' => 'Check logs for JasperPHP command',
+        //     'command' => $command
+        // ]);
     }
 }

@@ -19,7 +19,7 @@ import Tag from 'primevue/tag'
 import Fieldset from 'primevue/fieldset'
 
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
-import api from '../../../laravel-backend/resources/js/axiosInstance.js'
+import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
 
 const users = ref([])
 const filters = ref()

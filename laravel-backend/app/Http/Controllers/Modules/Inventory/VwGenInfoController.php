@@ -12,10 +12,13 @@ class VwGenInfoController extends Controller
     public function index(Request $req)
     {
         $designation = $req->query('designation');
-        // Start Query
         $query = DB::table('vw_gen_info');
 
-        if (!empty($designation)) {
+        if (is_numeric($designation)) {
+                
+        }else if($designation == 'Regional Office'){
+
+        }else{
             $query->where('roles', $designation);
         }
 

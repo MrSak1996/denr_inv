@@ -45,7 +45,15 @@ const routes = [
       title: 'eCommerce Dashboard',
       requiresAuth: true,
     },
-   
+  },
+  {
+    path: '/inventory/logs',
+    name: 'InventoryLogs',
+    component: InventoryTransaction,
+    meta: {
+      title: 'History Logs',
+      requiresAuth: true,
+    },
   },
   {
     path: '/inventory',

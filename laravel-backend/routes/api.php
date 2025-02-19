@@ -80,9 +80,12 @@ Route::middleware('api')->group(function () {
     Route::get('/getOutdatedEquipment', [InventoryController::class, 'getOutdatedEquipment']);
     Route::get('/provinces/{provinceId}/cities', [UserController::class, 'getCitiesByProvince']);
     Route::get('/getSummaryData', [InventoryController::class, 'getSummaryData']);
+    Route::get('/get_equipment', [InventoryController::class, 'get_equipment']);
 
     Route::get('/export', [ReportsController::class, 'generateReport']);
     Route::get('/generatePDFReport', [ReportsController::class, 'generatePDFReport']);
+    Route::post('/upload-qrcodes', [ReportsController::class, 'uploadQRFiles']);
+
     Route::get('/checkItemStatus', [InventoryController::class, 'checkItemStatus']);
     Route::get('/getOTPStatus', [SettingsController::class, 'getOTPStatus']);
 
@@ -105,6 +108,7 @@ Route::middleware('api')->group(function () {
     Route::post('/send-otp', [OTPController::class, 'sendOtp']);
     Route::post('/verify-otp', [OTPController::class, 'verifyOtp']);
     Route::post('/upload-image', [GoogleDriveController::class, 'uploadImage']);
+    Route::post('/transfer', [InventoryController::class, 'transfer']);
 
 
    

@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router'
 import { useApi } from '@/composables/useApi'
 import { useInventory } from '@/composables/useInventory.ts'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
-import api from '../../../laravel-backend/resources/js/axiosInstance.js'
+import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
 import router from '@/router'
 
 const { fetchCurUser } = useApi()
@@ -109,6 +109,10 @@ const initFilters = () => {
             operator: FilterOperator.OR,
             constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
         },
+        accountable_user: {
+            operator: FilterOperator.OR,
+            constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+        },
         transaction_date: {
             operator: FilterOperator.OR,
             constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
@@ -197,8 +201,7 @@ const pageTitle = ref('ICT Equipment Transaction Logs')
                         'qr_code',
                         'quantity',
                         'equipment_title',
-                        'previous_quantity',
-                        'current_quantity',
+                        'accountable_user',
                         'destination_location',
                         'transaction_date',
                         'remarks',
@@ -246,27 +249,7 @@ const pageTitle = ref('ICT Equipment Transaction Logs')
                             <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
                         </template>
                     </Column>
-                    <Column header="Quantity" field="quantity" :filterMenuStyle="{ width: '14rem' }"
-                        style="min-width: 5rem">
-                        <template #body="{ data }">
-                            <Tag :value="data.quantity" :severity="getSeverity(data.quantity)" />
-                        </template>
-                    </Column>
-                    <Column field="previous_quantity" header="Previous Quantity" style="min-width: 5rem">
-                        <template #body="{ data }">
-                            <Tag :value="data.previous_quantity" :severity="getSeverity(data.previous_quantity)" />
-                        </template>
-                    </Column>
-
-                    <Column field="current_quantity" header="Current Quantity" style="min-width: 5rem">
-                        <template #body="{ data }">
-                            <Tag :value="data.current_quantity" :severity="getSeverity(data.current_quantity)" />
-                            
-                        </template>
-                        <template #filter="{ filterModel }">
-                            <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
-                        </template>
-                    </Column>
+                  
                     <Column field="source_location" header="Source Location" style="min-width: 5rem">
                         <template #body="{ data }">
                             {{ data.source_location }}
@@ -278,6 +261,14 @@ const pageTitle = ref('ICT Equipment Transaction Logs')
                     <Column field="destination_location" header="Destination Location" style="min-width: 5rem">
                         <template #body="{ data }">
                             {{ data.destination_location }}
+                        </template>
+                        <template #filter="{ filterModel }">
+                            <InputText v-model="filterModel.value" type="text" placeholder="Search by destination" />
+                        </template>
+                    </Column>
+                    <Column field="accountable_user" header="Accountable User" style="min-width: 5rem">
+                        <template #body="{ data }">
+                            {{ data.accountable_user }}
                         </template>
                         <template #filter="{ filterModel }">
                             <InputText v-model="filterModel.value" type="text" placeholder="Search by destination" />

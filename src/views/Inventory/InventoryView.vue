@@ -13,6 +13,7 @@ import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
 import modal_qr_scan from './modal/modal_qr_scan.vue'
 import modal_review_form from './modal/modal_review_form.vue'
 import modal_gen_qr from './modal/modal_gen_qr.vue'
+import modal_print_qr from './modal/modal_print_qr.vue'
 
 
 const {
@@ -46,6 +47,7 @@ const isUploading = ref(false)
 const image = ref(null)
 const isModalOpen = ref(false)
 const openQR = ref(false)
+const selectQR = ref(false)
 const openReviewForm = ref(false)
 const uploadSuccess = ref(false)
 const uploadError = ref()
@@ -103,6 +105,7 @@ const fetchData = async () => {
     const api_token = localStorage.getItem('api_token')
 
     await loadUserData();
+
     const response = await api.get(
       `/vw-gen-info?api_token=${api_token}&designation=${designation.value}`
     )
@@ -447,6 +450,7 @@ const pageTitle = ref('Inventory Management')
       @close="openReviewForm = false"
     />
     <modal_gen_qr v-if="openQR" :open="openQR" @close="openQR = false"></modal_gen_qr>
+    <modal_print_qr v-if="selectQR" :open="selectQR" @close="selectQR = false"></modal_print_qr>
 
     <div class="flex flex-col gap-10 mt-4">
       <div
@@ -619,6 +623,7 @@ const pageTitle = ref('Inventory Management')
               />
 
         <Button severity="danger" label="Generate QR Code" @click="openQR = true" />
+        <Button severity="danger" label="Print QR Code" @click="selectQR = true" />
 
 
               <!-- Additional space between buttons and search field -->
@@ -656,7 +661,7 @@ const pageTitle = ref('Inventory Management')
                   class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 />
                 <Button
-                  @click="openModal(data.control_no)"
+                  @click="openModal(data.qr_code)"
                   icon="pi pi-cloud-upload"
                   size="small"
                   class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
