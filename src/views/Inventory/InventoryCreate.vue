@@ -143,7 +143,7 @@ const onRadioChange = (key, option) => {
 const transferItem = async (form_val: string) => {
   openTransferModal.value = true;
   form_option.value = form_val; // Corrected assignment
-};
+};  
 
 // GENERAL INFORMATION
 const saveGeneralInfo = async () => {
@@ -908,7 +908,7 @@ onMounted(() => {
                       </FloatLabel>
                     </div>
                   </div>
-                  <div class="card flex flex-wrap gap-6">
+                  <div class="card flex mb-7 mt-7 flex-wrap gap-6">
                     <div class="flex items-center gap-2">
                       <FloatLabel>
                         <InputText id="processor" v-model="peripheral_form.monitor1PropertyNumber"
@@ -931,6 +931,10 @@ onMounted(() => {
                           class="w-full md:w-100" />
                         <label for="processor">Actual User</label>
                       </FloatLabel>
+                    </div>
+                    <div class="flex items-center gap-2" >
+                      <Select filter v-model="peripheral_form.division_id" :options="division_opts" optionValue="id"
+                        optionLabel="name" placeholder="Division" class="w-full md:w-100" />
                     </div>
                     <div class="flex items-center gap-2" v-if="peripheral_form.monitor1QrCode">
                       <Select filter v-model="peripheral_form.monitor1Status" :options="status_opts" optionValue="id"

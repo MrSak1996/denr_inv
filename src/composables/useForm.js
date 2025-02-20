@@ -28,7 +28,10 @@ export function useForm() {
     remarks:'',
     year_acquired:'',
     shelf_life:'',
-    status:''
+    status:'',
+    source_div:'',
+    target_div:'',
+    
   })
 
   const specs_form = reactive({
@@ -79,6 +82,7 @@ export function useForm() {
     ups_accountPersonInPN: '',
     ups_qr_acctual_user: '',
     ups_status:'',
+    division_id: ''
 
   })
 

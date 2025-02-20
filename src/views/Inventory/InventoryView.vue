@@ -407,12 +407,14 @@ const pageTitle = ref('Inventory Management')
 <template>
   <DefaultLayout>
     <BreadcrumbDefault :pageTitle="pageTitle" />
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5 mb-4">
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-5 2xl:gap-7.5 mb-4">
       <DataStatsOne
         :total_equipment="total_item"
         :total_serviceable_count="serviceable_count"
         :total_unserviceable_count="unserviceable_count"
         :outdated_equipment="outdated_count"
+        :invalid_data="invalid_data_count"
+
       />
     </div>
 
@@ -595,7 +597,7 @@ const pageTitle = ref('Inventory Management')
               />
               <Button
                 type="button"
-                icon="pi pi-filter-slash"
+                icon="pi pi-add"
                 label="Add"
                 outlined
                 @click="addMore()"
@@ -616,7 +618,7 @@ const pageTitle = ref('Inventory Management')
               />
               <Button
                 type="button"
-                icon="pi pi-refresh"
+                icon="pi pi-qrcode"
                 label="Scan QR"
                 @click="openScanForm = true"
                 outlined

@@ -14,6 +14,7 @@ class PeripheralInformation extends Model
     protected $fillable = [
         'id',
         'control_id',
+        'division_id',
         'mon_brand_model1',
         'mon_brand_model2',
         'mon_sn1',

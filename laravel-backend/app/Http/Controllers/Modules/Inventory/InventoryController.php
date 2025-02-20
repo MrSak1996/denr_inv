@@ -294,7 +294,8 @@ class InventoryController extends Controller
         $results = DB::table('tbl_peripherals')
             ->select(DB::raw(
                 'id, 
-                control_id, 
+                control_id,
+                division_id,
                 mon_brand_model1 as monitor1BrandModel, 
                 mon_brand_model2 as monitor2BrandModel,
                 monitor1Model,
@@ -319,6 +320,7 @@ class InventoryController extends Controller
                 monitor1Status, 
                 monitor2Status, 
                 ups_status',
+
             ))
             ->where('control_id', $id)
             ->get();
@@ -463,12 +465,14 @@ class InventoryController extends Controller
 
     public function fetchTransaction(Request $request)
     {
+        $designation = $request->query('designation');
+
         try {
             // Fetch transaction logs with the specified columns
             $transaction_logs = DB::table('inventory_transaction_logs as i')
                 ->select(
                     'i.id',
-                    'transaction_type',
+                    'i.transaction_type',
                     'i.gen_info_id',
                     'i.inventory_id',
                     'i.accountable_user',
@@ -487,17 +491,30 @@ class InventoryController extends Controller
                 ->leftJoin('tbl_division as dd', 'dd.id', '=', 'i.destination_location')
                 ->leftJoin('users as u', 'u.id', '=', 'i.user_id')
                 ->leftJoin('tbl_equipment_type as e', 'e.id', '=', 'g.equipment_type')
-                ->orderByDesc('i.id')
-                ->get();
+                ->orderByDesc('i.id');
+
+            // Apply filter based on designation
+            if ($designation == 13) {
+                $data = $transaction_logs->get();
+
+            }else{
+                $transaction_logs->where('u.rodles', $designation);
+                $data = $transaction_logs->get();
+
+
+            }
+
+            // Execute query
 
             return response()->json([
                 'success' => true,
-                'data' => $transaction_logs
+                'data' => $data  // Corrected variable name
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'An error occurred while fetching data.',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -1315,16 +1332,29 @@ class InventoryController extends Controller
                 'user_id' => $req->input('id')
             ]);
 
-            GeneralInformation::where('id', $validatedData['gen_info_id'])->update([
-                'division_id' => $validatedData['target_div'],
-                'acct_person' => $validatedData['acct_person'],
-                'actual_user' => $validatedData['actual_user'],
-            ]);
+            switch ($req->input('option')) {
+                case 'gen_form':
+                    GeneralInformation::where('id', $validatedData['gen_info_id'])->update([
+                        'division_id' => $validatedData['target_div'],
+                        'acct_person' => $validatedData['acct_person'],
+                        'actual_user' => $validatedData['actual_user'],
+                    ]);
+                    break;
+                case 'peri_form':
+                    PeripheralInformation::where('control_id', $validatedData['gen_info_id'])->update([
+                        'division_id' => $validatedData['target_div'],
+                        'mon_actual_user1' => $validatedData['acct_person'],
 
-            PeripheralInformation::where('control_id', $validatedData['gen_info_id'])->update([
-                'mon_actual_user1' => $validatedData['acct_person'],
+                    ]);
+                    break;
 
-            ]);
+                default:
+                    # code...
+                    break;
+            }
+
+
+
 
 
 

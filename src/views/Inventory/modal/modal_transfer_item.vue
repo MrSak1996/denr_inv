@@ -70,7 +70,8 @@ const save_transfer = async (user_id, inventory_id, control_id) => {
       acct_person: acct_user,
       actual_user: form.actual_user,
       status: form.status,
-      remarks: form.remarks || ''
+      remarks: form.remarks || '',
+      option:option
     })
 
     if (response.data.success) {

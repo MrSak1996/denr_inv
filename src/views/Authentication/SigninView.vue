@@ -317,7 +317,7 @@ onMounted(() => {})
                   class="h-6 mr-3 sm:h-9"
                   alt="Landwind Logo"
                 />
-                <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white"
+                <span class="self-center text-xl font-semibold whitespace-nowrap text-teal-900"
                   >ICT Inventory System</span
                 >
               </a>
@@ -365,7 +365,7 @@ onMounted(() => {})
                 class="items-center justify-between hidden w-full lg:flex lg:w-auto lg:order-1"
                 id="mobile-menu-2"
               >
-                <ul class="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
+                <!-- <ul class="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
                   <li>
                     <a
                       href="https://calabarzon.denr.gov.ph"
@@ -410,7 +410,7 @@ onMounted(() => {})
                       >Contact</a
                     >
                   </li>
-                </ul>
+                </ul> -->
               </div>
             </div>
           </nav>
@@ -430,11 +430,14 @@ onMounted(() => {})
               <p
                 class="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl dark:text-gray-400"
               >
-              This portal serves as a centralized platform for accessing important environmental data, reports, and services provided by DENR IV-A. Designed to enhance efficiency and transparency, it enables users to navigate regulatory processes, monitor conservation efforts, and stay informed about the region's environmental programs. Whether you're a stakeholder, researcher, or citizen, this system streamlines access to essential information and resources for sustainable development.
+                This portal serves as a centralized platform for accessing important environmental
+                data, reports, and services provided by DENR IV-A. Designed to enhance efficiency
+                and transparency, it enables users to navigate regulatory processes, monitor
+                conservation efforts, and stay informed about the region's environmental programs.
+                Whether you're a stakeholder, researcher, or citizen, this system streamlines access
+                to essential information and resources for sustainable development.
               </p>
-              <div class="space-y-4 sm:flex sm:space-y-0 sm:space-x-4">
-               
-              </div>
+              <div class="space-y-4 sm:flex sm:space-y-0 sm:space-x-4"></div>
             </div>
             <!-- <div class="hidden lg:mt-0 lg:col-span-5 lg:flex">
               <img src="../../assets/images/feature-3.jpg" alt="hero image" />
@@ -458,12 +461,12 @@ onMounted(() => {})
           </div>
         </section>
 
-        <section class="bg-gray-50 dark:bg-gray-800">
+        <section class="bg-white">
           <div class="max-w-screen-xl px-4 py-8 mx-auto space-y-12 lg:space-y-20 lg:py-24 lg:px-6">
             <div class="items-center gap-8 lg:grid lg:grid-cols-2 xl:gap-16">
               <div class="text-gray-500 sm:text-lg dark:text-gray-400">
                 <h2
-                  class="max-w-2xl mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl xl:text-5xl dark:text-white"
+                  class="max-w-2xl mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl xl:text-5xl text-teal-900"
                 >
                   ICT Inventory System
                 </h2>
@@ -556,7 +559,7 @@ onMounted(() => {})
                 </p>
               </div>
               <img
-                class="hidden w-full mb-4 rounded-lg lg:mb-0 lg:flex"
+                class="hidden w-[900px] h-auto mb-4 rounded-lg lg:mb-0 lg:flex"
                 src="@/assets/images/feature-1.png"
                 alt="dashboard feature image"
               />
@@ -564,13 +567,16 @@ onMounted(() => {})
           </div>
         </section>
 
-        <section class="bg-white dark:bg-gray-800">
+        <section class="bg-gray-50 dark:bg-gray-800">
           <div class="max-w-screen-xl px-4 py-8 mx-auto space-y-12 lg:space-y-20 lg:py-24 lg:px-6">
             <div class="items-center gap-8 lg:grid lg:grid-cols-2 xl:gap-16">
-              <Qrcode value="https://expo.dev/accounts/itskimeng/projects/scanner/builds/86c4fce7-2d27-425e-aa07-96f800a7c35e" :size="500" />
+              <Qrcode
+                value="https://expo.dev/accounts/itskimeng/projects/scanner/builds/86c4fce7-2d27-425e-aa07-96f800a7c35e"
+                :size="500"
+              />
               <div class="text-gray-500 sm:text-lg dark:text-gray-400">
                 <h2
-                  class="max-w-2xl mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl xl:text-5xl dark:text-white"
+                  class="max-w-2xl mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl xl:text-5xl text-teal-900"
                 >
                   Scan to download the mobile application
                 </h2>
@@ -679,10 +685,10 @@ onMounted(() => {})
           </div>
         </section>
 
-        <section class="bg-gray-50 dark:bg-gray-800">
+        <section class="bg-white dark:bg-gray-800">
           <div class="max-w-screen-xl px-4 py-8 mx-auto space-y-12 lg:space-y-20 lg:py-24 lg:px-6">
             <h2
-              class="max-w-2xl mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl xl:text-5xl dark:text-white"
+              class="max-w-2xl mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl xl:text-5xl text-teal-900"
             >
               Regional ICT Team
             </h2>
@@ -715,7 +721,7 @@ onMounted(() => {})
 
 <style scoped>
 .bg-portal {
-  color:#045541;
+  color: #134E4A;
   background: url('../../assets/images/bg-hero.jpg') no-repeat;
   background-position: 50% 100%;
   background-size: cover;
