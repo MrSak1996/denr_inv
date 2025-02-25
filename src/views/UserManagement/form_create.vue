@@ -213,7 +213,7 @@ const post_save_userCred = async () => {
                   </FloatLabel>
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
-                  <Select
+                  <Select filter
                     v-model="um_create_form.province"
                     :options="province_opts"
                     optionValue="id"
@@ -235,7 +235,7 @@ const post_save_userCred = async () => {
               </div>
               <div class="grid md:grid-cols-2 md:gap-6 mb-4 mt-4">
                 <div class="relative z-0 w-full mb-5 group">
-                  <Select
+                  <Select filter
                     v-model="um_create_form.city_mun"
                     :options="city_mun_opts"
                     optionValue="id"
@@ -257,7 +257,7 @@ const post_save_userCred = async () => {
               </div>
               <div class="grid md:grid-cols-2 md:gap-6 mb-4 mt-4">
                 <div class="relative z-0 w-full mb-5 group">
-                  <Select
+                  <Select filter
                     v-model="um_create_form.division"
                     :options="division_opts"
                     optionValue="id"
@@ -267,7 +267,7 @@ const post_save_userCred = async () => {
                   />
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
-                  <Select
+                  <Select filter
                     v-model="um_create_form.employment_status"
                     :options="employment_opts"
                     optionLabel="name"
@@ -309,7 +309,7 @@ const post_save_userCred = async () => {
                   </FloatLabel>
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
-                  <Select
+                  <Select filter
                     v-model="um_create_form.sex"
                     :options="sex_opts"
                     optionValue="id"
@@ -356,7 +356,7 @@ const post_save_userCred = async () => {
                   </FloatLabel>
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
-                  <Select
+                  <Select filter
                     v-model="um_create_form.roles"
                     :options="roles_opts"
                     optionValue="id"

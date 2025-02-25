@@ -43,6 +43,7 @@ class UserController extends Controller
                 'user_role' => $user->user_role,
                 'roles' => $user->roles,
                 'userId' => $user->id,
+                'username' => $user->username,
             ]);
         } else {
             return response()->json([
@@ -197,28 +198,7 @@ class UserController extends Controller
                 ->leftJoin('tbl_employment_type as e', 'e.id', '=', 'u.employment_status')
                 ->leftJoin('user_roles as ur', 'ur.id', '=', 'u.roles')
                 ->leftJoin('geo_map as g', 'g.geo_code', '=', 'u.geo_id')
-                ->select(
-                    'u.id',
-                    'u.first_name',
-                    'u.middle_name',
-                    'u.last_name',
-                    'u.position',
-                    'u.complete_address',
-                    'u.username',
-                    'u.roles as role_id',
-                    'ur.roles',
-                    'u.sex',
-                    'u.employment_status',
-                    DB::raw('CONCAT(u.first_name, " ", u.last_name) as name'),
-                    'd.division_title',
-                    'u.username',
-                    'u.email',
-                    'u.mobile_no',
-                    'u.province_c',
-                    'u.city_mun_c',
-                    'u.division_id',
-                    'g.prov_name',
-                    'g.mun_name'
+                ->select('*'
                 );
 
             // Conditionally add the where clause
@@ -249,10 +229,29 @@ class UserController extends Controller
 
     public function post_update_user(Request $req)
     {
-        $validated = $req->validate([]);
+        $validated = $req->validate([
+            'id'                => 'nullable|integer|exists:users,id',
+            'geo_code'          => 'nullable|string',
+            'region'            => 'nullable|string',
+            'province'          => 'nullable|string',
+            'city_mun'          => 'nullable|string',
+            'first_name'        => 'required|string|max:255',
+            'middle_name'       => 'nullable|string|max:255',
+            'last_name'         => 'required|string|max:255',
+            'complete_address'  => 'nullable|string|max:500',
+            'designation'       => 'nullable|string|max:255',
+            'sex'               => 'nullable|integer',
+            'division'          => 'nullable|integer',
+            'employment_status' => 'nullable|integer',
+            'position'          => 'nullable|string|max:255',
+            'email'             => 'nullable|email|max:255',
+            'contact_details'   => 'nullable|string|max:20',
+            'role_id'             => 'nullable|integer',
+            'username'          => 'nullable|string|max:255|unique:users,username,' . ($req->id ?? 'NULL') . ',id',
+            'password'          => 'nullable|string',
+        ]);
 
-
-        // Insert the data into the GeneralInformation model
+        // Insert the data into the User model
         $user_opts = User::updateOrCreate(
             ['id' => $validated['id'] ?? null],
             [
@@ -263,7 +262,7 @@ class UserController extends Controller
                 'first_name'        => $validated['first_name'],
                 'middle_name'       => $validated['middle_name'] ?? null,
                 'last_name'         => $validated['last_name'],
-                'complete_address'  => $validated['complete_address'],
+                'complete_address'  => $validated['complete_address'] ?? null,
                 'designation'       => $validated['designation'] ?? null,
                 'sex'               => $validated['sex'] ?? null,
                 'division_id'       => $validated['division'] ?? null,
@@ -271,13 +270,13 @@ class UserController extends Controller
                 'position'          => $validated['position'] ?? null,
                 'email'             => $validated['email'] ?? null,
                 'mobile_no'         => $validated['contact_details'] ?? null,
-                'roles'             => $validated['roles'] ?? null,
+                'roles'             => $validated['role_id'] ?? null,
                 'username'          => $validated['username'],
                 'password'          => bcrypt($validated['password']),
-                'created_at'        => now(),
                 'updated_at'        => now(),
             ]
         );
+
         return response()->json([
             'message' => 'Data saved successfully.',
             'id' => $user_opts->id,

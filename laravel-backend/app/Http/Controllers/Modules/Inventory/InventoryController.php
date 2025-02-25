@@ -160,11 +160,21 @@ class InventoryController extends Controller
         return response()->json(['control_no' => $controlNo]);
     }
 
-    public function getDivision()
+    public function getDivision(Request $req)
     {
-        $results = DB::table('tbl_division')
+        $role = $req->query('role');
+        if($role === "13")
+        {
+            $results = DB::table('tbl_division')
             ->select(DB::raw('id,division_title,acronym'))
             ->get();
+        }else{
+            $results = DB::table('tbl_division')
+            ->select(DB::raw('id,division_title,acronym'))
+            ->where('id', '>=', 19)
+            ->get();
+        }
+        
         return response()->json($results);
     }
 
@@ -468,7 +478,6 @@ class InventoryController extends Controller
         $designation = $request->query('designation');
 
         try {
-            // Fetch transaction logs with the specified columns
             $transaction_logs = DB::table('inventory_transaction_logs as i')
                 ->select(
                     'i.id',
@@ -484,7 +493,7 @@ class InventoryController extends Controller
                     DB::raw('CONCAT(u.first_name, " ", u.last_name) AS updated_by'),
                     'g.qr_code',
                     'i.created_at',
-                    'i.updated_at'
+                    'i.updated_at'  
                 )
                 ->leftJoin('tbl_general_info as g', 'g.id', '=', 'i.gen_info_id')
                 ->leftJoin('tbl_division as d', 'd.id', '=', 'i.source_location')
@@ -493,16 +502,10 @@ class InventoryController extends Controller
                 ->leftJoin('tbl_equipment_type as e', 'e.id', '=', 'g.equipment_type')
                 ->orderByDesc('i.id');
 
-            // Apply filter based on designation
-            if ($designation == 13) {
-                $data = $transaction_logs->get();
-
-            }else{
-                $transaction_logs->where('u.rodles', $designation);
-                $data = $transaction_logs->get();
+                $data = ($designation == 13) ? $transaction_logs->get() : $transaction_logs->where('u.roles', $designation)->get();
 
 
-            }
+            
 
             // Execute query
 

@@ -352,7 +352,7 @@ const pageTitle = ref('User Management')
 
             <Column field="name" header="Employee Name" style="min-width: 5rem">
               <template #body="{ data }">
-                {{ data.name }}
+                {{ data.first_name}} {{ data.last_name }}
 
                 <!-- Ensure this field exists in the data object -->
               </template>

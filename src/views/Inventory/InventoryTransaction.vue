@@ -68,9 +68,9 @@ const fetchTransaction = async (id) => {
     const api_token = localStorage.getItem('api_token')
     const userData = await fetchCurUser()
     user_role.value = userData.data[0].role_id
-    designation.value = userData.data[0].roles
+    designation.value = userData.data[0].id
     const response = await api.get(
-      `/fetchTransaction?api_token=${api_token}&designation=${user_role.value}`
+      `/fetchTransaction?api_token=${api_token}&designation=${userData.data[0].id}`
     )
     loading.value = false
     trans_logs.value = response.data.data // Process the fetched data

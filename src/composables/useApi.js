@@ -86,7 +86,9 @@ export function useApi() {
 
   const getDivision = async () => {
     try {
-      const res = await api.get('/getDivision')
+      const user = await fetchCurUser(); // Fetch user data first
+    if (!user) return;
+      const res = await api.get('/getDivision', { params: { role: user.data[0].id } });
       division_opts.value = res.data.map((division) => ({
         id: division.id,
         value: division.id,

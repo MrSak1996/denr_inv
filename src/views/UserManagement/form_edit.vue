@@ -157,7 +157,7 @@ watch(
 
       <!-- DataTable Column (Equivalent to Bootstrap col-lg-9) -->
       <div class="col-span-12">
-        <form @submit.prevent="post_save_userCred">
+        <form>
           <div class="bg-white p-4 rounded-lg shadow-md">
             <Fieldset legend="User Details">
               <div class="grid md:grid-cols-2 md:gap-6 mb-4 mt-4">
