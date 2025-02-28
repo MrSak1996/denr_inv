@@ -66,6 +66,7 @@ Route::middleware('api')->group(function () {
     Route::get('/vw-invalid-data', [VwInvalidDataController::class, 'getInvalidData']);
     //END
     
+    Route::get('/fetchLatestID', [InventoryController::class, 'fetchLatestID']);
     Route::get('/getQRCodeTemp', [InventoryController::class, 'getQRCodeTemp']);
     Route::get('/getEquipment', [InventoryController::class, 'getEquipment']);
     Route::get('/getRangeCategory', [InventoryController::class, 'getRangeCategory']);

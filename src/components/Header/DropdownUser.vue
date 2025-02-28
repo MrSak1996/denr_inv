@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { onClickOutside } from '@vueuse/core'
-import { ref,onMounted} from 'vue'
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
 
 const target = ref(null)
 const dropdownOpen = ref(false)
-const router = useRouter();
-const current_user = ref();
-const designation = ref();
+const router = useRouter()
+const current_user = ref()
+const designation = ref()
 // Close dropdown when clicking outside
 onClickOutside(target, () => {
   dropdownOpen.value = false
@@ -16,23 +16,23 @@ onClickOutside(target, () => {
 
 const logout = async () => {
   try {
-    const response = await api.post('/logout');
-    console.log(response.data.message); 
+    const response = await api.post('/logout')
+    console.log(response.data.message)
 
-    localStorage.removeItem('api_token');
-    router.push('/'); 
+    localStorage.removeItem('api_token')
+    router.push('/')
   } catch (error) {
-    console.error('Logout failed:', error);
+    console.error('Logout failed:', error)
   }
 }
 const fetchCurUser = async () => {
   // Retrieve the API token from localStorage
-  const api_token = localStorage.getItem('api_token');
-  
+  const api_token = localStorage.getItem('api_token')
+
   // Check if the token exists
   if (!api_token) {
-    console.error('API token not found. Please log in.');
-    return;
+    console.error('API token not found. Please log in.')
+    return
   }
 
   try {
@@ -40,31 +40,30 @@ const fetchCurUser = async () => {
     const response = await api.get(`/getUsers?api_token=${api_token}`, {
       headers: {
         Authorization: `Bearer ${api_token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+        'Content-Type': 'application/json'
+      }
+    })
 
     // Check if the response status is valid
     if (response.status === 200 && response.data) {
-      current_user.value = response.data.data[0].name;
-      designation.value = response.data.data[0].roles;
-      localStorage.setItem('designation',designation.value)
+      current_user.value = response.data.data[0].name
+      designation.value = response.data.data[0].roles
+      localStorage.setItem('designation', designation.value)
 
-      
-      return response.data;
+      return response.data
     } else {
-      console.error('Failed to fetch current user: Invalid response');
+      console.error('Failed to fetch current user: Invalid response')
     }
   } catch (error) {
     // Handle any errors
-    console.error('Error fetching current user:', error.response?.data?.message || error.message);
+    console.error('Error fetching current user:', error.response?.data?.message || error.message)
   }
-};
+}
 onMounted(() => {
-  fetchCurUser()
+  designation.value = localStorage.getItem('roles')
+  current_user.value = localStorage.getItem('userId')
 })
 </script>
-
 
 <template>
   <div class="relative" ref="target">
@@ -74,7 +73,7 @@ onMounted(() => {
       @click.prevent="dropdownOpen = !dropdownOpen"
     >
       <span class="hidden text-right lg:block">
-        <span class="block text-sm font-medium text-black dark:text-white">{{ current_user }}</span>
+        <span class="block text-sm font-medium text-black dark:text-white"></span>
         <span class="block text-xs font-medium">{{ designation }}</span>
       </span>
 
@@ -105,11 +104,11 @@ onMounted(() => {
       v-show="dropdownOpen"
       class="absolute right-0 mt-4 flex w-62.5 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark"
     >
-      <!-- <ul class="flex flex-col gap-5 border-b border-stroke px-6 py-7.5 dark:border-strokedark">
+      <ul class="flex flex-col gap-5 border-b border-stroke px-6 py-7.5 dark:border-strokedark">
         <li>
           <router-link
-            to="/ecommerce"
-            class="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+          :to="`/user-management/accounts/create/${current_user}`"
+          class="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
           >
             <svg
               class="fill-current"
@@ -117,7 +116,7 @@ onMounted(() => {
               height="22"
               viewBox="0 0 22 22"
               fill="none"
-              xmlns="http://www.w3.org/2000/svg"  
+              xmlns="http://www.w3.org/2000/svg"
             >
               <path
                 d="M11 9.62499C8.42188 9.62499 6.35938 7.59687 6.35938 5.12187C6.35938 2.64687 8.42188 0.618744 11 0.618744C13.5781 0.618744 15.6406 2.64687 15.6406 5.12187C15.6406 7.59687 13.5781 9.62499 11 9.62499ZM11 2.16562C9.28125 2.16562 7.90625 3.50624 7.90625 5.12187C7.90625 6.73749 9.28125 8.07812 11 8.07812C12.7188 8.07812 14.0938 6.73749 14.0938 5.12187C14.0938 3.50624 12.7188 2.16562 11 2.16562Z"
@@ -131,7 +130,7 @@ onMounted(() => {
             My Profile
           </router-link>
         </li>
-        <li>
+        <!-- <li>
           <router-link
             to="#"
             class="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
@@ -176,10 +175,10 @@ onMounted(() => {
             </svg>
             Account Settings
           </router-link>
-        </li>
-      </ul> -->
-      <button 
-       @click.prevent="logout"
+        </li> -->
+      </ul>
+      <button
+        @click.prevent="logout"
         class="flex items-center gap-3.5 py-4 px-6 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
       >
         <svg

@@ -6,6 +6,7 @@ import 'flatpickr/dist/flatpickr.min.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import VueApexCharts from 'vue3-apexcharts'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
@@ -41,8 +42,10 @@ import RadioButton from 'primevue/radiobutton'
 import Textarea from 'primevue/textarea'
 import FocusTrap from 'primevue/focustrap';
 import DataStatsOne from './components/DataStats/DataStatsOne.vue';
-
 const app = createApp(App)
+const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
+
 
 // Global registration of the QRCode component
 app.component('DataStatsOne',DataStatsOne)
@@ -74,8 +77,7 @@ app.component('Tab',Tab)
 app.component('Textarea',Textarea)
 app.component('RadioButton',RadioButton)
 app.directive('focustrap', FocusTrap);
-
-app.use(createPinia())
+app.use(pinia)
 app.use(ToastService)
 app.use(PrimeVue, {
   theme: {

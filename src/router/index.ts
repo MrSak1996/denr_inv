@@ -27,6 +27,9 @@ import api from '../../laravel-backend/resources/js/axiosInstance.ts'
 import QRCodeScanner from '@/views/Inventory/QRCodeScanner.vue'
 import summaryVue from '@/views/Inventory/summary.vue'
 
+const api_token = localStorage.getItem('api_token')
+
+
 const routes = [
   {
     path: '/',
@@ -61,7 +64,7 @@ const routes = [
     component: InventoryView,
     props: route => ({
       id: route.query.id,
-      api_token: route.query.api_token,
+      api_token: api_token,
     }),
     meta: {
       title: 'Inventory Dashboard',
@@ -75,7 +78,7 @@ const routes = [
     component: InventoryCreate,
     // props: route => ({
     //   id: route.query.id,
-    //   api_token: route.query.api_token,
+    //   api_token: api_token,
     // }),
     meta: {
       title: 'Inventory Add Item',
@@ -88,11 +91,11 @@ const routes = [
     component: InventoryCreate,
     props: route => ({
       id: route.query.id,
-      api_token: route.query.api_token,
+      api_token: api_token,
     }),
     meta: {
       title: 'Update Item',
-      // requiresAuth:true
+      requiresAuth:true
     },
   },  
   {
@@ -101,7 +104,7 @@ const routes = [
     component: summaryVue,
     props: route => ({
       id: route.query.id,
-      api_token: route.query.api_token,
+      api_token: api_token,
     }),
     meta: {
       title: 'Update Item',
@@ -121,9 +124,13 @@ const routes = [
     path: '/user-management/accounts/create/:id',
     name: 'EditAccount', // Different name for this route
     component: AccountEditView,
+    props: route => ({
+      id: route.query.id,
+      api_token: api_token,
+    }),
     meta: {
       title: 'EditAccount',
-      // requiresAuth:true
+      requiresAuth:true
     },
   },
   {
@@ -132,7 +139,7 @@ const routes = [
     component: AccountCreateView,
     meta: {
       title: 'CreateAccount',
-      // requiresAuth:true
+      requiresAuth:true
     },
   },  
   {
@@ -141,7 +148,7 @@ const routes = [
     component: QRCodeScanner,
     meta: {
       title: 'Scanner',
-      // requiresAuth:true
+      requiresAuth:true
     },
   },  
 

@@ -13,8 +13,8 @@ import modal_transfer_item from './modal/modal_transfer_item.vue'
 import modal_review_form from './modal/modal_review_form.vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import Modal_msoffice from './modal/modal_msoffice.vue'
-import { useInventory } from '@/composables/useInventory.ts';
-const { checkItemStatus } = useInventory();
+import { useInventory } from '@/composables/useInventory.ts'
+const { checkItemStatus } = useInventory()
 
 // Page title and modal state
 const pageTitle = ref('ICT Equipment')
@@ -25,7 +25,7 @@ const router = useRouter()
 const route = useRoute()
 const store = useStore()
 const isModalOpen = ref(!route.params.id)
-const form_option = ref();
+const form_option = ref()
 // Forms and API options
 const { form, specs_form, software_form, peripheral_form } = useForm()
 const {
@@ -56,7 +56,7 @@ let selectedWireless = ref(null)
 const selectedSoftware = ref({})
 let software = ref([])
 
-const item_status = ref("")
+const item_status = ref('')
 const isVisible = ref(false)
 const openReviewForm = ref(false)
 const isMicrosoftOffice = ref(false)
@@ -68,9 +68,9 @@ const image = ref(null)
 const uploadSuccess = ref(false)
 const uploadError = ref(null)
 const userId = !route.query.id ? localStorage.getItem('userId') : route.query.id
-const item_id = route.params.id; // Access the route parameter 'id'
+const item_id = ref(null)
 const api_token = route.query.api_token
-const openTransferModal = ref(false);
+const openTransferModal = ref(false)
 // Functions
 const checkUrlAndDisableButton = () => {
   const url = window.location.href
@@ -141,9 +141,9 @@ const onRadioChange = (key, option) => {
   }
 }
 const transferItem = async (form_val: string) => {
-  openTransferModal.value = true;
-  form_option.value = form_val; // Corrected assignment
-};  
+  openTransferModal.value = true
+  form_option.value = form_val // Corrected assignment
+}
 
 // GENERAL INFORMATION
 const saveGeneralInfo = async () => {
@@ -169,10 +169,9 @@ const saveGeneralInfo = async () => {
       router.push({
         name: 'InventoryEdit',
         params: { id },
-        query: { api_token: localStorage.getItem('api_token') }
+        query: { item_id: route.query.item_id, api_token: localStorage.getItem('api_token') }
       })
       // location.reload()
-
     }, 1000)
   } catch (error) {
     if (error.response?.status === 422) {
@@ -190,7 +189,7 @@ const saveSpecsInfo = async () => {
     errors.value = {}
     const extractId = (item) => item?.id || null
 
-    const id = route.params.id
+    const id = route.query.item_id
     const requestData = {
       ...specs_form,
       control_id: id,
@@ -237,7 +236,7 @@ const saveSoftwareInfo = async () => {
           remarksMap[value] || null
         ])
       ),
-      control_id: route.params.id
+      control_id: route.query.item_id
     }
     // Make the API call
     const response = await api.post('/post_insert_software', requestData)
@@ -274,7 +273,7 @@ const savePeripheralInfo = async () => {
   try {
     errors.value = {}
 
-    const id = route.params.id
+    const id = route.query.item_id
     const requestData = {
       ...peripheral_form,
       control_id: id
@@ -289,11 +288,11 @@ const savePeripheralInfo = async () => {
       })
 
       const id = response.data.id
-      router.push({
-        name: 'InventoryEdit',
-        params: { id },
-        query: { api_token: localStorage.getItem('api_token') }
-      })
+      // router.push({
+      //   name: 'InventoryEdit',
+      //   params: { id },
+      //   query: { item_id: route.query.item_id, api_token: localStorage.getItem('api_token') }
+      // })
     }, 1000)
   } catch (error) {
     if (error.response?.status === 422) {
@@ -327,7 +326,7 @@ const retrieveSpecsData = async () => {
       selectedWireless.value = String(response.data[0].specs_net_iswireless)
 
       Object.assign(specs_form, response.data[0])
-    } catch (error) { }
+    } catch (error) {}
   }
 }
 
@@ -336,7 +335,7 @@ const retrieveSoftwareData = async () => {
   if (id) {
     try {
       const response = await api.get(`/retrieveSoftwareData?id=${id}`)
-      software.value = response.data;
+      software.value = response.data
 
       response.data.forEach((software) => {
         // Reverse the mapping: match the value from 'remarksMap' and find the option
@@ -355,7 +354,7 @@ const retrieveSoftwareData = async () => {
 }
 
 const retrievePeripheralsData = async () => {
-  const id = route.params.id
+  const id = route.query.item_id
   if (id) {
     try {
       const response = await api.get(`/retrievePeripheralsData?id=${id}`)
@@ -367,60 +366,97 @@ const retrievePeripheralsData = async () => {
 }
 
 const generateQRCode = async (form, tab_form, item_id, userId) => {
+  item_id = route.query.gen_id
   try {
-    // Call the save function based on the tab_form
-    switch (tab_form) {
-      case 'genForm':
-        await saveGeneralInfo();
-        break;
-      case 'p1Form':
-        await savePeripheralInfo();
-        break;
-      case 'p2Form':
-        await savePeripheralInfo();
-        break;
-      case 'upsForm':
-        await savePeripheralInfo();
-        break;
-      default:
-        throw new Error('Invalid tab_form provided');
+    if (tab_form === 'genForm') {
+      await saveGeneralInfo()
+      try {
+        const res = await api.get(
+          `/generateQRCode?id=${userId}&item_id=${item_id}&control_no=${form.control_no}&tab_form=${tab_form}`
+        )
+
+        let controlNo = res.data?.control_no || '0'
+        form.qr_code = String(controlNo).padStart(4, '0')
+      } catch (error) {
+        console.error('Error fetching QR Code:', error)
+      }
+    } else if (tab_form === 'p1Form') {
+      if (!item_id) {
+        console.error('item_id is undefined or null before API call', item_id)
+        return
+      }
+      await savePeripheralInfo()
+      try {
+        const res = await api.get(
+          `/generateQRCode?id=${userId}&item_id=${item_id}&tab_form=${tab_form}` // Fixed typo
+        )
+
+        let controlNo = res.data?.control_no || '0'
+        peripheral_form.monitor1QrCode = String(controlNo).padStart(4, '0')
+        retrievePeripheralsData()
+      } catch (error) {
+        console.error('Error fetching QR Code:', error)
+      }
+    } else if (tab_form === 'p2Form') {
+      if (!item_id) {
+        console.error('item_id is undefined or null before API call', item_id)
+        return
+      }
+      await savePeripheralInfo()
+      try {
+        const res = await api.get(
+          `/generateQRCode?id=${userId}&item_id=${item_id}&tab_form=${tab_form}` // Fixed typo
+        )
+
+        let controlNo = res.data?.control_no || '0'
+        peripheral_form.monitor2QrCode = String(controlNo).padStart(4, '0')
+        retrievePeripheralsData()
+      } catch (error) {
+        console.error('Error fetching QR Code:', error)
+      }
+    } else if (tab_form === 'upsForm') {
+      if (!item_id) {
+        console.error('item_id is undefined or null before API call', item_id)
+        return
+      }
+      await savePeripheralInfo()
+      try {
+        const res = await api.get(
+          `/generateQRCode?id=${userId}&item_id=${item_id}&tab_form=${tab_form}` // Fixed typo
+        )
+
+        let controlNo = res.data?.control_no || '0'
+        peripheral_form.ups_qr_code = String(controlNo).padStart(4, '0')
+        retrievePeripheralsData()
+      } catch (error) {
+        console.error('Error fetching QR Code:', error)
+      }
+    } else {
+      throw new Error('Invalid tab_form provided')
     }
-
-    // Generate QR code for the specific case
-    const res = await api.get(
-      `/generateQRCode?id=${userId}&item_id=${item_id}&tab_form=${tab_form}`
-    );
-
-    // Get and format the control number
-    const controlNo = res.data.control_no;
-    const paddedControlNo = String(controlNo).padStart(4, '0');
-    form.qr_code = paddedControlNo;
-
-    // Show success message
     toast.add({
       severity: 'success',
       summary: 'Success',
       detail: 'QR code generated and data saved successfully!',
-      life: 3000,
-    });
+      life: 3000
+    })
 
     // Retrieve peripherals data if applicable
-    retrievePeripheralsData();
+    retrievePeripheralsData()
   } catch (error) {
-    console.error('Error generating QR code:', error);
     toast.add({
       severity: 'error',
       summary: 'Error',
       detail: 'Failed to generate QR code. Please try again.',
-      life: 3000,
-    });
+      life: 3000
+    })
   }
-};
+}
 
 const status_checker = async () => {
   try {
-    const res = await checkItemStatus(route.params.id);
-    item_status.value = res;
+    const res = await checkItemStatus(route.params.id)
+    item_status.value = res
   } catch (error) {
     console.log(error)
   }
@@ -429,16 +465,40 @@ const status_checker = async () => {
 const qrCodeValue = computed(() => {
   // Check if the URL contains the 'create_new' parameter
   if (route.query.create_new) {
-    return ""; // Set input to null if 'create_new' exists
+    return '' // Set input to null if 'create_new' exists
   }
-  return form.qr_code; // Else use the value from the form
-});
+  return form.qr_code // Else use the value from the form
+})
+
 const closeModal = () => {
   isVisible.value = false
-  isMicrosoftOffice.value = false  // Close the modal by setting isLoading to false
+  isMicrosoftOffice.value = false // Close the modal by setting isLoading to false
 }
+
+const fetchLatestID = async () => {
+  try {
+    const response = await api.get(`/fetchLatestID`)
+    updateIdInURL(response.data.id)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+const updateIdInURL = (newId) => {
+  if (route.query.option == 'scan') {
+    return null;
+  } else {
+    router.replace({
+      query: {
+        ...route.query, // Keep existing query params
+        gen_id: newId // Change only the 'id' param
+      }
+    })
+  }
+}
+
 onMounted(() => {
-  const id = route.params.id;
+  const id = route.params.id
   if (!id) {
     getControlNo(form, userId)
     setTimeout(() => {
@@ -451,8 +511,8 @@ onMounted(() => {
       // window.location.href =
       //   '/inventory/create/' + id + '?api_token=' + localStorage.getItem('api_token')
     }, 1000)
-
   }
+  fetchLatestID()
   status_checker()
   getDivision()
   getNatureWork()
@@ -487,25 +547,26 @@ onMounted(() => {
       @proceed="saveGeneralInfo"
       @close="isModalOpen = false"
     /> -->
-    <modal_software  v-if="isVisible" :isLoading="isVisible" @close="closeModal" />
-    <modal_transfer_item 
-    v-if="openTransferModal"
-    :form="form_option" 
-    :openModal="openTransferModal"
-    :gen_info_id="route.params.id"
-    :division="division_opts"
-    :status="status_opts"
-    :userID="userId"
-    :inventory_id="form.selectedEquipmentType ?? 0"
-    :acct_person="form.acct_person"
-    :actual_user="form.actual_user"
-    :monitor1AccountPersonInPN="peripheral_form.monitor1AccountPersonInPN"
-    :monitor1ActualUser="peripheral_form.monitor1ActualUser"
-    :monitor1QrCode = "peripheral_form.monitor1QrCode"
-    :monitor1Model = "peripheral_form.monitor1Model"
-    :monitor1BrandModel = "peripheral_form.monitor1BrandModel"
-    :form_option="form_option"
-    @close="openTransferModal = false" />
+    <modal_software v-if="isVisible" :isLoading="isVisible" @close="closeModal" />
+    <modal_transfer_item
+      v-if="openTransferModal"
+      :form="form_option"
+      :openModal="openTransferModal"
+      :gen_info_id="route.params.id"
+      :division="division_opts"
+      :status="status_opts"
+      :userID="userId"
+      :inventory_id="form.selectedEquipmentType ?? 0"
+      :acct_person="form.acct_person"
+      :actual_user="form.actual_user"
+      :monitor1AccountPersonInPN="peripheral_form.monitor1AccountPersonInPN"
+      :monitor1ActualUser="peripheral_form.monitor1ActualUser"
+      :monitor1QrCode="peripheral_form.monitor1QrCode"
+      :monitor1Model="peripheral_form.monitor1Model"
+      :monitor1BrandModel="peripheral_form.monitor1BrandModel"
+      :form_option="form_option"
+      @close="openTransferModal = false"
+    />
 
     <!-- <modal_review_form v-if="openReviewForm" 
     :genForm="form" 
@@ -532,8 +593,11 @@ onMounted(() => {
           <span class="font-bold whitespace-nowrap">Specification</span>
         </Tab>
         <Tab v-slot="slotProps" value="2" asChild>
-          <div :class="['flex items-center gap-2', slotProps.class]" @click="slotProps.onClick"
-            v-bind="slotProps.a11yAttrs">
+          <div
+            :class="['flex items-center gap-2', slotProps.class]"
+            @click="slotProps.onClick"
+            v-bind="slotProps.a11yAttrs"
+          >
             <i class="pi pi-code" />
             <span class="font-bold whitespace-nowrap">Major Software Installed</span>
             <!-- <Badge value="2" /> -->
@@ -558,21 +622,39 @@ onMounted(() => {
             <div class="grid md:grid-cols-2 md:gap-6 mb-4">
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
-                  <InputText v-model="form.control_no" :value="form.control_no" class="w-full" readonly="true" />
+                  <InputText
+                    v-model="form.control_no"
+                    :value="form.control_no"
+                    class="w-full"
+                    readonly="true"
+                  />
                   <label>Control No</label>
                 </FloatLabel>
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select filter v-model="form.status" :options="status_opts" optionValue="id" optionLabel="name"
-                  placeholder="Current Status" class="w-full" />
+                <Select
+                  filter
+                  v-model="form.status"
+                  :options="status_opts"
+                  optionValue="id"
+                  optionLabel="name"
+                  placeholder="Current Status"
+                  class="w-full"
+                />
               </div>
             </div>
             <div class="grid md:grid-cols-2 md:gap-6 mb-4">
               <div class="relative z-0 w-full mb-5 group">
-                <Select filter  v-model="form.selectedDivision" :options="division_opts" optionValue="id" optionLabel="name"
-                  placeholder="Division" class="w-full" />
+                <Select
+                  filter
+                  v-model="form.selectedDivision"
+                  :options="division_opts"
+                  optionValue="id"
+                  optionLabel="name"
+                  placeholder="Division"
+                  class="w-full"
+                />
               </div>
-             
             </div>
             <div class="grid md:grid-cols-3 md:gap-6 mb-4">
               <div class="relative z-0 w-full mb-5 group">
@@ -582,18 +664,37 @@ onMounted(() => {
                 </FloatLabel>
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select filter v-model="form.sex" :options="sex_opts" optionValue="value" optionLabel="name" placeholder="Sex"
-                  class="w-full" />
+                <Select
+                  filter
+                  v-model="form.sex"
+                  :options="sex_opts"
+                  optionValue="value"
+                  optionLabel="name"
+                  placeholder="Sex"
+                  class="w-full"
+                />
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select filter v-model="form.selectedAcctDivision" :options="division_opts" optionValue="id" optionLabel="name"
-                  placeholder="Division" class="w-full" />
+                <Select
+                  filter
+                  v-model="form.selectedAcctDivision"
+                  :options="division_opts"
+                  optionValue="id"
+                  optionLabel="name"
+                  placeholder="Division"
+                  class="w-full"
+                />
               </div>
             </div>
             <div class="grid md:grid-cols-2 md:gap-6 mb-4">
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
-                  <InputText id="year_acquired" @input="checkYear" v-model="form.year_acquired" class="w-full" />
+                  <InputText
+                    id="year_acquired"
+                    @input="checkYear"
+                    v-model="form.year_acquired"
+                    class="w-full"
+                  />
                   <label for="year_acquired">Year Acquired</label>
                 </FloatLabel>
               </div>
@@ -612,36 +713,68 @@ onMounted(() => {
                 </FloatLabel>
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select filter v-model="form.selectedWorkNature" :options="work_nature" optionValue="id" optionLabel="name"
-                  placeholder="Nature of Works" class="w-full" />
+                <Select
+                  filter
+                  v-model="form.selectedWorkNature"
+                  :options="work_nature"
+                  optionValue="id"
+                  optionLabel="name"
+                  placeholder="Nature of Works"
+                  class="w-full"
+                />
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select filter v-model="form.selectedActualDivision" :options="division_opts" optionLabel="name"
-                  optionValue="id" placeholder="Division" class="w-full" />
+                <Select
+                  filter
+                  v-model="form.selectedActualDivision"
+                  :options="division_opts"
+                  optionLabel="name"
+                  optionValue="id"
+                  placeholder="Division"
+                  class="w-full"
+                />
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select filter v-model="form.employmentType" :options="employment_opts" optionLabel="name" optionValue="id"
-                  placeholder="Employment Type" class="w-full" />
+                <Select
+                  filter
+                  v-model="form.employmentType"
+                  :options="employment_opts"
+                  optionLabel="name"
+                  optionValue="id"
+                  placeholder="Employment Type"
+                  class="w-full"
+                />
               </div>
             </div>
             <div class="grid md:grid-cols-4 md:gap-6 mb-4">
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
-                  <InputText id="qr_code" v-model="form.qr_code" class="w-full pr-16"  />
+                  <InputText id="qr_code" v-model="form.qr_code" class="w-full pr-16" />
                   <label for="qr_code">QR Code</label>
                 </FloatLabel>
 
                 <!-- Button inside the input field -->
-                <Button v-if="!form.qr_code" class="absolute top-1/2 right-2 transform -translate-y-1/2 px-2 py-2"
-                  style="top: -21px; left: 258px" size="small"
-                  @click="generateQRCode(form, 'genForm', item_id, userId)">
+                <Button
+                  v-if="!form.qr_code"
+                  class="absolute top-1/2 right-2 transform -translate-y-1/2 px-2 py-2"
+                  style="top: -21px; left: 258px"
+                  size="small"
+                  @click="generateQRCode(form, 'genForm', item_id, userId)"
+                >
                   Generate
                 </Button>
               </div>
 
               <div class="relative z-0 w-full mb-5 group">
-                <Select filter v-model="form.selectedEquipmentType" :options="equipment_type" optionValue="id"
-                  optionLabel="name" placeholder="Equipment Type" class="w-full" />
+                <Select
+                  filter
+                  v-model="form.selectedEquipmentType"
+                  :options="equipment_type"
+                  optionValue="id"
+                  optionLabel="name"
+                  placeholder="Equipment Type"
+                  class="w-full"
+                />
               </div>
 
               <div class="relative z-0 w-full mb-5 group">
@@ -652,8 +785,15 @@ onMounted(() => {
               </div>
 
               <div class="relative z-0 w-full mb-5 group">
-                <Select filter v-model="form.selectedRangeCategory" :options="range_category" optionLabel="name"
-                  optionValue="id" placeholder="Range Category" class="w-full" />
+                <Select
+                  filter
+                  v-model="form.selectedRangeCategory"
+                  :options="range_category"
+                  optionLabel="name"
+                  optionValue="id"
+                  placeholder="Range Category"
+                  class="w-full"
+                />
               </div>
             </div>
             <div class="grid md:grid-cols-4 md:gap-6 mb-4">
@@ -691,8 +831,21 @@ onMounted(() => {
               </div>
             </div>
 
-            <Button @click="transferItem('gen_info')" label="Transfer Item" type="button" icon="pi pi-star" class="mr-4" severity="primary" />
-            <Button label="Save as Draft" type="submit" icon="pi pi-save" severity="primary" />
+            <Button
+              @click="transferItem('gen_info')"
+              label="Transfer Item"
+              type="button"
+              icon="pi pi-star"
+              class="mr-4"
+              severity="primary"
+            />
+            <Button
+              label="Save as Draft"
+              type="submit"
+              icon="pi pi-save"
+              severity="primary"
+              class="mr-4"
+            />
           </form>
         </TabPanel>
 
@@ -713,18 +866,39 @@ onMounted(() => {
                 </FloatLabel>
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select filter v-model="specs_form.specs_hdd_capacity" :options="capacity_opts" optionValue="value"
-                  optionLabel="name" placeholder="Capacity" class="w-full" />
+                <Select
+                  filter
+                  v-model="specs_form.specs_hdd_capacity"
+                  :options="capacity_opts"
+                  optionValue="value"
+                  optionLabel="name"
+                  placeholder="Capacity"
+                  class="w-full"
+                />
               </div>
             </div>
             <div class="grid md:grid-cols-4 md:gap-6">
               <div class="relative z-0 w-full mb-5 group">
-                <Select filter v-model="specs_form.specs_ram" :options="ram_opts" optionValue="id" optionLabel="name"
-                  placeholder="RAM Type" class="w-full" />
+                <Select
+                  filter
+                  v-model="specs_form.specs_ram"
+                  :options="ram_opts"
+                  optionValue="id"
+                  optionLabel="name"
+                  placeholder="RAM Type"
+                  class="w-full"
+                />
               </div>
               <div class="relative z-0 w-full mb-5 group">
-                <Select filter v-model="specs_form.specs_ram_capacity" :options="ram_capacity_opts" optionValue="value"
-                  optionLabel="name" placeholder="RAM Capacity" class="w-full" />
+                <Select
+                  filter
+                  v-model="specs_form.specs_ram_capacity"
+                  :options="ram_capacity_opts"
+                  optionValue="value"
+                  optionLabel="name"
+                  placeholder="RAM Capacity"
+                  class="w-full"
+                />
               </div>
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
@@ -734,8 +908,15 @@ onMounted(() => {
               </div>
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
-                  <Select filter v-model="specs_form.specs_ssd_capacity" :options="capacity_opts" optionValue="value"
-                    optionLabel="name" placeholder="Capacity" class="w-full" />
+                  <Select
+                    filter
+                    v-model="specs_form.specs_ssd_capacity"
+                    :options="capacity_opts"
+                    optionValue="value"
+                    optionLabel="name"
+                    placeholder="Capacity"
+                    class="w-full"
+                  />
                 </FloatLabel>
               </div>
             </div>
@@ -745,12 +926,21 @@ onMounted(() => {
                 <Fieldset legend="GPU">
                   <div class="card flex flex-wrap gap-6">
                     <div v-for="gpu in gpu_type" :key="gpu.key" class="flex items-center gap-2">
-                      <RadioButton v-model="selectedGPU" :inputId="gpu.key" name="dynamdic" :value="gpu.key" />
+                      <RadioButton
+                        v-model="selectedGPU"
+                        :inputId="gpu.key"
+                        name="dynamdic"
+                        :value="gpu.key"
+                      />
                       <label :for="gpu.key">{{ gpu.name }}</label>
                     </div>
                     <FloatLabel>
-                      <InputText id="gpu_dedic_info" v-model="specs_form.specs_gpu_dedic_info" class="w-full md:w-100"
-                        :disabled="!isDedicatedSelected" />
+                      <InputText
+                        id="gpu_dedic_info"
+                        v-model="specs_form.specs_gpu_dedic_info"
+                        class="w-full md:w-100"
+                        :disabled="!isDedicatedSelected"
+                      />
                       <label for="gpu_dedic_info">Dedicated Information</label>
                     </FloatLabel>
                   </div>
@@ -760,21 +950,39 @@ onMounted(() => {
               <div class="relative z-0 w-full mb-5 group">
                 <Fieldset legend="Network">
                   <div class="card flex flex-wrap gap-6 mb-6">
-                    <div v-for="category in network_type" :key="category.key" class="flex items-center gap-2">
-                      <RadioButton v-model="selectedNetwork" :inputId="category.key" name="dynamic"
-                        :value="category.key" />
+                    <div
+                      v-for="category in network_type"
+                      :key="category.key"
+                      class="flex items-center gap-2"
+                    >
+                      <RadioButton
+                        v-model="selectedNetwork"
+                        :inputId="category.key"
+                        name="dynamic"
+                        :value="category.key"
+                      />
                       <label :for="category.key">{{ category.name }}</label>
                     </div>
                     <label>If Wireless:</label>
                     <div class="flex items-center gap-2">
-                      <RadioButton v-model="selectedWireless" :disabled="!isWirelessSelected" inputId="networkBuiltIn"
-                        name="networkBuiltIn" value="1" />
+                      <RadioButton
+                        v-model="selectedWireless"
+                        :disabled="!isWirelessSelected"
+                        inputId="networkBuiltIn"
+                        name="networkBuiltIn"
+                        value="1"
+                      />
                       <label for="networkBuiltIn">Built-In</label>
                     </div>
 
                     <div class="flex items-center gap-2">
-                      <RadioButton v-model="selectedWireless" inputId="networkDongle" name="networkDongle" value="2"
-                        :disabled="!isWirelessSelected" />
+                      <RadioButton
+                        v-model="selectedWireless"
+                        inputId="networkDongle"
+                        name="networkDongle"
+                        value="2"
+                        :disabled="!isWirelessSelected"
+                      />
                       <label for="networkDongle">With Dongle</label>
                     </div>
                   </div>
@@ -834,7 +1042,6 @@ onMounted(() => {
               </div>
             </div>
 
-
             <Button label="Save as Draft" type="submit" icon="pi pi-save" severity="primary" />
           </form>
         </TabPanel>
@@ -843,22 +1050,31 @@ onMounted(() => {
         <TabPanel value="2" as="p" class="m-0">
           <form @submit.prevent="saveSoftwareInfo">
             <div class="grid md:grid-cols-2 md:gap-6 mb-4">
-              <div v-for="(software, index) in software_installed" :key="software.key + '-' + index"
-                class="relative z-0 w-full mb-5 group">
+              <div
+                v-for="(software, index) in software_installed"
+                :key="software.key + '-' + index"
+                class="relative z-0 w-full mb-5 group"
+              >
                 <Fieldset :legend="software.title">
                   <div class="card flex flex-wrap gap-9">
-                    <div v-for="option in ['perpetual', 'subscription', 'evaluation']" :key="option"
-                      class="flex items-center gap-3">
-                      <RadioButton v-model="selectedSoftware[software.key]"
-                        :inputId="option.toLowerCase() + '-' + index" :name="software.key" :value="option.toLowerCase()"
-                        @change="onRadioChange(software.key, option)" />
+                    <div
+                      v-for="option in ['perpetual', 'subscription', 'evaluation']"
+                      :key="option"
+                      class="flex items-center gap-3"
+                    >
+                      <RadioButton
+                        v-model="selectedSoftware[software.key]"
+                        :inputId="option.toLowerCase() + '-' + index"
+                        :name="software.key"
+                        :value="option.toLowerCase()"
+                        @change="onRadioChange(software.key, option)"
+                      />
                       <label :for="option.toLowerCase() + '-' + index">{{ option }}</label>
                     </div>
                   </div>
                 </Fieldset>
               </div>
             </div>
-
 
             <Button label="Save as Draft" type="submit" icon="pi pi-save" severity="primary" />
           </form>
@@ -876,34 +1092,52 @@ onMounted(() => {
                   <div class="card flex mb-7 mt-7 flex-wrap gap-6">
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText id="qr_code" v-model="peripheral_form.monitor1QrCode" class="w-full md:w-100" />
+                        <InputText
+                          id="qr_code"
+                          v-model="peripheral_form.monitor1QrCode"
+                          class="w-full md:w-100"
+                        />
                         <label for="qr_code">QR Code</label>
                       </FloatLabel>
-                      <Button v-if="!peripheral_form.monitor1QrCode" style="top: -0.5px; left: -88px" size="small"
-                        @click="generateQRCode(peripheral_form, 'p1Form', item_id, userId)">
+                      <Button
+                        v-if="!peripheral_form.monitor1QrCode"
+                        style="top: -0.5px; left: -88px"
+                        size="small"
+                        @click="generateQRCode(peripheral_form, 'p1Form', item_id, userId)"
+                      >
                         Generate
                       </Button>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor1BrandModel"
-                          class="w-full md:w-100" />
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.monitor1BrandModel"
+                          class="w-full md:w-100"
+                        />
                         <label for="processor">Brand</label>
                       </FloatLabel>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor1Model" class="w-full md:w-100" />
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.monitor1Model"
+                          class="w-full md:w-100"
+                        />
                         <label for="processor">Model</label>
                       </FloatLabel>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor1SerialNumber"
-                          class="w-full md:w-100" />
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.monitor1SerialNumber"
+                          class="w-full md:w-100"
+                        />
                         <label for="processor">Serial Number</label>
                       </FloatLabel>
                     </div>
@@ -911,34 +1145,57 @@ onMounted(() => {
                   <div class="card flex mb-7 mt-7 flex-wrap gap-6">
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor1PropertyNumber"
-                          class="w-full md:w-100" />
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.monitor1PropertyNumber"
+                          class="w-full md:w-100"
+                        />
                         <label for="processor">Property No</label>
                       </FloatLabel>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor1AccountPersonInPN"
-                          class="w-full md:w-100" />
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.monitor1AccountPersonInPN"
+                          class="w-full md:w-100"
+                        />
                         <label for="processor">Accountable Person as seen in PN</label>
                       </FloatLabel>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor1ActualUser"
-                          class="w-full md:w-100" />
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.monitor1ActualUser"
+                          class="w-full md:w-100"
+                        />
                         <label for="processor">Actual User</label>
                       </FloatLabel>
                     </div>
-                    <div class="flex items-center gap-2" >
-                      <Select filter v-model="peripheral_form.division_id" :options="division_opts" optionValue="id"
-                        optionLabel="name" placeholder="Division" class="w-full md:w-100" />
+                    <div class="flex items-center gap-2">
+                      <Select
+                        filter
+                        v-model="peripheral_form.division_id"
+                        :options="division_opts"
+                        optionValue="id"
+                        optionLabel="name"
+                        placeholder="Division"
+                        class="w-full md:w-100"
+                      />
                     </div>
                     <div class="flex items-center gap-2" v-if="peripheral_form.monitor1QrCode">
-                      <Select filter v-model="peripheral_form.monitor1Status" :options="status_opts" optionValue="id"
-                        optionLabel="name" placeholder="Current Status" class="w-full md:w-100" />
+                      <Select
+                        filter
+                        v-model="peripheral_form.monitor1Status"
+                        :options="status_opts"
+                        optionValue="id"
+                        optionLabel="name"
+                        placeholder="Current Status"
+                        class="w-full md:w-100"
+                      />
                     </div>
                   </div>
                 </Fieldset>
@@ -952,32 +1209,50 @@ onMounted(() => {
                   <div class="card flex mb-7 mt-7 flex-wrap gap-6">
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor2QrCode" class="w-full md:w-80" />
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.monitor2QrCode"
+                          class="w-full md:w-80"
+                        />
                         <label for="processor">QR Code</label>
                       </FloatLabel>
-                      <Button v-if="!peripheral_form.monitor2QrCode" style="top: -0.5px; left: -88px" size="small"
-                        @click="generateQRCode(peripheral_form, 'p2Form', item_id, userId)">
+                      <Button
+                        v-if="!peripheral_form.monitor2QrCode"
+                        style="top: -0.5px; left: -88px"
+                        size="small"
+                        @click="generateQRCode(peripheral_form, 'p2Form', item_id, userId)"
+                      >
                         Generate
                       </Button>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor2BrandModel"
-                          class="w-full md:w-100" />
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.monitor2BrandModel"
+                          class="w-full md:w-100"
+                        />
                         <label for="processor">Brand Model</label>
                       </FloatLabel>
                     </div>
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor2Model" class="w-full md:w-100" />
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.monitor2Model"
+                          class="w-full md:w-100"
+                        />
                         <label for="processor">Model</label>
                       </FloatLabel>
                     </div>
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor2SerialNumber"
-                          class="w-full md:w-100" />
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.monitor2SerialNumber"
+                          class="w-full md:w-100"
+                        />
                         <label for="processor">Serial Number</label>
                       </FloatLabel>
                     </div>
@@ -985,30 +1260,46 @@ onMounted(() => {
                   <div class="card flex flex-wrap gap-6">
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor2PropertyNumber"
-                          class="w-full md:w-100" />
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.monitor2PropertyNumber"
+                          class="w-full md:w-100"
+                        />
                         <label for="processor">Property No</label>
                       </FloatLabel>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor2AccountPersonInPN"
-                          class="w-full md:w-100" />
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.monitor2AccountPersonInPN"
+                          class="w-full md:w-100"
+                        />
                         <label for="processor">Accountable Person as seen in PN</label>
                       </FloatLabel>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor2ActualUser"
-                          class="w-full md:w-100" />
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.monitor2ActualUser"
+                          class="w-full md:w-100"
+                        />
                         <label for="processor">Actual User</label>
                       </FloatLabel>
                     </div>
                     <div class="flex items-center gap-2" v-if="peripheral_form.monitor2QrCode">
-                      <Select filter v-model="peripheral_form.monitor2Status" :options="status_opts" optionValue="id"
-                        optionLabel="name" placeholder="Current Status" class="w-full md:w-100" />
+                      <Select
+                        filter
+                        v-model="peripheral_form.monitor2Status"
+                        :options="status_opts"
+                        optionValue="id"
+                        optionLabel="name"
+                        placeholder="Current Status"
+                        class="w-full md:w-100"
+                      />
                     </div>
                   </div>
                 </Fieldset>
@@ -1021,32 +1312,52 @@ onMounted(() => {
                   </div>
                   <div class="flex items-center gap-2 mt-7 mb-7">
                     <FloatLabel>
-                      <InputText id="processor" v-model="peripheral_form.ups_qr_code" class="w-full md:w-80" />
+                      <InputText
+                        id="processor"
+                        v-model="peripheral_form.ups_qr_code"
+                        class="w-full md:w-80"
+                      />
                       <label for="processor">QR Code</label>
                     </FloatLabel>
-                    <Button v-if="!peripheral_form.ups_qr_code" style="top: -0.5px; left: -88px" size="small"
-                      @click="generateQRCode(peripheral_form, 'upsForm', item_id, userId)">
+                    <Button
+                      v-if="!peripheral_form.ups_qr_code"
+                      style="top: -0.5px; left: -88px"
+                      size="small"
+                      @click="generateQRCode(peripheral_form, 'upsForm', item_id, userId)"
+                    >
                       Generate
                     </Button>
                   </div>
                   <div class="card flex mb-7 mt-3 flex-wrap gap-6">
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.ups_brand" class="w-full md:w-100" />
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.ups_brand"
+                          class="w-full md:w-100"
+                        />
                         <label for="processor">Brand</label>
                       </FloatLabel>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.ups_model" class="w-full md:w-100" />
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.ups_model"
+                          class="w-full md:w-100"
+                        />
                         <label for="processor">Model</label>
                       </FloatLabel>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.ups_serial_no" class="w-full md:w-100" />
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.ups_serial_no"
+                          class="w-full md:w-100"
+                        />
                         <label for="processor">Serial Number</label>
                       </FloatLabel>
                     </div>
@@ -1054,38 +1365,68 @@ onMounted(() => {
                   <div class="card flex flex-wrap gap-6">
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.ups_property_no" class="w-full lg:w-100" />
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.ups_property_no"
+                          class="w-full lg:w-100"
+                        />
                         <label for="processor">Property Number</label>
                       </FloatLabel>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.ups_accountPersonInPN"
-                          class="w-full md:w-100" />
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.ups_accountPersonInPN"
+                          class="w-full md:w-100"
+                        />
                         <label for="processor">Accountable Person as seen in PN:</label>
                       </FloatLabel>
                     </div>
 
                     <div class="flex items-center gap-2">
                       <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.ups_qr_acctual_user"
-                          class="w-full md:w-100" />
+                        <InputText
+                          id="processor"
+                          v-model="peripheral_form.ups_qr_acctual_user"
+                          class="w-full md:w-100"
+                        />
                         <label for="processor">Actual User</label>
                       </FloatLabel>
                     </div>
                     <div class="relative z-0 w-full mb-5 group" v-if="peripheral_form.ups_qr_code">
-                      <Select filter v-model="peripheral_form.ups_status" :options="status_opts" optionValue="id"
-                        optionLabel="name" placeholder="Current Status" class="w-full md:w-100" />
+                      <Select
+                        filter
+                        v-model="peripheral_form.ups_status"
+                        :options="status_opts"
+                        optionValue="id"
+                        optionLabel="name"
+                        placeholder="Current Status"
+                        class="w-full md:w-100"
+                      />
                     </div>
                   </div>
                 </Fieldset>
               </div>
             </div>
 
-            <Button @click="transferItem('peri_form')" label="Transfer Item" type="button" icon="pi pi-star" class="mr-4" severity="primary" />
+            <Button
+              @click="transferItem('peri_form')"
+              label="Transfer Item"
+              type="button"
+              icon="pi pi-star"
+              class="mr-4"
+              severity="primary"
+            />
 
-            <Button label="Save as Draft" type="submit" icon="pi pi-save" severity="info" class="mr-4" />
+            <Button
+              label="Save as Draft"
+              type="submit"
+              icon="pi pi-save"
+              severity="info"
+              class="mr-4"
+            />
             <!-- <Button label="Submit" @click="openReviewForm = true" icon="pi pi-verified" severity="primary" /> -->
           </form>
         </TabPanel>

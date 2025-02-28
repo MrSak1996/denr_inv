@@ -8,13 +8,15 @@ import { useToast } from 'primevue/usetoast'
 import { onMounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useInventory } from '@/composables/useInventory.ts'
-const { OTPsettings } = useInventory()
+import { useAuthStore } from '@/stores/authStore';
+const { OTPsettings, predefinedRoles } = useInventory()
 
 import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
 import modal_verify from './modal/modal_verify.vue'
 import Qrcode from 'qrcode.vue'
 import { Navigation, Pagination, Scrollbar, A11y } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/vue'
+const authStore = useAuthStore()
 
 import 'swiper/css'
 import 'swiper/css/bundle'
@@ -49,9 +51,17 @@ const loginUser = async () => {
   try {
     const response = await api.post('/login', form.value)
     if (response.data.status) {
+      // using Pinia
+      authStore.setUser(response.data.userId, response.data.api_token)
+    
       // If login is successful, send the OTP
       localStorage.setItem('userId', response.data.userId)
       localStorage.setItem('api_token', response.data.api_token)
+      let role_id = response.data.roles
+      const matchedRole = predefinedRoles.value.find((role) => role.id === role_id)
+
+      localStorage.setItem('roles',matchedRole.label)
+    
 
       const res = await OTPsettings()
       otp_checker.value = res
@@ -149,11 +159,11 @@ const toDashboard = async () => {
   })
 
   setTimeout(() => {
-    window.location.href = '/inventory?id=' + userId + '&api_token=' + api_token
-    // router.push({
-    //   name: 'Inventory',
-    //   query: { id: userId, api_token: api_token }
-    // })
+    // window.location.href = '/inventory?id=' + userId + '&api_token=' + api_token
+    router.push({
+      name: 'Inventory',
+      query: { id: userId, api_token: api_token }
+    })
   }, 1000)
 }
 
@@ -721,7 +731,7 @@ onMounted(() => {})
 
 <style scoped>
 .bg-portal {
-  color: #134E4A;
+  color: #134e4a;
   background: url('../../assets/images/bg-hero.jpg') no-repeat;
   background-position: 50% 100%;
   background-size: cover;

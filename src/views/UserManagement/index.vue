@@ -93,16 +93,8 @@ const fetchData = async () => {
   }
 }
 
-const getCountStatus = async () => {
-  const response = await api.get(`/getCountStatus`)
-  serviceable_count.value = getRawData(Number(response.data.serviceable_count)) // Set the count if it exists
-  unserviceable_count.value = getRawData(Number(response.data.unserviceable_count)) // Set the count if it exists
-}
 
-const getOutdatedEquipment = async () => {
-  const response = await api.get(`/getOutdatedEquipment`)
-  outdated_count.value = Number(response.data.count) // Set the count if it exists
-}
+
 
 // Initialize filter values
 const initFilters = () => {
@@ -168,8 +160,7 @@ const closeModal = () => {
 
 onMounted(() => {
   fetchData()
-  getCountStatus()
-  getOutdatedEquipment()
+ 
 })
 // Page title
 const pageTitle = ref('User Management')

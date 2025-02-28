@@ -9,60 +9,68 @@ export function useApi() {
   const range_category = ref([])
   const employment_opts = ref([])
   const roles_opts = ref([])
-  const designation = ref();
-  const qr_code_temp = ref();
-  const user_role = ref();
-
+  const designation = ref()
+  const qr_code_temp = ref()
+  const user_role = ref()
+  const progress = ref(0)
+  const isLoading = ref(false)
+  const currentMessage = ref('Loading, please wait...')
+  const messages = ref([
+    'Loading, please wait...',
+    'Processing data...',
+    'Initializing data...',
+    'Fetching resources...',
+    'Preparing your data...',
+    'Almost there, hang tight...'
+  ])
 
   const fetchCurUser = async () => {
     // Retrieve the API token from localStorage
-    const api_token = localStorage.getItem('api_token');
-    
+    const api_token = localStorage.getItem('api_token')
+
     // Check if the token exists
     if (!api_token) {
-      console.error('API token not found. Please log in.');
-      return;
+      console.error('API token not found. Please log in.')
+      return
     }
-  
+
     try {
       // Make the API call to fetch the current user
       const response = await api.get(`/getUsers?api_token=${api_token}`, {
         headers: {
           Authorization: `Bearer ${api_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-  
+          'Content-Type': 'application/json'
+        }
+      })
+
       // Check if the response status is valid
       if (response.status === 200 && response.data) {
-        designation.value = response.data.data[0].roles;
-        return response.data;
+        designation.value = response.data.data[0].roles
+        return response.data
       } else {
-        console.error('Failed to fetch current user: Invalid response');
+        console.error('Failed to fetch current user: Invalid response')
       }
     } catch (error) {
       // Handle any errors
-      console.error('Error fetching current user:', error.response?.data?.message || error.message);
+      console.error('Error fetching current user:', error.response?.data?.message || error.message)
     }
-  };
+  }
   const getQRCodeTemp = async () => {
-    const user = await fetchCurUser();
-  user_role.value = user.data[0].role_id
+    const user = await fetchCurUser()
+    user_role.value = user.data[0].role_id
 
-  
     try {
-      const { data, status } = await api.get(`/getQRCodeTemp?user_role=${user_role.value}`);
-  
+      const { data, status } = await api.get(`/getQRCodeTemp?user_role=${user_role.value}`)
+
       if (status === 200 && data?.length) {
-        qr_code_temp.value = data[0].code;
-        
+        qr_code_temp.value = data[0].code
       } else {
-        console.error("QR Code data not found.");
+        console.error('QR Code data not found.')
       }
     } catch (error) {
-      console.error("Error fetching QR Code:", error.response?.data?.message || error.message);
+      console.error('Error fetching QR Code:', error.response?.data?.message || error.message)
     }
-  };
+  }
   const getControlNo = async (form, userId) => {
     try {
       const res = await api.get(`/getControlNo?id=${userId}`)
@@ -73,22 +81,11 @@ export function useApi() {
       console.error(error)
     }
   }
-  // const generateQRCode = async (form,tab_form,item_id,userId) => {
-  //   try {
-  //     const res = await api.get('/generateQRCode?id='+userId+"&item_id="+item_id+"&tab_form="+tab_form)
-  //     const controlNo = res.data.control_no
-  //     const paddedControlNo = String(controlNo).padStart(4, '0')
-  //     form.qr_code = paddedControlNo
-  //   } catch (error) {
-  //     console.error(error)
-  //   }
-  // }
-
   const getDivision = async () => {
     try {
-      const user = await fetchCurUser(); // Fetch user data first
-    if (!user) return;
-      const res = await api.get('/getDivision', { params: { role: user.data[0].id } });
+      const user = await fetchCurUser() // Fetch user data first
+      if (!user) return
+      const res = await api.get('/getDivision', { params: { role: user.data[0].id } })
       division_opts.value = res.data.map((division) => ({
         id: division.id,
         value: division.id,
@@ -98,7 +95,6 @@ export function useApi() {
       console.error('Error fetching divisions:', error)
     }
   }
-
   const getNatureWork = async () => {
     try {
       const res = await api.get('/getNatureWork')
@@ -110,7 +106,6 @@ export function useApi() {
       console.error('Error fetching work nature:', error)
     }
   }
-
   const getEquipment = async () => {
     try {
       const res = await api.get('/getEquipment')
@@ -122,7 +117,6 @@ export function useApi() {
       console.error('Error fetching equipment types:', error)
     }
   }
-
   const getRangeCategory = async () => {
     try {
       const res = await api.get('/getRangeCategory')
@@ -134,7 +128,6 @@ export function useApi() {
       console.error('Error fetching range categories:', error)
     }
   }
-
   const getEmploymentType = async () => {
     try {
       const res = await api.get('/getEmploymentType')
@@ -146,7 +139,6 @@ export function useApi() {
       console.error('Error fetching employment types:', error)
     }
   }
-
   const getUserRoles = async () => {
     try {
       const res = await api.get('/getUserRoles')
@@ -158,19 +150,38 @@ export function useApi() {
       console.error('Error fetching user role:', error)
     }
   }
+  const startProgress = () => {
+    progress.value = 0
+    isLoading.value = true
+    updateMessage()
+    const interval = setInterval(() => {
+      if (progress.value < 90) {
+        progress.value += Number((Math.random() * 10).toFixed(2)) // Simulate progress increase
+        updateMessage()
+      } else {
+        clearInterval(interval)
+      }
+    }, 500)
+  }
 
- 
-  
-  
-  
+  const completeProgress = () => {
+    progress.value = 100
+    setTimeout(() => {
+      isLoading.value = false
+    }, 500)
+  }
+
+  const updateMessage = () => {
+    const randomIndex = Math.floor(Math.random() * messages.value.length)
+    currentMessage.value = messages.value[randomIndex]
+  }
   const predefinedSoftware = ref([
-    { label: "Operating System", key: "operating_system" },
-    { label: "Microsoft Office", key: "ms_office" },
-    { label: "Adobe PDF", key: "adobe_pdf" },
-    { label: "ARCGIS", key: "arcgis" },
-    { label: "Adobe Photoshop", key: "adobe_photoshop" }
-  ]);
-
+    { label: 'Operating System', key: 'operating_system' },
+    { label: 'Microsoft Office', key: 'ms_office' },
+    { label: 'Adobe PDF', key: 'adobe_pdf' },
+    { label: 'ARCGIS', key: 'arcgis' },
+    { label: 'Adobe Photoshop', key: 'adobe_photoshop' }
+  ])
   const province_opts = ref([
     { name: 'Cavite', id: 21 },
     { name: 'Laguna', id: 34 },
@@ -178,23 +189,19 @@ export function useApi() {
     { name: 'Batangas', id: 10 },
     { name: 'Quezon', id: 56 }
   ])
-
   const status_opts = ref([
     { name: 'Serviceable', id: 1 },
     { name: 'Unserviceable', id: 2 }
   ])
-
   const section_opts = ref([
     { name: 'RICT', id: 1 },
     { name: 'MES', id: 2 },
     { name: 'PPS', id: 3 }
   ])
-
   const sex_opts = ref([
     { name: 'Male', value: 'Male' },
     { name: 'Female', value: 'Female' }
   ])
-
   const capacity_opts = ref([
     { name: '1 TB', value: '1 TB' },
     { name: '2 TB', value: '2 TB' },
@@ -207,7 +214,6 @@ export function useApi() {
     { name: '400 GB', value: '400 GB' },
     { name: '512 GB', value: '512 GB' }
   ])
-
   const ram_capacity_opts = ref([
     { name: '2 GB', value: '2 GB' },
     { name: '4 GB', value: '4 GB' },
@@ -236,7 +242,6 @@ export function useApi() {
   ])
 
   return {
-    
     sex_opts,
     province_opts,
     roles_opts,
@@ -252,6 +257,12 @@ export function useApi() {
     qr_code_temp,
     ram_capacity_opts,
     predefinedSoftware,
+    isLoading,
+    messages,
+    currentMessage,
+    progress,
+    startProgress,
+    completeProgress,
     fetchCurUser,
     getQRCodeTemp,
     getControlNo,

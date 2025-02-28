@@ -233,7 +233,7 @@ input:disabled {
 }
 
 .generate-btn {
-  background-color: #42b883;
+  background-color: #0f766e;
   color: white;
   padding: 0.8rem 1.5rem;
   border: none;

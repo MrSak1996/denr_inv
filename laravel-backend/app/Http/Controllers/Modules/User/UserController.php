@@ -198,7 +198,27 @@ class UserController extends Controller
                 ->leftJoin('tbl_employment_type as e', 'e.id', '=', 'u.employment_status')
                 ->leftJoin('user_roles as ur', 'ur.id', '=', 'u.roles')
                 ->leftJoin('geo_map as g', 'g.geo_code', '=', 'u.geo_id')
-                ->select('*'
+                ->select(
+                    'u.id',
+                    'u.first_name',
+                    'u.last_name',
+                    'u.middle_name',
+                    'u.division_id',
+                    'u.province_c',
+                    'u.city_mun_c',
+                    'u.complete_address',
+                    'u.mobile_no',
+                    'u.position',
+                    'u.roles',
+                    'u.sex',
+                    'u.employment_status',
+                    'ur.roles',
+                    'ur.id as role_id',
+                    'd.id',
+                    'd.division_title',
+                    'u.username',
+                    'u.email',
+                    'u.mobile_no'
                 );
 
             // Conditionally add the where clause

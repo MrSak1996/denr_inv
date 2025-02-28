@@ -174,7 +174,7 @@ watch(
                   </FloatLabel>
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
-                  <Select v-model="um_create_form.province_c" :options="province_opts" optionValue="id" optionLabel="name"
+                  <Select filter v-model="um_create_form.province_c" :options="province_opts" optionValue="id" optionLabel="name"
                     placeholder="Province" class="w-full" />
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
@@ -187,7 +187,7 @@ watch(
               </div>
               <div class="grid md:grid-cols-2 md:gap-6 mb-4 mt-4">
                 <div class="relative z-0 w-full mb-5 group">
-                  <Select v-model="um_create_form.city_mun_c" :options="city_mun_opts" optionValue="id" optionLabel="name"
+                  <Select filter v-model="um_create_form.city_mun_c" :options="city_mun_opts" optionValue="id" optionLabel="name"
                     placeholder="City/Municipalities" class="w-full" />
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
@@ -199,11 +199,11 @@ watch(
               </div>
               <div class="grid md:grid-cols-2 md:gap-6 mb-4 mt-4">
                 <div class="relative z-0 w-full mb-5 group">
-                  <Select v-model="um_create_form.division_id" :options="division_opts" optionValue="id" optionLabel="name"
+                  <Select filter v-model="um_create_form.division_id" :options="division_opts" optionValue="id" optionLabel="name"
                     placeholder="Division" class="w-full" />
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
-                  <Select v-model="um_create_form.employment_status" :options="employment_opts" optionLabel="name"
+                  <Select filter v-model="um_create_form.employment_status" :options="employment_opts" optionLabel="name"
                     optionValue="id" placeholder="Employment Type" class="w-full" />
                 </div>
               </div>
@@ -228,7 +228,7 @@ watch(
                   </FloatLabel>
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
-                  <Select v-model="um_create_form.sex" :options="sex_opts" optionValue="id" optionLabel="name"
+                  <Select filter v-model="um_create_form.sex" :options="sex_opts" optionValue="id" optionLabel="name"
                     placeholder="Gender" class="w-full" />
                 </div>
               </div>
@@ -258,7 +258,7 @@ watch(
                   </FloatLabel>
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
-                  <Select v-model="um_create_form.role_id" :options="roles_opts" optionValue="id"
+                  <Select filter  v-model="um_create_form.role_id" :options="roles_opts" optionValue="id"
                     optionLabel="name" placeholder="User Role" class="w-full" />
                 </div>
               </div>

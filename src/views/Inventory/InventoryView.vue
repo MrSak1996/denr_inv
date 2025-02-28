@@ -1,34 +1,43 @@
 <script setup lang="ts">
+import { useAuthStore } from '@/stores/authStore'
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useApi } from '@/composables/useApi'
 import { useForm } from '@/composables/useForm'
 import { useStore } from 'vuex'
-
 import { useInventory } from '@/composables/useInventory.ts'
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
+
 import router from '@/router'
 import form_dash from './form_dash.vue'
-import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
+
+// Modal
 import modal_qr_scan from './modal/modal_qr_scan.vue'
 import modal_review_form from './modal/modal_review_form.vue'
 import modal_gen_qr from './modal/modal_gen_qr.vue'
 import modal_print_qr from './modal/modal_print_qr.vue'
 
-
 const {
+  isLoading,
+  currentMessage,
   fetchCurUser,
   division_opts,
   work_nature,
   equipment_type,
   range_category,
-  employment_opts
+  employment_opts,
+  startProgress,
+  completeProgress,
+  progress
 } = useApi()
 
 const { form, specs_form, peripheral_form } = useForm()
 
 const { printRecord } = useInventory()
 const store = useStore()
+const authStore = useAuthStore()
+
 const route = useRoute()
 const customers = ref([])
 const software = ref([])
@@ -41,8 +50,7 @@ const invalid_data_count = ref(0)
 const filters = ref()
 const loading = ref(false)
 const openScanForm = ref(false)
-const progress = ref(0)
-const isLoading = ref(false)
+
 const isUploading = ref(false)
 const image = ref(null)
 const isModalOpen = ref(false)
@@ -51,21 +59,13 @@ const selectQR = ref(false)
 const openReviewForm = ref(false)
 const uploadSuccess = ref(false)
 const uploadError = ref()
-const currentMessage = ref('Loading, please wait...')
 const statuses = ref(['Serviceable', 'Unserviceable'])
-const messages = ref([
-  'Loading, please wait...',
-  'Processing data...',
-  'Initializing data...',
-  'Fetching resources...',
-  'Preparing your data...',
-  'Almost there, hang tight...'
-])
+
 const userId = route.query.id
 const item = ref(null)
 const user_role = ref(0)
 const designation = ref('')
-const api_token = route.query.api_token
+const api_token = authStore.api_token
 
 const loadUserData = async () => {
   const userData = await fetchCurUser()
@@ -73,41 +73,14 @@ const loadUserData = async () => {
   designation.value = userData.data[0].roles
 }
 
-const startProgress = () => {
-  progress.value = 0
-  isLoading.value = true
-  updateMessage()
-  const interval = setInterval(() => {
-    if (progress.value < 90) {
-      progress.value += Number((Math.random() * 10).toFixed(2)) // Simulate progress increase
-      updateMessage()
-    } else {
-      clearInterval(interval)
-    }
-  }, 500)
-}
-
-const completeProgress = () => {
-  progress.value = 100
-  setTimeout(() => {
-    isLoading.value = false
-  }, 500)
-}
-
-const updateMessage = () => {
-  const randomIndex = Math.floor(Math.random() * messages.value.length)
-  currentMessage.value = messages.value[randomIndex]
-}
-
 const fetchData = async () => {
   try {
     startProgress() // Start the progress bar
-    const api_token = localStorage.getItem('api_token')
 
-    await loadUserData();
+    await loadUserData()
 
     const response = await api.get(
-      `/vw-gen-info?api_token=${api_token}&designation=${designation.value}`
+      `/vw-gen-info?api_tokes=${api_token}&designation=${user_role.value}`
     )
     total_item.value = Number(response.data.count) // Set the count if it exists
     customers.value = response.data.data // Process the fetched data
@@ -121,23 +94,65 @@ const fetchData = async () => {
 }
 
 const getCountStatus = async () => {
-  await loadUserData();
+  await loadUserData()
 
-  const response = await api.get(`/getCountStatus?api_token=${api_token}&designation=${user_role.value}`)
-  serviceable_count.value = response.data[0].serviceable 
-  unserviceable_count.value = Number(response.data[0].unserviceable)
+  try {
+    const response = await api.get(
+      `/getCountStatus?api_token=${api_token}&designation=${user_role.value}`
+    )
+
+    // Ensure response.data is an array and has at least one item
+    if (Array.isArray(response.data) && response.data.length > 0) {
+      serviceable_count.value = Number(response.data[0].serviceable || 0)
+      unserviceable_count.value = Number(response.data[0].unserviceable || 0)
+    } else {
+      console.warn('No data returned from API. Setting default values.')
+      serviceable_count.value = 0
+      unserviceable_count.value = 0
+    }
+  } catch (error) {
+    console.error('Error fetching count status:', error)
+    serviceable_count.value = 0
+    unserviceable_count.value = 0
+  }
 }
 
 const getOutdatedEquipment = async () => {
-  await loadUserData();
-  
-    const response = await api.get(`/getOutdatedEquipment?api_token=${api_token}&designation=${user_role.value}`)
-    outdated_count.value = Number(response.data[0].count) // Set the count if it exists
+  await loadUserData()
+
+  try {
+    const response = await api.get(
+      `/getOutdatedEquipment?api_token=${api_token}&designation=${user_role.value}`
+    )
+
+    console.log('API Response:', response.data) // Debugging step
+
+    // Ensure response.data is an array and has at least one item
+    if (Array.isArray(response.data) && response.data.length > 0) {
+      outdated_count.value = Number(response.data[0].count || 0)
+    } else {
+      console.warn('No outdated equipment data returned. Setting default value.')
+      outdated_count.value = 0
+    }
+  } catch (error) {
+    console.error('Error fetching outdated equipment:', error)
+    outdated_count.value = 0
+  }
 }
 
 const getInvalidData = async () => {
-  const response = await api.get(`/vw-invalid-data?api_token=${api_token}`)
-  invalid_data_count.value = Number(response.data[0].count) // Set the count if it exists
+  const userData = await fetchCurUser()
+
+  try {
+    const response = await api.get(
+      `/vw-invalid-data?api_token=${api_token}&designation=${userData.data[0]?.role_id}`
+    )
+
+    // Check if response.data exists and has at least one item
+    invalid_data_count.value = Number(response.data.count)
+  } catch (error) {
+    invalid_data_count.value = 0
+  }
 }
 
 const initFilters = () => {
@@ -221,6 +236,7 @@ const addMore = () => {
     name: 'InventoryCreate',
     query: {
       id: userId,
+      item_id: null,
       api_token: api_token,
       create_new: 'true' // Convert the boolean to a string
     }
@@ -239,7 +255,7 @@ const getSeverity = (status: string) => {
 
 const viewRecord = (id: string) => {
   router.push({
-    path: `/inventory/create/${id}`,
+    path: `/inventory/create/${id}&item_id=${id}`,
     query: { api_token: localStorage.getItem('api_token') }
   })
 }
@@ -310,13 +326,16 @@ const uploadImage = async () => {
 
 const exportData = async () => {
   try {
+    startProgress()
     const api_token = localStorage.getItem('api_token')
     const designation = localStorage.getItem('designation')
 
-    
-    const response = await api.get(`http://localhost:8000/api/export?export=true&api_token=${api_token}&designation=${designation}`, {
-      responseType: 'blob'
-    })
+    const response = await api.get(
+      `http://10.201.12.184:8000/api/export?export=true&api_token=${api_token}&designation=${designation}`,
+      {
+        responseType: 'blob'
+      }
+    )
 
     const blob = new Blob([response.data], { type: response.headers['content-type'] })
     const url = window.URL.createObjectURL(blob)
@@ -329,8 +348,11 @@ const exportData = async () => {
 
     link.remove()
     window.URL.revokeObjectURL(url)
+    loading.value = false
+    completeProgress()
   } catch (error) {
-    console.error('Error exporting data:', error)
+    loading.value = false
+    completeProgress()
   }
 }
 
@@ -373,8 +395,6 @@ const retrieveDataviaAPI = async (id) => {
 
       const peri_res = await api.get(`/retrievePeripheralsData?id=${id}`)
       Object.assign(peripheral_form, peri_res.data[0])
-
-
     } catch (error) {
       console.error('Error retrieving data:', error)
     }
@@ -382,7 +402,23 @@ const retrieveDataviaAPI = async (id) => {
   }
 }
 
+const handleKeydown = (event) => {
+  if (event.key === 'F2') {
+    openScanForm.value = true
+    event.preventDefault() // Prevent default browser action (if needed)
+  } else if (event.key === 'F3') {
+    openQR.value = true
+  }
+}
+
+const disableRightClick = (event) => {
+  event.preventDefault()
+}
+
 onMounted(() => {
+  window.addEventListener('keydown', handleKeydown)
+  window.addEventListener('contextmenu', disableRightClick)
+  
   loadUserData()
   fetchData()
   getCountStatus()
@@ -414,7 +450,6 @@ const pageTitle = ref('Inventory Management')
         :total_unserviceable_count="unserviceable_count"
         :outdated_equipment="outdated_count"
         :invalid_data="invalid_data_count"
-
       />
     </div>
 
@@ -428,14 +463,6 @@ const pageTitle = ref('Inventory Management')
       :invalid_data="invalid_data_count"
     /> -->
     <modal_qr_scan v-if="openScanForm" :isLoading="openScanForm" @close="openScanForm = false" />
-    <!-- <modal_qr_scan
-      v-if="openScanForm"
-      :isLoading="openScanForm"
-      :filters="filters"
-      @qr-scanned="updateFilterWithQrValue"
-      @close="openScanForm = false"
-    /> -->
-
     <modal_review_form
       v-if="openReviewForm"
       :genForm="form"
@@ -587,21 +614,14 @@ const pageTitle = ref('Inventory Management')
         >
           <template #header>
             <div class="flex items-center gap-4 justify-start">
-
               <Button
-                severity="info"              
+                severity="info"
                 type="button"
                 icon="pi pi-filter-slash"
                 label="Clear"
                 @click="clearFilter()"
               />
-              <Button
-                type="button"
-                icon="pi pi-add"
-                label="Add"
-                outlined
-                @click="addMore()"
-              />
+              <Button type="button" icon="pi pi-add" label="Add" outlined @click="addMore()" />
               <Button
                 type="button"
                 icon="pi pi-file-export"
@@ -619,14 +639,17 @@ const pageTitle = ref('Inventory Management')
               <Button
                 type="button"
                 icon="pi pi-qrcode"
-                label="Scan QR"
+                label="Scan QR [F2]"
                 @click="openScanForm = true"
                 outlined
               />
 
-        <Button severity="danger" label="Generate QR Code" @click="openQR = true" />
-        <Button severity="danger" label="Print QR Code" @click="selectQR = true" />
-
+              <Button
+                severity="danger"
+                icon="pi pi-qrcode"
+                label="Generate QR Code [F3]"
+                @click="openQR = true"
+              />
 
               <!-- Additional space between buttons and search field -->
               <div class="ml-auto flex items-center">
@@ -676,7 +699,7 @@ const pageTitle = ref('Inventory Management')
           </Column>
           <Column field="control_no" header="Control No" style="min-width: 12rem">
             <template #body="{ data }">
-              <Tag value="new" severity="success" class="text-center" /><br />
+              <Tag :value="data.equipment_title" severity="success" class="text-center" /><br />
               {{ data.control_no }}
               <!-- Ensure this field exists in the data object -->
             </template>
@@ -686,7 +709,7 @@ const pageTitle = ref('Inventory Management')
           </Column>
           <Column field="roles" header="Registered Location" style="min-width: 12rem">
             <template #body="{ data }">
-              {{ data.roles }}
+              {{ data.roles }}<br />{{ data.actual_division_title }}
               <!-- Ensure this field exists in the data object -->
             </template>
             <template #filter="{ filterModel }">
@@ -732,7 +755,7 @@ const pageTitle = ref('Inventory Management')
             </template>
           </Column>
 
-          <Column field="mon_qr_code1" header="Monitor 1 QR Code" style="min-width: 12rem">
+          <Column field="mon_qr_code1" header="Primary Monitor QR Code" style="min-width: 12rem">
             <template #body="{ data }">
               <QrcodeVue
                 v-if="data.mon_qr_code1 && data.mon_qr_code1.trim() !== ''"
@@ -748,7 +771,7 @@ const pageTitle = ref('Inventory Management')
               <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
             </template>
           </Column>
-          <Column field="mon_qr_code2" header="Monitor 2 QR Code" style="min-width: 12rem">
+          <Column field="mon_qr_code2" header="Secondary Monitor QR Code" style="min-width: 12rem">
             <template #body="{ data }">
               <QrcodeVue
                 v-if="data.mon_qr_code2 && data.mon_qr_code2.trim() !== ''"
@@ -780,24 +803,7 @@ const pageTitle = ref('Inventory Management')
               <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
             </template>
           </Column>
-          <Column field="actual_division_title" header="Office/Division" style="min-width: 12rem">
-            <template #body="{ data }">
-              {{ data.actual_division_title }}
-              <!-- Ensure this field exists in the data object -->
-            </template>
-            <template #filter="{ filterModel }">
-              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
-            </template>
-          </Column>
-          <Column field="equipment_title" header="Type of ICT Equipment" style="min-width: 12rem">
-            <template #body="{ data }">
-              {{ data.equipment_title }}
-              <!-- Ensure this field exists in the data object -->
-            </template>
-            <template #filter="{ filterModel }">
-              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
-            </template>
-          </Column>
+
           <Column field="brand" header="Brand & Model" style="min-width: 12rem">
             <template #body="{ data }">
               {{ data.brand }}

@@ -1,4 +1,5 @@
 import api from '../../laravel-backend/resources/js/axiosInstance.ts'
+import { ref } from 'vue'
 
 export const useInventory = () => {
   // Function to open the PDF report
@@ -37,11 +38,27 @@ export const useInventory = () => {
       return "DRAFT";
     }
   };
+  const predefinedRoles = ref([
+    { label: "PENRO Cavite", id:1 },
+    { label: "PENRO Laguna", id: 2},
+    { label: "PENRO Batangas", id:3 },
+    { label: "PENRO Rizal", id: 4},
+    { label: "PENRO Quezon", id: 5},
+    { label: "CENRO Sta. Cruz", id: 6},
+    { label: "CENRO Lipa City", id: 7},
+    { label: "CENRO Calaca", id: 8},
+    { label: "CENRO Calauag", id:9},
+    { label: "CENRO Catanauan", id:10 },
+    { label: "CENRO Tayabas", id:11 },
+    { label: "CENRO Real", id: 12},
+    { label: "Regional Office", id:13 }
+  ]);
   
 
   return { 
     printRecord, 
     checkItemStatus,
-    OTPsettings
+    OTPsettings,
+    predefinedRoles
   };
 };

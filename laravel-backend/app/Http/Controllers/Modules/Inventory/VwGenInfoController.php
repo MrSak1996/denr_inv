@@ -12,18 +12,30 @@ class VwGenInfoController extends Controller
     public function index(Request $req)
     {
         $designation = $req->query('designation');
-        $query = DB::table('vw_gen_info');
 
-        if (is_numeric($designation)) {
-                
-        }else if($designation == 'Regional Office'){
+        // Ensure designation is numeric and a valid table exists
+        if (!is_numeric($designation)) {
+            return response()->json([
+                'error' => 'Invalid designation parameter.'
+            ], 400);
+        }
 
-        }else{
+        // Construct table name securely
+        $tableName = 'vw_gen_info';
+
+    
+
+        // Initialize the query
+        $query = DB::table($tableName);
+
+        // Filter by roles unless designation is 13
+        if ($designation != 13) {
             $query->where('roles', $designation);
         }
 
+        // Fetch the data
         $data = $query->get();
-        $rowCount = $data->count();
+        $rowCount = $data->count(); // Always define rowCount
 
         return response()->json([
             'data' => $data,

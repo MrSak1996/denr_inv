@@ -26,6 +26,7 @@
 </template>
 
 <script setup lang="ts">
+import router from '@/router'
 import { ref, onMounted, watch, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -57,8 +58,11 @@ watch(searchValue, (newValue) => {
 
     // Set a new debounce timer
     debounceTimer.value = setTimeout(() => {
-      const targetUrl = `http://192.168.0.173:8080/inventory/create/${newValue}?api_token=${api_token}`
-      window.location.href = targetUrl // Redirect to the new URL
+      // const targetUrl = `http://10.201.12.184:8080/inventory/create/${newValue}?api_token=${api_token}`
+      router.push({
+        path: `/inventory/create/${newValue}&item_id=${newValue}`,
+        query:{api_token:api_token,option:"scan"}
+      })
     }, 1000) // Delay of 1 second
   }
 })

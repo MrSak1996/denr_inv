@@ -18,6 +18,7 @@ use DB;
 
 class InventoryController extends Controller
 {
+
     public function getControlNo(Request $req)
     {
         try {
@@ -76,105 +77,117 @@ class InventoryController extends Controller
             return response()->json(['error' => $e], 500);
         }
     }
-
-    public function generateQRCode(Request $req, $cur_year = '2024')
+    public function fetchLatestID()
     {
-        // Step 1: Retrieve province and municipality codes based on the user ID
+        $data = DB::table('tbl_general_info')
+            ->orderBy('id', 'desc')
+            ->first();
+        return response()->json($data);
+    }
 
-        $userId = $req->query('id');
+    public function generateQRCode(Request $req, $cur_year = '2025')
+    {
+        $user_id = $req->query('id');
+        $control_no = $req->query('control_no');
         $item_id = $req->query('item_id');
         $form_tracker = $req->query('tab_form');
 
+        // Step 1: Retrieve province and municipality codes based on user ID
         $userInfo = DB::table('users as u')
             ->leftJoin('user_roles as ur', 'ur.id', '=', 'u.roles')
-            ->select(DB::raw('ur.code_title,ur.code'))
-            ->where('u.id', $userId)
+            ->select(DB::raw('ur.code_title, ur.code'))
+            ->where('u.id', $user_id)
             ->first();
 
         if (!$userInfo) {
             return response()->json(['error' => 'User not found'], 404);
         }
+
         $ccode = '4A' . $userInfo->code_title . 'ICT';
 
-        // Step 2: Retrieve and increment the counter from tbl_config
+        // Step 2: Retrieve and increment the counter
         $config = DB::table('tbl_config')->where('code', $ccode)->first();
-
         if (!$config) {
             return response()->json(['error' => 'Configuration not found'], 404);
         }
 
         $counter = $config->counter + 1;
-        // Step 3: Format the counter with leading zeros
-        if ($counter > 9999) {
-            $newCounter = $counter;
-        } elseif ($counter > 999) {
-            $newCounter = '0' . $counter;
-        } elseif ($counter < 10) {
-            $newCounter = '0000' . $counter;
-        } elseif ($counter < 99) {
-            $newCounter = '000' . $counter;
-        } elseif ($counter > 99 && $counter <= 999) {
-            $newCounter = '00' . $counter;
-        }
 
-        // Step 4: Update the counter in tbl_config
+        // Step 3: Format the counter with leading zeros
+        $newCounter = str_pad($counter, 5, '0', STR_PAD_LEFT);
+
+        // Step 4: Update the counter
         DB::table('tbl_config')
             ->where('id', $config->id)
             ->update(['counter' => $newCounter]);
 
         // Step 5: Generate the control number
-        $controlNo = $ccode . '' . $newCounter;
-
-        //Step 6: Save QR Code
+        $controlNo = $ccode . $newCounter;
+        // Step 6: Save QR Code
         switch ($form_tracker) {
             case 'genForm':
-                DB::table('tbl_general_info')
-                    ->where('id', $item_id)
+                $updated = DB::table('tbl_general_info')
+                    ->where('control_no', $control_no)
+                    ->where('updated_by', $user_id)
                     ->update(['qr_code' => $controlNo]);
-                break;
-            case 'p1Form':
-                DB::table('tbl_peripherals')
-                    ->where('control_id', $item_id)
-                    ->update(['mon_qr_code1' => $controlNo]);
-                break;
-            case 'p2Form':
 
-                DB::table('tbl_peripherals')
+                if (!$updated) {
+                    return response()->json(['error' => 'Update failed for genForm'], 400);
+                }
+                break;
+
+            case 'p1Form':
+                $updated = DB::table('tbl_peripherals')
+                    ->where('control_id', $item_id)
+                    ->update(['mon_qr_code1' =>$controlNo]);
+
+                if (!$updated) {
+                    return response()->json(['error' => 'Update failed for p1Form'], 400);
+                }
+                break;
+
+            case 'p2Form':
+                $updated = DB::table('tbl_peripherals')
                     ->where('control_id', $item_id)
                     ->update(['mon_qr_code2' => $controlNo]);
+
+                if (!$updated) {
+                    return response()->json(['error' => 'Update failed for p2Form'], 400);
+                }
                 break;
+
             case 'upsForm':
-                DB::table('tbl_peripherals')
+                $updated = DB::table('tbl_peripherals')
                     ->where('control_id', $item_id)
                     ->update(['ups_qr_code' => $controlNo]);
+
+                if (!$updated) {
+                    return response()->json(['error' => 'Update failed for upsForm'], 400);
+                }
                 break;
 
             default:
-                # code...
-                break;
+                return response()->json(['error' => 'Invalid tab_form'], 400);
         }
-
-
-
 
         return response()->json(['control_no' => $controlNo]);
     }
 
+
     public function getDivision(Request $req)
     {
         $role = $req->query('role');
-        if($role === "13")
-        {
+        if ($role === "13") {
             $results = DB::table('tbl_division')
-            ->select(DB::raw('id,division_title,acronym'))
-            ->get();
-        }else{
+                ->select(DB::raw('id,division_title,acronym'))
+                ->get();
+        } else {
             $results = DB::table('tbl_division')
-            ->select(DB::raw('id,division_title,acronym'))
-            ->where('id', '>=', 19)
-            ->get();
+                ->select(DB::raw('id,division_title,acronym'))
+                ->where('id', '>=', 19)
+                ->get();
         }
-        
+
         return response()->json($results);
     }
 
@@ -493,7 +506,7 @@ class InventoryController extends Controller
                     DB::raw('CONCAT(u.first_name, " ", u.last_name) AS updated_by'),
                     'g.qr_code',
                     'i.created_at',
-                    'i.updated_at'  
+                    'i.updated_at'
                 )
                 ->leftJoin('tbl_general_info as g', 'g.id', '=', 'i.gen_info_id')
                 ->leftJoin('tbl_division as d', 'd.id', '=', 'i.source_location')
@@ -502,10 +515,10 @@ class InventoryController extends Controller
                 ->leftJoin('tbl_equipment_type as e', 'e.id', '=', 'g.equipment_type')
                 ->orderByDesc('i.id');
 
-                $data = ($designation == 13) ? $transaction_logs->get() : $transaction_logs->where('u.roles', $designation)->get();
+            $data = ($designation == 13) ? $transaction_logs->get() : $transaction_logs->where('u.roles', $designation)->get();
 
 
-            
+
 
             // Execute query
 
@@ -1071,9 +1084,8 @@ class InventoryController extends Controller
             'specs_net_iswireless' => 'nullable|integer',
         ]);
 
-        // Check if a record with the given control_id already exists
         $specsInfo = SpecificationInformation::updateOrCreate(
-            ['control_id' => $validatedData['control_id']], // Check by control_id
+            ['control_id' => $validatedData['control_id']],
             [
                 'processor' => $validatedData['specs_processor'],
                 'ram_type' => $validatedData['specs_ram'],

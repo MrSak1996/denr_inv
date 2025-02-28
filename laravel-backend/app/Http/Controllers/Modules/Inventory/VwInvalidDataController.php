@@ -10,9 +10,25 @@ use DB;
 
 class VwInvalidDataController extends Controller
 {
-    public function getInvalidData()
+    public function getInvalidData(Request $req)
     {
-        $invalidData = DB::table('vw_invalid_data')->get();
-        return response()->json($invalidData);
+        $designation = $req->query('designation');
+
+        $query = DB::table('vw_invalid_data');
+
+        if ($designation != 13) {
+        $invalidData = $query->get();
+
+        }else{
+            $query->where('registered_loc', $designation);
+
+        }
+
+        $invalidData = $query->get();
+        $rowCount = $invalidData->count(); 
+
+        return response()->json([
+            'count' => $rowCount
+        ]);
     }
 }

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useSidebarStore } from '@/stores/sidebar'
 import { onClickOutside } from '@vueuse/core'
-import { ref,onMounted,computed} from 'vue'
-import { useApi } from '../../composables/useApi.js';
+import { ref, onMounted, computed } from 'vue'
+import { useApi } from '../../composables/useApi.js'
 
 import SidebarItem from './SidebarItem.vue'
 import { useRoute } from 'vue-router'
@@ -12,20 +12,19 @@ const target = ref(null)
 const designation = ref()
 const sidebarStore = useSidebarStore()
 const route = useRoute()
-const userId = (!route.query.id) ? localStorage.getItem('userId'):route.query.id;
-const api_token = route.query.api_token
-const {
-  fetchCurUser,
-} = useApi()
+const userId = !route.query.id ? localStorage.getItem('userId') : route.query.id
+const api_token = localStorage.getItem('api_token')
+const { fetchCurUser } = useApi()
 onClickOutside(target, () => {
   sidebarStore.isSidebarOpen = false
 })
 
+onMounted(() => {
+  designation.value = localStorage.getItem('roles')
 
-onMounted(() => { 
-  loadUserData()
 })
-const dashboardIcon =  `
+
+const dashboardIcon = `
 <svg
                   class="fill-current"
                   width="18"
@@ -50,7 +49,7 @@ const dashboardIcon =  `
                     d="M15.4689 9.92822H11.8971C10.9408 9.92822 10.1533 10.7157 10.1533 11.672V15.2438C10.1533 16.2001 10.9408 16.9876 11.8971 16.9876H15.4689C16.4252 16.9876 17.2127 16.2001 17.2127 15.2438V11.7001C17.2127 10.7157 16.4252 9.92822 15.4689 9.92822ZM15.9752 15.272C15.9752 15.5532 15.7502 15.7782 15.4689 15.7782H11.8971C11.6158 15.7782 11.3908 15.5532 11.3908 15.272V11.7001C11.3908 11.4188 11.6158 11.1938 11.8971 11.1938H15.4689C15.7502 11.1938 15.9752 11.4188 15.9752 11.7001V15.272Z"
                     fill=""
                   />
-</svg>`;
+</svg>`
 const inventoryIcon = `
 <svg
                   class="fill-current"
@@ -71,64 +70,62 @@ const userMgnmtIcon = `<svg
                   xmlns="http://www.w3.org/2000/svg"
                 >
                 <path d="M495.9 166.6c3.2 8.7 .5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6c-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2c-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8c-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4L83.1 425.9c-8.8 2.8-18.6 .3-24.5-6.8c-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3c-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4C64.6 273.1 64 264.6 64 256s.6-17.1 1.7-25.4L22.4 191.2c-6.9-6.2-9.6-15.9-6.4-24.6c4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2c5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8c8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z"/>
-</svg>`;
+</svg>`
 const menuGroups = ref([
   {
     name: 'MENU',
     menuItems: [
-    
       {
         icon: dashboardIcon,
         label: 'Dashboard',
         route: '#',
-        children:[
-          { label: 'ICT Equipment',route:`/inventory?id=${userId}&api_token=${api_token}` },
-          { label: 'History Logs',route:`/inventory/logs?id=${userId}&api_token=${api_token}` },
+        children: [
+          { label: 'ICT Equipment', route: `/inventory?id=${userId}&api_token=${api_token}` },
+          { label: 'History Logs', route: `/inventory/logs?id=${userId}&api_token=${api_token}` }
         ]
       },
       {
         icon: inventoryIcon,
         label: 'Summary',
-        route:`/inventory/summary?id=${userId}&api_token=${api_token}`
+        route: `/inventory/summary?id=${userId}&api_token=${api_token}`
       },
       {
         icon: userMgnmtIcon,
         label: 'User Management',
         route: '#',
         children: [
-          { label: 'Manage Accounts', route: `/user-management/?id=${userId}&api_token=${api_token}`},
-          { label: 'Create Accounts', route: `/user-management/accounts/create?id=${userId}&api_token=${api_token}`},
+          {
+            label: 'Manage Accounts',
+            route: `/user-management/?id=${userId}&api_token=${api_token}`
+          },
+          {
+            label: 'Create Accounts',
+            route: `/user-management/accounts/create?id=${userId}&api_token=${api_token}`
+          }
         ]
       }
-     
     ]
   }
-
 ])
 
 const filteredMenuGroups = computed(() => {
-  return menuGroups.value.map(group => {
+  return menuGroups.value.map((group) => {
     return {
       ...group,
-      menuItems: group.menuItems.filter(menuItem => {
+      menuItems: group.menuItems.filter((menuItem) => {
         // Exclude both "User Management" and "Summary" if designation is not "Regional Office"
         if (
           (menuItem.label === 'User Management' || menuItem.label === 'Summary') &&
           designation.value !== 'Regional Office'
         ) {
-          return false;
+          return false
         }
-        return true;
+        return true
       })
-    };
-  });
-});
+    }
+  })
+})
 
-
-const loadUserData = async () => {
-  const userData = await fetchCurUser()
-  designation.value = userData.data[0].roles
-}
 
 </script>
 
@@ -145,7 +142,10 @@ const loadUserData = async () => {
     <div class="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
       <router-link to="/ecommerce" class="flex items-center space-x-2">
         <img src="@/assets/images/logo/denr_logo.png" alt="Logo" class="h-15 w-15" />
-        <span class="text-xl font-semibold">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DENR IV-A <br> ({{ designation}})</span>
+        <span class="text-xl font-semibold"
+          >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DENR IV-A <br />
+          ({{ designation }})</span
+        >
       </router-link>
 
       <button class="block lg:hidden" @click="sidebarStore.isSidebarOpen = false">
@@ -174,7 +174,6 @@ const loadUserData = async () => {
             <h3 class="mb-4 ml-4 text-sm font-medium text-bodydark2">{{ menuGroup.name }}</h3>
 
             <ul class="mb-6 flex flex-col gap-1.5">
-              
               <SidebarItem
                 v-for="(menuItem, index) in menuGroup.menuItems"
                 :item="menuItem"
@@ -185,7 +184,6 @@ const loadUserData = async () => {
           </div>
         </template>
       </nav>
-    
     </div>
   </aside>
 </template>
