@@ -49,6 +49,7 @@ Route::middleware('api')->group(function () {
     Route::get('/getControlNo', [InventoryController::class, 'getControlNo']);
     Route::get('/generateQRCode', [InventoryController::class, 'generateQRCode']);
     Route::get('/getDivision', [InventoryController::class, 'getDivision']);
+    Route::get('/getQRData', [InventoryController::class, 'getQRData']);
     Route::get('/fetchRangeEntry', [InventoryController::class, 'fetchRangeEntry']);
     // react native api
     Route::get('/getNatureWork', [InventoryController::class, 'getNatureWork']); 

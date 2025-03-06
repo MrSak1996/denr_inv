@@ -17,6 +17,7 @@ import modal_qr_scan from './modal/modal_qr_scan.vue'
 import modal_review_form from './modal/modal_review_form.vue'
 import modal_gen_qr from './modal/modal_gen_qr.vue'
 import modal_print_qr from './modal/modal_print_qr.vue'
+import modal_export_report from './modal/modal_export_report.vue'
 
 const {
   isLoading,
@@ -55,6 +56,7 @@ const isUploading = ref(false)
 const image = ref(null)
 const isModalOpen = ref(false)
 const openQR = ref(false)
+const openReport = ref(false)
 const selectQR = ref(false)
 const openReviewForm = ref(false)
 const uploadSuccess = ref(false)
@@ -324,37 +326,7 @@ const uploadImage = async () => {
   }
 }
 
-const exportData = async () => {
-  try {
-    startProgress()
-    const api_token = localStorage.getItem('api_token')
-    const designation = localStorage.getItem('designation')
 
-    const response = await api.get(
-      `http://10.201.12.184:8000/api/export?export=true&api_token=${api_token}&designation=${designation}`,
-      {
-        responseType: 'blob'
-      }
-    )
-
-    const blob = new Blob([response.data], { type: response.headers['content-type'] })
-    const url = window.URL.createObjectURL(blob)
-
-    const link = document.createElement('a')
-    link.href = url
-    link.download = 'denr_ict_inv_2024.xlsx'
-    document.body.appendChild(link)
-    link.click()
-
-    link.remove()
-    window.URL.revokeObjectURL(url)
-    loading.value = false
-    completeProgress()
-  } catch (error) {
-    loading.value = false
-    completeProgress()
-  }
-}
 
 const resetForm = () => {
   image.value = null
@@ -418,7 +390,6 @@ const disableRightClick = (event) => {
 onMounted(() => {
   window.addEventListener('keydown', handleKeydown)
   window.addEventListener('contextmenu', disableRightClick)
-  
   loadUserData()
   fetchData()
   getCountStatus()
@@ -478,7 +449,9 @@ const pageTitle = ref('Inventory Management')
       :item_id="item"
       @close="openReviewForm = false"
     />
+    <modal_export_report v-if="openReport" :open="openReport" @close="openReport = false"/>
     <modal_gen_qr v-if="openQR" :open="openQR" @close="openQR = false"></modal_gen_qr>
+    
     <modal_print_qr v-if="selectQR" :open="selectQR" @close="selectQR = false"></modal_print_qr>
 
     <div class="flex flex-col gap-10 mt-4">
@@ -614,20 +587,15 @@ const pageTitle = ref('Inventory Management')
         >
           <template #header>
             <div class="flex items-center gap-4 justify-start">
-              <Button
-                severity="info"
-                type="button"
-                icon="pi pi-filter-slash"
-                label="Clear"
-                @click="clearFilter()"
-              />
+             
               <Button type="button" icon="pi pi-add" label="Add" outlined @click="addMore()" />
               <Button
                 type="button"
                 icon="pi pi-file-export"
                 label="Export"
                 outlined
-                @click="exportData()"
+                @click="openReport=true"
+             
               />
               <Button
                 type="button"
@@ -649,6 +617,14 @@ const pageTitle = ref('Inventory Management')
                 icon="pi pi-qrcode"
                 label="Generate QR Code [F3]"
                 @click="openQR = true"
+              />
+              <Button
+              style="left:350px"
+                severity="info"
+                type="button"
+                icon="pi pi-filter-slash"
+                label="Clear"
+                @click="clearFilter()"
               />
 
               <!-- Additional space between buttons and search field -->

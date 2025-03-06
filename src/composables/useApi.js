@@ -1,9 +1,13 @@
 // src/composables/useApi.js
 import { ref } from 'vue'
+import { useAuthStore } from '@/stores/authStore'
+
 import api from '../../laravel-backend/resources/js/axiosInstance.ts'
 
 export function useApi() {
+  const authStore = useAuthStore()
   const division_opts = ref([])
+  const qr_opts = ref([])
   const work_nature = ref([])
   const equipment_type = ref([])
   const range_category = ref([])
@@ -81,11 +85,24 @@ export function useApi() {
       console.error(error)
     }
   }
+  const getQRData = async () => {
+    try {
+      const res = await api.get('/getQRData', { params: { role:authStore.role_id } })
+      qr_opts.value = res.data.map((item) => ({
+        id: item.qr_code,
+        value: item.qr_code,
+        name: `${item.qr_code}`
+      }))
+    } catch (error) {
+      console.error('Error fetching qr code:', error)
+      
+    }
+  }
   const getDivision = async () => {
     try {
       const user = await fetchCurUser() // Fetch user data first
       if (!user) return
-      const res = await api.get('/getDivision', { params: { role: user.data[0].id } })
+      const res = await api.get('/getDivision', { params: { role:authStore.role_id } })
       division_opts.value = res.data.map((division) => ({
         id: division.id,
         value: division.id,
@@ -243,6 +260,7 @@ export function useApi() {
 
   return {
     sex_opts,
+    qr_opts,
     province_opts,
     roles_opts,
     status_opts,
@@ -261,6 +279,7 @@ export function useApi() {
     messages,
     currentMessage,
     progress,
+    getQRData,
     startProgress,
     completeProgress,
     fetchCurUser,

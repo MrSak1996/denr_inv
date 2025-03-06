@@ -16,6 +16,7 @@ import router from './router'
 import store from './store'  // Ensure the store is imported
 import QrcodeVue from 'qrcode.vue'  // Import the QRCode component
 import { DataTable } from 'primevue';
+import MultiSelect from 'primevue/multiselect';
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import Column from 'primevue/column'
@@ -61,7 +62,7 @@ app.component('InputIcon', InputIcon)
 app.component('Dialog', Dialog)
 app.component('Tag', Tag)
 app.component('Select', Select)
-
+app.component('MultiSelect',MultiSelect)
 app.component('Checkbox',Checkbox)
 app.component('Badge',Badge)
 app.component('Divider',Divider)

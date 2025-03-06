@@ -173,7 +173,28 @@ class InventoryController extends Controller
         return response()->json(['control_no' => $controlNo]);
     }
 
-
+    public function getQRData(Request $req)
+    {
+        $roles = $req->query('role');
+        if ($roles === "13") {
+            $qrCodes = DB::table('tbl_general_info as g')
+            ->leftJoin('tbl_peripherals as p', 'p.control_id', '=', 'g.id')
+            ->selectRaw("COALESCE(qr_code, mon_qr_code1, mon_qr_code2, ups_qr_code) as qr_code")
+            ->whereRaw("COALESCE(qr_code, mon_qr_code1, mon_qr_code2, ups_qr_code) IS NOT NULL")
+            ->orderByDesc('qr_code')
+            ->get();
+    
+        return response()->json($qrCodes);
+        } else {
+            $qrCodes = DB::table('tbl_general_info as g')
+            ->leftJoin('tbl_peripherals as p', 'p.control_id', '=', 'g.id')
+            ->selectRaw("COALESCE(qr_code, mon_qr_code1, mon_qr_code2, ups_qr_code) as qr_code")
+            ->whereRaw("COALESCE(qr_code, mon_qr_code1, mon_qr_code2, ups_qr_code) IS NOT NULL")
+            ->where('registered_loc', '>=', $roles)
+            ->orderByDesc('qr_code')
+            ->get();
+        }
+    }
     public function getDivision(Request $req)
     {
         $role = $req->query('role');

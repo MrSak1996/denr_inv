@@ -167,7 +167,7 @@ const saveGeneralInfo = async () => {
 
       const id = response.data.id
       router.push({
-        name: 'InventoryEdit',
+        name: 'Inventory',
         params: { id },
         query: { item_id: route.query.item_id, api_token: localStorage.getItem('api_token') }
       })
@@ -208,7 +208,7 @@ const saveSpecsInfo = async () => {
 
       const id = response.data.id
       router.push({
-        name: 'InventoryEdit',
+        name: 'Inventory',
         params: { id },
         query: { api_token: localStorage.getItem('api_token') }
       })
@@ -253,7 +253,7 @@ const saveSoftwareInfo = async () => {
       // Redirect to the edit page with the new ID
       const id = response.data.id
       router.push({
-        name: 'InventoryEdit',
+        name: 'Inventory',
         params: { id },
         query: { api_token: localStorage.getItem('api_token') }
       })
@@ -289,7 +289,7 @@ const savePeripheralInfo = async () => {
 
       const id = response.data.id
       // router.push({
-      //   name: 'InventoryEdit',
+      //   name: 'Inventory',
       //   params: { id },
       //   query: { item_id: route.query.item_id, api_token: localStorage.getItem('api_token') }
       // })
@@ -486,7 +486,7 @@ const fetchLatestID = async () => {
 
 const updateIdInURL = (newId) => {
   if (route.query.option == 'scan') {
-    return null;
+    return null
   } else {
     router.replace({
       query: {
@@ -497,6 +497,10 @@ const updateIdInURL = (newId) => {
   }
 }
 
+const formattedCost = computed(() => {
+  let num = form.acquisition_cost;
+  return num ? new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(num) : '₱0.00';
+});
 onMounted(() => {
   const id = route.params.id
   if (!id) {
@@ -607,7 +611,16 @@ onMounted(() => {
           <i class="pi pi-desktop" />
           <span class="font-bold whitespace-nowrap">Monitor & UPS</span>
         </Tab>
-        <Badge :value="item_status" size="large" severity="danger" class="badge-align-left"></Badge>
+        <ButtonGroup style="margin-left: 500px" class="mt-2">
+          <router-link
+            :to="`/inventory?id=${route.params.id}&api_token=${route.query.api_token}`"
+            class="p-button p-button-secondary mr-4"
+          >
+            <i class="pi pi-undo"></i> Back
+          </router-link>
+        </ButtonGroup>
+
+        <!-- <Badge :value="item_status" size="large" severity="danger" class="badge-align-left"></Badge> -->
       </TabList>
 
       <TabPanels>
@@ -811,13 +824,16 @@ onMounted(() => {
               </div>
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
-                  <InputText id="aquisition_cost" v-model="form.aquisition_cost" class="w-full" />
+         
+                  <InputText id="aquisition_cost" :value="formattedCost" v-model="form.acquisition_cost" class="w-full"   
+                  />
                   <label for="aquisition_cost">Aquisition Cost</label>
                 </FloatLabel>
               </div>
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
-                  <InputText id="serial_no" v-model="form.serial_no" class="w-full" />
+                  <InputText id="serial_no" v-model="form.serial_no" class="w-full"  
+                  />
                   <label for="serial_no">Serial Number</label>
                 </FloatLabel>
               </div>
@@ -833,14 +849,14 @@ onMounted(() => {
 
             <Button
               @click="transferItem('gen_info')"
-              label="Transfer Item"
+              label="Edit/Update"
               type="button"
               icon="pi pi-star"
               class="mr-4"
               severity="primary"
             />
             <Button
-              label="Save as Draft"
+              label="Save"
               type="submit"
               icon="pi pi-save"
               severity="primary"
@@ -1042,7 +1058,7 @@ onMounted(() => {
               </div>
             </div>
 
-            <Button label="Save as Draft" type="submit" icon="pi pi-save" severity="primary" />
+            <Button label="Save" type="submit" icon="pi pi-save" severity="primary" />
           </form>
         </TabPanel>
 
@@ -1076,7 +1092,7 @@ onMounted(() => {
               </div>
             </div>
 
-            <Button label="Save as Draft" type="submit" icon="pi pi-save" severity="primary" />
+            <Button label="Save" type="submit" icon="pi pi-save" severity="primary" />
           </form>
         </TabPanel>
 
@@ -1413,7 +1429,7 @@ onMounted(() => {
 
             <Button
               @click="transferItem('peri_form')"
-              label="Transfer Item"
+              label="Edit/Update"
               type="button"
               icon="pi pi-star"
               class="mr-4"
@@ -1421,7 +1437,7 @@ onMounted(() => {
             />
 
             <Button
-              label="Save as Draft"
+              label="Save"
               type="submit"
               icon="pi pi-save"
               severity="info"

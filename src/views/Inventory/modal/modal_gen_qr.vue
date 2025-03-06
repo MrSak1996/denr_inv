@@ -1,18 +1,18 @@
 <script setup>
-import { ref, computed,onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { saveAs } from 'file-saver'
 import JSZip from 'jszip'
 import { generateQRCodeWithLogo, formatQRCodeText } from './qrCodeUtils.js'
 import { useApi } from '@/composables/useApi'
 import api from '../../../../laravel-backend/resources/js/axiosInstance.ts'
 
-
-const { qr_code_temp,getQRCodeTemp } = useApi()
+const { qr_code_temp, getQRCodeTemp, getQRData, qr_opts } = useApi()
 const baseNumber = ref(1)
 const quantity = ref(10)
 const generating = ref(false)
 const progress = ref(0)
 const error = ref('')
+const selectedQrCodes = ref([]) // Store selected QR code options
 
 // Set a default logo URL
 const logoUrl = ref(new URL('../../../assets/images/logo/denr_logo.png', import.meta.url).href)
@@ -20,6 +20,11 @@ const logoUrl = ref(new URL('../../../assets/images/logo/denr_logo.png', import.
 const totalCodes = computed(() => quantity.value)
 
 const generateQRCodes = async () => {
+  if (selectedQrCodes.value.length === 0) {
+    error.value = 'Please select at least one QR code option'
+    return
+  }
+
   if (quantity.value <= 0) {
     error.value = 'Quantity must be greater than 0'
     return
@@ -42,14 +47,16 @@ const generateQRCodes = async () => {
   try {
     const zip = new JSZip()
 
-    for (let i = 0; i < quantity.value; i++) {
-      const text = formatQRCodeText(qr_code_temp.value,baseNumber.value, i + 1)
-      const qrCode = await generateQRCodeWithLogo(text, logoUrl.value)
+    for (const selected of selectedQrCodes.value) {
+      for (let i = 0; i < quantity.value; i++) {
+        const text = formatQRCodeText(selected.name, baseNumber.value, i + 1)
+        const qrCode = await generateQRCodeWithLogo(text, logoUrl.value)
 
-      const imageData = qrCode.split(',')[1]
-      zip.file(`${text}.png`, imageData, { base64: true })
+        const imageData = qrCode.split(',')[1]
+        zip.file(`${text}.png`, imageData, { base64: true })
 
-      progress.value = ((i + 1) / quantity.value) * 100
+        progress.value = ((i + 1) / (quantity.value * selectedQrCodes.value.length)) * 100
+      }
     }
 
     const content = await zip.generateAsync({ type: 'blob' })
@@ -63,7 +70,6 @@ const generateQRCodes = async () => {
   }
 }
 
-
 const emit = defineEmits(['close', 'proceed'])
 
 const props = defineProps({
@@ -76,8 +82,10 @@ const props = defineProps({
 const closeModal = () => {
   emit('close')
 }
+
 onMounted(() => {
-  getQRCodeTemp();
+  getQRCodeTemp()
+  getQRData()
 })
 </script>
 
@@ -105,43 +113,35 @@ onMounted(() => {
 
       <div class="qr-batch-generator">
         <div class="input-section">
-          <div class="number-inputs">
-            <div class="input-group">
-              <label for="baseNumber">Base Number (01-99)</label>
-              <input
-                id="baseNumber"
-                type="number"
-                v-model.number="baseNumber"
-                min="1"
-                max="99"
-                :disabled="generating"
-              />
-            </div>
-            <div class="input-group">
-              <label for="quantity">Quantity</label>
-              <input
-                id="quantity"
-                type="number"
-                v-model.number="quantity"
-                min="1"
-                :disabled="generating"
-              />
-            </div>
+          <div
+            class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
+            role="alert"
+          >
+            Please select at least one option from the dropdown to generate its respective QR code.
+            Available options: <strong>4AICT0001, 4AICT0002, 4AICT0003</strong>.
           </div>
-
-         
+          <label for="baseNumber">List of QR Code Generated:</label>
+          <MultiSelect
+            display="chip"
+            v-model="selectedQrCodes"
+            :options="qr_opts"
+            optionLabel="name"
+            filter
+            placeholder="Select Cities"
+            :maxSelectedLabels="3"
+            class="w-full"
+          />
         </div>
 
         <div v-if="error" class="error">{{ error }}</div>
 
-        <div class="preview">
+        <!-- <div class="preview">
           <p>Will generate {{ totalCodes }} QR codes</p>
           <p>
-            Format: {{ qr_code_temp }}0001 to {{qr_code_temp}}{{
-              String(baseNumber).padStart(2, '0')
-            }}{{ String(quantity).padStart(3, '0') }}
+            Format: {{ qr_code_temp }}0001 to {{ qr_code_temp
+            }}{{ String(baseNumber).padStart(2, '0') }}{{ String(quantity).padStart(3, '0') }}
           </p>
-        </div>
+        </div> -->
 
         <div class="actions">
           <button @click="generateQRCodes" :disabled="generating" class="generate-btn">

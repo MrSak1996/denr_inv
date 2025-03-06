@@ -52,7 +52,7 @@ const loginUser = async () => {
     const response = await api.post('/login', form.value)
     if (response.data.status) {
       // using Pinia
-      authStore.setUser(response.data.userId, response.data.api_token)
+      authStore.setUser(response.data.userId, response.data.api_token,response.data.roles)
     
       // If login is successful, send the OTP
       localStorage.setItem('userId', response.data.userId)
@@ -695,34 +695,7 @@ onMounted(() => {})
           </div>
         </section>
 
-        <section class="bg-white dark:bg-gray-800">
-          <div class="max-w-screen-xl px-4 py-8 mx-auto space-y-12 lg:space-y-20 lg:py-24 lg:px-6">
-            <h2
-              class="max-w-2xl mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl xl:text-5xl text-teal-900"
-            >
-              Regional ICT Team
-            </h2>
-            <div class="items-center"></div>
-            <swiper
-              :modules="modules"
-              :slides-per-view="3"
-              :space-between="50"
-              navigation
-              :pagination="{ clickable: true }"
-              :scrollbar="{ draggable: true }"
-              @swiper="onSwiper"
-              @slideChange="onSlideChange"
-            >
-              <swiper-slide><img src="../../assets/images/team-1.png" /></swiper-slide>
-              <swiper-slide><img src="../../assets/images/team-2.png" /></swiper-slide>
-              <swiper-slide><img src="../../assets/images/team-3.png" /></swiper-slide>
-              <swiper-slide><img src="../../assets/images/team-4.png" /></swiper-slide>
-              <swiper-slide><img src="../../assets/images/team-5.png" /></swiper-slide>
-
-              ...
-            </swiper>
-          </div>
-        </section>
+      
       </main>
       <!-- ===== Main Content End ===== -->
     </div>

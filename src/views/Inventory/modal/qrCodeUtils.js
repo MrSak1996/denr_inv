@@ -48,8 +48,8 @@ export async function generateQRCodeWithLogo(text, logoUrl = defaultLogoUrl) {
   })
 }
 
-export function formatQRCodeText(qr_format, baseNumber, increment) {
-  const formattedIncrement = String(increment).padStart(5, '0');
-  return `${qr_format}${formattedIncrement}`;
-}
 
+
+export function formatQRCodeText(qr_format) {
+  return `${qr_format}`; // Only return the QR code format
+}

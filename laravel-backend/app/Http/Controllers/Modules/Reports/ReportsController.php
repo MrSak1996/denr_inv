@@ -110,8 +110,7 @@ class ReportsController extends Controller
 
     public function getInventoryData(Request $request)
     {
-        $api_token = $request->query('api_token');
-        $designation = $request->query('designation');
+        $role_id = $request->query('role_id');
 
         $equipmentData = DB::table('tbl_general_info as gi')
             ->leftJoin('tbl_specification as s', 's.control_id', '=', 'gi.id')
@@ -173,8 +172,8 @@ class ReportsController extends Controller
                 DB::raw("CONCAT( 'QR Code: ', COALESCE(gi.qr_code, 'N/A'), CHAR(10), 'MONITOR 1 QR Code: ', COALESCE(p.mon_qr_code1, 'N/A'), CHAR(10), 'MONITOR 2 QR Code:', COALESCE(p.mon_qr_code2, 'N/A'), CHAR(10), 'UPS QR Code: ', COALESCE(p.ups_qr_code, 'N/A') ) AS rict_code")
             );
 
-        if ($designation !== "Regional Office") {
-            $equipmentData->where('u.api_token', $api_token);
+        if ($role_id !== "13") {
+            $equipmentData->where('u.roles', $role_id);
         }
         $equipmentData = $equipmentData->get();
 
