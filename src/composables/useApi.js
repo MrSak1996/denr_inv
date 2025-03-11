@@ -208,7 +208,8 @@ export function useApi() {
   ])
   const status_opts = ref([
     { name: 'Serviceable', id: 1 },
-    { name: 'Unserviceable', id: 2 }
+    { name: 'Unserviceable', id: 2 },
+    { name: 'Returned', id: 3 }
   ])
   const section_opts = ref([
     { name: 'RICT', id: 1 },

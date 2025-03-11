@@ -52,7 +52,7 @@ const loginUser = async () => {
     const response = await api.post('/login', form.value)
     if (response.data.status) {
       // using Pinia
-      authStore.setUser(response.data.userId, response.data.api_token,response.data.roles)
+      authStore.setUser(response.data.userId, response.data.api_token,response.data.roles,response.data.division_id,response.data.client)
     
       // If login is successful, send the OTP
       localStorage.setItem('userId', response.data.userId)

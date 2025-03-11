@@ -257,10 +257,11 @@ const getSeverity = (status: string) => {
 
 const viewRecord = (id: string) => {
   router.push({
-    path: `/inventory/create/${id}&item_id=${id}`,
-    query: { api_token: localStorage.getItem('api_token') }
-  })
+    path: `/inventory/create/${id}`,
+    query: { api_token: localStorage.getItem('api_token'), item_id: id }
+  });
 }
+
 
 const handlePrint = (id) => {
   printRecord(id) // Example ID
@@ -692,6 +693,24 @@ const pageTitle = ref('Inventory Management')
               <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
             </template>
           </Column>
+          <Column field="acct_person" header="Accountable Person" style="min-width: 1rem">
+            <template #body="{ data }">
+              {{ data.acct_person }}
+              <!-- Ensure this field exists in the data object -->
+            </template>
+            <template #filter="{ filterModel }">
+              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
+            </template>
+          </Column>
+          <Column field="actual_user" header="Actual User" style="min-width: 1rem">
+            <template #body="{ data }">
+              {{ data.actual_user }}
+              <!-- Ensure this field exists in the data object -->
+            </template>
+            <template #filter="{ filterModel }">
+              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
+            </template>
+          </Column>
           <Column
             header="Status"
             field="status"
@@ -813,24 +832,7 @@ const pageTitle = ref('Inventory Management')
               <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
             </template>
           </Column>
-          <Column field="acct_person" header="Accountable Person" style="min-width: 1rem">
-            <template #body="{ data }">
-              {{ data.acct_person }}
-              <!-- Ensure this field exists in the data object -->
-            </template>
-            <template #filter="{ filterModel }">
-              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
-            </template>
-          </Column>
-          <Column field="actual_user" header="Actual User" style="min-width: 1rem">
-            <template #body="{ data }">
-              {{ data.actual_user }}
-              <!-- Ensure this field exists in the data object -->
-            </template>
-            <template #filter="{ filterModel }">
-              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
-            </template>
-          </Column>
+         
         </DataTable>
       </div>
     </div>

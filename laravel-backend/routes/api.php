@@ -85,6 +85,7 @@ Route::middleware('api')->group(function () {
     Route::get('/get_equipment', [InventoryController::class, 'get_equipment']);
 
     Route::get('/export', [ReportsController::class, 'generateReport']);
+    Route::get('/exportSummary', [ReportsController::class, 'generateSummaryReport']);
     Route::get('/generatePDFReport', [ReportsController::class, 'generatePDFReport']);
     Route::post('/upload-qrcodes', [ReportsController::class, 'uploadQRFiles']);
 

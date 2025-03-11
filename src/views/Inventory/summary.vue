@@ -6,6 +6,7 @@ import { useInventory } from '@/composables/useInventory.ts'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
 import router from '@/router'
+import modal_export_summary_report from './modal/modal_export_summary_report.vue'
 
 const { fetchCurUser } = useApi()
 const route = useRoute()
@@ -138,6 +139,8 @@ const pageTitle = ref('TOTAL NUMBER OF FUNCTIONING UNITS BY YEAR ACQUIRED')
 <template>
   <DefaultLayout>
     <BreadcrumbDefault :pageTitle="pageTitle" />
+    <modal_export_summary_report v-if="isModalOpen" :open="isModalOpen" @close="isModalOpen = false"/>
+
     <div class="flex flex-col gap-10 mt-4">
       <div
         class="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1"
@@ -199,6 +202,14 @@ const pageTitle = ref('TOTAL NUMBER OF FUNCTIONING UNITS BY YEAR ACQUIRED')
                 icon="pi pi-filter-slash"
                 label="Clear"
                 @click="clearFilter()"
+              />
+              <Button
+                class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                type="button"
+                icon="pi pi-file-export"
+                label="Export Report"
+                @click="isModalOpen=true"
+
               />
               <!-- Additional space between buttons and search field -->
               <div class="ml-auto flex items-center">

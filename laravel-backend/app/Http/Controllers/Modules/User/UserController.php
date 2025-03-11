@@ -37,6 +37,7 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => true,
+                'division_id' => $user->division_id,
                 'email'  => $user->email,
                 'message' => 'Success',
                 'api_token' => $token,
@@ -44,6 +45,7 @@ class UserController extends Controller
                 'roles' => $user->roles,
                 'userId' => $user->id,
                 'username' => $user->username,
+                'client' => $user->first_name . ' ' . $user->last_name
             ]);
         } else {
             return response()->json([

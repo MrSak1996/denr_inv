@@ -82,6 +82,8 @@ export function useForm() {
     ups_accountPersonInPN: '',
     ups_qr_acctual_user: '',
     ups_status:'',
+    mon1division1:'',
+    mon1division2:'',
     division_id: ''
 
   })

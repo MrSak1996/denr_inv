@@ -108,6 +108,69 @@ class ReportsController extends Controller
         }
     }
 
+
+    public function generateSummaryReport(Request $request, InventoryController $inventoryController)
+    {
+        if ($request->has('export')) {
+            $templatePath = public_path('templates/summary_report.xlsx');
+
+            if (!file_exists($templatePath)) {
+                return response()->json(['error' => 'Template file not found.'], 404);
+            }
+
+            $spreadsheet = IOFactory::load($templatePath);
+            $sheet = $spreadsheet->getActiveSheet();
+
+            // Fetch data from InventoryController
+            $response = $inventoryController->getSummaryData($request);
+
+            // Ensure the response is converted to an array
+            if ($response instanceof \Illuminate\Http\JsonResponse) {
+                $data = $response->getData(true); // Convert JSON response to array
+            } else {
+                return response()->json(['error' => 'Invalid data response format.'], 500);
+            }
+
+            if (!isset($data['data']) || empty($data['data'])) {
+                return response()->json(['error' => 'No data available for export.'], 404);
+            }
+
+            // Define styling for cells
+            $styleArray = [
+                'alignment' => ['wrapText' => true],
+                'borders' => [
+                    'allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]
+                ],
+            ];
+
+            // Populate Excel sheet with data
+            $row = 2;
+            $items = $data['data'];
+
+            foreach ($items as $item) {
+                $sheet->setCellValue('A' . $row, $item['equipment_title'] ?? '');
+                $sheet->setCellValue('B' . $row, $item['year_2025'] ?? 0);
+                $sheet->setCellValue('C' . $row, $item['year_2024'] ?? 0);
+                $sheet->setCellValue('D' . $row, $item['year_2023'] ?? 0);
+                $sheet->setCellValue('E' . $row, $item['year_2022'] ?? 0);
+                $sheet->setCellValue('F' . $row, $item['below_2021'] ?? 0);
+
+                $sheet->getStyle("A{$row}:F{$row}")->applyFromArray($styleArray);
+                $row++;
+            }
+
+            // Generate temp file
+            $tempFile = tempnam(sys_get_temp_dir(), 'summary_report');
+            $writer = new Xlsx($spreadsheet);
+            $writer->save($tempFile);
+
+            // Download file and delete after sending
+            return response()->download($tempFile, 'summary_report.xlsx')->deleteFileAfterSend(true);
+        }
+
+        return response()->json(['error' => 'Export flag missing.'], 400);
+    }
+
     public function getInventoryData(Request $request)
     {
         $role_id = $request->query('role_id');
@@ -451,21 +514,20 @@ class ReportsController extends Controller
         $jasperParams = [
             'qrcode_paths' => $filename
         ];
-        
-       
-        $file = $this->generateQRPDF($paths,$jasperParams,'.pdf');
+
+
+        $file = $this->generateQRPDF($paths, $jasperParams, '.pdf');
         if (!file_exists($file)) {
             return response()->json(['error' => 'Report generation failed!'], 500);
-        } 
+        }
 
         return response()->file($file, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="qr.pdf"',
         ]);
-       
     }
 
-    
+
 
     private function generateQRPDF($paths, $jasperParams, $ext)
     {

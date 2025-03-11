@@ -3,7 +3,9 @@ import { onClickOutside } from '@vueuse/core'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
+import { useAuthStore } from '@/stores/authStore'
 
+const authStore = useAuthStore()
 const target = ref(null)
 const dropdownOpen = ref(false)
 const router = useRouter()
@@ -60,8 +62,8 @@ const fetchCurUser = async () => {
   }
 }
 onMounted(() => {
-  designation.value = localStorage.getItem('roles')
-  current_user.value = localStorage.getItem('userId')
+  designation.value = authStore.client
+  current_user.value = authStore.userId
 })
 </script>
 

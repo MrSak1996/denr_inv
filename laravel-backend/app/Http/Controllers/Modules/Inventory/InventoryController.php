@@ -337,9 +337,9 @@ class InventoryController extends Controller
 
         $results = DB::table('tbl_peripherals')
             ->select(DB::raw(
-                'id, 
+                'tbl_peripherals.id, 
                 control_id,
-                division_id,
+                g.division_id as mon1division1,
                 mon_brand_model1 as monitor1BrandModel, 
                 mon_brand_model2 as monitor2BrandModel,
                 monitor1Model,
@@ -366,6 +366,7 @@ class InventoryController extends Controller
                 ups_status',
 
             ))
+            ->leftJoin('tbl_general_info as g','g.id','=','tbl_peripherals.control_id')
             ->where('control_id', $id)
             ->get();
 
@@ -1156,8 +1157,10 @@ class InventoryController extends Controller
 
     public function post_insert_peripheral(Request $request)
     {
+        $user_id = $request->input('id');
+
         $validatedData = $request->validate([
-            'control_id' => 'required|string',
+            'control_id' => 'required|integer',
             'monitor1QrCode' => 'nullable|string',
             'monitor1BrandModel' => 'nullable|string',
             'monitor1Model' => 'nullable|string',
@@ -1182,6 +1185,10 @@ class InventoryController extends Controller
             'monitor1Status' => 'nullable|integer',
             'monitor2Status' => 'nullable|integer',
             'ups_status' => 'nullable|integer',
+            'mon1division1' => 'nullable|integer',
+            'mon1division2' => 'nullable|integer'
+
+            
         ]);
 
 
@@ -1215,6 +1222,17 @@ class InventoryController extends Controller
                 'ups_status' => $validatedData['ups_status'],
             ]
         );
+
+        $transactionLog = InventoryTransaction::create([
+            'transaction_type' => "UPDATE",
+            'accountable_user' => $peripheral->mon_acct_user1,
+            'inventory_id' => $peripheral->control_id,
+            'gen_info_id' => $peripheral->control_id,
+            'transaction_date' => now(),
+            'remarks' => 1,
+            'source_location' => $validatedData['mon1division1'],
+            'user_id' => $user_id
+        ]);
 
         // Return a response
         return response()->json([
@@ -1305,7 +1323,15 @@ class InventoryController extends Controller
     public function getSummaryData(Request $req)
     {
 
+        $role = $req->query('role_id');
+        if($role)
+        {
+            $data = DB::table('vw_ict_equipment')->where('registered_loc',$role)->get();
+
+        }else{
         $data = DB::table('vw_ict_equipment')->get();
+
+        }
         return response()->json(
             [
                 'data' => $data,

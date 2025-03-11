@@ -20,22 +20,20 @@ class VwGenInfoController extends Controller
             ], 400);
         }
 
-        // Construct table name securely
+        // Define table name
         $tableName = 'vw_gen_info';
 
-    
-
         // Initialize the query
-        $query = DB::table($tableName);
+        $query = DB::table($tableName)->orderBy('id', 'desc');
 
         // Filter by roles unless designation is 13
         if ($designation != 13) {
-            $query->where('roles', $designation);
+            $query->where('role_id', $designation)->orderBy('id', 'desc');
         }
 
         // Fetch the data
         $data = $query->get();
-        $rowCount = $data->count(); // Always define rowCount
+        $rowCount = $data->count();
 
         return response()->json([
             'data' => $data,

@@ -23,6 +23,7 @@ const props = defineProps({
 
 const exportData = async () => {
   try {
+
     generating.value = true
     progress.value = 10 // Start progress
 
@@ -33,8 +34,11 @@ const exportData = async () => {
       }
     }, 500)
 
+    // Convert selected roles into a comma-separated string
+    const selectedRoleIds = selectedRoles.value.id;
+
     const response = await api.get(
-      `http://10.201.12.207:8000/api/export?export=true&role_id=${role_id}`,
+      `http://10.201.12.207:8000/api/exportSummary?export=true&role_id=${selectedRoleIds}`,
       {
         responseType: 'blob'
       }
@@ -64,6 +68,7 @@ const exportData = async () => {
     }, 1000) // Reset after download
   }
 }
+
 
 const closeModal = () => {
   emit('close')
