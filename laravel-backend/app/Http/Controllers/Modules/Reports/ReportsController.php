@@ -9,6 +9,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill; // Import the Fill class for styling
 use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
 use DB;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
@@ -111,6 +112,28 @@ class ReportsController extends Controller
 
     public function generateSummaryReport(Request $request, InventoryController $inventoryController)
     {
+        $office = $request->query('role_id');
+
+        $currentDateTime = Carbon::now()->format('Y-m-d H:i:s');
+        $roleMapping = [
+            1 => "PENRO CAVITE",
+            2 => "PENRO LAGUNA",
+            3 => "PENRO BATANGAS",
+            4 => "PENRO RIZAL",
+            5 => "PENRO QUEZON",
+            6 => "CENRO Sta. Cruz",
+            7 => "CENRO Lipa City",
+            8 => "CENRO Calaca",
+            9 => "CENRO Calauag",
+            10 => "CENRO Catanauan",
+            11 => "CENRO Tayabas",
+            12 => "CENRO Real",
+            13 => "Regional Office"
+        ];
+
+        $userRole = $roleMapping[$office] ?? "Unknown Role";
+
+
         if ($request->has('export')) {
             $templatePath = public_path('templates/summary_report.xlsx');
 
@@ -135,7 +158,6 @@ class ReportsController extends Controller
                 return response()->json(['error' => 'No data available for export.'], 404);
             }
 
-            // Define styling for cells
             $styleArray = [
                 'alignment' => ['wrapText' => true],
                 'borders' => [
@@ -143,9 +165,10 @@ class ReportsController extends Controller
                 ],
             ];
 
-            // Populate Excel sheet with data
-            $row = 2;
+            $row = 8;
             $items = $data['data'];
+            $sheet->setCellValue('A5', 'Office: ' . $userRole);
+            $sheet->setCellValue('A6', 'Generated Date: '.$currentDateTime);
 
             foreach ($items as $item) {
                 $sheet->setCellValue('A' . $row, $item['equipment_title'] ?? '');

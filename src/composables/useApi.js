@@ -87,7 +87,7 @@ export function useApi() {
   }
   const getQRData = async () => {
     try {
-      const res = await api.get('/getQRData', { params: { role:authStore.role_id } })
+      const res = await api.get('/getQRData', { params: { role: authStore.role_id } })
       qr_opts.value = res.data.map((item) => ({
         id: item.qr_code,
         value: item.qr_code,
@@ -95,14 +95,13 @@ export function useApi() {
       }))
     } catch (error) {
       console.error('Error fetching qr code:', error)
-      
     }
   }
   const getDivision = async () => {
     try {
       const user = await fetchCurUser() // Fetch user data first
       if (!user) return
-      const res = await api.get('/getDivision', { params: { role:authStore.role_id } })
+      const res = await api.get('/getDivision', { params: { role: authStore.role_id } })
       division_opts.value = res.data.map((division) => ({
         id: division.id,
         value: division.id,
@@ -156,17 +155,42 @@ export function useApi() {
       console.error('Error fetching employment types:', error)
     }
   }
-  const getUserRoles = async () => {
+  const getUserRoles = async (role_id) => {
     try {
+
       const res = await api.get('/getUserRoles')
-      roles_opts.value = res.data.map((item) => ({
-        id: item.id,
-        name: item.roles
-      }))
+
+      if (role_id == 13) {
+        roles_opts.value = res.data.map((item) => ({
+          id: item.id,
+          name: item.roles
+        }))
+        return 
+      } else {
+        const roleMapping = {
+          1: 'PENRO CAVITE',
+          2: 'PENRO LAGUNA',
+          3: 'PENRO BATANGAS',
+          4: 'PENRO RIZAL',
+          5: 'PENRO QUEZON',
+          6: 'CENRO Sta. Cruz',
+          7: 'CENRO Lipa City',
+          8: 'CENRO Calaca',
+          9: 'CENRO Calauag',
+          10: 'CENRO Catanauan',
+          11: 'CENRO Tayabas',
+          12: 'CENRO Real',
+          13: 'Regional Office'
+        }
+        const roleName = roleMapping[role_id] || 'Unknown Role'
+
+        roles_opts.value = [{ id: role_id, name: roleName }]
+      }
     } catch (error) {
       console.error('Error fetching user role:', error)
     }
   }
+
   const startProgress = () => {
     progress.value = 0
     isLoading.value = true

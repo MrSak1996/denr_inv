@@ -127,7 +127,7 @@ onMounted(() => {
             :options="qr_opts"
             optionLabel="name"
             filter
-            placeholder="Select Cities"
+            placeholder="Select QR Code"
             :maxSelectedLabels="3"
             class="w-full"
           />

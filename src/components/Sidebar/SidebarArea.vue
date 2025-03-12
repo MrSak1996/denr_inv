@@ -37,7 +37,7 @@ const roleMapping = {
   7: "CENRO Lipa City",
   8: "CENRO Calaca",
   9: "CENRO Calauag",
-  10: "CENRO Catanuan",
+  10: "CENRO Catanauan",
   11: "CENRO Tayabas",
   12: "CENRO Real",
   13: "Regional Office"
@@ -135,7 +135,7 @@ const filteredMenuGroups = computed(() => {
       menuItems: group.menuItems.filter((menuItem) => {
         // Exclude both "User Management" and "Summary" if designation is not "Regional Office"
         if (
-          (menuItem.label === 'User Management' || menuItem.label === 'Summary')
+          (menuItem.label === 'User Management')
           && division_id.value !== 12
           && division_id.value !== 4
         ) {
@@ -160,11 +160,9 @@ const filteredMenuGroups = computed(() => {
     }" ref="target">
     <!-- SIDEBAR HEADER -->
     <div class="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
-      <router-link to="/ecommerce" class="flex items-center space-x-2">
         <img src="@/assets/images/logo/denr_logo.png" alt="Logo" class="h-15 w-15" />
         <span class="text-xl font-semibold">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DENR IV-A <br />
           ({{ userRole }})</span>
-      </router-link>
 
       <button class="block lg:hidden" @click="sidebarStore.isSidebarOpen = false">
         <svg class="fill-current" width="20" height="18" viewBox="0 0 20 18" fill="none"

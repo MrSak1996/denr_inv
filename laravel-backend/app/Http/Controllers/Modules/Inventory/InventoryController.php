@@ -139,7 +139,7 @@ class InventoryController extends Controller
             case 'p1Form':
                 $updated = DB::table('tbl_peripherals')
                     ->where('control_id', $item_id)
-                    ->update(['mon_qr_code1' =>$controlNo]);
+                    ->update(['mon_qr_code1' => $controlNo]);
 
                 if (!$updated) {
                     return response()->json(['error' => 'Update failed for p1Form'], 400);
@@ -178,21 +178,21 @@ class InventoryController extends Controller
         $roles = $req->query('role');
         if ($roles === "13") {
             $qrCodes = DB::table('tbl_general_info as g')
-            ->leftJoin('tbl_peripherals as p', 'p.control_id', '=', 'g.id')
-            ->selectRaw("COALESCE(qr_code, mon_qr_code1, mon_qr_code2, ups_qr_code) as qr_code")
-            ->whereRaw("COALESCE(qr_code, mon_qr_code1, mon_qr_code2, ups_qr_code) IS NOT NULL")
-            ->orderByDesc('qr_code')
-            ->get();
-    
-        return response()->json($qrCodes);
+                ->leftJoin('tbl_peripherals as p', 'p.control_id', '=', 'g.id')
+                ->selectRaw("COALESCE(qr_code, mon_qr_code1, mon_qr_code2, ups_qr_code) as qr_code")
+                ->whereRaw("COALESCE(qr_code, mon_qr_code1, mon_qr_code2, ups_qr_code) IS NOT NULL")
+                ->orderByDesc('qr_code')
+                ->get();
+
+            return response()->json($qrCodes);
         } else {
             $qrCodes = DB::table('tbl_general_info as g')
-            ->leftJoin('tbl_peripherals as p', 'p.control_id', '=', 'g.id')
-            ->selectRaw("COALESCE(qr_code, mon_qr_code1, mon_qr_code2, ups_qr_code) as qr_code")
-            ->whereRaw("COALESCE(qr_code, mon_qr_code1, mon_qr_code2, ups_qr_code) IS NOT NULL")
-            ->where('registered_loc', '>=', $roles)
-            ->orderByDesc('qr_code')
-            ->get();
+                ->leftJoin('tbl_peripherals as p', 'p.control_id', '=', 'g.id')
+                ->selectRaw("COALESCE(qr_code, mon_qr_code1, mon_qr_code2, ups_qr_code) as qr_code")
+                ->whereRaw("COALESCE(qr_code, mon_qr_code1, mon_qr_code2, ups_qr_code) IS NOT NULL")
+                ->where('registered_loc', '>=', $roles)
+                ->orderByDesc('qr_code')
+                ->get();
         }
     }
     public function getDivision(Request $req)
@@ -366,7 +366,7 @@ class InventoryController extends Controller
                 ups_status',
 
             ))
-            ->leftJoin('tbl_general_info as g','g.id','=','tbl_peripherals.control_id')
+            ->leftJoin('tbl_general_info as g', 'g.id', '=', 'tbl_peripherals.control_id')
             ->where('control_id', $id)
             ->get();
 
@@ -1055,15 +1055,30 @@ class InventoryController extends Controller
                 'updated_at' => now(),
             ]
         );
+        if ($validated['status'] == 3) {
+            $transactionLog = InventoryTransaction::create([
+                'transaction_type' => "TRANSFER",
+                'gen_info_id' => $equipment->id,
+                'accountable_user' =>$validated['actual_user'],
+                'inventory_id' => $equipment->id,
+                'transaction_date' => now(),
+                'remarks' => $validated['remarks'],
+                'source_location' => $equipment->division_id,
+                'user_id' => $user_id
+            ]);
+        } else {
+            $transactionLog = InventoryTransaction::create([
+                'transaction_type' => "ADD",
+                'gen_info_id' => $equipment->id,
+                'accountable_user' =>$validated['actual_user'],
+                'inventory_id' => $equipment->id,
+                'transaction_date' => now(),
+                'remarks' => $validated['remarks'],
+                'source_location' => $equipment->division_id,
+                'user_id' => $user_id
+            ]);
+        }
 
-        $transactionLog = InventoryTransaction::create([
-            'transaction_type' => "Add",
-            'inventory_id' => $equipment->id,
-            'transaction_date' => now(),
-            'remarks' => 1,
-            'source_location' => $equipment->division_id,
-            'user_id' => $user_id
-        ]);
 
         if (!empty($validated['selectedEquipmentType'])) {
             DB::table('tbl_equipment_type')
@@ -1188,7 +1203,7 @@ class InventoryController extends Controller
             'mon1division1' => 'nullable|integer',
             'mon1division2' => 'nullable|integer'
 
-            
+
         ]);
 
 
@@ -1324,13 +1339,10 @@ class InventoryController extends Controller
     {
 
         $role = $req->query('role_id');
-        if($role)
-        {
-            $data = DB::table('vw_ict_equipment')->where('registered_loc',$role)->get();
-
-        }else{
-        $data = DB::table('vw_ict_equipment')->get();
-
+        if ($role) {
+            $data = DB::table('vw_ict_equipment')->where('registered_loc', $role)->get();
+        } else {
+            $data = DB::table('vw_ict_equipment')->get();
         }
         return response()->json(
             [

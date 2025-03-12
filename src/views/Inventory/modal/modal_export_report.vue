@@ -34,7 +34,7 @@ const exportData = async () => {
     }, 500)
 
     const response = await api.get(
-      `http://10.201.12.207:8000/api/export?export=true&role_id=${role_id}`,
+      `http://192.168.0.173:8000/api/export?export=true&role_id=${role_id}`,
       {
         responseType: 'blob'
       }
@@ -70,7 +70,7 @@ const closeModal = () => {
 }
 
 onMounted(() => {
-  getUserRoles()
+  getUserRoles(role_id)
 })
 </script>
 

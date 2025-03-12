@@ -6,8 +6,12 @@ import { useInventory } from '@/composables/useInventory.ts'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
 import router from '@/router'
+import { useAuthStore } from '@/stores/authStore';
 import modal_export_summary_report from './modal/modal_export_summary_report.vue'
 
+
+
+const authStore = useAuthStore()
 const { fetchCurUser } = useApi()
 const route = useRoute()
 const userId = route.query.id
@@ -71,8 +75,9 @@ const updateMessage = () => {
 const summary = async (user_id) => {
   try {
     startProgress() // Start the progress bar
-    const api_token = localStorage.getItem('api_token')
-    const response = await api.get(`/getSummaryData?id=` + user_id + `&api_token=${api_token}`)
+    const api_token = authStore.api_token
+    const role_id = authStore.role_id
+    const response = await api.get(`/getSummaryData?id=` + user_id + `&role_id=${role_id}&api_token=${api_token}`)
     loading.value = false
     trans_logs.value = response.data.data // Process the fetched data
 

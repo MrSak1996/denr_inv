@@ -61,8 +61,22 @@ const selectQR = ref(false)
 const openReviewForm = ref(false)
 const uploadSuccess = ref(false)
 const uploadError = ref()
-const statuses = ref(['Serviceable', 'Unserviceable'])
-
+const statuses = ref(['Serviceable', 'Unserviceable', 'Returned'])
+const office = ref([
+  'PENRO CAVITE',
+  'PENRO LAGUNA',
+  'PENRO BATANGAS',
+  'PENRO RIZAL',
+  'PENRO QUEZON',
+  'CENRO Sta. Cruz',
+  'CENRO Lipa City',
+  'CENRO Calaca',
+  'CENRO Calauag',
+  'CENRO Catanauan',
+  'CENRO Tayabas',
+  'CENRO Real',
+  'Regional Office'
+])
 const userId = route.query.id
 const item = ref(null)
 const user_role = ref(0)
@@ -252,6 +266,9 @@ const getSeverity = (status: string) => {
 
     case 'Unserviceable':
       return 'danger'
+
+    case 'Returned':
+      return 'danger'
   }
 }
 
@@ -259,9 +276,8 @@ const viewRecord = (id: string) => {
   router.push({
     path: `/inventory/create/${id}`,
     query: { api_token: localStorage.getItem('api_token'), item_id: id }
-  });
+  })
 }
-
 
 const handlePrint = (id) => {
   printRecord(id) // Example ID
@@ -326,8 +342,6 @@ const uploadImage = async () => {
     uploadError.value = error.response?.data?.message || 'An error occurred.'
   }
 }
-
-
 
 const resetForm = () => {
   image.value = null
@@ -450,9 +464,9 @@ const pageTitle = ref('Inventory Management')
       :item_id="item"
       @close="openReviewForm = false"
     />
-    <modal_export_report v-if="openReport" :open="openReport" @close="openReport = false"/>
+    <modal_export_report v-if="openReport" :open="openReport" @close="openReport = false" />
     <modal_gen_qr v-if="openQR" :open="openQR" @close="openQR = false"></modal_gen_qr>
-    
+
     <modal_print_qr v-if="selectQR" :open="selectQR" @close="selectQR = false"></modal_print_qr>
 
     <div class="flex flex-col gap-10 mt-4">
@@ -588,15 +602,13 @@ const pageTitle = ref('Inventory Management')
         >
           <template #header>
             <div class="flex items-center gap-4 justify-start">
-             
               <Button type="button" icon="pi pi-add" label="Add" outlined @click="addMore()" />
               <Button
                 type="button"
                 icon="pi pi-file-export"
                 label="Export"
                 outlined
-                @click="openReport=true"
-             
+                @click="openReport = true"
               />
               <Button
                 type="button"
@@ -620,7 +632,7 @@ const pageTitle = ref('Inventory Management')
                 @click="openQR = true"
               />
               <Button
-              style="left:350px"
+                style="left: 350px"
                 severity="info"
                 type="button"
                 icon="pi pi-filter-slash"
@@ -670,9 +682,9 @@ const pageTitle = ref('Inventory Management')
                 />
               </div>
             </template>
-            <template #filter="{ filterModel }">
+            <!-- <template #filter="{ filterModel }">
               <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
-            </template>
+            </template> -->
           </Column>
           <Column field="control_no" header="Control No" style="min-width: 12rem">
             <template #body="{ data }">
@@ -690,7 +702,16 @@ const pageTitle = ref('Inventory Management')
               <!-- Ensure this field exists in the data object -->
             </template>
             <template #filter="{ filterModel }">
-              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
+              <Select
+                v-model="filterModel.value"
+                :options="office"
+                placeholder="Select One"
+                showClear
+              >
+                <template #option="slotProps">
+                  <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)" />
+                </template>
+              </Select>
             </template>
           </Column>
           <Column field="acct_person" header="Accountable Person" style="min-width: 1rem">
@@ -832,7 +853,6 @@ const pageTitle = ref('Inventory Management')
               <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
             </template>
           </Column>
-         
         </DataTable>
       </div>
     </div>
