@@ -269,7 +269,7 @@ class UserController extends Controller
             'email'             => 'nullable|email|max:255',
             'contact_details'   => 'nullable|string|max:20',
             'role_id'             => 'nullable|integer',
-            'username'          => 'nullable|string|max:255|unique:users,username,' . ($req->id ?? 'NULL') . ',id',
+            'username'          => 'nullable|string|max:255',
             'password'          => 'nullable|string',
         ]);
 

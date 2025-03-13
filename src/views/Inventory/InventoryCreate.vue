@@ -72,6 +72,8 @@ const item_id = ref(null)
 const api_token = route.query.api_token
 const openTransferModal = ref(false)
 
+const user_id = route.params.id ? route.params.id : route.query.id;
+
 // Functions
 const checkUrlAndDisableButton = () => {
   const url = window.location.href
@@ -193,8 +195,8 @@ const saveSpecsInfo = async () => {
   try {
     errors.value = {}
     const extractId = (item) => item?.id || null
+    const id = route.query.gen_id ? route.query.gen_id : route.query.item_id
 
-    const id = route.query.item_id
     const requestData = {
       ...specs_form,
       control_id: id,
@@ -232,6 +234,7 @@ const saveSpecsInfo = async () => {
 const saveSoftwareInfo = async () => {
   try {
     errors.value = {}
+    const id = route.query.gen_id ? route.query.gen_id : route.query.item_id
 
     // Prepare the request data by combining form data with selected software options
     const requestData = {
@@ -241,7 +244,7 @@ const saveSoftwareInfo = async () => {
           remarksMap[value] || null
         ])
       ),
-      control_id: route.query.item_id
+      control_id:id
     }
     // Make the API call
     const response = await api.post('/post_insert_software', requestData)
@@ -278,7 +281,7 @@ const savePeripheralInfo = async () => {
   try {
     errors.value = {}
 
-    const id = route.query.item_id
+    const id = route.query.gen_id ? route.query.gen_id : route.query.item_id
     const requestData = {
       ...peripheral_form,
       control_id: id,
@@ -372,7 +375,8 @@ const retrievePeripheralsData = async () => {
 }
 
 const generateQRCode = async (form, tab_form, item_id, userId) => {
-  item_id = route.query.gen_id
+   item_id = route.query?.gen_id ?? route.query?.item_id;
+
   try {
     if (tab_form === 'genForm') {
       await saveGeneralInfo()
@@ -622,7 +626,7 @@ onMounted(() => {
         </Tab>
         <ButtonGroup style="margin-left: 500px" class="mt-2">
           <router-link
-            :to="`/inventory?id=${route.params.id}&api_token=${route.query.api_token}`"
+            :to="`/inventory?id=${user_id}&api_token=${route.query.api_token}`"
             class="p-button p-button-secondary mr-4"
           >
             <i class="pi pi-undo"></i> Back

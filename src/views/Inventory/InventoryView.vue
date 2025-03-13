@@ -96,7 +96,7 @@ const fetchData = async () => {
     await loadUserData()
 
     const response = await api.get(
-      `/vw-gen-info?api_tokes=${api_token}&designation=${user_role.value}`
+      `/vw-gen-info?api_tokes=${api_token}&designation=${authStore.role_id}`
     )
     total_item.value = Number(response.data.count) // Set the count if it exists
     customers.value = response.data.data // Process the fetched data
@@ -157,11 +157,9 @@ const getOutdatedEquipment = async () => {
 }
 
 const getInvalidData = async () => {
-  const userData = await fetchCurUser()
-
   try {
     const response = await api.get(
-      `/vw-invalid-data?api_token=${api_token}&designation=${userData.data[0]?.role_id}`
+      `/vw-invalid-data?api_token=${api_token}&designation=${authStore.role_id}`
     )
 
     // Check if response.data exists and has at least one item
@@ -675,8 +673,11 @@ const pageTitle = ref('Inventory Management')
                   class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 />
                 <Button
-                  @click="openModal(data.qr_code)"
-                  icon="pi pi-cloud-upload"
+                data.mon_qr_code1
+                data.mon_qr_code2
+                data.ups_qr_code
+                @click="openModal(data.qr_code || data.mon_qr_code1 || data.mon_qr_code2 || data.ups_qr_code)"
+                icon="pi pi-cloud-upload"
                   size="small"
                   class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 />

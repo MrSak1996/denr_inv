@@ -133,7 +133,6 @@ const filteredMenuGroups = computed(() => {
     return {
       ...group,
       menuItems: group.menuItems.filter((menuItem) => {
-        // Exclude both "User Management" and "Summary" if designation is not "Regional Office"
         if (
           (menuItem.label === 'User Management')
           && division_id.value !== 12

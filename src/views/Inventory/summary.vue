@@ -6,13 +6,11 @@ import { useInventory } from '@/composables/useInventory.ts'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
 import router from '@/router'
-import { useAuthStore } from '@/stores/authStore';
+import { useAuthStore } from '@/stores/authStore'
 import modal_export_summary_report from './modal/modal_export_summary_report.vue'
 
-
-
 const authStore = useAuthStore()
-const { fetchCurUser } = useApi()
+const { fetchCurUser, roles_opts, getUserRoles } = useApi()
 const route = useRoute()
 const userId = route.query.id
 const api_token = route.query.api_token
@@ -23,6 +21,7 @@ const progress = ref(0)
 const isLoading = ref(false)
 const isModalOpen = ref(false)
 const currentMessage = ref('Loading, please wait...')
+const selectedRole = ref(null)
 const messages = ref([
   'Loading, please wait...',
   'Processing data...',
@@ -43,7 +42,6 @@ const loadUserData = async () => {
 
   user_id.value = userData.data[0].id
   summary(user_id.value)
-
 }
 
 const startProgress = () => {
@@ -72,23 +70,23 @@ const updateMessage = () => {
   currentMessage.value = messages.value[randomIndex]
 }
 
-const summary = async (user_id) => {
+const summary = async (selectedRoleId) => {
   try {
-    startProgress() // Start the progress bar
-    const api_token = authStore.api_token
-    const role_id = authStore.role_id
-    const response = await api.get(`/getSummaryData?id=` + user_id + `&role_id=${role_id}&api_token=${api_token}`)
-    loading.value = false
-    trans_logs.value = response.data.data // Process the fetched data
+    startProgress();
+    const api_token = authStore.api_token; 
+    const response = await api.get(
+      `/getSummaryData?id=${user_id}&role_id=${selectedRoleId}&api_token=${api_token}`
+    );
 
-    completeProgress() // Stop the progress bar
+    loading.value = false;
+    trans_logs.value = response.data.data;
+    completeProgress();
   } catch (error) {
-    console.error('Error fetching customers:', error)
-    loading.value = false
-    completeProgress() // Stop the progress bar even in case of error
+    console.error("Error fetching customers:", error);
+    loading.value = false;
+    completeProgress();
   }
-}
-
+};
 const initFilters = () => {
   filters.value = {
     id: {
@@ -115,7 +113,7 @@ const initFilters = () => {
     below_2021: {
       operator: FilterOperator.OR,
       constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
-    },
+    }
   }
 }
 
@@ -133,10 +131,19 @@ const getSeverity = (status: string) => {
   }
 }
 
+watch(
+  () => selectedRole,
+  async (newRoleId) => {
+    if (newRoleId) {
+      summary(user_id)
+    }
+  }
+)
 initFilters()
 
 onMounted(() => {
   loadUserData()
+  getUserRoles(authStore.role_id)
 })
 // Page title
 const pageTitle = ref('TOTAL NUMBER OF FUNCTIONING UNITS BY YEAR ACQUIRED')
@@ -144,7 +151,11 @@ const pageTitle = ref('TOTAL NUMBER OF FUNCTIONING UNITS BY YEAR ACQUIRED')
 <template>
   <DefaultLayout>
     <BreadcrumbDefault :pageTitle="pageTitle" />
-    <modal_export_summary_report v-if="isModalOpen" :open="isModalOpen" @close="isModalOpen = false"/>
+    <modal_export_summary_report
+      v-if="isModalOpen"
+      :open="isModalOpen"
+      @close="isModalOpen = false"
+    />
 
     <div class="flex flex-col gap-10 mt-4">
       <div
@@ -196,7 +207,7 @@ const pageTitle = ref('TOTAL NUMBER OF FUNCTIONING UNITS BY YEAR ACQUIRED')
             'year_2024',
             'year_2023',
             'year_2023',
-            'below_2021',
+            'below_2021'
           ]"
         >
           <template #header>
@@ -213,9 +224,19 @@ const pageTitle = ref('TOTAL NUMBER OF FUNCTIONING UNITS BY YEAR ACQUIRED')
                 type="button"
                 icon="pi pi-file-export"
                 label="Export Report"
-                @click="isModalOpen=true"
-
+                @click="isModalOpen = true"
               />
+              <Select
+                filter
+                v-model="selectedRole"
+                :options="roles_opts"
+                optionLabel="name"
+                optionValue="id"
+                placeholder="Division"
+                class="w-50"
+                @update:modelValue="summary"
+              />
+
               <!-- Additional space between buttons and search field -->
               <div class="ml-auto flex items-center">
                 <IconField class="flex items-center">
@@ -274,7 +295,6 @@ const pageTitle = ref('TOTAL NUMBER OF FUNCTIONING UNITS BY YEAR ACQUIRED')
               <!-- Ensure this field exists in the data object -->
             </template>
           </Column>
-          
         </DataTable>
       </div>
     </div>

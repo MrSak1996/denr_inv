@@ -28,7 +28,7 @@ class VwGenInfoController extends Controller
 
         // Filter by roles unless designation is 13
         if ($designation != 13) {
-            $query->where('role_id', $designation)->orderBy('id', 'desc');
+            $query->where('role_id', $designation);
         }
 
         // Fetch the data

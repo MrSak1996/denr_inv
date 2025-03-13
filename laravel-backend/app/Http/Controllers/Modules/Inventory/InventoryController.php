@@ -104,7 +104,7 @@ class InventoryController extends Controller
         }
 
         $ccode = '4A' . $userInfo->code_title . 'ICT';
-
+  
         // Step 2: Retrieve and increment the counter
         $config = DB::table('tbl_config')->where('code', $ccode)->first();
         if (!$config) {

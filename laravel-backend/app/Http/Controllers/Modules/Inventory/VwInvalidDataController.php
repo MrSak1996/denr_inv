@@ -12,15 +12,15 @@ class VwInvalidDataController extends Controller
 {
     public function getInvalidData(Request $req)
     {
-        $designation = $req->query('designation');
-
+        $office = $req->query('designation');
+     
         $query = DB::table('vw_invalid_data');
 
-        if ($designation != 13) {
-        $invalidData = $query->get();
+        if ($office != 13) {
+        $invalidData = $query->where('registered_loc',$office)->get();
 
         }else{
-            $query->where('registered_loc', $designation);
+            $invalidData = $query->get();
 
         }
 
