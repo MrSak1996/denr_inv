@@ -111,6 +111,8 @@ Route::middleware('api')->group(function () {
     Route::post('/send-otp', [OTPController::class, 'sendOtp']);
     Route::post('/verify-otp', [OTPController::class, 'verifyOtp']);
     Route::post('/upload-image', [GoogleDriveController::class, 'uploadImage']);
+    Route::get('/view-image/{fileId}', [GoogleDriveController::class, 'viewImage']);
+
     Route::post('/transfer', [InventoryController::class, 'transfer']);
 
 

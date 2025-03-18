@@ -51,6 +51,7 @@ const invalid_data_count = ref(0)
 const filters = ref()
 const loading = ref(false)
 const openScanForm = ref(false)
+const imageUrl = ref("");
 
 const isUploading = ref(false)
 const image = ref(null)
@@ -334,6 +335,7 @@ const uploadImage = async () => {
     if (response.data.status) {
       uploadSuccess.value = true
       uploadError.value = null
+      imageUrl.value = response.data.image_url;
     }
   } catch (error) {
     uploadSuccess.value = false
@@ -446,7 +448,7 @@ const pageTitle = ref('Inventory Management')
       :outdated_equipment="outdated_count"
       :invalid_data="invalid_data_count"
     /> -->
-    <modal_qr_scan v-if="openScanForm" :isLoading="openScanForm" @close="openScanForm = false" />
+    <!-- <modal_qr_scan v-if="openScanForm" :isLoading="openScanForm" @close="openScanForm = false" /> -->
     <modal_review_form
       v-if="openReviewForm"
       :genForm="form"
@@ -466,6 +468,7 @@ const pageTitle = ref('Inventory Management')
     <modal_gen_qr v-if="openQR" :open="openQR" @close="openQR = false"></modal_gen_qr>
 
     <modal_print_qr v-if="selectQR" :open="selectQR" @close="selectQR = false"></modal_print_qr>
+    <img v-if="imageUrl" :src="imageUrl" alt="Uploaded Image" />
 
     <div class="flex flex-col gap-10 mt-4">
       <div
@@ -528,9 +531,17 @@ const pageTitle = ref('Inventory Management')
 
             <!-- Modal Body -->
             <div class="p-4">
+              <div
+            class="p-4 text-sm text-red-800 rounded-lg mb-4 bg-red-50 dark:bg-gray-800 dark:text-red-400"
+            role="alert"
+          >
+            <span class="font-medium">Uploading MOV'S:</span>
+            To ensure proper tracking and organization, upload clear images of ICT equipment with visible serial numbers and asset tags. 
+             Use JPEG, PNG, or JPG formats with a max size of <strong>5MB per image.</strong>
+            Double-check entries before clicking "Upload", then verify uploads in the system.
+          </div>
               <!-- Upload Form -->
               <form @submit.prevent="uploadImage">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Upload Image</label>
                 <div
                   class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-blue-400"
                   @click="triggerFileInput"
@@ -615,13 +626,13 @@ const pageTitle = ref('Inventory Management')
                 outlined
                 @click="fetchData()"
               />
-              <Button
+              <!-- <Button
                 type="button"
                 icon="pi pi-qrcode"
                 label="Scan QR [F2]"
                 @click="openScanForm = true"
                 outlined
-              />
+              /> -->
 
               <Button
                 severity="danger"
@@ -630,7 +641,7 @@ const pageTitle = ref('Inventory Management')
                 @click="openQR = true"
               />
               <Button
-                style="left: 350px"
+                style="left: 500px"
                 severity="info"
                 type="button"
                 icon="pi pi-filter-slash"

@@ -34,7 +34,7 @@ const exportData = async () => {
     }, 500)
 
     const response = await api.get(
-      `http://192.168.0.173:8000/api/export?export=true&role_id=${role_id}`,
+      `http://10.201.12.66:8000/api/export?export=true&role_id=${role_id}`,
       {
         responseType: 'blob'
       }

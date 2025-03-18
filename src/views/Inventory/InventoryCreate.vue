@@ -45,7 +45,12 @@ const {
   getNatureWork,
   getEquipment,
   getRangeCategory,
-  getEmploymentType
+  getEmploymentType,
+  isLoading,
+  currentMessage,
+  startProgress,
+  completeProgress,
+  progress
 } = useApi()
 
 const isButtonDisabled = ref(false)
@@ -71,6 +76,7 @@ const userId = !route.query.id ? localStorage.getItem('userId') : route.query.id
 const item_id = ref(null)
 const api_token = route.query.api_token
 const openTransferModal = ref(false)
+const loading = ref(false)
 
 const user_id = route.params.id ? route.params.id : route.query.id;
 
@@ -317,8 +323,11 @@ const retrieveDataviaAPI = async () => {
   const id = route.params.id
   if (id) {
     try {
+      startProgress();
       const response = await api.get(`/retriveDataviaAPI?id=${id}`)
       Object.assign(form, response.data[0])
+      loading.value = false
+      completeProgress()
     } catch (error) {
       console.error('Error retrieving data:', error)
     }
@@ -519,12 +528,12 @@ onMounted(() => {
   if (!id) {
     getControlNo(form, userId)
     setTimeout(() => {
-      toast.add({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Control Number saved successfully!',
-        life: 3000
-      })
+      // toast.add({
+      //   severity: 'success',
+      //   summary: 'Success',
+      //   detail: 'Control Number saved successfully!',
+      //   life: 3000
+      // })
       // window.location.href =
       //   '/inventory/create/' + id + '?api_token=' + localStorage.getItem('api_token')
     }, 1000)
@@ -598,7 +607,37 @@ onMounted(() => {
     @close="openReviewForm = false" /> -->
 
     <Modal_msoffice v-if="isMicrosoftOffice" :isLoading="isMicrosoftOffice" @close="closeModal" />
-
+    <div
+          v-if="isLoading"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          role="dialog"
+          tabindex="-1"
+          aria-labelledby="progress-modal"
+        >
+          <div
+            class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-sm rounded-xl w-full max-w-4xl mx-4 lg:mx-auto transition-transform duration-500 transform"
+          >
+            <!-- Modal Header -->
+            <div
+              class="modal-content flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700"
+            >
+              <h3 class="text-lg font-semibold">{{ currentMessage }}</h3>
+              <!-- Dynamic Message -->
+            </div>
+            <!-- Modal Body -->
+            <div class="flex flex-col justify-center items-center gap-x-2 py-6 px-4">
+              <!-- Progress Bar Container -->
+              <div class="w-full bg-gray-200 rounded-full h-4">
+                <div
+                  class="bg-teal-500 h-4 rounded-full transition-all"
+                  :style="{ width: progress + '%' }"
+                ></div>
+              </div>
+              <!-- Progress Percentage -->
+              <p class="mt-2 text-gray-700 dark:text-gray-300">{{ progress }}%</p>
+            </div>
+          </div>
+        </div>
     <Tabs value="0">
       <TabList>
         <Tab value="0" as="div" class="flex items-center gap-2">
@@ -624,14 +663,15 @@ onMounted(() => {
           <i class="pi pi-desktop" />
           <span class="font-bold whitespace-nowrap">Monitor & UPS</span>
         </Tab>
-        <ButtonGroup style="margin-left: 500px" class="mt-2">
+        
+        <Button style="margin-left: 500px;height:40px" class="mt-2" >
           <router-link
             :to="`/inventory?id=${user_id}&api_token=${route.query.api_token}`"
             class="p-button p-button-secondary mr-4"
           >
             <i class="pi pi-undo"></i> Back
           </router-link>
-        </ButtonGroup>
+        </Button>
 
         <!-- <Badge :value="item_status" size="large" severity="danger" class="badge-align-left"></Badge> -->
       </TabList>
