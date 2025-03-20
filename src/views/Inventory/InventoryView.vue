@@ -18,6 +18,7 @@ import modal_review_form from './modal/modal_review_form.vue'
 import modal_gen_qr from './modal/modal_gen_qr.vue'
 import modal_print_qr from './modal/modal_print_qr.vue'
 import modal_export_report from './modal/modal_export_report.vue'
+import modal_attachments from './modal/modal_attachments.vue'
 
 const {
   isLoading,
@@ -51,12 +52,14 @@ const invalid_data_count = ref(0)
 const filters = ref()
 const loading = ref(false)
 const openScanForm = ref(false)
-const imageUrl = ref("");
+const imageUrl = ref('')
+const item_id = ref();
 
 const isUploading = ref(false)
 const image = ref(null)
 const isModalOpen = ref(false)
 const openQR = ref(false)
+const openAttachments = ref(false)
 const openReport = ref(false)
 const selectQR = ref(false)
 const openReviewForm = ref(false)
@@ -297,8 +300,7 @@ const simulateUpload = () => {
     }
   }, 500)
 }
-
-const openModal = (id: String) => {
+const openModal = (id: string) => {
   isModalOpen.value = true
   qr_code.value = id
 }
@@ -335,11 +337,20 @@ const uploadImage = async () => {
     if (response.data.status) {
       uploadSuccess.value = true
       uploadError.value = null
-      imageUrl.value = response.data.image_url;
+      imageUrl.value = response.data.image_url
     }
   } catch (error) {
     uploadSuccess.value = false
     uploadError.value = error.response?.data?.message || 'An error occurred.'
+  }
+}
+
+const openFile = async (id: string) => {
+  try {
+    item_id.value = id;
+    openAttachments.value = true
+  } catch (error) {
+    console.log(error)
   }
 }
 
@@ -466,6 +477,12 @@ const pageTitle = ref('Inventory Management')
     />
     <modal_export_report v-if="openReport" :open="openReport" @close="openReport = false" />
     <modal_gen_qr v-if="openQR" :open="openQR" @close="openQR = false"></modal_gen_qr>
+    <modal_attachments
+      v-if="openAttachments"
+      :open="openAttachments"
+      :id="item_id"
+      @close="openAttachments = false"
+    ></modal_attachments>
 
     <modal_print_qr v-if="selectQR" :open="selectQR" @close="selectQR = false"></modal_print_qr>
     <img v-if="imageUrl" :src="imageUrl" alt="Uploaded Image" />
@@ -532,14 +549,15 @@ const pageTitle = ref('Inventory Management')
             <!-- Modal Body -->
             <div class="p-4">
               <div
-            class="p-4 text-sm text-red-800 rounded-lg mb-4 bg-red-50 dark:bg-gray-800 dark:text-red-400"
-            role="alert"
-          >
-            <span class="font-medium">Uploading MOV'S:</span>
-            To ensure proper tracking and organization, upload clear images of ICT equipment with visible serial numbers and asset tags. 
-             Use JPEG, PNG, or JPG formats with a max size of <strong>5MB per image.</strong>
-            Double-check entries before clicking "Upload", then verify uploads in the system.
-          </div>
+                class="p-4 text-sm text-red-800 rounded-lg mb-4 bg-red-50 dark:bg-gray-800 dark:text-red-400"
+                role="alert"
+              >
+                <span class="font-medium">Uploading MOV'S:</span>
+                To ensure proper tracking and organization, upload clear images of ICT equipment
+                with visible serial numbers and asset tags. Use JPEG, PNG, or JPG formats with a max
+                size of <strong>5MB per image.</strong>
+                Double-check entries before clicking "Upload", then verify uploads in the system.
+              </div>
               <!-- Upload Form -->
               <form @submit.prevent="uploadImage">
                 <div
@@ -595,6 +613,7 @@ const pageTitle = ref('Inventory Management')
           :loading="loading"
           :globalFilterFields="[
             'control_no',
+            'file_id',
             'roles',
             'acct_person',
             'equipment_title',
@@ -684,11 +703,11 @@ const pageTitle = ref('Inventory Management')
                   class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 />
                 <Button
-                data.mon_qr_code1
-                data.mon_qr_code2
-                data.ups_qr_code
-                @click="openModal(data.qr_code || data.mon_qr_code1 || data.mon_qr_code2 || data.ups_qr_code)"
-                icon="pi pi-cloud-upload"
+                  data.mon_qr_code1
+                  data.mon_qr_code2
+                  data.ups_qr_code
+                  @click="openModal(data.id)"
+                  icon="pi pi-cloud-upload"
                   size="small"
                   class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 />
@@ -708,6 +727,24 @@ const pageTitle = ref('Inventory Management')
               <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
             </template>
           </Column>
+          <Column field="attachments" header="Attachments" style="min-width: 12rem">
+            <template #body="{ data }">
+              <div v-if="data.file_id">
+                <Button
+                  @click="openFile(data.id)"
+                  rel="noopener noreferrer"
+                  class="text-white mr-2 bg-teal-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                >
+                  <!-- :href="'https://drive.google.com/file/d/' + data.file_id + '/view?usp=drive_link'" -->
+
+                  <i class="pi pi-external-link mr-2"></i>
+                  Open File
+                </Button>
+              </div>
+              <span v-else> No attachment </span>
+            </template>
+          </Column>
+
           <Column field="roles" header="Registered Location" style="min-width: 12rem">
             <template #body="{ data }">
               {{ data.roles }}<br />{{ data.actual_division_title }}

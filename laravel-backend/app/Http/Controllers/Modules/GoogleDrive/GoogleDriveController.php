@@ -7,6 +7,7 @@ use App\Models\UploadedFile;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class GoogleDriveController extends Controller
 {
@@ -33,6 +34,7 @@ class GoogleDriveController extends Controller
             $filePath = 'uploads/' . $dest_folder . '/' . $fileName;
             Storage::disk('google')->write($filePath, file_get_contents($file));
             $files = Storage::disk('google')->listContents('', true);
+
             $fileMeta = collect($files)->where('path', $filePath)->first();
             $fileId = $fileMeta['extraMetadata']['id'] ?? null;
 
@@ -69,5 +71,25 @@ class GoogleDriveController extends Controller
                 'error'   => $e->getMessage(),
             ]);
         }
+    }
+
+    public function getGoogleFile(Request $request)
+    {
+        $item_id = $request->query('id');
+    
+        // Validate input
+        if (!$item_id) {
+            return response()->json(['error' => 'item_id is required'], 400);
+        }
+    
+        // Query data
+        $query = DB::table('tbl_general_info as g')
+        ->select('file_id')
+            ->leftJoin('tbl_uploaded_file as p', 'p.qr_code', '=', 'g.id')
+            ->where('g.id', $item_id)
+            ->get(); // Use `first()` if you expect only one record
+    
+        // Return JSON response
+        return response()->json($query);
     }
 }
