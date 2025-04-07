@@ -2,13 +2,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 
-import api from '../../../../laravel-backend/resources/js/axiosInstance.ts'
+import api from '@/api/axiosInstance';
 import { useApi } from '@/composables/useApi'
 
 const { roles_opts, getUserRoles } = useApi()
 const authStore = useAuthStore()
 const api_token = authStore.api_token
-const role_id = authStore.role_id
+const role_id = authStore.role_id ?? 0;
 const generating = ref(false)
 const error = ref('')
 const selectedRoles = ref('')
@@ -34,7 +34,7 @@ const exportData = async () => {
     }, 500)
 
     const response = await api.get(
-      `http://192.168.0.173:8000/api/export?export=true&role_id=${role_id}`,
+      `https://riis.denrcalabarzon.com/api/export?export=true&role_id=${role_id}`,
       {
         responseType: 'blob'
       }
@@ -56,7 +56,6 @@ const exportData = async () => {
     window.URL.revokeObjectURL(url)
   } catch (error) {
     console.log(error)
-    error.value = 'Error generating the report. Please try again.'
   } finally {
     setTimeout(() => {
       generating.value = false

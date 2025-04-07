@@ -1,139 +1,138 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useApi } from '@/composables/useApi'
-import { useInventory } from '@/composables/useInventory.ts'
+import { useInventory } from '@/composables/useInventory'
 import { useToast } from 'primevue/usetoast'
 import { useRouter, useRoute } from 'vue-router'
-import api from '../../../../laravel-backend/resources/js/axiosInstance.ts'
+import api from '@/api/axiosInstance'
+
 const { printRecord } = useInventory()
 const { predefinedSoftware } = useApi()
+
 const route = useRoute()
 const toast = useToast()
 const router = useRouter()
 
-// Define emitted events
 const emit = defineEmits(['close', 'proceed'])
 
-// Define props
-const props = defineProps({
-  open: {
-    type: Boolean,
-    default: false
-  },
-  genForm: {
-    type: Object,
-    required: true
-  },
-  periForm: {
-    type: Object,
-    required: true
-  },
-  division: {
-    type: Array,
-    required: true
-  },
-  wnature: {
-    type: Array,
-    required: true
-  },
-  emp_type: {
-    type: Array,
-    required: true
-  },
-  equipment: {
-    type: Array,
-    required: true
-  },
-  category: {
-    type: Array,
-    required: true
-  },
-  softwareData: {
-    type: Array,
-    required: true
-  },
-  specsData: {
-    type: Object,
-    required: true
-  },
-  item_id:{
-    type:Number,
-    required:true
-  }
+interface SpecsData {
+  specs_processor: string
+  specs_ram: string
+  specs_gpu: number
+  specs_gpu_dedic_info: string
+  specs_ram_capacity: string
+  specs_hdd: number | null
+  specs_ssd: number | null
+  specs_hdd_capacity: string | null
+  specs_ssd_capacity: string | null
+  specs_net: string | null
+  specs_net_iswireless: string | null
+}
+
+interface PeriForm {
+  monitor1BrandModel: string
+  monitor1SerialNumber: string
+  monitor1QrCode: string
+  monitor1PropertyNumber: string
+  monitor1AccountPersonInPN: string
+  monitor1ActualUser: string
+  monitor2BrandModel: string
+  monitor2SerialNumber: string
+  monitor2QrCode: string
+  monitor2PropertyNumber: string
+  monitor2AccountPersonInPN: string
+  monitor2ActualUser: string
+  ups_accountPersonInPN: string
+  ups_qr_code: string
+  ups_property_no: string
+  ups_serial_no: string
+}
+
+const props = defineProps<{
+  open: boolean
+  genForm: Record<string, any>
+  periForm: PeriForm
+  division: Array<any>
+  wnature: Array<any>
+  emp_type: Array<any>
+  category: Array<any>
+  softwareData: Array<{ software: string; remarks: string }>
+  specsData: SpecsData
+  equipment: Array<any>
+  item_id: number
+}>()
+
+const empType = {
+  1: 'Consultant',
+  2: 'CIT',
+  3: 'Contract of Service/Job Order',
+  4: 'Permanent',
+  5: 'PS Contractual'
+}
+
+const employmentTypeLabel = computed(() => {
+  return empType[props.genForm.employmentType as keyof typeof empType] ?? 'Unknown Role'
 })
 
-// Remarks mapping
-const remarksMap = {
-  '1': 'Perpetual',
-  '2': 'Subscription',
-  '3': 'Evaluation'
+const remarksMap: Record<string, string> = {
+  '1': 'Needs Review',
+  '2': 'Approved',
+  '3': 'Rejected'
 }
 
-// Generic computed property factory
-const createSelector = (sourceProp, targetKey) => {
+const createSelector = (sourceProp: string, targetKey: string) => {
   return computed(() => {
-    const selected = props[sourceProp].find((item) => item.id === props.genForm[targetKey])
-    return selected ? selected.name : '~'
-  })
-}
+    const source = props[sourceProp as keyof typeof props];
+    if (Array.isArray(source)) {
+      const selected = source.find(
+        (item: { id: any; name: string }) => item.id === props.genForm[targetKey]
+      );
+      return selected ? selected.name : '~';
+    }
+    return '~';
+  });
+};
 
-// Computed properties
 const selectedDivisionName = createSelector('division', 'selectedDivision')
 const selectedWorkNature = createSelector('wnature', 'selectedWorkNature')
 const selectedEmpType = createSelector('emp_type', 'employmentType')
 const selectedEquipmentType = createSelector('equipment', 'selectedEquipmentType')
 const selectedRangeCategory = createSelector('category', 'selectedRangeCategory')
 
-// Get remarks for a specific software
-const getRemarks = (key) => {
+const getRemarks = (key: string): string => {
   const software = props.softwareData.find((item) => item.software === key)
-  return software ? remarksMap[software.remarks] || '' : ''
+  return software?.remarks ? remarksMap[software.remarks] || '' : ''
 }
 
-// Close modal
 const closeModal = () => {
   emit('close')
 }
 
 const handlePrint = () => {
-  const idToPrint = props.item_id ? props.item_id : route.params.id; // Access item_id via props
-  printRecord(idToPrint);
+  const idToPrint = props.item_id ? props.item_id : route.params.id
+  printRecord(Number(idToPrint))
+}
+const submitFinalReview = async () => {
+  try {
+    const item_id = props.item_id ? props.item_id : route.params.id;
+    const requestData = { id: item_id };
+
+    const response = await api.post('/post_final_review', requestData);
+
+    setTimeout(() => {
+      toast.add({ severity: 'success', summary: 'Success', detail: 'Data saved successfully!', life: 3000 });
+      router.push({ name: 'Inventory', params: { id: response.data.id }, query: { api_token: localStorage.getItem('api_token') } });
+    }, 1000);
+  } catch (error: any) {
+    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save data.', life: 3000 });
+    console.error('Validation errors:', error);
+  }
 };
 
-
-const submitFinalReview = async () => {
-
-  try {
-    const item_id = props.item_id ? props.item_id : route.params.id; // Access item_id via props
-
-    const requestData = {
-      id:item_id
-    }
-    // Make the API call
-    const response = await api.post('/post_final_review', requestData)
-
-    // Notify the user and redirect after successful save
-    setTimeout(() => {
-      toast.add({
-        severity: 'success',
-        summary: 'Success',
-        detail: 'Data saved successfully!',
-        life: 3000
-      })
-
-      // Redirect to the edit page with the new ID
-      const id = response.data.id
-      router.push({
-        name: 'Inventory',
-        params: { id },
-        query: { api_token: localStorage.getItem('api_token') }
-      })
-    }, 1000)
-  } catch (error) {
-    console.error('Validation errors:', error)
-  }
+const networkTypeMap: Record<string, string> = {
+  '1': 'LAN',
+  '2': 'Wireless',
+  '3': 'Both'
 }
 
 const ram_opts = ref([
@@ -151,27 +150,19 @@ const ram_opts = ref([
   { name: 'GDDR4', id: '12' },
   { name: 'GDDR5', id: '13' },
   { name: 'Flash Memory', id: '14' }
-]);
-
-const network_type = ref([
-  { name: 'LAN', key: '1' },
-  { name: 'Wireless', key: '2' },
-  { name: 'Both', key: '3' }
 ])
 
-const getRamName = (id) => {
-  const ram = ram_opts.value.find(option => option.id === id);
-  return ram ? ram.name : 'Unknown RAM'; // Fallback if no match is found
-};
+const getRamName = (id: string | null | undefined): string => {
+  if (!id) return 'Unknown RAM'
+  const ram = ram_opts.value.find((option) => option.id === id.toString())
+  return ram ? ram.name : 'Unknown RAM'
+}
 
-const getNetworkType = (key) => {
-  const network = network_type.value.find(option => option.key === key);
-  return network ? network.name : 'Unknown Network'; // Fallback if no match is found
-};
-
-
-
+const getNetworkType = (key: string | null | undefined): string => {
+  return key ? networkTypeMap[key] || 'Unknown' : 'Unknown'
+}
 </script>
+
 <style>
 .p-button {
   background: rgb(15 118 110) !important;
@@ -180,13 +171,17 @@ const getNetworkType = (key) => {
 }
 </style>
 <template>
-  <modal_transfer_item
-  
   />
-  <div v-if="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog"
-    tabindex="-1" aria-labelledby="progress-modal">
+  <div
+    v-if="open"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+    role="dialog"
+    tabindex="-1"
+    aria-labelledby="progress-modal"
+  >
     <div
-      class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-lg rounded-lg w-130 h-[80vh] max-w-2xl mx-4 lg:mx-auto transition-transform duration-300 transform scale-100">
+      class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-lg rounded-lg w-130 h-[80vh] max-w-2xl mx-4 lg:mx-auto transition-transform duration-300 transform scale-100"
+    >
       <!-- Modal Header -->
       <div class="flex justify-between items-center py-4 px-6 border-b dark:border-neutral-700">
         <h3 id="reserve-control-no" class="text-lg font-semibold text-gray-800 dark:text-gray-200">
@@ -224,7 +219,7 @@ const getNetworkType = (key) => {
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">Actual User:</td>
                 <td class="px-2 py-1 text-sm text-gray-600">{{ genForm.actual_user }}</td>
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">Employment Type:</td>
-                <td class="px-2 py-1 text-sm text-gray-600">{{ selectedEmpType }}</td>
+                <td class="px-2 py-1 text-sm text-gray-600">{{ employmentTypeLabel }}</td>
               </tr>
               <tr>
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">Nature of Work</td>
@@ -240,7 +235,7 @@ const getNetworkType = (key) => {
               </tr>
               <tr>
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">Equipment Type</td>
-                <td class="px-2 py-1 text-sm text-gray-600">{{ selectedEquipmentType }}</td>
+                <td class="px-2 py-1 text-sm text-gray-600">{{ genForm.equipment_title }}</td>
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">Range Category</td>
                 <td class="px-2 py-1 text-sm text-gray-600">{{ selectedRangeCategory }}</td>
               </tr>
@@ -276,39 +271,56 @@ const getNetworkType = (key) => {
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">Processor:</td>
                 <td class="px-2 py-1 text-sm text-gray-600">{{ specsData.specs_processor }}</td>
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">RAM Type:</td>
-                <td class="px-2 py-1 text-sm text-gray-600">{{ getRamName(specsData.specs_ram) }}</td>
+                <td class="px-2 py-1 text-sm text-gray-600">
+                  {{ getRamName(specsData.specs_ram) }}
+                </td>
               </tr>
               <tr>
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">GPU:</td>
                 <td class="px-2 py-1 text-sm text-gray-600">
-                  {{ specsData.specs_gpu == 1 ? 'Built-In' : 'Dedicated ' + specsData.specs_gpu_dedic_info }}
+                  {{ specsData.specs_gpu == 1 ? 'Built-In' : 'Dedicated ' + (specsData.specs_gpu_dedic_info || 'Unknown') }}
+
                 </td>
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">RAM Capacity:</td>
                 <td class="px-2 py-1 text-sm text-gray-600">{{ specsData.specs_ram_capacity }}</td>
               </tr>
               <tr>
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">No. of HDD:</td>
-                <td class="px-2 py-1 text-sm text-gray-600"> {{ specsData.specs_hdd == null || specsData.specs_hdd == 0 ? '~' : specsData.specs_hdd }}</td>
+                <td class="px-2 py-1 text-sm text-gray-600">
+                  {{
+                    specsData.specs_hdd == null || specsData.specs_hdd == 0
+                      ? '~'
+                      : specsData.specs_hdd
+                  }}
+                </td>
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">No. of SSD:</td>
-                <td class="px-2 py-1 text-sm text-gray-600"> {{ specsData.specs_ssd == null ? '~' : specsData.specs_ssd }}</td>
+                <td class="px-2 py-1 text-sm text-gray-600">
+                  {{ specsData.specs_ssd == null ? '~' : specsData.specs_ssd }}
+                </td>
               </tr>
               <tr>
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">HDD Capacity:</td>
                 <td class="px-2 py-1 text-sm text-gray-600">
-                  {{ specsData.specs_hdd_capacity == null ? '~' : specsData.specs_hdd_capacity }}</td>
+                  {{ specsData.specs_hdd_capacity == null ? '~' : specsData.specs_hdd_capacity }}
+                </td>
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">SSD Capacity:</td>
-                <td class="px-2 py-1 text-sm text-gray-600"> {{ specsData.specs_ssd_capacity == null ? '~' : specsData.specs_ssd_capacity }}</td>
+                <td class="px-2 py-1 text-sm text-gray-600">
+                  {{ specsData.specs_ssd_capacity == null ? '~' : specsData.specs_ssd_capacity }}
+                </td>
               </tr>
 
               <tr>
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">Network:</td>
-                <td class="px-2 py-1 text-sm text-gray-600">{{ getNetworkType(specsData.specs_net) }}</td>
+                <td class="px-2 py-1 text-sm text-gray-600">
+                  {{ getNetworkType(specsData.specs_net) }}
+                </td>
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">If Wireless:</td>
-                <td class="px-2 py-1 text-sm text-gray-600"> {{ specsData.specs_net_iswireless == null ? '~' : specsData.specs_net_iswireless }}</td>
-
+                <td class="px-2 py-1 text-sm text-gray-600">
+                  {{
+                    specsData.specs_net_iswireless == null ? '~' : specsData.specs_net_iswireless
+                  }}
+                </td>
               </tr>
-
-
             </tbody>
           </table>
 
@@ -321,7 +333,10 @@ const getNetworkType = (key) => {
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
-              <tr v-for="(row, index) in predefinedSoftware.slice(0, predefinedSoftware.length / 2)" :key="index">
+              <tr
+                v-for="(row, index) in predefinedSoftware.slice(0, predefinedSoftware.length / 2)"
+                :key="index"
+              >
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">{{ row.label }}:</td>
                 <td class="px-2 py-1 text-sm text-gray-600">
                   {{ getRemarks(row.key) }}
@@ -425,7 +440,13 @@ const getNetworkType = (key) => {
           </table>
         </div>
         <div class="flex justify-end items-center w-full">
-          <Button @click="handlePrint()" severity="teal" label="Print" icon="pi pi-file-export" class="mt-4 mr-4" />
+          <Button
+            @click="handlePrint()"
+            severity="teal"
+            label="Print"
+            icon="pi pi-file-export"
+            class="mt-4 mr-4"
+          />
           <!-- <Button @click="submitFinalReview" severity="info" label="Submit" icon="pi pi-save" class="mt-4" /> -->
         </div>
       </div>

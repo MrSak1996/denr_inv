@@ -250,7 +250,7 @@ class InventoryController extends Controller
 
         $results = DB::table('tbl_general_info')
             ->select(DB::raw(
-                'id, 
+                'tbl_general_info.id, 
                 control_no, 
                 division_id as selectedDivision, 
                 section_id as selectedSection, 
@@ -262,7 +262,8 @@ class InventoryController extends Controller
                 actual_employment_type as employmentType , 
                 work_nature_id as selectedWorkNature, 
                 qr_code, 
-                equipment_type as selectedEquipmentType, 
+                equipment_type as selectedEquipmentType,
+                et.equipment_title,
                 brand, 
                 model, 
                 property_no,
@@ -276,7 +277,8 @@ class InventoryController extends Controller
                 created_at,
                 updated_at'
             ))
-            ->where('id', $id)
+            ->leftJoin('tbl_equipment_type as et','et.id','=','tbl_general_info.equipment_type')
+            ->where('tbl_general_info.id', $id)
             ->orWhere('qr_code', $id) // Add OR condition for qr_code
             ->get();
 
@@ -561,13 +563,19 @@ class InventoryController extends Controller
     public function getCountStatus(Request $request)
     {
         $designation = $request->query('designation');
-        $query = DB::table('vw_count_status');
-        if (!empty($designation)) {
+        if ($designation != 13) {
+            $query = DB::table('vw_count_status');
             $query->where('registered_loc', $designation);
-        }
-        $data = $query->get();
+            $data = $query->get();
+            return response()->json($data);
+        }else{
+            $query = DB::table('vw_count_status');
+            $query->where('registered_loc', $designation);
+            $data = $query->get();
 
-        return response()->json($data);
+            return response()->json($data);
+        }
+
     }
 
     public function getOutdatedEquipment(Request $request)

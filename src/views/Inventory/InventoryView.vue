@@ -4,13 +4,11 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useApi } from '@/composables/useApi'
 import { useForm } from '@/composables/useForm'
-import { useStore } from 'vuex'
-import { useInventory } from '@/composables/useInventory.ts'
+import { useInventory } from '@/composables/useInventory'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 
 import router from '@/router'
-import form_dash from './form_dash.vue'
-import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
+import api from '@/api/axiosInstance'
 
 // Modal
 import modal_qr_scan from './modal/modal_qr_scan.vue'
@@ -31,13 +29,13 @@ const {
   employment_opts,
   startProgress,
   completeProgress,
-  progress
+  progress,
+  getDivision
 } = useApi()
 
 const { form, specs_form, peripheral_form } = useForm()
 
 const { printRecord } = useInventory()
-const store = useStore()
 const authStore = useAuthStore()
 
 const route = useRoute()
@@ -53,10 +51,10 @@ const filters = ref()
 const loading = ref(false)
 const openScanForm = ref(false)
 const imageUrl = ref('')
-const item_id = ref();
+const item_id = ref()
 
 const isUploading = ref(false)
-const image = ref(null)
+const image = ref<null | File>(null)
 const isModalOpen = ref(false)
 const openQR = ref(false)
 const openAttachments = ref(false)
@@ -82,11 +80,11 @@ const office = ref([
   'Regional Office'
 ])
 const userId = route.query.id
-const item = ref(null)
+const item = ref(0)
 const user_role = ref(0)
 const designation = ref('')
 const api_token = authStore.api_token
-
+const role_id = authStore.role_id
 const loadUserData = async () => {
   const userData = await fetchCurUser()
   user_role.value = userData.data[0].role_id
@@ -118,7 +116,7 @@ const getCountStatus = async () => {
 
   try {
     const response = await api.get(
-      `/getCountStatus?api_token=${api_token}&designation=${user_role.value}`
+      `/getCountStatus?api_token=${api_token}&designation=${role_id}`
     )
 
     // Ensure response.data is an array and has at least one item
@@ -281,7 +279,7 @@ const viewRecord = (id: string) => {
   })
 }
 
-const handlePrint = (id) => {
+const handlePrint = (id: number) => {
   printRecord(id) // Example ID
 }
 
@@ -310,12 +308,18 @@ const closeModal = () => {
   resetForm()
 }
 
-const onFileChange = (event) => {
-  image.value = event.target.files[0]
+const onFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  if (target?.files) {
+    image.value = target.files[0]
+  }
 }
 
 const triggerFileInput = () => {
-  document.querySelector("input[type='file']").click()
+  const fileInput = document.querySelector("input[type='file']") as HTMLInputElement
+  if (fileInput) {
+    fileInput.click()
+  }
 }
 
 const uploadImage = async () => {
@@ -341,13 +345,13 @@ const uploadImage = async () => {
     }
   } catch (error) {
     uploadSuccess.value = false
-    uploadError.value = error.response?.data?.message || 'An error occurred.'
+    uploadError.value = 'An error occurred'
   }
 }
 
 const openFile = async (id: string) => {
   try {
-    item_id.value = id;
+    item_id.value = id
     openAttachments.value = true
   } catch (error) {
     console.log(error)
@@ -362,7 +366,7 @@ const resetForm = () => {
   uploadError.value = ''
 }
 
-const updateFilterWithQrValue = (qrValue) => {
+const updateFilterWithQrValue = (qrValue: string) => {
   filters.value['global'].value = qrValue
 }
 
@@ -372,7 +376,7 @@ const remarksMap = {
   evaluation: '3'
 }
 
-const retrieveDataviaAPI = async (id) => {
+const retrieveDataviaAPI = async (id: number) => {
   const item_id = id
   item.value = item_id
   if (item_id) {
@@ -382,9 +386,9 @@ const retrieveDataviaAPI = async (id) => {
 
       const res = await api.get(`/retrieveSoftwareData?id=${id}`)
       software.value = res.data
-      response.data.forEach((software) => {
+      response.data.forEach((software: { remarks: string }) => {
         const selectedOption = Object.keys(remarksMap).find(
-          (key) => remarksMap[key] === software.remarks
+          (key) => remarksMap[key as keyof typeof remarksMap] === software.remarks
         )
       })
 
@@ -400,7 +404,7 @@ const retrieveDataviaAPI = async (id) => {
   }
 }
 
-const handleKeydown = (event) => {
+const handleKeydown = (event: KeyboardEvent) => {
   if (event.key === 'F2') {
     openScanForm.value = true
     event.preventDefault() // Prevent default browser action (if needed)
@@ -409,7 +413,7 @@ const handleKeydown = (event) => {
   }
 }
 
-const disableRightClick = (event) => {
+const disableRightClick = (event: MouseEvent) => {
   event.preventDefault()
 }
 
@@ -421,6 +425,7 @@ onMounted(() => {
   getCountStatus()
   getOutdatedEquipment()
   getInvalidData()
+  getDivision()
 })
 
 const pageTitle = ref('Inventory Management')
@@ -467,10 +472,10 @@ const pageTitle = ref('Inventory Management')
       :division="division_opts"
       :wnature="work_nature"
       :emp_type="employment_opts"
-      :equipment="equipment_type"
       :category="range_category"
       :softwareData="software"
       :specsData="specs_form"
+      :equipment="equipment_type"
       :open="openReviewForm"
       :item_id="item"
       @close="openReviewForm = false"

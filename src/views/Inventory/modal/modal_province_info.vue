@@ -153,7 +153,7 @@ const apexOptions_byOffice = {
   },
   tooltip: {
     y: {
-      formatter: function (val) {
+      formatter: function (val: string | number) {
         return '$ ' + val + ' thousands'
       }
     }
@@ -199,7 +199,7 @@ const apexOption_Equipment = ref({
   xaxis: {
     categories: [2008, 2009, 2010, 2011, 2012, 2013, 2014],
     labels: {
-      formatter: function (val) {
+      formatter: function (val: string | number) {
         return val + 'K'
       }
     }
@@ -211,7 +211,7 @@ const apexOption_Equipment = ref({
   },
   tooltip: {
     y: {
-      formatter: function (val) {
+      formatter: function (val: string | number) {
         return val + 'K'
       }
     }

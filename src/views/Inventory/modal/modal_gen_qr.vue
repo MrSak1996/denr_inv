@@ -4,7 +4,7 @@ import { saveAs } from 'file-saver'
 import JSZip from 'jszip'
 import { generateQRCodeWithLogo, formatQRCodeText } from './qrCodeUtils.js'
 import { useApi } from '@/composables/useApi'
-import api from '../../../../laravel-backend/resources/js/axiosInstance.ts'
+import api from '@/api/axiosInstance'
 
 const { qr_code_temp, getQRCodeTemp, getQRData, qr_opts } = useApi()
 const baseNumber = ref(1)

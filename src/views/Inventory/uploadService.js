@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
+import api from '@/api/axiosInstance';
 
 export const image = ref(null)
 export const uploadSuccess = ref(false)

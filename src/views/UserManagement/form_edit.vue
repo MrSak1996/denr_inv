@@ -4,6 +4,7 @@ import { useForm } from '@/composables/useForm'
 import { useApi } from '@/composables/useApi'
 import { useToast } from 'primevue/usetoast'
 import { useRoute } from 'vue-router'
+import { useAuthStore } from '@/stores/authStore';
 
 
 import router from '@/router'
@@ -24,12 +25,13 @@ import Select from 'primevue/select'
 import Tag from 'primevue/tag'
 import { InputOtp } from 'primevue';
 
-import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
+import api from '@/api/axiosInstance';
 
 const { um_create_form } = useForm()
 const { province_opts, division_opts, employment_opts, getDivision, getEmploymentType,getUserRoles,roles_opts} = useApi()
+const authStore = useAuthStore()
 
-let city_mun_opts = ref([])
+let city_mun_opts = ref<{ id: any; name: any; code: any }[]>([])
 const errors = ref({})
 
 const route = useRoute()
@@ -39,7 +41,7 @@ const route = useRoute()
 onMounted(() => {
   getDivision(),
   getEmploymentType(),
-  getUserRoles(),
+  getUserRoles(authStore.role_id),
   fetchUserData()
 })
 // Page title
@@ -77,25 +79,19 @@ const post_update_user = async () => {
       location.reload()
     }, 2000)
   } catch (error) {
-    if (error.response?.status === 422) {
-      errors.value = error.response.data.message
-      console.error('Validation errors:', errors.value)
-    } else {
-      console.error('Error saving form:', error)
-    }
+    console.log(error)
   }
 }
 
 const fetchUserData = async () => {
   const id = route.params.id
-  if (id) {
     try {
       const response = await api.get(`/getUsers?id=${id}`)
       Object.assign(um_create_form, response.data.data[0])
     } catch (error) {
       console.error('Error retrieving data:', error)
     }
-  }
+  
 }
 watch(
   () => um_create_form.city_mun_c,

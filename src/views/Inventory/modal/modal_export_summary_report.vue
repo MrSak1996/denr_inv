@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 import { useToast } from 'primevue/usetoast'
-import api from '../../../../laravel-backend/resources/js/axiosInstance.ts'
+import api from '@/api/axiosInstance';
 import { useApi } from '@/composables/useApi'
 import Toast from 'primevue/toast'
 
@@ -13,7 +13,7 @@ const api_token = authStore.api_token
 const role_id = authStore.role_id
 const generating = ref(false)
 const error = ref('')
-const selectedRoles = ref('')
+const selectedRoles = ref<{ id: number; name: string } | { id: number; name: string }[] | null>(null);
 const progress = ref(0) // Added progress state
 const emit = defineEmits(['close', 'proceed'])
 const props = defineProps({
@@ -39,11 +39,11 @@ const exportData = async () => {
 
         // Ensure selectedRoles is handled correctly
         const selectedRoleIds = Array.isArray(selectedRoles.value)
-            ? selectedRoles.value.map(role => role.id).join(',')
-            : selectedRoles.value.id;
+  ? selectedRoles.value.map(role => role.id).join(',') // Extract IDs if array
+  : selectedRoles.value?.id || ''; // Extract ID if single object
 
         const response = await api.get(
-            `http://192.168.0.173:8000/api/exportSummary?export=true&role_id=${selectedRoleIds}`,
+            `https://riis.denrcalabarzon.com/api/exportSummary?export=true&role_id=${selectedRoleIds}`,
             {
                 responseType: 'blob',
             }
@@ -67,15 +67,12 @@ const exportData = async () => {
     } catch (err) {
 
         // Handle API errors
-        if (err.response && err.response.data) {
+        if (err) {
             try {
-                const errorText = await err.response.data.text();
-                const errorJson = JSON.parse(errorText);
-
                 toast.add({
                     severity: 'error',
                     summary: 'Export Failed',
-                    detail: errorJson.error,
+                    detail: 'Error retrieving error message',
                     life: 3000,
                 });
             } catch (jsonErr) {

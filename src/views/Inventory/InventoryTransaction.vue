@@ -2,9 +2,8 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useApi } from '@/composables/useApi'
-import { useInventory } from '@/composables/useInventory.ts'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
-import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
+import api from '@/api/axiosInstance';
 import router from '@/router'
 
 const { fetchCurUser } = useApi()
@@ -62,7 +61,7 @@ const updateMessage = () => {
   currentMessage.value = messages.value[randomIndex]
 }
 
-const fetchTransaction = async (id) => {
+const fetchTransaction = async () => {
   try {
     startProgress() // Start the progress bar
     const api_token = localStorage.getItem('api_token')
@@ -153,12 +152,17 @@ const viewRecord = (id: string) => {
   })
 }
 
+const resetForm = () => {
+  // Add logic to reset form fields here
+  console.log('Form reset logic goes here')
+}
+
 const closeModal = () => {
   isModalOpen.value = false
   resetForm()
 }
 
-const updateFilterWithQrValue = (qrValue) => {
+const updateFilterWithQrValue = (qrValue: string) => {
   filters.value['global'].value = qrValue
 }
 initFilters()

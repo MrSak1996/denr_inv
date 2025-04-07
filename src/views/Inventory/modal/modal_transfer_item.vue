@@ -1,6 +1,6 @@
 <script setup>
 import { ref, defineEmits, defineProps, onMounted } from 'vue'
-import api from '../../../../laravel-backend/resources/js/axiosInstance.ts'
+import api from '@/api/axiosInstance';
 import { useRouter, useRoute } from 'vue-router'
 import { useForm } from '@/composables/useForm'
 import { useToast } from 'primevue/usetoast'

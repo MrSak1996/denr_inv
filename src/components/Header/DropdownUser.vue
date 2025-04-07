@@ -2,7 +2,7 @@
 import { onClickOutside } from '@vueuse/core'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
+import api from '@/api/axiosInstance';
 import { useAuthStore } from '@/stores/authStore'
 
 const authStore = useAuthStore()
@@ -58,7 +58,7 @@ const fetchCurUser = async () => {
     }
   } catch (error) {
     // Handle any errors
-    console.error('Error fetching current user:', error.response?.data?.message || error.message)
+    console.error('Error fetching current user:')
   }
 }
 onMounted(() => {

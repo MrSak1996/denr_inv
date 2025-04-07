@@ -13,7 +13,6 @@ import ToastService from 'primevue/toastservice'
 import Aura from '@primevue/themes/aura';
 import App from './App.vue'
 import router from './router'
-import store from './store'  // Ensure the store is imported
 import QrcodeVue from 'qrcode.vue'  // Import the QRCode component
 import { DataTable } from 'primevue';
 import MultiSelect from 'primevue/multiselect';
@@ -88,7 +87,6 @@ app.use(PrimeVue, {
     }
 }
 })
-app.use(store)
 app.use(router)
 app.use(VueApexCharts)
 

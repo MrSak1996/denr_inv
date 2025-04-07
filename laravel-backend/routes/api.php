@@ -24,21 +24,29 @@ use App\Models\VwInvalidData;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::options('{any}', function () {
-    return response()->json([], 204);
-})->where('any', '.*');
-
-
-Route::post('login',[UserController::class,'login']);
-Route::middleware('auth:sanctum')->post('/logout',[UserController::class, 'logout']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::middleware('auth:api')->group(function () {
+
+Route::middleware('auth:sanctum')->group(function () { // ✅ Changed from 'auth:api' to 'auth:sanctum'
     Route::get('/authenticated', function (Request $request) {
         return response()->json(['authenticated' => true]);
     });
 });
+
+Route::post('/login', [UserController::class, 'login']);
+Route::post('/logout', [UserController::class, 'logout']);
+
+
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+
+// Route::middleware('auth:api')->group(function () {
+//     Route::get('/authenticated', function (Request $request) {
+//         return response()->json(['authenticated' => true]);
+//     });
+// });
 
 Route::middleware('api')->group(function () {
     

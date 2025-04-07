@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Modules\Reports;
-
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Modules\Inventory\InventoryController;
 use Illuminate\Http\Request;
@@ -168,7 +168,7 @@ class ReportsController extends Controller
             $row = 8;
             $items = $data['data'];
             $sheet->setCellValue('A5', 'Office: ' . $userRole);
-            $sheet->setCellValue('A6', 'Generated Date: '.$currentDateTime);
+            $sheet->setCellValue('A6', 'Generated Date: ' . $currentDateTime);
 
             foreach ($items as $item) {
                 $sheet->setCellValue('A' . $row, $item['equipment_title'] ?? '');
@@ -293,11 +293,11 @@ class ReportsController extends Controller
     {
         return [
             'driver'   => env('com.mysql.jdbc.Driver'),
-            'host'     => env('127.0.0.1'),
+            'host'     => env('localhost'),
             'port'     => env('3306'),
-            'username' => env('root'),
-            'password' => env(''),
-            'database' => env('denr_staging'),
+            'username' => env('denr_riis'),
+            'password' => env('sodniwutnubu06179'),
+            'database' => env('riis'),
         ];
     }
 
@@ -498,6 +498,8 @@ class ReportsController extends Controller
     private function generatePDF($paths, $jasperParams, $ext)
     {
         $jasper = new JasperPHP();
+    
+        // Build the command (but JasperPHP doesn't expose it before execution)
         $jasper->process(
             $paths['input'],
             $paths['output'],
@@ -511,12 +513,24 @@ class ReportsController extends Controller
                 'database' => env('DB_DATABASE', 'denr_staging'),
                 'port' => env('DB_PORT', '3306'),
             ],
-            true,
-            true
+            true,   // useLocale
+            false   // put to true only if you want the process command to output
         )->execute();
-
-        return "{$paths['output']}/report.{$ext}";
+    
+        // Build the expected output file path
+        $outputFile = "{$paths['output']}/report.{$ext}";
+    
+        // Log if the file exists
+        if (file_exists($outputFile)) {
+            Log::info("Jasper report generated successfully at: $outputFile");
+        } else {
+            Log::error("Failed to generate Jasper report. File not found: $outputFile");
+        }
+    
+        return $outputFile;
     }
+    
+
 
     public function uploadQRFiles(Request $request)
     {

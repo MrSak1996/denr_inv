@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="b49968f3-0b5d-4aae-9b9a-582f28777eb9">
-	<property name="ireport.zoom" value="1.9277164471476966"/>
+	<property name="ireport.zoom" value="2.3325369010487194"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="591"/>
+	<property name="ireport.y" value="1228"/>
 	<parameter name="id" class="java.lang.String">
 		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
 	</parameter>
@@ -505,7 +505,7 @@ where gi.id = $P{id}]]>
 				<reportElement x="0" y="251" width="271" height="20" uuid="fe6f5426-fa1b-4561-9e03-ff8dcf5289fa"/>
 			</rectangle>
 			<rectangle>
-				<reportElement x="272" y="251" width="284" height="20" uuid="1a9330af-8c1e-4def-8dfb-1ca6ca6dab81"/>
+				<reportElement x="271" y="251" width="284" height="20" uuid="1a9330af-8c1e-4def-8dfb-1ca6ca6dab81"/>
 			</rectangle>
 			<rectangle>
 				<reportElement x="0" y="271" width="271" height="20" uuid="e75bb8b9-f0c2-4c1d-8da6-49b44bbbc00c"/>

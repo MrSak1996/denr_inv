@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+    
     public function login(Request $request)
     {
         // Retrieve the user by username
@@ -196,41 +197,37 @@ class UserController extends Controller
         try {
             // Start building the query
             $query = DB::table('users as u')
-                ->leftJoin('tbl_division as d', 'd.id', '=', 'u.division_id')
-                ->leftJoin('tbl_employment_type as e', 'e.id', '=', 'u.employment_status')
-                ->leftJoin('user_roles as ur', 'ur.id', '=', 'u.roles')
-                ->leftJoin('geo_map as g', 'g.geo_code', '=', 'u.geo_id')
-                ->select(
-                    'u.id',
-                    'u.first_name',
-                    'u.last_name',
-                    'u.middle_name',
-                    'u.division_id',
-                    'u.province_c',
-                    'u.city_mun_c',
-                    'u.complete_address',
-                    'u.mobile_no',
-                    'u.position',
-                    'u.roles',
-                    'u.sex',
-                    'u.employment_status',
-                    'ur.roles',
-                    'ur.id as role_id',
-                    'd.id',
-                    'd.division_title',
-                    'u.username',
-                    'u.email',
-                    'u.mobile_no'
-                );
-
-            // Conditionally add the where clause
-            if ($id) {
-                $query->where('u.id', $id);
-            }
-            if ($api_token) {
-                $query->where('u.api_token', $api_token);
-            }
-
+            ->leftJoin('tbl_division as d', 'd.id', '=', 'u.division_id')
+            ->leftJoin('tbl_employment_type as e', 'e.id', '=', 'u.employment_status')
+            ->leftJoin('user_roles as ur', 'ur.id', '=', 'u.roles')
+            ->leftJoin('geo_map as g', 'g.geo_code', '=', 'u.geo_id')
+            ->select(
+                'u.id as user_id',
+                'u.first_name',
+                'u.last_name',
+                'u.middle_name',
+                'u.division_id',
+                'u.province_c',
+                'u.city_mun_c',
+                'u.complete_address',
+                'u.mobile_no',
+                'u.position',
+                'u.roles as user_role_id',
+                'u.sex',
+                'u.employment_status as employment_status_id',
+                'ur.roles as roles',
+                'ur.id as role_id',
+                'd.id as division_id',
+                'd.division_title',
+                'u.username',
+                'u.email'
+            );
+        
+        if (!empty($id)) {
+            $query->where('u.id', $id);
+        }
+        
+          
             // Execute the query
             $results = $query->get();
 

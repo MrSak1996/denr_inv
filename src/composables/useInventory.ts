@@ -1,11 +1,11 @@
-import api from '../../laravel-backend/resources/js/axiosInstance.ts'
+import api from '@/api/axiosInstance';
 import { ref } from 'vue'
 
 export const useInventory = () => {
   // Function to open the PDF report
-  const printRecord = async (id: string) => {
+  const printRecord = async (id: number) => {
     try {
-      const url = `http://127.0.0.1:8000/api/generatePDFReport?id=${id}`;
+      const url =`https://riis.denrcalabarzon.com/api/generatePDFReport?id=${id}`;
       window.open(url, '_blank');
     } catch (error) {
       console.error('Error generating PDF:', error);

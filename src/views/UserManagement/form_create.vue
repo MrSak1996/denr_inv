@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useForm } from '@/composables/useForm'
 import { useApi } from '@/composables/useApi'
 import { useToast } from 'primevue/usetoast'
+import { useAuthStore } from '@/stores/authStore'
 
 import router from '@/router'
 
@@ -22,9 +23,11 @@ import Checkbox from 'primevue/checkbox'
 import Select from 'primevue/select'
 import Tag from 'primevue/tag'
 
-import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
+import api from '@/api/axiosInstance';
 
 const { um_create_form } = useForm()
+const authStore = useAuthStore()
+
 const {
   province_opts,
   division_opts,
@@ -35,7 +38,7 @@ const {
   roles_opts
 } = useApi()
 
-let city_mun_opts = ref([])
+let city_mun_opts = ref<{ id: any; name: any; code: any }[]>([])
 const errors = ref({})
 const geo_code = ref('')
 watch(
@@ -69,7 +72,7 @@ watch(
 
           // Update the form with the province and associated cities
           um_create_form.province = newProvince
-          um_create_form.city_mun = city_mun_opts.value
+          um_create_form.city_mun = city_mun_opts.value.map((item) => item.id).join(', ')
         } else {
           // Handle unexpected response structure
           console.error('Unexpected response structure:', response)
@@ -88,7 +91,7 @@ watch(
 )
 
 onMounted(() => {
-  getDivision(), getEmploymentType(), getUserRoles()
+  getDivision(), getEmploymentType(), authStore.role_id !== null && getUserRoles(authStore.role_id)
 })
 // Page title
 const pageTitle = ref('Create User Account')
@@ -152,16 +155,7 @@ const post_save_userCred = async () => {
       }, 2000)
     }
   } catch (error) {
-    if (error.response?.status === 422) {
-      errors.value = error.response.data.errors
-      const errorMessages = Object.values(errors.value).flat().join(' ')
-      toast.add({
-        severity: 'warn',
-        summary: 'Validation Error',
-        detail: errorMessages,
-        life: 5000
-      })
-    } else {
+   
       console.error('Error saving form:', error)
       toast.add({
         severity: 'error',
@@ -169,7 +163,6 @@ const post_save_userCred = async () => {
         detail: 'Failed to save data. Please try again later.',
         life: 5000
       })
-    }
   }
 }
 </script>

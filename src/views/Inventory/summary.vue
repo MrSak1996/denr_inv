@@ -2,9 +2,9 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useApi } from '@/composables/useApi'
-import { useInventory } from '@/composables/useInventory.ts'
+import { useInventory } from '@/composables/useInventory'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
-import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
+import api from '@/api/axiosInstance';
 import router from '@/router'
 import { useAuthStore } from '@/stores/authStore'
 import modal_export_summary_report from './modal/modal_export_summary_report.vue'
@@ -41,7 +41,7 @@ const loadUserData = async () => {
   designation.value = userData.data[0].roles
 
   user_id.value = userData.data[0].id
-  summary(user_id.value)
+  summary(Number(user_id.value))
 }
 
 const startProgress = () => {
@@ -70,12 +70,12 @@ const updateMessage = () => {
   currentMessage.value = messages.value[randomIndex]
 }
 
-const summary = async (selectedRoleId) => {
+const summary = async (selectedRoleId: number) => {
   try {
     startProgress();
     const api_token = authStore.api_token; 
     const response = await api.get(
-      `/getSummaryData?id=${user_id}&role_id=${selectedRoleId}&api_token=${api_token}`
+      `/getSummaryData?id=${user_id.value}&role_id=${selectedRoleId}&api_token=${api_token}`
     );
 
     loading.value = false;
@@ -135,7 +135,7 @@ watch(
   () => selectedRole,
   async (newRoleId) => {
     if (newRoleId) {
-      summary(user_id)
+      summary(Number(user_id.value))
     }
   }
 )

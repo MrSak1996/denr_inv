@@ -6,14 +6,13 @@ import { useStore } from 'vuex'
 import { useApi } from '@/composables/useApi'
 import { useForm } from '@/composables/useForm'
 
-import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
+import api from '@/api/axiosInstance'
 import modal_reserved from './modal/modal_reserved.vue'
 import modal_software from './modal/modal_software.vue'
 import modal_transfer_item from './modal/modal_transfer_item.vue'
-import modal_review_form from './modal/modal_review_form.vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import Modal_msoffice from './modal/modal_msoffice.vue'
-import { useInventory } from '@/composables/useInventory.ts'
+import { useInventory } from '@/composables/useInventory'
 const { checkItemStatus } = useInventory()
 
 // Page title and modal state
@@ -55,10 +54,10 @@ const {
 
 const isButtonDisabled = ref(false)
 const errors = ref({})
-let selectedNetwork = ref(null)
-let selectedGPU = ref(null)
-let selectedWireless = ref(null)
-const selectedSoftware = ref({})
+let selectedNetwork = ref<null | string>(null)
+let selectedGPU = ref<null | string>(null)
+let selectedWireless = ref<null | string>(null)
+const selectedSoftware = ref<Record<string, string>>({})
 let software = ref([])
 
 const item_status = ref('')
@@ -78,7 +77,7 @@ const api_token = route.query.api_token
 const openTransferModal = ref(false)
 const loading = ref(false)
 
-const user_id = route.params.id ? route.params.id : route.query.id;
+const user_id = route.params.id ? route.params.id : route.query.id
 
 // Functions
 const checkUrlAndDisableButton = () => {
@@ -131,16 +130,12 @@ const software_installed = ref([
   { title: 'Autocad', key: 'autocad' }
 ])
 
-// Upload image
-
-// Map remarks values to the corresponding options
-const remarksMap = {
+const remarksMap: Record<string, string> = {
   perpetual: '1',
   subscription: '2',
   evaluation: '3'
 }
-//Open modal
-const onRadioChange = (key, option) => {
+const onRadioChange = (key: string, option: string) => {
   modalData.value = `${key}: ${option}`
   if (key == 'operating_system') {
     isVisible.value = true // Show the modal
@@ -187,20 +182,14 @@ const saveGeneralInfo = async () => {
       // location.reload()
     }, 1000)
   } catch (error) {
-    if (error.response?.status === 422) {
-      errors.value = error.response.data.message
-      console.error('Validation errors:', errors.value)
-    } else {
-      console.error('Error saving form:', error)
-    }
+    console.log(error)
   }
 }
-
 //SPECS
 const saveSpecsInfo = async () => {
   try {
     errors.value = {}
-    const extractId = (item) => item?.id || null
+    const extractId = (item: { id?: string | number }) => item?.id || null
     const id = route.query.gen_id ? route.query.gen_id : route.query.item_id
 
     const requestData = {
@@ -227,12 +216,7 @@ const saveSpecsInfo = async () => {
       })
     }, 1000)
   } catch (error) {
-    if (error.response?.status === 422) {
-      errors.value = error.response.data.message
-      console.error('Validation errors:', errors.value)
-    } else {
-      console.error('Error saving form:', error)
-    }
+    console.log(error)
   }
 }
 
@@ -250,7 +234,7 @@ const saveSoftwareInfo = async () => {
           remarksMap[value] || null
         ])
       ),
-      control_id:id
+      control_id: id
     }
     // Make the API call
     const response = await api.post('/post_insert_software', requestData)
@@ -273,12 +257,7 @@ const saveSoftwareInfo = async () => {
       })
     }, 1000)
   } catch (error) {
-    if (error.response?.status === 422) {
-      errors.value = error.response.data.message
-      console.error('Validation errors:', errors.value)
-    } else {
-      console.error('Error saving form:', error)
-    }
+    console.log(error)
   }
 }
 
@@ -310,12 +289,7 @@ const savePeripheralInfo = async () => {
       // })
     }, 1000)
   } catch (error) {
-    if (error.response?.status === 422) {
-      errors.value = error.response.data.message
-      console.error('Validation errors:', errors.value)
-    } else {
-      console.error('Error saving form:', error)
-    }
+    console.log(error)
   }
 }
 // RETRIEVE DATA USING DATABASE
@@ -323,7 +297,7 @@ const retrieveDataviaAPI = async () => {
   const id = route.params.id
   if (id) {
     try {
-      startProgress();
+      startProgress()
       const response = await api.get(`/retriveDataviaAPI?id=${id}`)
       Object.assign(form, response.data[0])
       loading.value = false
@@ -344,7 +318,9 @@ const retrieveSpecsData = async () => {
       selectedWireless.value = String(response.data[0].specs_net_iswireless)
 
       Object.assign(specs_form, response.data[0])
-    } catch (error) {}
+    } catch (error) {
+      console.error('Error retrieving data:', error)
+    }
   }
 }
 
@@ -355,7 +331,7 @@ const retrieveSoftwareData = async () => {
       const response = await api.get(`/retrieveSoftwareData?id=${id}`)
       software.value = response.data
 
-      response.data.forEach((software) => {
+      response.data.forEach((software: { software: string; remarks: string }) => {
         // Reverse the mapping: match the value from 'remarksMap' and find the option
         const selectedOption = Object.keys(remarksMap).find(
           (key) => remarksMap[key] === software.remarks
@@ -383,8 +359,16 @@ const retrievePeripheralsData = async () => {
   }
 }
 
-const generateQRCode = async (form, tab_form, item_id, userId) => {
-   item_id = route.query?.gen_id ?? route.query?.item_id;
+const generateQRCode = async (
+  form: Record<string, any>,
+  tab_form: string,
+  item_id: string | null,
+  userId: string | null
+) => {
+  item_id = Array.isArray(route.query?.gen_id)
+    ? route.query.gen_id[0]
+    : route.query?.gen_id ??
+      (Array.isArray(route.query?.item_id) ? route.query.item_id[0] : route.query?.item_id)
 
   try {
     if (tab_form === 'genForm') {
@@ -474,20 +458,13 @@ const generateQRCode = async (form, tab_form, item_id, userId) => {
 
 const status_checker = async () => {
   try {
-    const res = await checkItemStatus(route.params.id)
+    const id = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id
+    const res = await checkItemStatus(id)
     item_status.value = res
   } catch (error) {
     console.log(error)
   }
 }
-
-const qrCodeValue = computed(() => {
-  // Check if the URL contains the 'create_new' parameter
-  if (route.query.create_new) {
-    return '' // Set input to null if 'create_new' exists
-  }
-  return form.qr_code // Else use the value from the form
-})
 
 const closeModal = () => {
   isVisible.value = false
@@ -503,7 +480,7 @@ const fetchLatestID = async () => {
   }
 }
 
-const updateIdInURL = (newId) => {
+const updateIdInURL = (newId: string) => {
   if (route.query.option == 'scan') {
     return null
   } else {
@@ -517,16 +494,16 @@ const updateIdInURL = (newId) => {
 }
 
 const formattedCost = computed(() => {
-  let num = form.acquisition_cost
+  let num = form.aquisition_cost
   return num
-    ? new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(num)
+    ? new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(Number(num))
     : '₱0.00'
 })
 
 onMounted(() => {
   const id = route.params.id
   if (!id) {
-    getControlNo(form, userId)
+    getControlNo(form, userId ? Number(userId) : 0)
     setTimeout(() => {
       // toast.add({
       //   severity: 'success',
@@ -608,36 +585,36 @@ onMounted(() => {
 
     <Modal_msoffice v-if="isMicrosoftOffice" :isLoading="isMicrosoftOffice" @close="closeModal" />
     <div
-          v-if="isLoading"
-          class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-          role="dialog"
-          tabindex="-1"
-          aria-labelledby="progress-modal"
+      v-if="isLoading"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+      role="dialog"
+      tabindex="-1"
+      aria-labelledby="progress-modal"
+    >
+      <div
+        class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-sm rounded-xl w-full max-w-4xl mx-4 lg:mx-auto transition-transform duration-500 transform"
+      >
+        <!-- Modal Header -->
+        <div
+          class="modal-content flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700"
         >
-          <div
-            class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-sm rounded-xl w-full max-w-4xl mx-4 lg:mx-auto transition-transform duration-500 transform"
-          >
-            <!-- Modal Header -->
-            <div
-              class="modal-content flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700"
-            >
-              <h3 class="text-lg font-semibold">{{ currentMessage }}</h3>
-              <!-- Dynamic Message -->
-            </div>
-            <!-- Modal Body -->
-            <div class="flex flex-col justify-center items-center gap-x-2 py-6 px-4">
-              <!-- Progress Bar Container -->
-              <div class="w-full bg-gray-200 rounded-full h-4">
-                <div
-                  class="bg-teal-500 h-4 rounded-full transition-all"
-                  :style="{ width: progress + '%' }"
-                ></div>
-              </div>
-              <!-- Progress Percentage -->
-              <p class="mt-2 text-gray-700 dark:text-gray-300">{{ progress }}%</p>
-            </div>
-          </div>
+          <h3 class="text-lg font-semibold">{{ currentMessage }}</h3>
+          <!-- Dynamic Message -->
         </div>
+        <!-- Modal Body -->
+        <div class="flex flex-col justify-center items-center gap-x-2 py-6 px-4">
+          <!-- Progress Bar Container -->
+          <div class="w-full bg-gray-200 rounded-full h-4">
+            <div
+              class="bg-teal-500 h-4 rounded-full transition-all"
+              :style="{ width: progress + '%' }"
+            ></div>
+          </div>
+          <!-- Progress Percentage -->
+          <p class="mt-2 text-gray-700 dark:text-gray-300">{{ progress }}%</p>
+        </div>
+      </div>
+    </div>
     <Tabs value="0">
       <TabList>
         <Tab value="0" as="div" class="flex items-center gap-2">
@@ -648,23 +625,16 @@ onMounted(() => {
           <i class="pi pi-folder" />
           <span class="font-bold whitespace-nowrap">Specification</span>
         </Tab>
-        <Tab v-slot="slotProps" value="2" asChild>
-          <div
-            :class="['flex items-center gap-2', slotProps.class]"
-            @click="slotProps.onClick"
-            v-bind="slotProps.a11yAttrs"
-          >
-            <i class="pi pi-code" />
-            <span class="font-bold whitespace-nowrap">Major Software Installed</span>
-            <!-- <Badge value="2" /> -->
-          </div>
+        <Tab value="2" as="div" class="flex items-center gap-2">
+              <i class="pi pi-code" />
+              <span class="font-bold whitespace-nowrap">Major Software Installed</span>
         </Tab>
         <Tab value="3" as="div" class="flex items-center gap-2">
           <i class="pi pi-desktop" />
           <span class="font-bold whitespace-nowrap">Monitor & UPS</span>
         </Tab>
-        
-        <Button style="margin-left: 500px;height:40px" class="mt-2" >
+
+        <Button style="margin-left: 500px; height: 40px" class="mt-2">
           <router-link
             :to="`/inventory?id=${user_id}&api_token=${route.query.api_token}`"
             class="p-button p-button-secondary mr-4"
@@ -778,7 +748,7 @@ onMounted(() => {
                 <div class="relative z-0 w-full mb-5 group">
                   <div class="flex items-center gap-2">
                     <Checkbox inputId="ingredient1" name="pizza" value="Cheese" />
-                    
+
                     <label for="ingredient1"> Same with Accountable Person? </label>
                   </div>
 
@@ -836,7 +806,7 @@ onMounted(() => {
                     class="absolute top-1/2 right-2 transform -translate-y-1/2 px-2 py-2"
                     style="top: -21px; left: 258px"
                     size="small"
-                    @click="generateQRCode(form, 'genForm', item_id, userId)"
+                    @click="generateQRCode(form, 'genForm', Array.isArray(item_id) ? item_id[0] : item_id, Array.isArray(userId) ? userId[0] : userId)"
                   >
                     Generate
                   </Button>
@@ -889,8 +859,8 @@ onMounted(() => {
                 <div class="relative z-0 w-full mb-5 group">
                   <FloatLabel>
                     <InputNumber
-                    inputId="currency-ph" 
-                    prefix="₱"
+                      inputId="currency-ph"
+                      prefix="₱"
                       id="acquisition_cost"
                       v-model="form.aquisition_cost"
                       class="w-full mt-4"
@@ -1188,7 +1158,7 @@ onMounted(() => {
                         v-if="!peripheral_form.monitor1QrCode"
                         style="top: -0.5px; left: -88px"
                         size="small"
-                        @click="generateQRCode(peripheral_form, 'p1Form', item_id, userId)"
+                        @click="generateQRCode(peripheral_form, 'p1Form', Array.isArray(item_id) ? item_id[0] : item_id, Array.isArray(userId) ? userId[0] : userId)"
                       >
                         Generate
                       </Button>
@@ -1305,7 +1275,7 @@ onMounted(() => {
                         v-if="!peripheral_form.monitor2QrCode"
                         style="top: -0.5px; left: -88px"
                         size="small"
-                        @click="generateQRCode(peripheral_form, 'p2Form', item_id, userId)"
+                        @click="generateQRCode(peripheral_form, 'p2Form', Array.isArray(item_id) ? item_id[0] : item_id, Array.isArray(userId) ? userId[0] : userId)"
                       >
                         Generate
                       </Button>
@@ -1419,7 +1389,7 @@ onMounted(() => {
                       v-if="!peripheral_form.ups_qr_code"
                       style="top: -0.5px; left: -88px"
                       size="small"
-                      @click="generateQRCode(peripheral_form, 'upsForm', item_id, userId)"
+                      @click="generateQRCode(peripheral_form, 'upsForm', Array.isArray(item_id) ? item_id[0] : item_id, Array.isArray(userId) ? userId[0] : userId)"
                     >
                       Generate
                     </Button>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import axios from "axios";
+
 import DefaultAuthCard from '@/components/Auths/DefaultAuthCard.vue'
 import InputGroup from '@/components/Auths/InputGroup.vue'
 import InputOtp from 'primevue/inputotp'
@@ -7,19 +9,18 @@ import Toast from 'primevue/toast'
 import { useToast } from 'primevue/usetoast'
 import { onMounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useInventory } from '@/composables/useInventory.ts'
+import { useInventory } from '@/composables/useInventory'
 import { useAuthStore } from '@/stores/authStore';
 const { OTPsettings, predefinedRoles } = useInventory()
 
-import api from '../../../laravel-backend/resources/js/axiosInstance.ts'
-import modal_verify from './modal/modal_verify.vue'
+import api from '@/api/axiosInstance';
 import Qrcode from 'qrcode.vue'
-import { Navigation, Pagination, Scrollbar, A11y } from 'swiper/modules'
-import { Swiper, SwiperSlide } from 'swiper/vue'
+
 const authStore = useAuthStore()
 
 import 'swiper/css'
 import 'swiper/css/bundle'
+
 
 const pageTitle = ref('Welcome to ICT Inventory System')
 const toast = useToast()
@@ -38,81 +39,78 @@ const isModalOpen = ref(false)
 const openLoginForm = ref(false)
 const otp_checker = ref(false)
 
-const onSwiper = (swiper) => {
-  console.log(swiper)
-}
-const onSlideChange = () => {
-  console.log('slide change')
-}
-
-const modules = ref([Navigation, Pagination, Scrollbar, A11y])
 
 const loginUser = async () => {
   try {
-    const response = await api.post('/login', form.value)
+    await axios.get('/sanctum/csrf-cookie'); // Ensure CSRF token is set
+
+    const response = await api.post('/login', form.value);
+
     if (response.data.status) {
-      // using Pinia
-      authStore.setUser(response.data.userId, response.data.api_token,response.data.roles,response.data.division_id,response.data.client)
-    
-      // If login is successful, send the OTP
-      localStorage.setItem('userId', response.data.userId)
-      localStorage.setItem('api_token', response.data.api_token)
-      let role_id = response.data.roles
-      const matchedRole = predefinedRoles.value.find((role) => role.id === role_id)
+      // Using Pinia
+      authStore.setUser(
+        response.data.userId,
+        response.data.api_token,
+        response.data.roles,
+        response.data.division_id,
+        response.data.client
+      );
 
-      localStorage.setItem('roles',matchedRole.label)
-    
+      localStorage.setItem('userId', response.data.userId);
+      localStorage.setItem('api_token', response.data.api_token);
 
-      const res = await OTPsettings()
-      otp_checker.value = res
+      const res = await OTPsettings();
+      otp_checker.value = res;
 
       if (otp_checker.value === true) {
-        isModalOpen.value = true
-        email.value = response.data.email
-        const userEmail = response.data.email
+        isModalOpen.value = true;
+        openLoginForm.value = false;
+        email.value = response.data.email;
+        const userEmail = response.data.email;
 
         if (!userEmail) {
           toast.add({
             severity: 'error',
             summary: 'Error',
             detail: 'Email not found for the provided username',
-            life: 3000
-          })
-          return
+            life: 3000,
+          });
+          return;
         }
 
-        await api.post('/send-otp', { email: userEmail })
-        // Show success message and open OTP modal
+        await api.post('/send-otp', { email: userEmail });
+
         toast.add({
           severity: 'success',
           summary: 'OTP Sent',
           detail: 'Check your email for the OTP',
-          life: 3000
-        })
+          life: 3000,
+        });
       } else {
-        isModalOpen.value = false
-        toDashboard()
+        isModalOpen.value = false;
+        toDashboard();
       }
     } else {
-      // Invalid login credentials
       toast.add({
         severity: 'error',
         summary: 'Error',
         detail: 'Invalid username or password',
-        life: 3000
-      })
+        life: 3000,
+      });
     }
   } catch (error) {
-    isModalOpen.value = false // Ensure the modal stays closed on error
+    isModalOpen.value = false;
+    console.error('Login error:', error);
 
-    if (error.response && error.response.data) {
-      // Server returned an error response
-      errors.value = error.response.data.errors
-    } else {
-      console.log(error)
-    }
+    toast.add({
+      severity: 'error',
+      summary: 'Login Failed',
+      detail: error.response?.data?.message || 'An unexpected error occurred',
+      life: 3000,
+    });
   }
-}
+};
+
 
 const verifyOtp = async () => {
   try {
@@ -125,11 +123,10 @@ const verifyOtp = async () => {
       toDashboard()
     }
   } catch (error) {
-    message.value = error.response?.data?.message || 'Error verifying OTP'
     toast.add({
       severity: 'error',
       summary: 'Error',
-      detail: message.value,
+      detail: 'Error verifying OTP',
       life: 3000
     })
   }
@@ -162,7 +159,7 @@ const toDashboard = async () => {
     // window.location.href = '/inventory?id=' + userId + '&api_token=' + api_token
     router.push({
       name: 'Inventory',
-      query: { id: userId, api_token: api_token }
+      query: { id: userId}
     })
   }, 1000)
 }
@@ -328,7 +325,7 @@ onMounted(() => {})
                   alt="Landwind Logo"
                 />
                 <span class="self-center text-xl font-semibold whitespace-nowrap text-teal-900"
-                  >ICT Inventory System</span
+                  >Regional ICT Inventory System</span
                 >
               </a>
               <div class="flex items-center lg:order-2">
@@ -435,18 +432,9 @@ onMounted(() => {})
                 class="max-w-2xl mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl xl:text-6xl dark:text-white"
               >
                 Welcome to<br />
-                ICT Inventory System Portal
+                Regional ICT Inventory System
               </h1>
-              <p
-                class="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl dark:text-gray-400"
-              >
-                This portal serves as a centralized platform for accessing important environmental
-                data, reports, and services provided by DENR IV-A. Designed to enhance efficiency
-                and transparency, it enables users to navigate regulatory processes, monitor
-                conservation efforts, and stay informed about the region's environmental programs.
-                Whether you're a stakeholder, researcher, or citizen, this system streamlines access
-                to essential information and resources for sustainable development.
-              </p>
+              
               <div class="space-y-4 sm:flex sm:space-y-0 sm:space-x-4"></div>
             </div>
             <!-- <div class="hidden lg:mt-0 lg:col-span-5 lg:flex">
@@ -457,16 +445,16 @@ onMounted(() => {})
             <div
               class="grid grid-cols-2 gap-8 text-gray-500 sm:gap-12 sm:grid-cols-3 lg:grid-cols-6 dark:text-gray-400"
             >
-              <a href="#" class="flex items-center lg:justify-center font-black">
+              <a href="#" class="flex items-center lg:justify-center font-black mt-50">
                 Regional Office
               </a>
-              <a href="#" class="flex items-center lg:justify-center font-black"> PENRO CAVITE </a>
-              <a href="#" class="flex items-center lg:justify-center font-black"> PENRO LAGUNA </a>
-              <a href="#" class="flex items-center lg:justify-center font-black">
+              <a href="#" class="flex items-center lg:justify-center font-black mt-50"> PENRO CAVITE </a>
+              <a href="#" class="flex items-center lg:justify-center font-black mt-50"> PENRO LAGUNA </a>
+              <a href="#" class="flex items-center lg:justify-center font-black mt-50">
                 PENRO BATANGAS
               </a>
-              <a href="#" class="flex items-center lg:justify-center font-black"> PENRO RIZAL </a>
-              <a href="#" class="flex items-center lg:justify-center font-black"> PENRO QUEZON </a>
+              <a href="#" class="flex items-center lg:justify-center font-black mt-50"> PENRO RIZAL </a>
+              <a href="#" class="flex items-center lg:justify-center font-black mt-50"> PENRO QUEZON </a>
             </div>
           </div>
         </section>

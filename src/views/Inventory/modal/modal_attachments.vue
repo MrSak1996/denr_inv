@@ -5,7 +5,7 @@ import JSZip from 'jszip'
 import { generateQRCodeWithLogo, formatQRCodeText } from './qrCodeUtils.js'
 import { useApi } from '@/composables/useApi'
 import img from '@/assets/images/prev.jpg'
-import api from '../../../../laravel-backend/resources/js/axiosInstance.ts'
+import api from '@/api/axiosInstance';
 
 const files = ref([])
 
