@@ -17,6 +17,7 @@ use App\Http\Controllers\ExampleController;
 
 Route::get('/', [ExampleController::class,'index']);
 
+//hello world route
 Route::get('{any}', function () {
     return view('welcome');
 })->where('any','.*');
