@@ -82,13 +82,36 @@ const office = ref([
 const userId = route.query.id
 const item = ref(0)
 const user_role = ref(0)
-const designation = ref('')
 const api_token = authStore.api_token
 const role_id = authStore.role_id
+const role_office = ref('')
+
 const loadUserData = async () => {
   const userData = await fetchCurUser()
-  user_role.value = userData.data[0].role_id
-  designation.value = userData.data[0].roles
+  user_role.value = role_id
+
+  // getting the user's office
+const roleMapping: Record<string, string> = {
+  '1': 'PENRO CAVITE',
+  '2': 'PENRO LAGUNA',
+  '3': 'PENRO BATANGAS',
+  '4': 'PENRO RIZAL',
+  '5': 'PENRO QUEZON',
+  '6': 'CENRO Sta. Cruz',
+  '7': 'CENRO Lipa City',
+  '8': 'CENRO Calaca',
+  '9': 'CENRO Calauag',
+  '10': 'CENRO Catanauan',
+  '11': 'CENRO Tayabas',
+  '12': 'CENRO Real',
+  '13': 'Regional Office'
+}
+
+
+  const roleId = role_id; // use the **fetched role_id**
+role_office.value = roleMapping[String(roleId)] || 'Unknown Office'
+
+
 }
 
 const fetchData = async () => {
@@ -115,9 +138,7 @@ const getCountStatus = async () => {
   await loadUserData()
 
   try {
-    const response = await api.get(
-      `/getCountStatus?api_token=${api_token}&designation=${role_id}`
-    )
+    const response = await api.get(`/getCountStatus?api_token=${api_token}&designation=${role_id}`)
 
     // Ensure response.data is an array and has at least one item
     if (Array.isArray(response.data) && response.data.length > 0) {
@@ -280,7 +301,12 @@ const viewRecord = (id: string) => {
 }
 
 const handlePrint = (id: number) => {
-  printRecord(id) // Example ID
+    try {
+      const url =`http://127.0.0.1:8000/api/generatePDFReport?id=${id}`;
+      window.open(url);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
 }
 
 const simulateUpload = () => {
@@ -327,7 +353,7 @@ const uploadImage = async () => {
 
   const formData = new FormData()
   formData.append('image', image.value)
-  formData.append('destination_folder', designation.value)
+  formData.append('destination_folder', role_office.value)
   formData.append('qr_code', qr_code.value)
   try {
     simulateUpload()
@@ -701,12 +727,12 @@ const pageTitle = ref('Inventory Management')
                   size="small"
                   class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 />
-                <Button
+                <!-- <Button
                   @click="handlePrint(data.id)"
                   icon="pi pi-print"
                   size="small"
                   class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                />
+                /> -->
                 <Button
                   data.mon_qr_code1
                   data.mon_qr_code2

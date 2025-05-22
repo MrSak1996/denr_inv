@@ -1,5 +1,5 @@
 import { onClickOutside } from '@vueuse/core';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '@/api/axiosInstance';
 import { useAuthStore } from '@/stores/authStore';
@@ -56,8 +56,24 @@ const fetchCurUser = async () => {
         console.error('Error fetching current user:');
     }
 };
+const roleMapping = {
+    1: "PENRO CAVITE",
+    2: "PENRO LAGUNA",
+    3: "PENRO BATANGAS",
+    4: "PENRO RIZAL",
+    5: "PENRO QUEZON",
+    6: "CENRO Sta. Cruz",
+    7: "CENRO Lipa City",
+    8: "CENRO Calaca",
+    9: "CENRO Calauag",
+    10: "CENRO Catanauan",
+    11: "CENRO Tayabas",
+    12: "CENRO Real",
+    13: "Regional Office"
+};
+const userRole = computed(() => roleMapping[authStore.role_id] || "Unknown Role");
 onMounted(() => {
-    designation.value = authStore.client;
+    designation.value = userRole;
     current_user.value = authStore.userId;
 });
 debugger; /* PartiallyEnd: #3632/scriptSetup.vue */

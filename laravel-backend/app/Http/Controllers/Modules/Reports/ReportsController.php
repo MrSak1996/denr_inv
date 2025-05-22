@@ -1,20 +1,20 @@
 <?php
-
 namespace App\Http\Controllers\Modules\Reports;
-use Illuminate\Support\Facades\Log;
+
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Modules\Inventory\InventoryController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use PhpOffice\PhpSpreadsheet\Style\Fill; // Import the Fill class for styling
 use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
 use DB;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-
 use JasperPHP\JasperPHP;
 use PHPJasper\PHPJasper;
+
 
 
 class ReportsController extends Controller
@@ -307,6 +307,9 @@ class ReportsController extends Controller
             $id = $request->query('id');
             $ext = 'pdf';
 
+            // Log the requested ID for debugging
+            \Log::info('Generating PDF report for ID:', ['id' => $id]);
+
             // Paths
             $paths = [
                 'input' => storage_path('templates/report/report.jasper'),
@@ -315,11 +318,15 @@ class ReportsController extends Controller
                 'output' => public_path('templates/report'),
             ];
 
+            // Ensure output folder exists
+            if (!file_exists($paths['output'])) {
+                mkdir($paths['output'], 0777, true);
+            }
+
             // Fetch data
             $resultDataOpts = $this->fetchData(new InventoryController, 'retriveDataviaAPI', $id);
             $resultData = $this->fetchData(new InventoryController, 'retrieveSoftwareData', $id);
             $specsDataOpts = $this->fetchData(new InventoryController, 'retrieveSpecsData', $id);
-
 
             // Generate parameters
             $worknatureRemarks = $this->prepareWorknatureRemarks($resultDataOpts, $paths['check_icon'], $paths['uncheck_icon']);
@@ -327,6 +334,7 @@ class ReportsController extends Controller
             $empTypeRemarks = $this->prepareEmpTypeRemarks($resultDataOpts, $paths['check_icon'], $paths['uncheck_icon']);
             $gpuInfoRemarks = $this->prepareSpecsInfoRemarks($specsDataOpts, $paths['check_icon'], $paths['uncheck_icon']);
             $networkInfoRemarks = $this->prepareNetworkInfoRemarks($specsDataOpts, $paths['check_icon'], $paths['uncheck_icon']);
+
             // Merge parameters for Jasper
             $jasperParams = array_merge(
                 ['id' => $id],
@@ -337,17 +345,27 @@ class ReportsController extends Controller
                 $this->flattenSoftwareRemarks($softwareRemarks)
             );
 
-            // Generate PDF
-            $file = $this->generatePDF($paths, $jasperParams, $ext);
+            // --- [ IMPORTANT ] Generate UNIQUE file name based on ID
+            $filename = "report_{$id}." . $ext;
+            $outputFile = $paths['output'] . '/' . $filename;
 
-            // Return file or error response
-            if (!file_exists($file)) {
+            // Clean up old file (optional but safe)
+            if (file_exists($outputFile)) {
+                unlink($outputFile);
+            }
+
+            // Actually generate PDF (pass custom output path)
+            $generatedFile = $this->generatePDF($paths, $jasperParams, $ext, $outputFile);
+
+            // Verify the file exists
+            if (!file_exists($generatedFile)) {
+                \Log::error('PDF generation failed. File not found.', ['file' => $generatedFile]);
                 return response()->json(['error' => 'Report generation failed!'], 500);
             }
 
-            return response()->file($file, [
+            // Serve the file with no-cache headers
+            return response()->file($generatedFile, [
                 'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'inline; filename="report.pdf"',
             ]);
         } catch (\Exception $e) {
             // Log error for debugging
@@ -358,6 +376,7 @@ class ReportsController extends Controller
             return response()->json(['error' => 'An error occurred while generating the report.'], 500);
         }
     }
+
 
     private function fetchData($controller, $method, $id)
     {
@@ -498,7 +517,7 @@ class ReportsController extends Controller
     private function generatePDF($paths, $jasperParams, $ext)
     {
         $jasper = new JasperPHP();
-    
+
         // Build the command (but JasperPHP doesn't expose it before execution)
         $jasper->process(
             $paths['input'],
@@ -516,20 +535,21 @@ class ReportsController extends Controller
             true,   // useLocale
             false   // put to true only if you want the process command to output
         )->execute();
-    
+
+
         // Build the expected output file path
         $outputFile = "{$paths['output']}/report.{$ext}";
-    
+
         // Log if the file exists
         if (file_exists($outputFile)) {
             Log::info("Jasper report generated successfully at: $outputFile");
         } else {
             Log::error("Failed to generate Jasper report. File not found: $outputFile");
         }
-    
+
         return $outputFile;
     }
-    
+
 
 
     public function uploadQRFiles(Request $request)

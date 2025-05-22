@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed,watch } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
@@ -51,6 +51,8 @@ const {
   completeProgress,
   progress
 } = useApi()
+
+const sameAsAccountable = ref(false);
 
 const isButtonDisabled = ref(false)
 const errors = ref({})
@@ -499,7 +501,15 @@ const formattedCost = computed(() => {
     ? new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(Number(num))
     : '₱0.00'
 })
-
+watch(sameAsAccountable, (newVal) => {
+  if (newVal) {
+    form.actual_user = form.acct_person;
+    form.selectedActualDivision = form.selectedAcctDivision;
+  } else {
+    form.actual_user = '';
+    form.selectedActualDivision =  '';
+  }
+});
 onMounted(() => {
   const id = route.params.id
   if (!id) {
@@ -747,9 +757,8 @@ onMounted(() => {
               <div class="grid md:grid-cols-4 md:gap-6 mb-4">
                 <div class="relative z-0 w-full mb-5 group">
                   <div class="flex items-center gap-2">
-                    <Checkbox inputId="ingredient1" name="pizza" value="Cheese" />
-
-                    <label for="ingredient1"> Same with Accountable Person? </label>
+                  <Checkbox v-model="sameAsAccountable" inputId="sameAsAccountable" />
+                  <label for="sameAsAccountable">Same with Accountable Person?</label>
                   </div>
 
                   <FloatLabel>
@@ -1138,7 +1147,7 @@ onMounted(() => {
         <!-- Peripherals -->
         <TabPanel value="3" as="p" class="m-0">
           <form @submit.prevent="savePeripheralInfo">
-            <div class="grid md:grid-cols-3 md:gap-6 mb-4">
+            <div class="grid md:grid-cols-2 md:gap-6 mb-4">
               <div class="relative z-0 w-full mb-5 group">
                 <Fieldset legend="Monitor 1">
                   <div class="flex items-center gap-2" v-if="peripheral_form.monitor1QrCode">
@@ -1169,7 +1178,7 @@ onMounted(() => {
                         <InputText
                           id="processor"
                           v-model="peripheral_form.monitor1BrandModel"
-                          class="w-full md:w-100"
+                          class="w-full lg:w-100"
                         />
                         <label for="processor">Brand</label>
                       </FloatLabel>
@@ -1267,7 +1276,7 @@ onMounted(() => {
                         <InputText
                           id="processor"
                           v-model="peripheral_form.monitor2QrCode"
-                          class="w-full md:w-80"
+                          class="w-full md:w-100"
                         />
                         <label for="processor">QR Code</label>
                       </FloatLabel>
@@ -1372,7 +1381,7 @@ onMounted(() => {
               </div>
 
               <div class="relative z-0 w-full mb-5 group">
-                <Fieldset legend="UPS">
+                <!-- <Fieldset legend="UPS">
                   <div class="flex items-center gap-2" v-if="peripheral_form.ups_qr_code">
                     <QrcodeVue :value="peripheral_form.ups_qr_code" />
                   </div>
@@ -1474,7 +1483,7 @@ onMounted(() => {
                       />
                     </div>
                   </div>
-                </Fieldset>
+                </Fieldset> -->
               </div>
             </div>
 

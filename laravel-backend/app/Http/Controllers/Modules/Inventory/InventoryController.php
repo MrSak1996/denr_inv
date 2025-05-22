@@ -190,9 +190,10 @@ class InventoryController extends Controller
                 ->leftJoin('tbl_peripherals as p', 'p.control_id', '=', 'g.id')
                 ->selectRaw("COALESCE(qr_code, mon_qr_code1, mon_qr_code2, ups_qr_code) as qr_code")
                 ->whereRaw("COALESCE(qr_code, mon_qr_code1, mon_qr_code2, ups_qr_code) IS NOT NULL")
-                ->where('registered_loc', '>=', $roles)
+                ->where('registered_loc', '=', $roles)
                 ->orderByDesc('qr_code')
                 ->get();
+            return response()->json($qrCodes);
         }
     }
     public function getDivision(Request $req)

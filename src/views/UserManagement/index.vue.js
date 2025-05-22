@@ -124,7 +124,7 @@ const clearFilter = () => {
     initFilters();
 };
 const editAccount = (id) => {
-    router.push({ name: 'EditAccount', params: { id } });
+    router.push(`/user-management/accounts/create/${id}`);
 };
 //Assigning roles
 const openModal = (id) => {
@@ -427,7 +427,7 @@ __VLS_42.slots.default;
     let __VLS_49;
     const __VLS_50 = {
         onClick: (...[$event]) => {
-            __VLS_ctx.editAccount(data.id);
+            __VLS_ctx.editAccount(data.user_id);
         }
     };
     var __VLS_46;

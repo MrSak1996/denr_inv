@@ -4,12 +4,7 @@ import { ref } from 'vue'
 export const useInventory = () => {
   // Function to open the PDF report
   const printRecord = async (id: number) => {
-    try {
-      const url =`https://riis.denrcalabarzon.com/api/generatePDFReport?id=${id}`;
-      window.open(url, '_blank');
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-    }
+  
   };
 
   

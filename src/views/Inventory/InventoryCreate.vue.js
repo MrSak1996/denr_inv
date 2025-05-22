@@ -1,4 +1,4 @@
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, watch } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import { useRouter, useRoute } from 'vue-router';
 import { useStore } from 'vuex';
@@ -23,6 +23,7 @@ const form_option = ref();
 // Forms and API options
 const { form, specs_form, software_form, peripheral_form } = useForm();
 const { sex_opts, status_opts, division_opts, section_opts, work_nature, equipment_type, range_category, employment_opts, capacity_opts, ram_opts, ram_capacity_opts, getControlNo, getDivision, getNatureWork, getEquipment, getRangeCategory, getEmploymentType, isLoading, currentMessage, startProgress, completeProgress, progress } = useApi();
+const sameAsAccountable = ref(false);
 const isButtonDisabled = ref(false);
 const errors = ref({});
 let selectedNetwork = ref(null);
@@ -435,6 +436,16 @@ const formattedCost = computed(() => {
     return num
         ? new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(Number(num))
         : '₱0.00';
+});
+watch(sameAsAccountable, (newVal) => {
+    if (newVal) {
+        form.actual_user = form.acct_person;
+        form.selectedActualDivision = form.selectedAcctDivision;
+    }
+    else {
+        form.actual_user = '';
+        form.selectedActualDivision = '';
+    }
 });
 onMounted(() => {
     const id = route.params.id;
@@ -1033,17 +1044,15 @@ const __VLS_136 = {}.Checkbox;
 /** @type {[typeof __VLS_components.Checkbox, ]} */ ;
 // @ts-ignore
 const __VLS_137 = __VLS_asFunctionalComponent(__VLS_136, new __VLS_136({
-    inputId: "ingredient1",
-    name: "pizza",
-    value: "Cheese",
+    modelValue: (__VLS_ctx.sameAsAccountable),
+    inputId: "sameAsAccountable",
 }));
 const __VLS_138 = __VLS_137({
-    inputId: "ingredient1",
-    name: "pizza",
-    value: "Cheese",
+    modelValue: (__VLS_ctx.sameAsAccountable),
+    inputId: "sameAsAccountable",
 }, ...__VLS_functionalComponentArgsRest(__VLS_137));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "ingredient1",
+    for: "sameAsAccountable",
 });
 const __VLS_140 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
@@ -1973,7 +1982,7 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.form, __VLS_intrinsicElements.
     ...{ onSubmit: (__VLS_ctx.savePeripheralInfo) },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "grid md:grid-cols-3 md:gap-6 mb-4" },
+    ...{ class: "grid md:grid-cols-2 md:gap-6 mb-4" },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full mb-5 group" },
@@ -2073,12 +2082,12 @@ const __VLS_388 = {}.InputText;
 const __VLS_389 = __VLS_asFunctionalComponent(__VLS_388, new __VLS_388({
     id: "processor",
     modelValue: (__VLS_ctx.peripheral_form.monitor1BrandModel),
-    ...{ class: "w-full md:w-100" },
+    ...{ class: "w-full lg:w-100" },
 }));
 const __VLS_390 = __VLS_389({
     id: "processor",
     modelValue: (__VLS_ctx.peripheral_form.monitor1BrandModel),
-    ...{ class: "w-full md:w-100" },
+    ...{ class: "w-full lg:w-100" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_389));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
     for: "processor",
@@ -2313,12 +2322,12 @@ const __VLS_452 = {}.InputText;
 const __VLS_453 = __VLS_asFunctionalComponent(__VLS_452, new __VLS_452({
     id: "processor",
     modelValue: (__VLS_ctx.peripheral_form.monitor2QrCode),
-    ...{ class: "w-full md:w-80" },
+    ...{ class: "w-full md:w-100" },
 }));
 const __VLS_454 = __VLS_453({
     id: "processor",
     modelValue: (__VLS_ctx.peripheral_form.monitor2QrCode),
-    ...{ class: "w-full md:w-80" },
+    ...{ class: "w-full md:w-100" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_453));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
     for: "processor",
@@ -2564,276 +2573,10 @@ var __VLS_443;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full mb-5 group" },
 });
-const __VLS_520 = {}.Fieldset;
-/** @type {[typeof __VLS_components.Fieldset, typeof __VLS_components.Fieldset, ]} */ ;
-// @ts-ignore
-const __VLS_521 = __VLS_asFunctionalComponent(__VLS_520, new __VLS_520({
-    legend: "UPS",
-}));
-const __VLS_522 = __VLS_521({
-    legend: "UPS",
-}, ...__VLS_functionalComponentArgsRest(__VLS_521));
-__VLS_523.slots.default;
-if (__VLS_ctx.peripheral_form.ups_qr_code) {
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "flex items-center gap-2" },
-    });
-    const __VLS_524 = {}.QrcodeVue;
-    /** @type {[typeof __VLS_components.QrcodeVue, ]} */ ;
-    // @ts-ignore
-    const __VLS_525 = __VLS_asFunctionalComponent(__VLS_524, new __VLS_524({
-        value: (__VLS_ctx.peripheral_form.ups_qr_code),
-    }));
-    const __VLS_526 = __VLS_525({
-        value: (__VLS_ctx.peripheral_form.ups_qr_code),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_525));
-}
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "flex items-center gap-2 mt-7 mb-7" },
-});
-const __VLS_528 = {}.FloatLabel;
-/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
-// @ts-ignore
-const __VLS_529 = __VLS_asFunctionalComponent(__VLS_528, new __VLS_528({}));
-const __VLS_530 = __VLS_529({}, ...__VLS_functionalComponentArgsRest(__VLS_529));
-__VLS_531.slots.default;
-const __VLS_532 = {}.InputText;
-/** @type {[typeof __VLS_components.InputText, ]} */ ;
-// @ts-ignore
-const __VLS_533 = __VLS_asFunctionalComponent(__VLS_532, new __VLS_532({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.ups_qr_code),
-    ...{ class: "w-full md:w-80" },
-}));
-const __VLS_534 = __VLS_533({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.ups_qr_code),
-    ...{ class: "w-full md:w-80" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_533));
-__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "processor",
-});
-var __VLS_531;
-if (!__VLS_ctx.peripheral_form.ups_qr_code) {
-    const __VLS_536 = {}.Button;
-    /** @type {[typeof __VLS_components.Button, typeof __VLS_components.Button, ]} */ ;
-    // @ts-ignore
-    const __VLS_537 = __VLS_asFunctionalComponent(__VLS_536, new __VLS_536({
-        ...{ 'onClick': {} },
-        ...{ style: {} },
-        size: "small",
-    }));
-    const __VLS_538 = __VLS_537({
-        ...{ 'onClick': {} },
-        ...{ style: {} },
-        size: "small",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_537));
-    let __VLS_540;
-    let __VLS_541;
-    let __VLS_542;
-    const __VLS_543 = {
-        onClick: (...[$event]) => {
-            if (!(!__VLS_ctx.peripheral_form.ups_qr_code))
-                return;
-            __VLS_ctx.generateQRCode(__VLS_ctx.peripheral_form, 'upsForm', Array.isArray(__VLS_ctx.item_id) ? __VLS_ctx.item_id[0] : __VLS_ctx.item_id, Array.isArray(__VLS_ctx.userId) ? __VLS_ctx.userId[0] : __VLS_ctx.userId);
-        }
-    };
-    __VLS_539.slots.default;
-    var __VLS_539;
-}
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "card flex mb-7 mt-3 flex-wrap gap-6" },
-});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "flex items-center gap-2" },
-});
-const __VLS_544 = {}.FloatLabel;
-/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
-// @ts-ignore
-const __VLS_545 = __VLS_asFunctionalComponent(__VLS_544, new __VLS_544({}));
-const __VLS_546 = __VLS_545({}, ...__VLS_functionalComponentArgsRest(__VLS_545));
-__VLS_547.slots.default;
-const __VLS_548 = {}.InputText;
-/** @type {[typeof __VLS_components.InputText, ]} */ ;
-// @ts-ignore
-const __VLS_549 = __VLS_asFunctionalComponent(__VLS_548, new __VLS_548({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.ups_brand),
-    ...{ class: "w-full md:w-100" },
-}));
-const __VLS_550 = __VLS_549({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.ups_brand),
-    ...{ class: "w-full md:w-100" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_549));
-__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "processor",
-});
-var __VLS_547;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "flex items-center gap-2" },
-});
-const __VLS_552 = {}.FloatLabel;
-/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
-// @ts-ignore
-const __VLS_553 = __VLS_asFunctionalComponent(__VLS_552, new __VLS_552({}));
-const __VLS_554 = __VLS_553({}, ...__VLS_functionalComponentArgsRest(__VLS_553));
-__VLS_555.slots.default;
-const __VLS_556 = {}.InputText;
-/** @type {[typeof __VLS_components.InputText, ]} */ ;
-// @ts-ignore
-const __VLS_557 = __VLS_asFunctionalComponent(__VLS_556, new __VLS_556({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.ups_model),
-    ...{ class: "w-full md:w-100" },
-}));
-const __VLS_558 = __VLS_557({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.ups_model),
-    ...{ class: "w-full md:w-100" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_557));
-__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "processor",
-});
-var __VLS_555;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "flex items-center gap-2" },
-});
-const __VLS_560 = {}.FloatLabel;
-/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
-// @ts-ignore
-const __VLS_561 = __VLS_asFunctionalComponent(__VLS_560, new __VLS_560({}));
-const __VLS_562 = __VLS_561({}, ...__VLS_functionalComponentArgsRest(__VLS_561));
-__VLS_563.slots.default;
-const __VLS_564 = {}.InputText;
-/** @type {[typeof __VLS_components.InputText, ]} */ ;
-// @ts-ignore
-const __VLS_565 = __VLS_asFunctionalComponent(__VLS_564, new __VLS_564({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.ups_serial_no),
-    ...{ class: "w-full md:w-100" },
-}));
-const __VLS_566 = __VLS_565({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.ups_serial_no),
-    ...{ class: "w-full md:w-100" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_565));
-__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "processor",
-});
-var __VLS_563;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "card flex flex-wrap gap-6" },
-});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "flex items-center gap-2" },
-});
-const __VLS_568 = {}.FloatLabel;
-/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
-// @ts-ignore
-const __VLS_569 = __VLS_asFunctionalComponent(__VLS_568, new __VLS_568({}));
-const __VLS_570 = __VLS_569({}, ...__VLS_functionalComponentArgsRest(__VLS_569));
-__VLS_571.slots.default;
-const __VLS_572 = {}.InputText;
-/** @type {[typeof __VLS_components.InputText, ]} */ ;
-// @ts-ignore
-const __VLS_573 = __VLS_asFunctionalComponent(__VLS_572, new __VLS_572({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.ups_property_no),
-    ...{ class: "w-full lg:w-100" },
-}));
-const __VLS_574 = __VLS_573({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.ups_property_no),
-    ...{ class: "w-full lg:w-100" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_573));
-__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "processor",
-});
-var __VLS_571;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "flex items-center gap-2" },
-});
-const __VLS_576 = {}.FloatLabel;
-/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
-// @ts-ignore
-const __VLS_577 = __VLS_asFunctionalComponent(__VLS_576, new __VLS_576({}));
-const __VLS_578 = __VLS_577({}, ...__VLS_functionalComponentArgsRest(__VLS_577));
-__VLS_579.slots.default;
-const __VLS_580 = {}.InputText;
-/** @type {[typeof __VLS_components.InputText, ]} */ ;
-// @ts-ignore
-const __VLS_581 = __VLS_asFunctionalComponent(__VLS_580, new __VLS_580({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.ups_accountPersonInPN),
-    ...{ class: "w-full md:w-100" },
-}));
-const __VLS_582 = __VLS_581({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.ups_accountPersonInPN),
-    ...{ class: "w-full md:w-100" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_581));
-__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "processor",
-});
-var __VLS_579;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "flex items-center gap-2" },
-});
-const __VLS_584 = {}.FloatLabel;
-/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
-// @ts-ignore
-const __VLS_585 = __VLS_asFunctionalComponent(__VLS_584, new __VLS_584({}));
-const __VLS_586 = __VLS_585({}, ...__VLS_functionalComponentArgsRest(__VLS_585));
-__VLS_587.slots.default;
-const __VLS_588 = {}.InputText;
-/** @type {[typeof __VLS_components.InputText, ]} */ ;
-// @ts-ignore
-const __VLS_589 = __VLS_asFunctionalComponent(__VLS_588, new __VLS_588({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.ups_qr_acctual_user),
-    ...{ class: "w-full md:w-100" },
-}));
-const __VLS_590 = __VLS_589({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.ups_qr_acctual_user),
-    ...{ class: "w-full md:w-100" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_589));
-__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "processor",
-});
-var __VLS_587;
-if (__VLS_ctx.peripheral_form.ups_qr_code) {
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "relative z-0 w-full mb-5 group" },
-    });
-    const __VLS_592 = {}.Select;
-    /** @type {[typeof __VLS_components.Select, ]} */ ;
-    // @ts-ignore
-    const __VLS_593 = __VLS_asFunctionalComponent(__VLS_592, new __VLS_592({
-        filter: true,
-        modelValue: (__VLS_ctx.peripheral_form.ups_status),
-        options: (__VLS_ctx.status_opts),
-        optionValue: "id",
-        optionLabel: "name",
-        placeholder: "Current Status",
-        ...{ class: "w-full md:w-100" },
-    }));
-    const __VLS_594 = __VLS_593({
-        filter: true,
-        modelValue: (__VLS_ctx.peripheral_form.ups_status),
-        options: (__VLS_ctx.status_opts),
-        optionValue: "id",
-        optionLabel: "name",
-        placeholder: "Current Status",
-        ...{ class: "w-full md:w-100" },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_593));
-}
-var __VLS_523;
-const __VLS_596 = {}.Button;
+const __VLS_520 = {}.Button;
 /** @type {[typeof __VLS_components.Button, ]} */ ;
 // @ts-ignore
-const __VLS_597 = __VLS_asFunctionalComponent(__VLS_596, new __VLS_596({
+const __VLS_521 = __VLS_asFunctionalComponent(__VLS_520, new __VLS_520({
     ...{ 'onClick': {} },
     label: "Edit/Update",
     type: "button",
@@ -2841,40 +2584,40 @@ const __VLS_597 = __VLS_asFunctionalComponent(__VLS_596, new __VLS_596({
     ...{ class: "mr-4" },
     severity: "primary",
 }));
-const __VLS_598 = __VLS_597({
+const __VLS_522 = __VLS_521({
     ...{ 'onClick': {} },
     label: "Edit/Update",
     type: "button",
     icon: "pi pi-star",
     ...{ class: "mr-4" },
     severity: "primary",
-}, ...__VLS_functionalComponentArgsRest(__VLS_597));
-let __VLS_600;
-let __VLS_601;
-let __VLS_602;
-const __VLS_603 = {
+}, ...__VLS_functionalComponentArgsRest(__VLS_521));
+let __VLS_524;
+let __VLS_525;
+let __VLS_526;
+const __VLS_527 = {
     onClick: (...[$event]) => {
         __VLS_ctx.transferItem('peri_form');
     }
 };
-var __VLS_599;
-const __VLS_604 = {}.Button;
+var __VLS_523;
+const __VLS_528 = {}.Button;
 /** @type {[typeof __VLS_components.Button, ]} */ ;
 // @ts-ignore
-const __VLS_605 = __VLS_asFunctionalComponent(__VLS_604, new __VLS_604({
+const __VLS_529 = __VLS_asFunctionalComponent(__VLS_528, new __VLS_528({
     label: "Save",
     type: "submit",
     icon: "pi pi-save",
     severity: "info",
     ...{ class: "mr-4" },
 }));
-const __VLS_606 = __VLS_605({
+const __VLS_530 = __VLS_529({
     label: "Save",
     type: "submit",
     icon: "pi pi-save",
     severity: "info",
     ...{ class: "mr-4" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_605));
+}, ...__VLS_functionalComponentArgsRest(__VLS_529));
 var __VLS_359;
 var __VLS_67;
 var __VLS_35;
@@ -3259,7 +3002,7 @@ var __VLS_7;
 /** @type {__VLS_StyleScopedClasses['gap-3']} */ ;
 /** @type {__VLS_StyleScopedClasses['m-0']} */ ;
 /** @type {__VLS_StyleScopedClasses['grid']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:grid-cols-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['md:grid-cols-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['md:gap-6']} */ ;
 /** @type {__VLS_StyleScopedClasses['mb-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['relative']} */ ;
@@ -3285,157 +3028,6 @@ var __VLS_7;
 /** @type {__VLS_StyleScopedClasses['items-center']} */ ;
 /** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['card']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['mb-7']} */ ;
-/** @type {__VLS_StyleScopedClasses['mt-7']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex-wrap']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-6']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['relative']} */ ;
-/** @type {__VLS_StyleScopedClasses['z-0']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['group']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['relative']} */ ;
-/** @type {__VLS_StyleScopedClasses['z-0']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['mb-5']} */ ;
-/** @type {__VLS_StyleScopedClasses['group']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['card']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['mb-7']} */ ;
-/** @type {__VLS_StyleScopedClasses['mt-7']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex-wrap']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-6']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-80']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['card']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex-wrap']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-6']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['relative']} */ ;
-/** @type {__VLS_StyleScopedClasses['z-0']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['group']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['relative']} */ ;
-/** @type {__VLS_StyleScopedClasses['z-0']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['mb-5']} */ ;
-/** @type {__VLS_StyleScopedClasses['group']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['mt-7']} */ ;
-/** @type {__VLS_StyleScopedClasses['mb-7']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-80']} */ ;
-/** @type {__VLS_StyleScopedClasses['card']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['mb-7']} */ ;
-/** @type {__VLS_StyleScopedClasses['mt-3']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex-wrap']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-6']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['card']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex-wrap']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-6']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
 /** @type {__VLS_StyleScopedClasses['lg:w-100']} */ ;
 /** @type {__VLS_StyleScopedClasses['flex']} */ ;
 /** @type {__VLS_StyleScopedClasses['items-center']} */ ;
@@ -3447,13 +3039,107 @@ var __VLS_7;
 /** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
 /** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
+/** @type {__VLS_StyleScopedClasses['card']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-7']} */ ;
+/** @type {__VLS_StyleScopedClasses['mt-7']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex-wrap']} */ ;
+/** @type {__VLS_StyleScopedClasses['gap-6']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
+/** @type {__VLS_StyleScopedClasses['relative']} */ ;
+/** @type {__VLS_StyleScopedClasses['z-0']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['group']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
 /** @type {__VLS_StyleScopedClasses['relative']} */ ;
 /** @type {__VLS_StyleScopedClasses['z-0']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
 /** @type {__VLS_StyleScopedClasses['mb-5']} */ ;
 /** @type {__VLS_StyleScopedClasses['group']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['card']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-7']} */ ;
+/** @type {__VLS_StyleScopedClasses['mt-7']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex-wrap']} */ ;
+/** @type {__VLS_StyleScopedClasses['gap-6']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
 /** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
+/** @type {__VLS_StyleScopedClasses['card']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex-wrap']} */ ;
+/** @type {__VLS_StyleScopedClasses['gap-6']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
+/** @type {__VLS_StyleScopedClasses['relative']} */ ;
+/** @type {__VLS_StyleScopedClasses['z-0']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['group']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
+/** @type {__VLS_StyleScopedClasses['relative']} */ ;
+/** @type {__VLS_StyleScopedClasses['z-0']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-5']} */ ;
+/** @type {__VLS_StyleScopedClasses['group']} */ ;
 /** @type {__VLS_StyleScopedClasses['mr-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['mr-4']} */ ;
 var __VLS_dollars;
@@ -3483,6 +3169,7 @@ const __VLS_self = (await import('vue')).defineComponent({
             isLoading: isLoading,
             currentMessage: currentMessage,
             progress: progress,
+            sameAsAccountable: sameAsAccountable,
             selectedNetwork: selectedNetwork,
             selectedGPU: selectedGPU,
             selectedWireless: selectedWireless,

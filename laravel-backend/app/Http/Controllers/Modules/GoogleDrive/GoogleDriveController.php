@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Modules\GoogleDrive;
 
 use App\Models\UploadedFile;
+use Illuminate\Support\Facades\Log;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -16,8 +17,19 @@ class GoogleDriveController extends Controller
     {
         // Folder Mapping
         $movs_folder = [
+            'CENRO Calaca' => '12llA50qmuNsWWjwx66UaM0WFXmXZ5-tT',
+            'CENRO Calauag' => '1pD2tOd5IajnJ1MaDpCdyh9K8qEPfEvTo',
+            'CENRO Catanauan' => '1fBliA4G6ZXUwOnMlVBTjqMuQlPq99h1r',
+            'CENRO Lipa City' => '16rXeEXvSUSz9PgKooLYnYCfBYITMf19V',
+            'CENRO Real' => '1Hg0m68_t0JJfXo_jw8UdeXMlTLz8WrL8',
+            'CENRO Sta. Cruz' => '1WuOPmKgXS5smJ-N2aJO6ZDacbi5nH3jZ',
+            'CENRO Tayabas' => '1g5ayDEUs-Wg6QBHpK655MLiNB9cLkGYb',
+            'PENRO BATANGAS' => '1yZNDiZox_izPLafHaxe3BrLF6X1K8kr0',
+            'PENRO CAVITE' => '1r3tW_ZpGCkwnV1uvoM5jPBBnT1pqhNbq',
+            'PENRO LAGUNA' => '1U8tH52i0W4y2ulsg-iK2TexN6FtzZSok',
+            'PENRO QUEZON' => '1cMrNgggUURXQCfSqRlE7na1iFJiDxHHG',
+            'PENRO RIZAL' => '1UdQFxYBjOekKJeXv7yNRxhLHiw9mfpyi',
             'Regional Office' => '1J3ZOL2eGqHgwBqtoviceupnv5BljE6Iz',
-            'PENRO RIZAL' => '1UdQFxYBjOekKJeXv7yNRxhLHiw9mfpyi'
         ];
 
         $request->validate([

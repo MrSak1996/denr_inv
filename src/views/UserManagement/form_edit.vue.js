@@ -61,14 +61,12 @@ const post_update_user = async () => {
 };
 const fetchUserData = async () => {
     const id = route.params.id;
-    if (id) {
-        try {
-            const response = await api.get(`/getUsers?id=${id}`);
-            Object.assign(um_create_form, response.data.data[0]);
-        }
-        catch (error) {
-            console.error('Error retrieving data:', error);
-        }
+    try {
+        const response = await api.get(`/getUsers?id=${id}`);
+        Object.assign(um_create_form, response.data.data[0]);
+    }
+    catch (error) {
+        console.error('Error retrieving data:', error);
     }
 };
 watch(() => um_create_form.city_mun_c, (newCityMun) => {
