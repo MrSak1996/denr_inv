@@ -17,7 +17,7 @@ use App\Http\Controllers\ExampleController;
 
 Route::get('/', [ExampleController::class,'index']);
 
-//this line solved the 404 not found in vue js
+//hello world route
 Route::get('{any}', function () {
     return view('welcome');
 })->where('any','.*');
