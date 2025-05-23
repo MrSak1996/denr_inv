@@ -30,7 +30,7 @@ const openLoginForm = ref(false);
 const otp_checker = ref(false);
 const loginUser = async () => {
     try {
-        await axios.get('https://riis.denrcalabarzon.com/sanctum/csrf-cookie', {
+        await axios.get('http://127.0.0.1:8000/sanctum/csrf-cookie', {
             withCredentials: true
         }); // Ensure CSRF token is set
         const response = await api.post('/login', form.value);
@@ -410,23 +410,21 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.d
     id: "mobile-menu-2",
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.section, __VLS_intrinsicElements.section)({
-    ...{ class: "bg-white bg-portal dark:bg-gray-900" },
+    ...{ class: "bg-white bg-portal dark:bg-gray-900 min-h-screen flex items-center" },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "grid max-w-screen-xl px-4 pt-20 pb-8 mx-auto lg:gap-8 xl:gap-0 lg:py-16 lg:grid-cols-12 lg:pt-28" },
+    ...{ class: "grid max-w-screen-xl px-4 mx-auto lg:gap-8 xl:gap-0 lg:grid-cols-12 w-full" },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "mr-auto place-self-center lg:col-span-7" },
+    ...{ class: "place-self-center lg:col-span-12 text-center  mt-70" },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.h1, __VLS_intrinsicElements.h1)({
-    ...{ class: "max-w-2xl mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl xl:text-6xl dark:text-white" },
+    ...{ class: "max-w-2xl mx-auto mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl xl:text-6xl dark:text-white " },
 });
-__VLS_asFunctionalElement(__VLS_intrinsicElements.br)({});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.br, __VLS_intrinsicElements.br)({});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.br, __VLS_intrinsicElements.br)({});
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "space-y-4 sm:flex sm:space-y-0 sm:space-x-4" },
-});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "max-w-screen-xl px-4 pb-8 mx-auto lg:pb-16" },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "grid grid-cols-2 gap-8 text-gray-500 sm:gap-12 sm:grid-cols-3 lg:grid-cols-6 dark:text-gray-400" },
@@ -838,21 +836,23 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.
 /** @type {__VLS_StyleScopedClasses['bg-white']} */ ;
 /** @type {__VLS_StyleScopedClasses['bg-portal']} */ ;
 /** @type {__VLS_StyleScopedClasses['dark:bg-gray-900']} */ ;
+/** @type {__VLS_StyleScopedClasses['min-h-screen']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
 /** @type {__VLS_StyleScopedClasses['grid']} */ ;
 /** @type {__VLS_StyleScopedClasses['max-w-screen-xl']} */ ;
 /** @type {__VLS_StyleScopedClasses['px-4']} */ ;
-/** @type {__VLS_StyleScopedClasses['pt-20']} */ ;
-/** @type {__VLS_StyleScopedClasses['pb-8']} */ ;
 /** @type {__VLS_StyleScopedClasses['mx-auto']} */ ;
 /** @type {__VLS_StyleScopedClasses['lg:gap-8']} */ ;
 /** @type {__VLS_StyleScopedClasses['xl:gap-0']} */ ;
-/** @type {__VLS_StyleScopedClasses['lg:py-16']} */ ;
 /** @type {__VLS_StyleScopedClasses['lg:grid-cols-12']} */ ;
-/** @type {__VLS_StyleScopedClasses['lg:pt-28']} */ ;
-/** @type {__VLS_StyleScopedClasses['mr-auto']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
 /** @type {__VLS_StyleScopedClasses['place-self-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['lg:col-span-7']} */ ;
+/** @type {__VLS_StyleScopedClasses['lg:col-span-12']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['mt-70']} */ ;
 /** @type {__VLS_StyleScopedClasses['max-w-2xl']} */ ;
+/** @type {__VLS_StyleScopedClasses['mx-auto']} */ ;
 /** @type {__VLS_StyleScopedClasses['mb-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['text-4xl']} */ ;
 /** @type {__VLS_StyleScopedClasses['font-extrabold']} */ ;
@@ -865,11 +865,6 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.
 /** @type {__VLS_StyleScopedClasses['sm:flex']} */ ;
 /** @type {__VLS_StyleScopedClasses['sm:space-y-0']} */ ;
 /** @type {__VLS_StyleScopedClasses['sm:space-x-4']} */ ;
-/** @type {__VLS_StyleScopedClasses['max-w-screen-xl']} */ ;
-/** @type {__VLS_StyleScopedClasses['px-4']} */ ;
-/** @type {__VLS_StyleScopedClasses['pb-8']} */ ;
-/** @type {__VLS_StyleScopedClasses['mx-auto']} */ ;
-/** @type {__VLS_StyleScopedClasses['lg:pb-16']} */ ;
 /** @type {__VLS_StyleScopedClasses['grid']} */ ;
 /** @type {__VLS_StyleScopedClasses['grid-cols-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['gap-8']} */ ;

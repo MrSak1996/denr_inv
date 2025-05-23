@@ -17,7 +17,7 @@ const routes = [
     name: 'signin',
     component: SigninView,
     meta: {
-      title: 'Signin'
+      title: 'Signin',
     }
   },
   {

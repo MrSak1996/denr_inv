@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import axios from 'axios'
+import axios, { AxiosHeaders } from 'axios'
 
 import DefaultAuthCard from '@/components/Auths/DefaultAuthCard.vue'
 import InputGroup from '@/components/Auths/InputGroup.vue'
@@ -20,6 +20,7 @@ const authStore = useAuthStore()
 
 import 'swiper/css'
 import 'swiper/css/bundle'
+import { Console } from 'console'
 
 const pageTitle = ref('Welcome to ICT Inventory System')
 const toast = useToast()
@@ -40,15 +41,15 @@ const otp_checker = ref(false)
 
 const loginUser = async () => {
   try {
-    await axios.get('https://riis.denrcalabarzon.com/sanctum/csrf-cookie',{
-      withCredentials:true
+    await axios.get('http://127.0.0.1:8000/sanctum/csrf-cookie', {
+      withCredentials: true
     }); // Ensure CSRF token is set
 
     const response = await api.post('/login', form.value)
 
     if (response.data.status) {
-      
-     
+
+
       // Using Pinia
       authStore.setUser(
         response.data.userId,
@@ -173,6 +174,8 @@ const closeLogin = () => {
   openLoginForm.value = false
 }
 
+
+
 onMounted(() => { })
 </script>
 
@@ -274,8 +277,7 @@ onMounted(() => { })
             <div class="flex flex-wrap items-center justify-between max-w-screen-xl px-4 mx-auto">
               <a href="#" class="flex items-center">
                 <img src="../../assets/images/logo/denr_logo.png" class="h-6 mr-3 sm:h-9" alt="Landwind Logo" />
-                <span class="self-center text-xl font-semibold whitespace-nowrap text-teal-900">Regional ICT Inventory
-                  System</span>
+                <span class="self-center text-xl font-semibold whitespace-nowrap text-teal-900">RIIS</span>
               </a>
               <div class="flex items-center lg:order-2">
                 <a @click="openLogin"
@@ -348,46 +350,40 @@ onMounted(() => { })
             </div>
           </nav>
         </header>
-
-        <section class="bg-white bg-portal dark:bg-gray-900">
-          <div class="grid max-w-screen-xl px-4 pt-20 pb-8 mx-auto lg:gap-8 xl:gap-0 lg:py-16 lg:grid-cols-12 lg:pt-28">
-            <div class="mr-auto place-self-center lg:col-span-7">
+        <section class="bg-white bg-portal dark:bg-gray-900 min-h-screen flex items-center">
+          <div class="grid max-w-screen-xl px-4 mx-auto lg:gap-8 xl:gap-0 lg:grid-cols-12 w-full">
+            <div class="place-self-center lg:col-span-12 text-center  mt-70">
               <h1
-                class="max-w-2xl mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl xl:text-6xl dark:text-white">
-                Welcome to<br />
-                Regional ICT Inventory System
+                class="max-w-2xl mx-auto mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl xl:text-6xl dark:text-white ">
+                WELCOME TO <br> Regional <br> ICT Inventory System
               </h1>
-
-              <div class="space-y-4 sm:flex sm:space-y-0 sm:space-x-4"></div>
-            </div>
-            <!-- <div class="hidden lg:mt-0 lg:col-span-5 lg:flex">
-              <img src="../../assets/images/feature-3.jpg" alt="hero image" />
-            </div> -->
-          </div>
-          <div class="max-w-screen-xl px-4 pb-8 mx-auto lg:pb-16">
-            <div
-              class="grid grid-cols-2 gap-8 text-gray-500 sm:gap-12 sm:grid-cols-3 lg:grid-cols-6 dark:text-gray-400">
-              <a href="#" class="flex items-center lg:justify-center font-black mt-50">
-                Regional Office
-              </a>
-              <a href="#" class="flex items-center lg:justify-center font-black mt-50">
-                PENRO CAVITE
-              </a>
-              <a href="#" class="flex items-center lg:justify-center font-black mt-50">
-                PENRO LAGUNA
-              </a>
-              <a href="#" class="flex items-center lg:justify-center font-black mt-50">
-                PENRO BATANGAS
-              </a>
-              <a href="#" class="flex items-center lg:justify-center font-black mt-50">
-                PENRO RIZAL
-              </a>
-              <a href="#" class="flex items-center lg:justify-center font-black mt-50">
-                PENRO QUEZON
-              </a>
+              <div class="space-y-4 sm:flex sm:space-y-0 sm:space-x-4">
+                <div
+                  class="grid grid-cols-2 gap-8 text-gray-500 sm:gap-12 sm:grid-cols-3 lg:grid-cols-6 dark:text-gray-400">
+                  <a href="#" class="flex items-center lg:justify-center font-black mt-50">
+                    Regional Office
+                  </a>
+                  <a href="#" class="flex items-center lg:justify-center font-black mt-50">
+                    PENRO CAVITE
+                  </a>
+                  <a href="#" class="flex items-center lg:justify-center font-black mt-50">
+                    PENRO LAGUNA
+                  </a>
+                  <a href="#" class="flex items-center lg:justify-center font-black mt-50">
+                    PENRO BATANGAS
+                  </a>
+                  <a href="#" class="flex items-center lg:justify-center font-black mt-50">
+                    PENRO RIZAL
+                  </a>
+                  <a href="#" class="flex items-center lg:justify-center font-black mt-50">
+                    PENRO QUEZON
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </section>
+
 
         <section class="bg-white">
           <div class="max-w-screen-xl px-4 py-8 mx-auto space-y-12 lg:space-y-20 lg:py-24 lg:px-6">
@@ -508,7 +504,7 @@ onMounted(() => { })
                     <span class="text-base font-medium leading-tight text-gray-900 dark:text-white">Development
                       workflow</span>
                   </li>
-                 
+
                   <li class="flex space-x-3">
                     <svg class="flex-shrink-0 w-5 h-5 text-teal-500 dark:text-teal-400" fill="currentColor"
                       viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -520,7 +516,7 @@ onMounted(() => { })
                       management</span>
                   </li>
                 </ul>
-            
+
               </div>
             </div>
           </div>
