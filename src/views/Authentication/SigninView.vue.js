@@ -30,7 +30,7 @@ const openLoginForm = ref(false);
 const otp_checker = ref(false);
 const loginUser = async () => {
     try {
-        await axios.get('http://127.0.0.1:8000/sanctum/csrf-cookie', {
+        await axios.get('https://riis.denrcalabarzon.com/sanctum/csrf-cookie', {
             withCredentials: true
         }); // Ensure CSRF token is set
         const response = await api.post('/login', form.value);
