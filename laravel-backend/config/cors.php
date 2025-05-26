@@ -2,14 +2,10 @@
 return [
     'paths' => ['api/*', 'sanctum/csrf-cookie', 'login', 'logout'],
     'allowed_methods' => ['*'],
-    'allowed_origins' => [
-        'http://localhost:8080',
-        'http://127.0.0.1:8080',
-        'http://127.0.0.1:8000/api/sanctum/csrf-cookie',
-        'https://riis.denrcalabarzon.com/api/sanctum/csrf-cookie',
-        'https://riis.denrcalabarzon.com'],
+    'allowed_origins' => ['*'],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],
     'max_age' => 0,
-    'supports_credentials' => true,
+    'supports_credentials' => false,
 ];
+

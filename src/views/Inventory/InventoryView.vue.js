@@ -721,6 +721,7 @@ const __VLS_49 = __VLS_asFunctionalComponent(__VLS_48, new __VLS_48({
         'equipment_title',
         'acct_person',
         'qr_code',
+        'serial_no',
         'mon_qr_code1',
         'mon_qr_code2',
         'ups_qr_code',
@@ -748,6 +749,7 @@ const __VLS_50 = __VLS_49({
         'equipment_title',
         'acct_person',
         'qr_code',
+        'serial_no',
         'mon_qr_code1',
         'mon_qr_code2',
         'ups_qr_code',
@@ -1084,131 +1086,125 @@ const __VLS_144 = {}.Column;
 /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
 // @ts-ignore
 const __VLS_145 = __VLS_asFunctionalComponent(__VLS_144, new __VLS_144({
-    field: "attachments",
-    header: "Attachments",
+    header: "Status",
+    field: "status",
+    filterMenuStyle: ({ width: '14rem' }),
     ...{ style: {} },
 }));
 const __VLS_146 = __VLS_145({
-    field: "attachments",
-    header: "Attachments",
+    header: "Status",
+    field: "status",
+    filterMenuStyle: ({ width: '14rem' }),
     ...{ style: {} },
 }, ...__VLS_functionalComponentArgsRest(__VLS_145));
 __VLS_147.slots.default;
 {
     const { body: __VLS_thisSlot } = __VLS_147.slots;
     const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
-    if (data.file_id) {
-        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({});
-        const __VLS_148 = {}.Button;
-        /** @type {[typeof __VLS_components.Button, typeof __VLS_components.Button, ]} */ ;
-        // @ts-ignore
-        const __VLS_149 = __VLS_asFunctionalComponent(__VLS_148, new __VLS_148({
-            ...{ 'onClick': {} },
-            rel: "noopener noreferrer",
-            ...{ class: "text-white mr-2 bg-teal-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" },
-        }));
-        const __VLS_150 = __VLS_149({
-            ...{ 'onClick': {} },
-            rel: "noopener noreferrer",
-            ...{ class: "text-white mr-2 bg-teal-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" },
-        }, ...__VLS_functionalComponentArgsRest(__VLS_149));
-        let __VLS_152;
-        let __VLS_153;
-        let __VLS_154;
-        const __VLS_155 = {
-            onClick: (...[$event]) => {
-                if (!(data.file_id))
-                    return;
-                __VLS_ctx.openFile(data.id);
-            }
-        };
-        __VLS_151.slots.default;
-        __VLS_asFunctionalElement(__VLS_intrinsicElements.i, __VLS_intrinsicElements.i)({
-            ...{ class: "pi pi-external-link mr-2" },
-        });
-        var __VLS_151;
-    }
-    else {
-        __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
-    }
-}
-var __VLS_147;
-const __VLS_156 = {}.Column;
-/** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
-// @ts-ignore
-const __VLS_157 = __VLS_asFunctionalComponent(__VLS_156, new __VLS_156({
-    field: "roles",
-    header: "Registered Location",
-    ...{ style: {} },
-}));
-const __VLS_158 = __VLS_157({
-    field: "roles",
-    header: "Registered Location",
-    ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_157));
-__VLS_159.slots.default;
-{
-    const { body: __VLS_thisSlot } = __VLS_159.slots;
-    const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
-    (data.roles);
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.br)({});
-    (data.actual_division_title);
+    const __VLS_148 = {}.Tag;
+    /** @type {[typeof __VLS_components.Tag, ]} */ ;
+    // @ts-ignore
+    const __VLS_149 = __VLS_asFunctionalComponent(__VLS_148, new __VLS_148({
+        value: (data.status),
+        severity: (__VLS_ctx.getSeverity(data.status)),
+    }));
+    const __VLS_150 = __VLS_149({
+        value: (data.status),
+        severity: (__VLS_ctx.getSeverity(data.status)),
+    }, ...__VLS_functionalComponentArgsRest(__VLS_149));
 }
 {
-    const { filter: __VLS_thisSlot } = __VLS_159.slots;
+    const { filter: __VLS_thisSlot } = __VLS_147.slots;
     const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_160 = {}.Select;
+    const __VLS_152 = {}.Select;
     /** @type {[typeof __VLS_components.Select, typeof __VLS_components.Select, ]} */ ;
     // @ts-ignore
-    const __VLS_161 = __VLS_asFunctionalComponent(__VLS_160, new __VLS_160({
+    const __VLS_153 = __VLS_asFunctionalComponent(__VLS_152, new __VLS_152({
         modelValue: (filterModel.value),
-        options: (__VLS_ctx.office),
+        options: (__VLS_ctx.statuses),
         placeholder: "Select One",
         showClear: true,
     }));
-    const __VLS_162 = __VLS_161({
+    const __VLS_154 = __VLS_153({
         modelValue: (filterModel.value),
-        options: (__VLS_ctx.office),
+        options: (__VLS_ctx.statuses),
         placeholder: "Select One",
         showClear: true,
-    }, ...__VLS_functionalComponentArgsRest(__VLS_161));
-    __VLS_163.slots.default;
+    }, ...__VLS_functionalComponentArgsRest(__VLS_153));
+    __VLS_155.slots.default;
     {
-        const { option: __VLS_thisSlot } = __VLS_163.slots;
+        const { option: __VLS_thisSlot } = __VLS_155.slots;
         const [slotProps] = __VLS_getSlotParams(__VLS_thisSlot);
-        const __VLS_164 = {}.Tag;
+        const __VLS_156 = {}.Tag;
         /** @type {[typeof __VLS_components.Tag, ]} */ ;
         // @ts-ignore
-        const __VLS_165 = __VLS_asFunctionalComponent(__VLS_164, new __VLS_164({
+        const __VLS_157 = __VLS_asFunctionalComponent(__VLS_156, new __VLS_156({
             value: (slotProps.option),
             severity: (__VLS_ctx.getSeverity(slotProps.option)),
         }));
-        const __VLS_166 = __VLS_165({
+        const __VLS_158 = __VLS_157({
             value: (slotProps.option),
             severity: (__VLS_ctx.getSeverity(slotProps.option)),
-        }, ...__VLS_functionalComponentArgsRest(__VLS_165));
+        }, ...__VLS_functionalComponentArgsRest(__VLS_157));
     }
-    var __VLS_163;
+    var __VLS_155;
 }
-var __VLS_159;
+var __VLS_147;
+const __VLS_160 = {}.Column;
+/** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
+// @ts-ignore
+const __VLS_161 = __VLS_asFunctionalComponent(__VLS_160, new __VLS_160({
+    field: "brand",
+    header: "Brand & Model",
+    ...{ style: {} },
+}));
+const __VLS_162 = __VLS_161({
+    field: "brand",
+    header: "Brand & Model",
+    ...{ style: {} },
+}, ...__VLS_functionalComponentArgsRest(__VLS_161));
+__VLS_163.slots.default;
+{
+    const { body: __VLS_thisSlot } = __VLS_163.slots;
+    const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
+    (data.brand);
+}
+{
+    const { filter: __VLS_thisSlot } = __VLS_163.slots;
+    const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
+    const __VLS_164 = {}.InputText;
+    /** @type {[typeof __VLS_components.InputText, ]} */ ;
+    // @ts-ignore
+    const __VLS_165 = __VLS_asFunctionalComponent(__VLS_164, new __VLS_164({
+        modelValue: (filterModel.value),
+        type: "text",
+        placeholder: "Search by name",
+    }));
+    const __VLS_166 = __VLS_165({
+        modelValue: (filterModel.value),
+        type: "text",
+        placeholder: "Search by name",
+    }, ...__VLS_functionalComponentArgsRest(__VLS_165));
+}
+var __VLS_163;
 const __VLS_168 = {}.Column;
 /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
 // @ts-ignore
 const __VLS_169 = __VLS_asFunctionalComponent(__VLS_168, new __VLS_168({
-    field: "acct_person",
-    header: "Accountable Person",
+    field: "serial_no",
+    header: "Serial No.",
     ...{ style: {} },
 }));
 const __VLS_170 = __VLS_169({
-    field: "acct_person",
-    header: "Accountable Person",
+    field: "serial_no",
+    header: "Serial No.",
     ...{ style: {} },
 }, ...__VLS_functionalComponentArgsRest(__VLS_169));
 __VLS_171.slots.default;
 {
     const { body: __VLS_thisSlot } = __VLS_171.slots;
     const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
-    (data.acct_person);
+    (data.serial_no);
 }
 {
     const { filter: __VLS_thisSlot } = __VLS_171.slots;
@@ -1232,20 +1228,20 @@ const __VLS_176 = {}.Column;
 /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
 // @ts-ignore
 const __VLS_177 = __VLS_asFunctionalComponent(__VLS_176, new __VLS_176({
-    field: "actual_user",
-    header: "Actual User",
+    field: "acct_person",
+    header: "Accountable Person",
     ...{ style: {} },
 }));
 const __VLS_178 = __VLS_177({
-    field: "actual_user",
-    header: "Actual User",
+    field: "acct_person",
+    header: "Accountable Person",
     ...{ style: {} },
 }, ...__VLS_functionalComponentArgsRest(__VLS_177));
 __VLS_179.slots.default;
 {
     const { body: __VLS_thisSlot } = __VLS_179.slots;
     const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
-    (data.actual_user);
+    (data.acct_person);
 }
 {
     const { filter: __VLS_thisSlot } = __VLS_179.slots;
@@ -1269,339 +1265,342 @@ const __VLS_184 = {}.Column;
 /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
 // @ts-ignore
 const __VLS_185 = __VLS_asFunctionalComponent(__VLS_184, new __VLS_184({
-    header: "Status",
-    field: "status",
-    filterMenuStyle: ({ width: '14rem' }),
+    field: "actual_user",
+    header: "Actual User",
     ...{ style: {} },
 }));
 const __VLS_186 = __VLS_185({
-    header: "Status",
-    field: "status",
-    filterMenuStyle: ({ width: '14rem' }),
+    field: "actual_user",
+    header: "Actual User",
     ...{ style: {} },
 }, ...__VLS_functionalComponentArgsRest(__VLS_185));
 __VLS_187.slots.default;
 {
     const { body: __VLS_thisSlot } = __VLS_187.slots;
     const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_188 = {}.Tag;
-    /** @type {[typeof __VLS_components.Tag, ]} */ ;
-    // @ts-ignore
-    const __VLS_189 = __VLS_asFunctionalComponent(__VLS_188, new __VLS_188({
-        value: (data.status),
-        severity: (__VLS_ctx.getSeverity(data.status)),
-    }));
-    const __VLS_190 = __VLS_189({
-        value: (data.status),
-        severity: (__VLS_ctx.getSeverity(data.status)),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_189));
+    (data.actual_user);
 }
 {
     const { filter: __VLS_thisSlot } = __VLS_187.slots;
     const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_192 = {}.Select;
+    const __VLS_188 = {}.InputText;
+    /** @type {[typeof __VLS_components.InputText, ]} */ ;
+    // @ts-ignore
+    const __VLS_189 = __VLS_asFunctionalComponent(__VLS_188, new __VLS_188({
+        modelValue: (filterModel.value),
+        type: "text",
+        placeholder: "Search by name",
+    }));
+    const __VLS_190 = __VLS_189({
+        modelValue: (filterModel.value),
+        type: "text",
+        placeholder: "Search by name",
+    }, ...__VLS_functionalComponentArgsRest(__VLS_189));
+}
+var __VLS_187;
+const __VLS_192 = {}.Column;
+/** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
+// @ts-ignore
+const __VLS_193 = __VLS_asFunctionalComponent(__VLS_192, new __VLS_192({
+    field: "attachments",
+    header: "Attachments",
+    ...{ style: {} },
+}));
+const __VLS_194 = __VLS_193({
+    field: "attachments",
+    header: "Attachments",
+    ...{ style: {} },
+}, ...__VLS_functionalComponentArgsRest(__VLS_193));
+__VLS_195.slots.default;
+{
+    const { body: __VLS_thisSlot } = __VLS_195.slots;
+    const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
+    if (data.file_id) {
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({});
+        const __VLS_196 = {}.Button;
+        /** @type {[typeof __VLS_components.Button, typeof __VLS_components.Button, ]} */ ;
+        // @ts-ignore
+        const __VLS_197 = __VLS_asFunctionalComponent(__VLS_196, new __VLS_196({
+            ...{ 'onClick': {} },
+            rel: "noopener noreferrer",
+            ...{ class: "text-white mr-2 bg-teal-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" },
+        }));
+        const __VLS_198 = __VLS_197({
+            ...{ 'onClick': {} },
+            rel: "noopener noreferrer",
+            ...{ class: "text-white mr-2 bg-teal-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" },
+        }, ...__VLS_functionalComponentArgsRest(__VLS_197));
+        let __VLS_200;
+        let __VLS_201;
+        let __VLS_202;
+        const __VLS_203 = {
+            onClick: (...[$event]) => {
+                if (!(data.file_id))
+                    return;
+                __VLS_ctx.openFile(data.id);
+            }
+        };
+        __VLS_199.slots.default;
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.i, __VLS_intrinsicElements.i)({
+            ...{ class: "pi pi-external-link mr-2" },
+        });
+        var __VLS_199;
+    }
+    else {
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
+    }
+}
+var __VLS_195;
+const __VLS_204 = {}.Column;
+/** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
+// @ts-ignore
+const __VLS_205 = __VLS_asFunctionalComponent(__VLS_204, new __VLS_204({
+    field: "roles",
+    header: "Registered Location",
+    ...{ style: {} },
+}));
+const __VLS_206 = __VLS_205({
+    field: "roles",
+    header: "Registered Location",
+    ...{ style: {} },
+}, ...__VLS_functionalComponentArgsRest(__VLS_205));
+__VLS_207.slots.default;
+{
+    const { body: __VLS_thisSlot } = __VLS_207.slots;
+    const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
+    (data.roles);
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.br)({});
+    (data.actual_division_title);
+}
+{
+    const { filter: __VLS_thisSlot } = __VLS_207.slots;
+    const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
+    const __VLS_208 = {}.Select;
     /** @type {[typeof __VLS_components.Select, typeof __VLS_components.Select, ]} */ ;
     // @ts-ignore
-    const __VLS_193 = __VLS_asFunctionalComponent(__VLS_192, new __VLS_192({
+    const __VLS_209 = __VLS_asFunctionalComponent(__VLS_208, new __VLS_208({
         modelValue: (filterModel.value),
-        options: (__VLS_ctx.statuses),
+        options: (__VLS_ctx.office),
         placeholder: "Select One",
         showClear: true,
     }));
-    const __VLS_194 = __VLS_193({
+    const __VLS_210 = __VLS_209({
         modelValue: (filterModel.value),
-        options: (__VLS_ctx.statuses),
+        options: (__VLS_ctx.office),
         placeholder: "Select One",
         showClear: true,
-    }, ...__VLS_functionalComponentArgsRest(__VLS_193));
-    __VLS_195.slots.default;
+    }, ...__VLS_functionalComponentArgsRest(__VLS_209));
+    __VLS_211.slots.default;
     {
-        const { option: __VLS_thisSlot } = __VLS_195.slots;
+        const { option: __VLS_thisSlot } = __VLS_211.slots;
         const [slotProps] = __VLS_getSlotParams(__VLS_thisSlot);
-        const __VLS_196 = {}.Tag;
+        const __VLS_212 = {}.Tag;
         /** @type {[typeof __VLS_components.Tag, ]} */ ;
         // @ts-ignore
-        const __VLS_197 = __VLS_asFunctionalComponent(__VLS_196, new __VLS_196({
+        const __VLS_213 = __VLS_asFunctionalComponent(__VLS_212, new __VLS_212({
             value: (slotProps.option),
             severity: (__VLS_ctx.getSeverity(slotProps.option)),
         }));
-        const __VLS_198 = __VLS_197({
+        const __VLS_214 = __VLS_213({
             value: (slotProps.option),
             severity: (__VLS_ctx.getSeverity(slotProps.option)),
-        }, ...__VLS_functionalComponentArgsRest(__VLS_197));
+        }, ...__VLS_functionalComponentArgsRest(__VLS_213));
     }
-    var __VLS_195;
+    var __VLS_211;
 }
-var __VLS_187;
-const __VLS_200 = {}.Column;
+var __VLS_207;
+const __VLS_216 = {}.Column;
 /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
 // @ts-ignore
-const __VLS_201 = __VLS_asFunctionalComponent(__VLS_200, new __VLS_200({
+const __VLS_217 = __VLS_asFunctionalComponent(__VLS_216, new __VLS_216({
     field: "qr_code",
     header: "ICT Equipment QR Code",
     ...{ style: {} },
 }));
-const __VLS_202 = __VLS_201({
+const __VLS_218 = __VLS_217({
     field: "qr_code",
     header: "ICT Equipment QR Code",
     ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_201));
-__VLS_203.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_217));
+__VLS_219.slots.default;
 {
-    const { body: __VLS_thisSlot } = __VLS_203.slots;
+    const { body: __VLS_thisSlot } = __VLS_219.slots;
     const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
     if (data.qr_code && data.qr_code.trim() !== '') {
-        const __VLS_204 = {}.QrcodeVue;
+        const __VLS_220 = {}.QrcodeVue;
         /** @type {[typeof __VLS_components.QrcodeVue, ]} */ ;
         // @ts-ignore
-        const __VLS_205 = __VLS_asFunctionalComponent(__VLS_204, new __VLS_204({
+        const __VLS_221 = __VLS_asFunctionalComponent(__VLS_220, new __VLS_220({
             value: (data.qr_code),
             size: (80),
             ...{ class: "text-center" },
         }));
-        const __VLS_206 = __VLS_205({
+        const __VLS_222 = __VLS_221({
             value: (data.qr_code),
             size: (80),
             ...{ class: "text-center" },
-        }, ...__VLS_functionalComponentArgsRest(__VLS_205));
+        }, ...__VLS_functionalComponentArgsRest(__VLS_221));
     }
     (data.qr_code);
 }
 {
-    const { filter: __VLS_thisSlot } = __VLS_203.slots;
+    const { filter: __VLS_thisSlot } = __VLS_219.slots;
     const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_208 = {}.InputText;
+    const __VLS_224 = {}.InputText;
     /** @type {[typeof __VLS_components.InputText, ]} */ ;
     // @ts-ignore
-    const __VLS_209 = __VLS_asFunctionalComponent(__VLS_208, new __VLS_208({
+    const __VLS_225 = __VLS_asFunctionalComponent(__VLS_224, new __VLS_224({
         modelValue: (filterModel.value),
         type: "text",
         placeholder: "Search by name",
     }));
-    const __VLS_210 = __VLS_209({
+    const __VLS_226 = __VLS_225({
         modelValue: (filterModel.value),
         type: "text",
         placeholder: "Search by name",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_209));
+    }, ...__VLS_functionalComponentArgsRest(__VLS_225));
 }
-var __VLS_203;
-const __VLS_212 = {}.Column;
+var __VLS_219;
+const __VLS_228 = {}.Column;
 /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
 // @ts-ignore
-const __VLS_213 = __VLS_asFunctionalComponent(__VLS_212, new __VLS_212({
+const __VLS_229 = __VLS_asFunctionalComponent(__VLS_228, new __VLS_228({
     field: "mon_qr_code1",
     header: "Primary Monitor QR Code",
     ...{ style: {} },
 }));
-const __VLS_214 = __VLS_213({
+const __VLS_230 = __VLS_229({
     field: "mon_qr_code1",
     header: "Primary Monitor QR Code",
     ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_213));
-__VLS_215.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_229));
+__VLS_231.slots.default;
 {
-    const { body: __VLS_thisSlot } = __VLS_215.slots;
+    const { body: __VLS_thisSlot } = __VLS_231.slots;
     const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
     if (data.mon_qr_code1 && data.mon_qr_code1.trim() !== '') {
-        const __VLS_216 = {}.QrcodeVue;
+        const __VLS_232 = {}.QrcodeVue;
         /** @type {[typeof __VLS_components.QrcodeVue, ]} */ ;
         // @ts-ignore
-        const __VLS_217 = __VLS_asFunctionalComponent(__VLS_216, new __VLS_216({
+        const __VLS_233 = __VLS_asFunctionalComponent(__VLS_232, new __VLS_232({
             value: (data.mon_qr_code1),
             size: (80),
             ...{ class: "text-center" },
         }));
-        const __VLS_218 = __VLS_217({
+        const __VLS_234 = __VLS_233({
             value: (data.mon_qr_code1),
             size: (80),
             ...{ class: "text-center" },
-        }, ...__VLS_functionalComponentArgsRest(__VLS_217));
+        }, ...__VLS_functionalComponentArgsRest(__VLS_233));
     }
     (data.mon_qr_code1);
 }
 {
-    const { filter: __VLS_thisSlot } = __VLS_215.slots;
+    const { filter: __VLS_thisSlot } = __VLS_231.slots;
     const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_220 = {}.InputText;
+    const __VLS_236 = {}.InputText;
     /** @type {[typeof __VLS_components.InputText, ]} */ ;
     // @ts-ignore
-    const __VLS_221 = __VLS_asFunctionalComponent(__VLS_220, new __VLS_220({
+    const __VLS_237 = __VLS_asFunctionalComponent(__VLS_236, new __VLS_236({
         modelValue: (filterModel.value),
         type: "text",
         placeholder: "Search by name",
     }));
-    const __VLS_222 = __VLS_221({
+    const __VLS_238 = __VLS_237({
         modelValue: (filterModel.value),
         type: "text",
         placeholder: "Search by name",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_221));
+    }, ...__VLS_functionalComponentArgsRest(__VLS_237));
 }
-var __VLS_215;
-const __VLS_224 = {}.Column;
+var __VLS_231;
+const __VLS_240 = {}.Column;
 /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
 // @ts-ignore
-const __VLS_225 = __VLS_asFunctionalComponent(__VLS_224, new __VLS_224({
+const __VLS_241 = __VLS_asFunctionalComponent(__VLS_240, new __VLS_240({
     field: "mon_qr_code2",
     header: "Secondary Monitor QR Code",
     ...{ style: {} },
 }));
-const __VLS_226 = __VLS_225({
+const __VLS_242 = __VLS_241({
     field: "mon_qr_code2",
     header: "Secondary Monitor QR Code",
     ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_225));
-__VLS_227.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_241));
+__VLS_243.slots.default;
 {
-    const { body: __VLS_thisSlot } = __VLS_227.slots;
+    const { body: __VLS_thisSlot } = __VLS_243.slots;
     const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
     if (data.mon_qr_code2 && data.mon_qr_code2.trim() !== '') {
-        const __VLS_228 = {}.QrcodeVue;
+        const __VLS_244 = {}.QrcodeVue;
         /** @type {[typeof __VLS_components.QrcodeVue, ]} */ ;
         // @ts-ignore
-        const __VLS_229 = __VLS_asFunctionalComponent(__VLS_228, new __VLS_228({
+        const __VLS_245 = __VLS_asFunctionalComponent(__VLS_244, new __VLS_244({
             value: (data.mon_qr_code2),
             size: (80),
             ...{ class: "text-center" },
         }));
-        const __VLS_230 = __VLS_229({
+        const __VLS_246 = __VLS_245({
             value: (data.mon_qr_code2),
             size: (80),
             ...{ class: "text-center" },
-        }, ...__VLS_functionalComponentArgsRest(__VLS_229));
+        }, ...__VLS_functionalComponentArgsRest(__VLS_245));
     }
     (data.mon_qr_code2);
 }
 {
-    const { filter: __VLS_thisSlot } = __VLS_227.slots;
+    const { filter: __VLS_thisSlot } = __VLS_243.slots;
     const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_232 = {}.InputText;
+    const __VLS_248 = {}.InputText;
     /** @type {[typeof __VLS_components.InputText, ]} */ ;
     // @ts-ignore
-    const __VLS_233 = __VLS_asFunctionalComponent(__VLS_232, new __VLS_232({
+    const __VLS_249 = __VLS_asFunctionalComponent(__VLS_248, new __VLS_248({
         modelValue: (filterModel.value),
         type: "text",
         placeholder: "Search by name",
     }));
-    const __VLS_234 = __VLS_233({
+    const __VLS_250 = __VLS_249({
         modelValue: (filterModel.value),
         type: "text",
         placeholder: "Search by name",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_233));
+    }, ...__VLS_functionalComponentArgsRest(__VLS_249));
 }
-var __VLS_227;
-const __VLS_236 = {}.Column;
+var __VLS_243;
+const __VLS_252 = {}.Column;
 /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
 // @ts-ignore
-const __VLS_237 = __VLS_asFunctionalComponent(__VLS_236, new __VLS_236({
+const __VLS_253 = __VLS_asFunctionalComponent(__VLS_252, new __VLS_252({
     field: "ups_qr_code",
     header: "UPS QR Code",
     ...{ style: {} },
 }));
-const __VLS_238 = __VLS_237({
+const __VLS_254 = __VLS_253({
     field: "ups_qr_code",
     header: "UPS QR Code",
     ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_237));
-__VLS_239.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_253));
+__VLS_255.slots.default;
 {
-    const { body: __VLS_thisSlot } = __VLS_239.slots;
+    const { body: __VLS_thisSlot } = __VLS_255.slots;
     const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
     if (data.ups_qr_code && data.ups_qr_code.trim() !== '') {
-        const __VLS_240 = {}.QrcodeVue;
+        const __VLS_256 = {}.QrcodeVue;
         /** @type {[typeof __VLS_components.QrcodeVue, ]} */ ;
         // @ts-ignore
-        const __VLS_241 = __VLS_asFunctionalComponent(__VLS_240, new __VLS_240({
+        const __VLS_257 = __VLS_asFunctionalComponent(__VLS_256, new __VLS_256({
             value: (data.ups_qr_code),
             size: (80),
             ...{ class: "text-center" },
         }));
-        const __VLS_242 = __VLS_241({
+        const __VLS_258 = __VLS_257({
             value: (data.ups_qr_code),
             size: (80),
             ...{ class: "text-center" },
-        }, ...__VLS_functionalComponentArgsRest(__VLS_241));
+        }, ...__VLS_functionalComponentArgsRest(__VLS_257));
     }
     (data.ups_qr_code);
 }
 {
-    const { filter: __VLS_thisSlot } = __VLS_239.slots;
-    const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_244 = {}.InputText;
-    /** @type {[typeof __VLS_components.InputText, ]} */ ;
-    // @ts-ignore
-    const __VLS_245 = __VLS_asFunctionalComponent(__VLS_244, new __VLS_244({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }));
-    const __VLS_246 = __VLS_245({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_245));
-}
-var __VLS_239;
-const __VLS_248 = {}.Column;
-/** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
-// @ts-ignore
-const __VLS_249 = __VLS_asFunctionalComponent(__VLS_248, new __VLS_248({
-    field: "brand",
-    header: "Brand & Model",
-    ...{ style: {} },
-}));
-const __VLS_250 = __VLS_249({
-    field: "brand",
-    header: "Brand & Model",
-    ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_249));
-__VLS_251.slots.default;
-{
-    const { body: __VLS_thisSlot } = __VLS_251.slots;
-    const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
-    (data.brand);
-}
-{
-    const { filter: __VLS_thisSlot } = __VLS_251.slots;
-    const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_252 = {}.InputText;
-    /** @type {[typeof __VLS_components.InputText, ]} */ ;
-    // @ts-ignore
-    const __VLS_253 = __VLS_asFunctionalComponent(__VLS_252, new __VLS_252({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }));
-    const __VLS_254 = __VLS_253({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_253));
-}
-var __VLS_251;
-const __VLS_256 = {}.Column;
-/** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
-// @ts-ignore
-const __VLS_257 = __VLS_asFunctionalComponent(__VLS_256, new __VLS_256({
-    field: "full_specs",
-    header: "Specifications / Descriptions",
-    ...{ style: {} },
-}));
-const __VLS_258 = __VLS_257({
-    field: "full_specs",
-    header: "Specifications / Descriptions",
-    ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_257));
-__VLS_259.slots.default;
-{
-    const { body: __VLS_thisSlot } = __VLS_259.slots;
-    const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "wrap-text" },
-    });
-    (data.full_specs);
-}
-{
-    const { filter: __VLS_thisSlot } = __VLS_259.slots;
+    const { filter: __VLS_thisSlot } = __VLS_255.slots;
     const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
     const __VLS_260 = {}.InputText;
     /** @type {[typeof __VLS_components.InputText, ]} */ ;
@@ -1617,25 +1616,28 @@ __VLS_259.slots.default;
         placeholder: "Search by name",
     }, ...__VLS_functionalComponentArgsRest(__VLS_261));
 }
-var __VLS_259;
+var __VLS_255;
 const __VLS_264 = {}.Column;
 /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
 // @ts-ignore
 const __VLS_265 = __VLS_asFunctionalComponent(__VLS_264, new __VLS_264({
-    field: "range_category",
-    header: "Range Category",
+    field: "full_specs",
+    header: "Specifications / Descriptions",
     ...{ style: {} },
 }));
 const __VLS_266 = __VLS_265({
-    field: "range_category",
-    header: "Range Category",
+    field: "full_specs",
+    header: "Specifications / Descriptions",
     ...{ style: {} },
 }, ...__VLS_functionalComponentArgsRest(__VLS_265));
 __VLS_267.slots.default;
 {
     const { body: __VLS_thisSlot } = __VLS_267.slots;
     const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
-    (data.range_category);
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+        ...{ class: "wrap-text" },
+    });
+    (data.full_specs);
 }
 {
     const { filter: __VLS_thisSlot } = __VLS_267.slots;
@@ -1655,6 +1657,43 @@ __VLS_267.slots.default;
     }, ...__VLS_functionalComponentArgsRest(__VLS_269));
 }
 var __VLS_267;
+const __VLS_272 = {}.Column;
+/** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
+// @ts-ignore
+const __VLS_273 = __VLS_asFunctionalComponent(__VLS_272, new __VLS_272({
+    field: "range_category",
+    header: "Range Category",
+    ...{ style: {} },
+}));
+const __VLS_274 = __VLS_273({
+    field: "range_category",
+    header: "Range Category",
+    ...{ style: {} },
+}, ...__VLS_functionalComponentArgsRest(__VLS_273));
+__VLS_275.slots.default;
+{
+    const { body: __VLS_thisSlot } = __VLS_275.slots;
+    const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
+    (data.range_category);
+}
+{
+    const { filter: __VLS_thisSlot } = __VLS_275.slots;
+    const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
+    const __VLS_276 = {}.InputText;
+    /** @type {[typeof __VLS_components.InputText, ]} */ ;
+    // @ts-ignore
+    const __VLS_277 = __VLS_asFunctionalComponent(__VLS_276, new __VLS_276({
+        modelValue: (filterModel.value),
+        type: "text",
+        placeholder: "Search by name",
+    }));
+    const __VLS_278 = __VLS_277({
+        modelValue: (filterModel.value),
+        type: "text",
+        placeholder: "Search by name",
+    }, ...__VLS_functionalComponentArgsRest(__VLS_277));
+}
+var __VLS_275;
 var __VLS_51;
 var __VLS_3;
 /** @type {__VLS_StyleScopedClasses['grid']} */ ;

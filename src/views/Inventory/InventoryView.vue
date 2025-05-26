@@ -650,6 +650,7 @@ const pageTitle = ref('Inventory Management')
             'equipment_title',
             'acct_person',
             'qr_code',
+            'serial_no',
             'mon_qr_code1',
             'mon_qr_code2',
             'ups_qr_code',
@@ -758,6 +759,64 @@ const pageTitle = ref('Inventory Management')
               <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
             </template>
           </Column>
+          <Column
+            header="Status"
+            field="status"
+            :filterMenuStyle="{ width: '14rem' }"
+            style="min-width: 12rem"
+          >
+            <template #body="{ data }">
+              <Tag :value="data.status" :severity="getSeverity(data.status)" />
+            </template>
+            <template #filter="{ filterModel }">
+              <Select
+                v-model="filterModel.value"
+                :options="statuses"
+                placeholder="Select One"
+                showClear
+              >
+                <template #option="slotProps">
+                  <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)" />
+                </template>
+              </Select>
+            </template>
+          </Column>
+           <Column field="brand" header="Brand & Model" style="min-width: 12rem">
+            <template #body="{ data }">
+              {{ data.brand }}
+              <!-- Ensure this field exists in the data object -->
+            </template>
+            <template #filter="{ filterModel }">
+              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
+            </template>
+          </Column>
+           <Column field="serial_no" header="Serial No." style="min-width: 12rem">
+            <template #body="{ data }">
+              {{ data.serial_no }}
+              <!-- Ensure this field exists in the data object -->
+            </template>
+            <template #filter="{ filterModel }">
+              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
+            </template>
+          </Column>
+           <Column field="acct_person" header="Accountable Person" style="min-width: 1rem">
+            <template #body="{ data }">
+              {{ data.acct_person }}
+              <!-- Ensure this field exists in the data object -->
+            </template>
+            <template #filter="{ filterModel }">
+              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
+            </template>
+          </Column>
+          <Column field="actual_user" header="Actual User" style="min-width: 1rem">
+            <template #body="{ data }">
+              {{ data.actual_user }}
+              <!-- Ensure this field exists in the data object -->
+            </template>
+            <template #filter="{ filterModel }">
+              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
+            </template>
+          </Column>
           <Column field="attachments" header="Attachments" style="min-width: 12rem">
             <template #body="{ data }">
               <div v-if="data.file_id">
@@ -794,46 +853,8 @@ const pageTitle = ref('Inventory Management')
               </Select>
             </template>
           </Column>
-          <Column field="acct_person" header="Accountable Person" style="min-width: 1rem">
-            <template #body="{ data }">
-              {{ data.acct_person }}
-              <!-- Ensure this field exists in the data object -->
-            </template>
-            <template #filter="{ filterModel }">
-              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
-            </template>
-          </Column>
-          <Column field="actual_user" header="Actual User" style="min-width: 1rem">
-            <template #body="{ data }">
-              {{ data.actual_user }}
-              <!-- Ensure this field exists in the data object -->
-            </template>
-            <template #filter="{ filterModel }">
-              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
-            </template>
-          </Column>
-          <Column
-            header="Status"
-            field="status"
-            :filterMenuStyle="{ width: '14rem' }"
-            style="min-width: 12rem"
-          >
-            <template #body="{ data }">
-              <Tag :value="data.status" :severity="getSeverity(data.status)" />
-            </template>
-            <template #filter="{ filterModel }">
-              <Select
-                v-model="filterModel.value"
-                :options="statuses"
-                placeholder="Select One"
-                showClear
-              >
-                <template #option="slotProps">
-                  <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)" />
-                </template>
-              </Select>
-            </template>
-          </Column>
+         
+          
           <Column field="qr_code" header="ICT Equipment QR Code" style="min-width: 12rem">
             <template #body="{ data }">
               <QrcodeVue
@@ -900,15 +921,7 @@ const pageTitle = ref('Inventory Management')
             </template>
           </Column>
 
-          <Column field="brand" header="Brand & Model" style="min-width: 12rem">
-            <template #body="{ data }">
-              {{ data.brand }}
-              <!-- Ensure this field exists in the data object -->
-            </template>
-            <template #filter="{ filterModel }">
-              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
-            </template>
-          </Column>
+         
           <Column
             field="full_specs"
             header="Specifications / Descriptions"
