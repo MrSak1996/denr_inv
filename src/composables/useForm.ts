@@ -10,7 +10,7 @@ interface Form {
   model: string;
   property_no: string;
   serial_no: string;
-  aquisition_cost: number | null; 
+  acquisition_cost: number; 
   processor: string;
   division_id: string;
   acct_person_division_id: string;
@@ -120,7 +120,7 @@ export function useForm() {
     model: '',
     property_no: '',
     serial_no: '',
-    aquisition_cost: 0,
+    acquisition_cost:0,
     processor: '',
     division_id: '',
     acct_person_division_id: '',

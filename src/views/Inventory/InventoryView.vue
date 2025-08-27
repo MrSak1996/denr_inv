@@ -684,13 +684,15 @@ const pageTitle = ref('Inventory Management')
                 @click="openScanForm = true"
                 outlined
               /> -->
-
+            
               <Button
                 severity="danger"
                 icon="pi pi-qrcode"
                 label="Generate QR Code [F3]"
                 @click="openQR = true"
               />
+                        <!-- <Select filter v-model="peripheral_form.mon1division2" :options="division_opts" optionValue="id"
+                        optionLabel="name" placeholder="Division" class="md:w-100" /> -->
               <Button
                 style="left: 500px"
                 severity="info"
@@ -749,10 +751,75 @@ const pageTitle = ref('Inventory Management')
               <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
             </template> -->
           </Column>
-          <Column field="control_no" header="Control No" style="min-width: 12rem">
+          <Column field="control_no" header="Equipment Type" style="min-width: 12rem">
             <template #body="{ data }">
               <Tag :value="data.equipment_title" severity="success" class="text-center" /><br />
               {{ data.control_no }}
+              <!-- Ensure this field exists in the data object -->
+            </template>
+            <template #filter="{ filterModel }">
+              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
+            </template>
+          </Column>
+             <Column field="qr_code" header="ICT Equipment QR Code" style="min-width: 12rem">
+            <template #body="{ data }">
+              <QrcodeVue
+                v-if="data.qr_code && data.qr_code.trim() !== ''"
+                :value="data.qr_code"
+                :size="80"
+                class="text-center"
+              />
+              {{ data.qr_code }}
+
+              <!-- Ensure this field exists in the data object -->
+            </template>
+            <template #filter="{ filterModel }">
+              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
+            </template>
+          </Column>
+
+          <Column field="mon_qr_code1" header="Primary Monitor QR Code" style="min-width: 12rem">
+            <template #body="{ data }">
+              <QrcodeVue
+                v-if="data.mon_qr_code1 && data.mon_qr_code1.trim() !== ''"
+                :value="data.mon_qr_code1"
+                :size="80"
+                class="text-center"
+              />
+              {{ data.mon_qr_code1 }}
+
+              <!-- Ensure this field exists in the data object -->
+            </template>
+            <template #filter="{ filterModel }">
+              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
+            </template>
+          </Column>
+          <Column field="mon_qr_code2" header="Secondary Monitor QR Code" style="min-width: 12rem">
+            <template #body="{ data }">
+              <QrcodeVue
+                v-if="data.mon_qr_code2 && data.mon_qr_code2.trim() !== ''"
+                :value="data.mon_qr_code2"
+                :size="80"
+                class="text-center"
+              />
+              {{ data.mon_qr_code2 }}
+
+              <!-- Ensure this field exists in the data object -->
+            </template>
+            <template #filter="{ filterModel }">
+              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
+            </template>
+          </Column>
+          <Column field="ups_qr_code" header="UPS QR Code" style="min-width: 12rem">
+            <template #body="{ data }">
+              <QrcodeVue
+                v-if="data.ups_qr_code && data.ups_qr_code.trim() !== ''"
+                :value="data.ups_qr_code"
+                :size="80"
+                class="text-center"
+              />
+              {{ data.ups_qr_code }}
+
               <!-- Ensure this field exists in the data object -->
             </template>
             <template #filter="{ filterModel }">
@@ -855,71 +922,7 @@ const pageTitle = ref('Inventory Management')
           </Column>
          
           
-          <Column field="qr_code" header="ICT Equipment QR Code" style="min-width: 12rem">
-            <template #body="{ data }">
-              <QrcodeVue
-                v-if="data.qr_code && data.qr_code.trim() !== ''"
-                :value="data.qr_code"
-                :size="80"
-                class="text-center"
-              />
-              {{ data.qr_code }}
-
-              <!-- Ensure this field exists in the data object -->
-            </template>
-            <template #filter="{ filterModel }">
-              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
-            </template>
-          </Column>
-
-          <Column field="mon_qr_code1" header="Primary Monitor QR Code" style="min-width: 12rem">
-            <template #body="{ data }">
-              <QrcodeVue
-                v-if="data.mon_qr_code1 && data.mon_qr_code1.trim() !== ''"
-                :value="data.mon_qr_code1"
-                :size="80"
-                class="text-center"
-              />
-              {{ data.mon_qr_code1 }}
-
-              <!-- Ensure this field exists in the data object -->
-            </template>
-            <template #filter="{ filterModel }">
-              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
-            </template>
-          </Column>
-          <Column field="mon_qr_code2" header="Secondary Monitor QR Code" style="min-width: 12rem">
-            <template #body="{ data }">
-              <QrcodeVue
-                v-if="data.mon_qr_code2 && data.mon_qr_code2.trim() !== ''"
-                :value="data.mon_qr_code2"
-                :size="80"
-                class="text-center"
-              />
-              {{ data.mon_qr_code2 }}
-
-              <!-- Ensure this field exists in the data object -->
-            </template>
-            <template #filter="{ filterModel }">
-              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
-            </template>
-          </Column>
-          <Column field="ups_qr_code" header="UPS QR Code" style="min-width: 12rem">
-            <template #body="{ data }">
-              <QrcodeVue
-                v-if="data.ups_qr_code && data.ups_qr_code.trim() !== ''"
-                :value="data.ups_qr_code"
-                :size="80"
-                class="text-center"
-              />
-              {{ data.ups_qr_code }}
-
-              <!-- Ensure this field exists in the data object -->
-            </template>
-            <template #filter="{ filterModel }">
-              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
-            </template>
-          </Column>
+       
 
          
           <Column

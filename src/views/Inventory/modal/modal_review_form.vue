@@ -171,7 +171,6 @@ const getNetworkType = (key: string | null | undefined): string => {
 }
 </style>
 <template>
-  />
   <div
     v-if="open"
     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
@@ -185,7 +184,7 @@ const getNetworkType = (key: string | null | undefined): string => {
       <!-- Modal Header -->
       <div class="flex justify-between items-center py-4 px-6 border-b dark:border-neutral-700">
         <h3 id="reserve-control-no" class="text-lg font-semibold text-gray-800 dark:text-gray-200">
-          Review and Confirmation
+          ICT Equipment Information
         </h3>
         <button @click="closeModal" class="text-gray-300 hover:text-gray-100">✖</button>
       </div>

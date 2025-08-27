@@ -10,7 +10,7 @@ export function useForm() {
         model: '',
         property_no: '',
         serial_no: '',
-        aquisition_cost: 0,
+        acquisition_cost: 0,
         processor: '',
         division_id: '',
         acct_person_division_id: '',

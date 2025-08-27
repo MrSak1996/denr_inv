@@ -679,6 +679,7 @@ class InventoryController extends Controller
                 'monitor2Status'
             )
             ->where('g.qr_code', $qr_code_val)
+            
             ->groupBy(
                 'g.id',
                 'g.qr_code',
@@ -1012,7 +1013,7 @@ class InventoryController extends Controller
             'model' => 'nullable|string',
             'property_no' => 'nullable|string',
             'serial_no' => 'nullable|string',
-            'aquisition_cost' => 'nullable|numeric',
+            'acquisition_cost' => 'nullable|integer',
             'processor' => 'nullable|string',
             'selectedDivision' => 'nullable|integer',
             'selectedAcctDivision' => 'nullable|integer',
@@ -1044,7 +1045,7 @@ class InventoryController extends Controller
                 'sex' => $validated['sex'],
                 'property_no' => $validated['property_no'],
                 'serial_no' => $validated['serial_no'],
-                'acquisition_cost' => $validated['aquisition_cost'],
+                'acquisition_cost' => $validated['acquisition_cost'],
                 'processor' => $validated['processor'],
                 'division_id' => $validated['selectedDivision'],
                 'acct_person_division_id' => $validated['selectedAcctDivision'],
@@ -1182,7 +1183,6 @@ class InventoryController extends Controller
     public function post_insert_peripheral(Request $request)
     {
         $user_id = $request->input('id');
-
         $validatedData = $request->validate([
             'control_id' => 'required|integer',
             'monitor1QrCode' => 'nullable|string',

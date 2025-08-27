@@ -15,8 +15,7 @@
         "laravel/ui": "^4.5",
         "lavela/phpjasper": "^3.0",
         "maatwebsite/excel": "^1.1",
-        "masbug/flysystem-google-drive-ext": "^2.4",
-        "phpoffice/phpspreadsheet": "^3.4"
+        "masbug/flysystem-google-drive-ext": "^2.4"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
