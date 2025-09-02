@@ -1046,10 +1046,7 @@ onMounted(() => {
                       <Select filter v-model="peripheral_form.monitor1Status" :options="status_opts" optionValue="id"
                         optionLabel="name" placeholder="Current Status" class="w-full md:w-100" />
                     </div>
-                    <div class="relative z-0 w-full mb-5 group mt-4">
-                  <Select filter v-model="peripheral_form.monitor1Status" :options="status_opts" optionValue="id" optionLabel="name"
-                    placeholder="Current Status"  class="w-full md:w-100" />
-                </div>
+                    
                   </div>
                 </Fieldset>
               </div>

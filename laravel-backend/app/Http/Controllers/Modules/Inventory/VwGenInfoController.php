@@ -13,17 +13,15 @@ class VwGenInfoController extends Controller
     {
         $designation = $req->query('designation');
 
-        // Ensure designation is numeric and a valid table exists
+        // Ensure designation is numeric
         if (!is_numeric($designation)) {
             return response()->json([
                 'error' => 'Invalid designation parameter.'
             ], 400);
         }
 
-        // Define table name
         $tableName = 'vw_gen_info';
 
-        // Initialize the query
         $query = DB::table($tableName)->orderBy('id', 'desc');
 
         // Filter by roles unless designation is 13
@@ -31,7 +29,19 @@ class VwGenInfoController extends Controller
             $query->where('role_id', $designation);
         }
 
-        // Fetch the data
+        // Search across multiple columns using OR
+        if ($req->filled('search')) {
+            $search = $req->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('brand', 'like', "%{$search}%")
+                    ->orWhere('model', 'like', "%{$search}%")
+                    ->orWhere('serial_no', 'like', "%{$search}%")
+                    ->orWhere('qr_code', 'like', "%{$search}%")
+                    ->orWhere('control_no', 'like', "%{$search}%")
+                    ->orWhere('property_no', 'like', "%{$search}%");
+            });
+        }
+
         $data = $query->get();
         $rowCount = $data->count();
 
@@ -41,4 +51,6 @@ class VwGenInfoController extends Controller
             'total' => $rowCount
         ]);
     }
+
+
 }

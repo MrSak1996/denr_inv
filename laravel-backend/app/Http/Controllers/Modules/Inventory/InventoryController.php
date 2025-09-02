@@ -274,7 +274,7 @@ class InventoryController extends Controller
                 year_acquired, 
                 shelf_life, 
                 remarks, 
-                status, 
+                item_status as status, 
                 created_at,
                 updated_at'
             ))
@@ -637,6 +637,7 @@ class InventoryController extends Controller
                 'g.serial_no',
                 'g.brand',
                 'g.model',
+				'g.item_status',
                 'g.year_acquired',
                 's.specs_net',
                 's.specs_gpu',
@@ -699,6 +700,7 @@ class InventoryController extends Controller
                 'g.brand',
                 'g.model',
                 'g.year_acquired',
+				'g.item_status',
                 's.specs_net',
                 'g.acquisition_cost',
                 'g.range_category',
@@ -853,6 +855,7 @@ class InventoryController extends Controller
                 'no_of_hdd' => 'nullable|integer',
                 'hdd_capacity' => 'nullable|string',
                 'wireless_type' => 'nullable|numeric',
+				'item_status' => 'nullable|numeric'
             ]);
 
             // Start a transaction
