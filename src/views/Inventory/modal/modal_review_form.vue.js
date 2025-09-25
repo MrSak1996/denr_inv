@@ -546,34 +546,6 @@ if (__VLS_ctx.open) {
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "flex justify-end items-center w-full" },
     });
-    const __VLS_0 = {}.Button;
-    /** @type {[typeof __VLS_components.Button, ]} */ ;
-    // @ts-ignore
-    const __VLS_1 = __VLS_asFunctionalComponent(__VLS_0, new __VLS_0({
-        ...{ 'onClick': {} },
-        severity: "teal",
-        label: "Print",
-        icon: "pi pi-file-export",
-        ...{ class: "mt-4 mr-4" },
-    }));
-    const __VLS_2 = __VLS_1({
-        ...{ 'onClick': {} },
-        severity: "teal",
-        label: "Print",
-        icon: "pi pi-file-export",
-        ...{ class: "mt-4 mr-4" },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-    let __VLS_4;
-    let __VLS_5;
-    let __VLS_6;
-    const __VLS_7 = {
-        onClick: (...[$event]) => {
-            if (!(__VLS_ctx.open))
-                return;
-            __VLS_ctx.handlePrint();
-        }
-    };
-    var __VLS_3;
 }
 /** @type {__VLS_StyleScopedClasses['fixed']} */ ;
 /** @type {__VLS_StyleScopedClasses['inset-0']} */ ;
@@ -1094,8 +1066,6 @@ if (__VLS_ctx.open) {
 /** @type {__VLS_StyleScopedClasses['justify-end']} */ ;
 /** @type {__VLS_StyleScopedClasses['items-center']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['mt-4']} */ ;
-/** @type {__VLS_StyleScopedClasses['mr-4']} */ ;
 var __VLS_dollars;
 const __VLS_self = (await import('vue')).defineComponent({
     setup() {
@@ -1107,7 +1077,6 @@ const __VLS_self = (await import('vue')).defineComponent({
             selectedRangeCategory: selectedRangeCategory,
             getRemarks: getRemarks,
             closeModal: closeModal,
-            handlePrint: handlePrint,
             getRamName: getRamName,
             getNetworkType: getNetworkType,
         };

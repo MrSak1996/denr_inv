@@ -1,5 +1,6 @@
 import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import { useToast } from 'primevue/usetoast';
 import { useApi } from '@/composables/useApi';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import api from '@/api/axiosInstance';
@@ -8,6 +9,7 @@ import modal_export_summary_report from './modal/modal_export_summary_report.vue
 const authStore = useAuthStore();
 const { fetchCurUser, roles_opts, getUserRoles } = useApi();
 const route = useRoute();
+const toast = useToast();
 const userId = route.query.id;
 const api_token = route.query.api_token;
 const trans_logs = ref([]);
@@ -17,7 +19,7 @@ const progress = ref(0);
 const isLoading = ref(false);
 const isModalOpen = ref(false);
 const currentMessage = ref('Loading, please wait...');
-const selectedRole = ref(null);
+const selectedRole = ref(null); // Selected role from dropdown
 const messages = ref([
     'Loading, please wait...',
     'Processing data...',
@@ -26,6 +28,7 @@ const messages = ref([
     'Preparing your data...',
     'Almost there, hang tight...'
 ]);
+const generating = ref(false);
 const user_role = ref(0);
 const designation = ref('');
 const user_id = ref('');
@@ -73,6 +76,57 @@ const summary = async (selectedRoleId) => {
         console.error("Error fetching customers:", error);
         loading.value = false;
         completeProgress();
+    }
+};
+const exportData = async () => {
+    if (!selectedRole.value) {
+        toast.add({
+            severity: "warn",
+            summary: "Missing Selection",
+            detail: "Please select a division before exporting.",
+            life: 3000,
+        });
+        return;
+    }
+    try {
+        generating.value = true;
+        progress.value = 10;
+        // Simulate progress updates
+        const progressInterval = setInterval(() => {
+            if (progress.value < 90) {
+                progress.value += 10;
+            }
+        }, 500);
+        const response = await api.get(`https://riis.denrcalabarzon.com/api/exportSummary?export=true&role_id=${selectedRole.value}`, {
+            responseType: "blob",
+        });
+        clearInterval(progressInterval);
+        progress.value = 100;
+        // Download the file
+        const contentType = response.headers["content-type"];
+        const blob = new Blob([response.data], { type: contentType });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "summary_report.xlsx";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+    }
+    catch (err) {
+        toast.add({
+            severity: "error",
+            summary: "Export Failed",
+            detail: "Error generating the report. Please try again.",
+            life: 3000,
+        });
+    }
+    finally {
+        setTimeout(() => {
+            generating.value = false;
+            progress.value = 0;
+        }, 1000);
     }
 };
 const initFilters = () => {
@@ -131,44 +185,48 @@ debugger; /* PartiallyEnd: #3632/scriptSetup.vue */
 const __VLS_ctx = {};
 let __VLS_components;
 let __VLS_directives;
-const __VLS_0 = {}.DefaultLayout;
-/** @type {[typeof __VLS_components.DefaultLayout, typeof __VLS_components.DefaultLayout, ]} */ ;
+const __VLS_0 = {}.Toast;
+/** @type {[typeof __VLS_components.Toast, ]} */ ;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent(__VLS_0, new __VLS_0({}));
 const __VLS_2 = __VLS_1({}, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_4 = {};
-__VLS_3.slots.default;
-const __VLS_5 = {}.BreadcrumbDefault;
+const __VLS_4 = {}.DefaultLayout;
+/** @type {[typeof __VLS_components.DefaultLayout, typeof __VLS_components.DefaultLayout, ]} */ ;
+// @ts-ignore
+const __VLS_5 = __VLS_asFunctionalComponent(__VLS_4, new __VLS_4({}));
+const __VLS_6 = __VLS_5({}, ...__VLS_functionalComponentArgsRest(__VLS_5));
+__VLS_7.slots.default;
+const __VLS_8 = {}.BreadcrumbDefault;
 /** @type {[typeof __VLS_components.BreadcrumbDefault, ]} */ ;
 // @ts-ignore
-const __VLS_6 = __VLS_asFunctionalComponent(__VLS_5, new __VLS_5({
+const __VLS_9 = __VLS_asFunctionalComponent(__VLS_8, new __VLS_8({
     pageTitle: (__VLS_ctx.pageTitle),
 }));
-const __VLS_7 = __VLS_6({
+const __VLS_10 = __VLS_9({
     pageTitle: (__VLS_ctx.pageTitle),
-}, ...__VLS_functionalComponentArgsRest(__VLS_6));
+}, ...__VLS_functionalComponentArgsRest(__VLS_9));
 if (__VLS_ctx.isModalOpen) {
     /** @type {[typeof modal_export_summary_report, ]} */ ;
     // @ts-ignore
-    const __VLS_9 = __VLS_asFunctionalComponent(modal_export_summary_report, new modal_export_summary_report({
+    const __VLS_12 = __VLS_asFunctionalComponent(modal_export_summary_report, new modal_export_summary_report({
         ...{ 'onClose': {} },
         open: (__VLS_ctx.isModalOpen),
     }));
-    const __VLS_10 = __VLS_9({
+    const __VLS_13 = __VLS_12({
         ...{ 'onClose': {} },
         open: (__VLS_ctx.isModalOpen),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_9));
-    let __VLS_12;
-    let __VLS_13;
-    let __VLS_14;
-    const __VLS_15 = {
+    }, ...__VLS_functionalComponentArgsRest(__VLS_12));
+    let __VLS_15;
+    let __VLS_16;
+    let __VLS_17;
+    const __VLS_18 = {
         onClose: (...[$event]) => {
             if (!(__VLS_ctx.isModalOpen))
                 return;
             __VLS_ctx.isModalOpen = false;
         }
     };
-    var __VLS_11;
+    var __VLS_14;
 }
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "flex flex-col gap-10 mt-4" },
@@ -208,10 +266,10 @@ if (__VLS_ctx.isLoading) {
     });
     (__VLS_ctx.progress);
 }
-const __VLS_16 = {}.DataTable;
+const __VLS_19 = {}.DataTable;
 /** @type {[typeof __VLS_components.DataTable, typeof __VLS_components.DataTable, ]} */ ;
 // @ts-ignore
-const __VLS_17 = __VLS_asFunctionalComponent(__VLS_16, new __VLS_16({
+const __VLS_20 = __VLS_asFunctionalComponent(__VLS_19, new __VLS_19({
     size: "small",
     filters: (__VLS_ctx.filters),
     value: (__VLS_ctx.trans_logs),
@@ -229,7 +287,7 @@ const __VLS_17 = __VLS_asFunctionalComponent(__VLS_16, new __VLS_16({
         'below_2021'
     ]),
 }));
-const __VLS_18 = __VLS_17({
+const __VLS_21 = __VLS_20({
     size: "small",
     filters: (__VLS_ctx.filters),
     value: (__VLS_ctx.trans_logs),
@@ -246,69 +304,69 @@ const __VLS_18 = __VLS_17({
         'year_2023',
         'below_2021'
     ]),
-}, ...__VLS_functionalComponentArgsRest(__VLS_17));
-__VLS_19.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_20));
+__VLS_22.slots.default;
 {
-    const { header: __VLS_thisSlot } = __VLS_19.slots;
+    const { header: __VLS_thisSlot } = __VLS_22.slots;
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "flex items-center gap-4 justify-start" },
     });
-    const __VLS_20 = {}.Button;
+    const __VLS_23 = {}.Button;
     /** @type {[typeof __VLS_components.Button, ]} */ ;
     // @ts-ignore
-    const __VLS_21 = __VLS_asFunctionalComponent(__VLS_20, new __VLS_20({
+    const __VLS_24 = __VLS_asFunctionalComponent(__VLS_23, new __VLS_23({
         ...{ 'onClick': {} },
         ...{ class: "text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" },
         type: "button",
         icon: "pi pi-filter-slash",
         label: "Clear",
     }));
-    const __VLS_22 = __VLS_21({
+    const __VLS_25 = __VLS_24({
         ...{ 'onClick': {} },
         ...{ class: "text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" },
         type: "button",
         icon: "pi pi-filter-slash",
         label: "Clear",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_21));
-    let __VLS_24;
-    let __VLS_25;
-    let __VLS_26;
-    const __VLS_27 = {
+    }, ...__VLS_functionalComponentArgsRest(__VLS_24));
+    let __VLS_27;
+    let __VLS_28;
+    let __VLS_29;
+    const __VLS_30 = {
         onClick: (...[$event]) => {
             __VLS_ctx.clearFilter();
         }
     };
-    var __VLS_23;
-    const __VLS_28 = {}.Button;
+    var __VLS_26;
+    const __VLS_31 = {}.Button;
     /** @type {[typeof __VLS_components.Button, ]} */ ;
     // @ts-ignore
-    const __VLS_29 = __VLS_asFunctionalComponent(__VLS_28, new __VLS_28({
+    const __VLS_32 = __VLS_asFunctionalComponent(__VLS_31, new __VLS_31({
         ...{ 'onClick': {} },
         ...{ class: "text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" },
         type: "button",
         icon: "pi pi-file-export",
         label: "Export Report",
     }));
-    const __VLS_30 = __VLS_29({
+    const __VLS_33 = __VLS_32({
         ...{ 'onClick': {} },
         ...{ class: "text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" },
         type: "button",
         icon: "pi pi-file-export",
         label: "Export Report",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_29));
-    let __VLS_32;
-    let __VLS_33;
-    let __VLS_34;
-    const __VLS_35 = {
+    }, ...__VLS_functionalComponentArgsRest(__VLS_32));
+    let __VLS_35;
+    let __VLS_36;
+    let __VLS_37;
+    const __VLS_38 = {
         onClick: (...[$event]) => {
-            __VLS_ctx.isModalOpen = true;
+            __VLS_ctx.exportData();
         }
     };
-    var __VLS_31;
-    const __VLS_36 = {}.Select;
+    var __VLS_34;
+    const __VLS_39 = {}.Select;
     /** @type {[typeof __VLS_components.Select, ]} */ ;
     // @ts-ignore
-    const __VLS_37 = __VLS_asFunctionalComponent(__VLS_36, new __VLS_36({
+    const __VLS_40 = __VLS_asFunctionalComponent(__VLS_39, new __VLS_39({
         ...{ 'onUpdate:modelValue': {} },
         filter: true,
         modelValue: (__VLS_ctx.selectedRole),
@@ -318,7 +376,7 @@ __VLS_19.slots.default;
         placeholder: "Division",
         ...{ class: "w-50" },
     }));
-    const __VLS_38 = __VLS_37({
+    const __VLS_41 = __VLS_40({
         ...{ 'onUpdate:modelValue': {} },
         filter: true,
         modelValue: (__VLS_ctx.selectedRole),
@@ -327,176 +385,176 @@ __VLS_19.slots.default;
         optionValue: "id",
         placeholder: "Division",
         ...{ class: "w-50" },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_37));
-    let __VLS_40;
-    let __VLS_41;
-    let __VLS_42;
-    const __VLS_43 = {
+    }, ...__VLS_functionalComponentArgsRest(__VLS_40));
+    let __VLS_43;
+    let __VLS_44;
+    let __VLS_45;
+    const __VLS_46 = {
         'onUpdate:modelValue': (__VLS_ctx.summary)
     };
-    var __VLS_39;
+    var __VLS_42;
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "ml-auto flex items-center" },
     });
-    const __VLS_44 = {}.IconField;
+    const __VLS_47 = {}.IconField;
     /** @type {[typeof __VLS_components.IconField, typeof __VLS_components.IconField, ]} */ ;
     // @ts-ignore
-    const __VLS_45 = __VLS_asFunctionalComponent(__VLS_44, new __VLS_44({
+    const __VLS_48 = __VLS_asFunctionalComponent(__VLS_47, new __VLS_47({
         ...{ class: "flex items-center" },
     }));
-    const __VLS_46 = __VLS_45({
+    const __VLS_49 = __VLS_48({
         ...{ class: "flex items-center" },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_45));
-    __VLS_47.slots.default;
-    const __VLS_48 = {}.InputIcon;
+    }, ...__VLS_functionalComponentArgsRest(__VLS_48));
+    __VLS_50.slots.default;
+    const __VLS_51 = {}.InputIcon;
     /** @type {[typeof __VLS_components.InputIcon, typeof __VLS_components.InputIcon, ]} */ ;
     // @ts-ignore
-    const __VLS_49 = __VLS_asFunctionalComponent(__VLS_48, new __VLS_48({}));
-    const __VLS_50 = __VLS_49({}, ...__VLS_functionalComponentArgsRest(__VLS_49));
-    __VLS_51.slots.default;
+    const __VLS_52 = __VLS_asFunctionalComponent(__VLS_51, new __VLS_51({}));
+    const __VLS_53 = __VLS_52({}, ...__VLS_functionalComponentArgsRest(__VLS_52));
+    __VLS_54.slots.default;
     __VLS_asFunctionalElement(__VLS_intrinsicElements.i)({
         ...{ class: "pi pi-search" },
     });
-    var __VLS_51;
-    const __VLS_52 = {}.InputText;
+    var __VLS_54;
+    const __VLS_55 = {}.InputText;
     /** @type {[typeof __VLS_components.InputText, ]} */ ;
     // @ts-ignore
-    const __VLS_53 = __VLS_asFunctionalComponent(__VLS_52, new __VLS_52({
+    const __VLS_56 = __VLS_asFunctionalComponent(__VLS_55, new __VLS_55({
         modelValue: (__VLS_ctx.filters['global'].value),
         placeholder: "Keyword Search",
     }));
-    const __VLS_54 = __VLS_53({
+    const __VLS_57 = __VLS_56({
         modelValue: (__VLS_ctx.filters['global'].value),
         placeholder: "Keyword Search",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_53));
-    var __VLS_47;
+    }, ...__VLS_functionalComponentArgsRest(__VLS_56));
+    var __VLS_50;
 }
-const __VLS_56 = {}.Column;
+const __VLS_59 = {}.Column;
 /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
 // @ts-ignore
-const __VLS_57 = __VLS_asFunctionalComponent(__VLS_56, new __VLS_56({
+const __VLS_60 = __VLS_asFunctionalComponent(__VLS_59, new __VLS_59({
     field: "equipment_title",
     header: "Equipment Type",
     ...{ style: {} },
 }));
-const __VLS_58 = __VLS_57({
+const __VLS_61 = __VLS_60({
     field: "equipment_title",
     header: "Equipment Type",
     ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_57));
-__VLS_59.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_60));
+__VLS_62.slots.default;
 {
-    const { body: __VLS_thisSlot } = __VLS_59.slots;
+    const { body: __VLS_thisSlot } = __VLS_62.slots;
     const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
     (data.equipment_title);
 }
-var __VLS_59;
-const __VLS_60 = {}.Column;
+var __VLS_62;
+const __VLS_63 = {}.Column;
 /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
 // @ts-ignore
-const __VLS_61 = __VLS_asFunctionalComponent(__VLS_60, new __VLS_60({
+const __VLS_64 = __VLS_asFunctionalComponent(__VLS_63, new __VLS_63({
     header: "2025",
     field: "year_2025",
     filterMenuStyle: ({ width: '14rem' }),
     ...{ style: {} },
 }));
-const __VLS_62 = __VLS_61({
+const __VLS_65 = __VLS_64({
     header: "2025",
     field: "year_2025",
     filterMenuStyle: ({ width: '14rem' }),
     ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_61));
-__VLS_63.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_64));
+__VLS_66.slots.default;
 {
-    const { body: __VLS_thisSlot } = __VLS_63.slots;
+    const { body: __VLS_thisSlot } = __VLS_66.slots;
     const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
     (data.year_2025);
 }
-var __VLS_63;
-const __VLS_64 = {}.Column;
+var __VLS_66;
+const __VLS_67 = {}.Column;
 /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
 // @ts-ignore
-const __VLS_65 = __VLS_asFunctionalComponent(__VLS_64, new __VLS_64({
+const __VLS_68 = __VLS_asFunctionalComponent(__VLS_67, new __VLS_67({
     header: "2024",
     field: "year_2024",
     filterMenuStyle: ({ width: '14rem' }),
     ...{ style: {} },
 }));
-const __VLS_66 = __VLS_65({
+const __VLS_69 = __VLS_68({
     header: "2024",
     field: "year_2024",
     filterMenuStyle: ({ width: '14rem' }),
     ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_65));
-__VLS_67.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_68));
+__VLS_70.slots.default;
 {
-    const { body: __VLS_thisSlot } = __VLS_67.slots;
+    const { body: __VLS_thisSlot } = __VLS_70.slots;
     const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
     (data.year_2024);
 }
-var __VLS_67;
-const __VLS_68 = {}.Column;
+var __VLS_70;
+const __VLS_71 = {}.Column;
 /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
 // @ts-ignore
-const __VLS_69 = __VLS_asFunctionalComponent(__VLS_68, new __VLS_68({
+const __VLS_72 = __VLS_asFunctionalComponent(__VLS_71, new __VLS_71({
     field: "year_2023",
     header: "2023",
     ...{ style: {} },
 }));
-const __VLS_70 = __VLS_69({
+const __VLS_73 = __VLS_72({
     field: "year_2023",
     header: "2023",
     ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_69));
-__VLS_71.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_72));
+__VLS_74.slots.default;
 {
-    const { body: __VLS_thisSlot } = __VLS_71.slots;
+    const { body: __VLS_thisSlot } = __VLS_74.slots;
     const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
     (data.year_2023);
 }
-var __VLS_71;
-const __VLS_72 = {}.Column;
+var __VLS_74;
+const __VLS_75 = {}.Column;
 /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
 // @ts-ignore
-const __VLS_73 = __VLS_asFunctionalComponent(__VLS_72, new __VLS_72({
+const __VLS_76 = __VLS_asFunctionalComponent(__VLS_75, new __VLS_75({
     field: "year_2022",
     header: "2022",
     ...{ style: {} },
 }));
-const __VLS_74 = __VLS_73({
+const __VLS_77 = __VLS_76({
     field: "year_2022",
     header: "2022",
     ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_73));
-__VLS_75.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_76));
+__VLS_78.slots.default;
 {
-    const { body: __VLS_thisSlot } = __VLS_75.slots;
+    const { body: __VLS_thisSlot } = __VLS_78.slots;
     const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
     (data.year_2022);
 }
-var __VLS_75;
-const __VLS_76 = {}.Column;
+var __VLS_78;
+const __VLS_79 = {}.Column;
 /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
 // @ts-ignore
-const __VLS_77 = __VLS_asFunctionalComponent(__VLS_76, new __VLS_76({
+const __VLS_80 = __VLS_asFunctionalComponent(__VLS_79, new __VLS_79({
     field: "below_2021",
     header: "2021 Below",
     ...{ style: {} },
 }));
-const __VLS_78 = __VLS_77({
+const __VLS_81 = __VLS_80({
     field: "below_2021",
     header: "2021 Below",
     ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_77));
-__VLS_79.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_80));
+__VLS_82.slots.default;
 {
-    const { body: __VLS_thisSlot } = __VLS_79.slots;
+    const { body: __VLS_thisSlot } = __VLS_82.slots;
     const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
     (data.below_2021);
 }
-var __VLS_79;
-var __VLS_19;
-var __VLS_3;
+var __VLS_82;
+var __VLS_22;
+var __VLS_7;
 /** @type {__VLS_StyleScopedClasses['flex']} */ ;
 /** @type {__VLS_StyleScopedClasses['flex-col']} */ ;
 /** @type {__VLS_StyleScopedClasses['gap-10']} */ ;
@@ -623,6 +681,7 @@ const __VLS_self = (await import('vue')).defineComponent({
             currentMessage: currentMessage,
             selectedRole: selectedRole,
             summary: summary,
+            exportData: exportData,
             clearFilter: clearFilter,
             pageTitle: pageTitle,
         };

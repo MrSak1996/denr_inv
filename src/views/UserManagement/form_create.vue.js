@@ -382,7 +382,7 @@ const __VLS_66 = {}.Select;
 // @ts-ignore
 const __VLS_67 = __VLS_asFunctionalComponent(__VLS_66, new __VLS_66({
     filter: true,
-    modelValue: (__VLS_ctx.um_create_form.employment_status),
+    modelValue: (__VLS_ctx.um_create_form.employment_status_id),
     options: (__VLS_ctx.employment_opts),
     optionLabel: "name",
     optionValue: "id",
@@ -391,7 +391,7 @@ const __VLS_67 = __VLS_asFunctionalComponent(__VLS_66, new __VLS_66({
 }));
 const __VLS_68 = __VLS_67({
     filter: true,
-    modelValue: (__VLS_ctx.um_create_form.employment_status),
+    modelValue: (__VLS_ctx.um_create_form.employment_status_id),
     options: (__VLS_ctx.employment_opts),
     optionLabel: "name",
     optionValue: "id",

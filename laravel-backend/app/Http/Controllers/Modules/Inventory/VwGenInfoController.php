@@ -12,6 +12,7 @@ class VwGenInfoController extends Controller
     public function index(Request $req)
     {
         $designation = $req->query('designation');
+        $office = $req->input('office');      // This will be null if not passed
 
         // Ensure designation is numeric
         if (!is_numeric($designation)) {
@@ -24,6 +25,9 @@ class VwGenInfoController extends Controller
 
         $query = DB::table($tableName)->orderBy('id', 'desc');
 
+        if (!empty($office)) {
+            $query->where('division_id', $office);
+        }
         // Filter by roles unless designation is 13
         if ($designation != 13) {
             $query->where('role_id', $designation);

@@ -149,6 +149,7 @@ export function useApi() {
             const res = await api.get('/getEmploymentType');
             employment_opts.value = res.data.map((item) => ({
                 id: item.id,
+                value: item.id,
                 name: item.employment_title
             }));
         }

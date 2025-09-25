@@ -261,7 +261,7 @@ const post_save_userCred = async () => {
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
                   <Select filter
-                    v-model="um_create_form.employment_status"
+                    v-model="um_create_form.employment_status_id"
                     :options="employment_opts"
                     optionLabel="name"
                     optionValue="id"

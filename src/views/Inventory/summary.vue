@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useToast } from 'primevue/usetoast'
+
 import { useApi } from '@/composables/useApi'
 import { useInventory } from '@/composables/useInventory'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
@@ -12,6 +14,8 @@ import modal_export_summary_report from './modal/modal_export_summary_report.vue
 const authStore = useAuthStore()
 const { fetchCurUser, roles_opts, getUserRoles } = useApi()
 const route = useRoute()
+const toast = useToast()
+
 const userId = route.query.id
 const api_token = route.query.api_token
 const trans_logs = ref([])
@@ -21,7 +25,7 @@ const progress = ref(0)
 const isLoading = ref(false)
 const isModalOpen = ref(false)
 const currentMessage = ref('Loading, please wait...')
-const selectedRole = ref(null)
+const selectedRole = ref<number | null>(null); // Selected role from dropdown
 const messages = ref([
   'Loading, please wait...',
   'Processing data...',
@@ -30,6 +34,8 @@ const messages = ref([
   'Preparing your data...',
   'Almost there, hang tight...'
 ])
+const generating = ref(false)
+
 
 const user_role = ref(0)
 const designation = ref('')
@@ -73,7 +79,7 @@ const updateMessage = () => {
 const summary = async (selectedRoleId: number) => {
   try {
     startProgress();
-    const api_token = authStore.api_token; 
+    const api_token = authStore.api_token;
     const response = await api.get(
       `/getSummaryData?id=${user_id.value}&role_id=${selectedRoleId}&api_token=${api_token}`
     );
@@ -87,6 +93,67 @@ const summary = async (selectedRoleId: number) => {
     completeProgress();
   }
 };
+
+const exportData = async () => {
+  if (!selectedRole.value) {
+    toast.add({
+      severity: "warn",
+      summary: "Missing Selection",
+      detail: "Please select a division before exporting.",
+      life: 3000,
+    });
+    return;
+  }
+
+  try {
+    generating.value = true;
+    progress.value = 10;
+
+    // Simulate progress updates
+    const progressInterval = setInterval(() => {
+      if (progress.value < 90) {
+        progress.value += 10;
+      }
+    }, 500);
+
+    const response = await api.get(
+      `https://riis.denrcalabarzon.com/api/exportSummary?export=true&role_id=${selectedRole.value}`,
+      {
+        responseType: "blob",
+      }
+    );
+
+    clearInterval(progressInterval);
+    progress.value = 100;
+
+    // Download the file
+    const contentType = response.headers["content-type"];
+    const blob = new Blob([response.data], { type: contentType });
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "summary_report.xlsx";
+    document.body.appendChild(link);
+    link.click();
+
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    toast.add({
+      severity: "error",
+      summary: "Export Failed",
+      detail: "Error generating the report. Please try again.",
+      life: 3000,
+    });
+  } finally {
+    setTimeout(() => {
+      generating.value = false;
+      progress.value = 0;
+    }, 1000);
+  }
+};
+
 const initFilters = () => {
   filters.value = {
     id: {
@@ -149,32 +216,21 @@ onMounted(() => {
 const pageTitle = ref('TOTAL NUMBER OF FUNCTIONING UNITS BY YEAR ACQUIRED')
 </script>
 <template>
+    <Toast />
+
   <DefaultLayout>
     <BreadcrumbDefault :pageTitle="pageTitle" />
-    <modal_export_summary_report
-      v-if="isModalOpen"
-      :open="isModalOpen"
-      @close="isModalOpen = false"
-    />
+    <modal_export_summary_report v-if="isModalOpen" :open="isModalOpen" @close="isModalOpen = false" />
 
     <div class="flex flex-col gap-10 mt-4">
       <div
-        class="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1"
-      >
-        <div
-          v-if="isLoading"
-          class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-          role="dialog"
-          tabindex="-1"
-          aria-labelledby="progress-modal"
-        >
+        class="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
+        <div v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          role="dialog" tabindex="-1" aria-labelledby="progress-modal">
           <div
-            class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-sm rounded-xl w-full max-w-4xl mx-4 lg:mx-auto transition-transform duration-500 transform"
-          >
+            class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-sm rounded-xl w-full max-w-4xl mx-4 lg:mx-auto transition-transform duration-500 transform">
             <!-- Modal Header -->
-            <div
-              class="modal-content flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700"
-            >
+            <div class="modal-content flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700">
               <h3 class="text-lg font-semibold">{{ currentMessage }}</h3>
               <!-- Dynamic Message -->
             </div>
@@ -182,60 +238,31 @@ const pageTitle = ref('TOTAL NUMBER OF FUNCTIONING UNITS BY YEAR ACQUIRED')
             <div class="flex flex-col justify-center items-center gap-x-2 py-6 px-4">
               <!-- Progress Bar Container -->
               <div class="w-full bg-gray-200 rounded-full h-4">
-                <div
-                  class="bg-teal-500 h-4 rounded-full transition-all"
-                  :style="{ width: progress + '%' }"
-                ></div>
+                <div class="bg-teal-500 h-4 rounded-full transition-all" :style="{ width: progress + '%' }"></div>
               </div>
               <!-- Progress Percentage -->
               <p class="mt-2 text-gray-700 dark:text-gray-300">{{ progress }}%</p>
             </div>
           </div>
         </div>
-        <DataTable
-          size="small"
-          v-model:filters="filters"
-          :value="trans_logs"
-          paginator
-          showGridlines
-          :rows="10"
-          dataKey="id"
-          filterDisplay="menu"
-          :loading="loading"
-          :globalFilterFields="[
+        <DataTable size="small" v-model:filters="filters" :value="trans_logs" paginator showGridlines :rows="10"
+          dataKey="id" filterDisplay="menu" :loading="loading" :globalFilterFields="[
             'equipment_title',
             'year_2024',
             'year_2023',
             'year_2023',
             'below_2021'
-          ]"
-        >
+          ]">
           <template #header>
             <div class="flex items-center gap-4 justify-start">
               <Button
                 class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                type="button"
-                icon="pi pi-filter-slash"
-                label="Clear"
-                @click="clearFilter()"
-              />
+                type="button" icon="pi pi-filter-slash" label="Clear" @click="clearFilter()" />
               <Button
                 class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                type="button"
-                icon="pi pi-file-export"
-                label="Export Report"
-                @click="isModalOpen = true"
-              />
-              <Select
-                filter
-                v-model="selectedRole"
-                :options="roles_opts"
-                optionLabel="name"
-                optionValue="id"
-                placeholder="Division"
-                class="w-50"
-                @update:modelValue="summary"
-              />
+                type="button" icon="pi pi-file-export" label="Export Report" @click="exportData()" />
+              <Select filter v-model="selectedRole" :options="roles_opts" optionLabel="name" optionValue="id"
+                placeholder="Division" class="w-50" @update:modelValue="summary" />
 
               <!-- Additional space between buttons and search field -->
               <div class="ml-auto flex items-center">
@@ -256,22 +283,12 @@ const pageTitle = ref('TOTAL NUMBER OF FUNCTIONING UNITS BY YEAR ACQUIRED')
               <!-- Ensure this field exists in the data object -->
             </template>
           </Column>
-          <Column
-            header="2025"
-            field="year_2025"
-            :filterMenuStyle="{ width: '14rem' }"
-            style="min-width: 5rem"
-          >
+          <Column header="2025" field="year_2025" :filterMenuStyle="{ width: '14rem' }" style="min-width: 5rem">
             <template #body="{ data }">
               {{ data.year_2025 }}
             </template>
           </Column>
-          <Column
-            header="2024"
-            field="year_2024"
-            :filterMenuStyle="{ width: '14rem' }"
-            style="min-width: 5rem"
-          >
+          <Column header="2024" field="year_2024" :filterMenuStyle="{ width: '14rem' }" style="min-width: 5rem">
             <template #body="{ data }">
               {{ data.year_2024 }}
             </template>

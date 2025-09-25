@@ -1983,599 +1983,564 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.form, __VLS_intrinsicElements.
     ...{ onSubmit: (__VLS_ctx.savePeripheralInfo) },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "grid md:grid-cols-2 md:gap-6 mb-4" },
-});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "relative z-0 w-full mb-5 group" },
+    ...{ class: "grid grid-cols-1 lg:grid-cols-2 gap-8" },
 });
 const __VLS_360 = {}.Fieldset;
 /** @type {[typeof __VLS_components.Fieldset, typeof __VLS_components.Fieldset, ]} */ ;
 // @ts-ignore
 const __VLS_361 = __VLS_asFunctionalComponent(__VLS_360, new __VLS_360({
     legend: "Monitor 1",
+    ...{ class: "p-5 border rounded-lg shadow-sm" },
 }));
 const __VLS_362 = __VLS_361({
     legend: "Monitor 1",
+    ...{ class: "p-5 border rounded-lg shadow-sm" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_361));
 __VLS_363.slots.default;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "space-y-6" },
+});
 if (__VLS_ctx.peripheral_form.monitor1QrCode) {
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "flex items-center gap-2" },
+        ...{ class: "flex justify-center" },
     });
     const __VLS_364 = {}.QrcodeVue;
     /** @type {[typeof __VLS_components.QrcodeVue, ]} */ ;
     // @ts-ignore
     const __VLS_365 = __VLS_asFunctionalComponent(__VLS_364, new __VLS_364({
         value: (__VLS_ctx.peripheral_form.monitor1QrCode),
+        ...{ class: "w-32 h-32" },
     }));
     const __VLS_366 = __VLS_365({
         value: (__VLS_ctx.peripheral_form.monitor1QrCode),
+        ...{ class: "w-32 h-32" },
     }, ...__VLS_functionalComponentArgsRest(__VLS_365));
 }
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "card flex mb-7 mt-7 flex-wrap gap-6" },
-});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "flex items-center gap-2" },
+    ...{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" },
 });
 const __VLS_368 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
-const __VLS_369 = __VLS_asFunctionalComponent(__VLS_368, new __VLS_368({}));
-const __VLS_370 = __VLS_369({}, ...__VLS_functionalComponentArgsRest(__VLS_369));
+const __VLS_369 = __VLS_asFunctionalComponent(__VLS_368, new __VLS_368({
+    ...{ class: "w-full" },
+}));
+const __VLS_370 = __VLS_369({
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_369));
 __VLS_371.slots.default;
 const __VLS_372 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_373 = __VLS_asFunctionalComponent(__VLS_372, new __VLS_372({
-    id: "qr_code",
+    id: "monitor1QrCode",
     modelValue: (__VLS_ctx.peripheral_form.monitor1QrCode),
-    ...{ class: "w-full md:w-100" },
+    ...{ class: "w-full" },
 }));
 const __VLS_374 = __VLS_373({
-    id: "qr_code",
+    id: "monitor1QrCode",
     modelValue: (__VLS_ctx.peripheral_form.monitor1QrCode),
-    ...{ class: "w-full md:w-100" },
+    ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_373));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "qr_code",
+    for: "monitor1QrCode",
 });
 var __VLS_371;
-if (!__VLS_ctx.peripheral_form.monitor1QrCode) {
-    const __VLS_376 = {}.Button;
-    /** @type {[typeof __VLS_components.Button, typeof __VLS_components.Button, ]} */ ;
-    // @ts-ignore
-    const __VLS_377 = __VLS_asFunctionalComponent(__VLS_376, new __VLS_376({
-        ...{ 'onClick': {} },
-        ...{ style: {} },
-        size: "small",
-    }));
-    const __VLS_378 = __VLS_377({
-        ...{ 'onClick': {} },
-        ...{ style: {} },
-        size: "small",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_377));
-    let __VLS_380;
-    let __VLS_381;
-    let __VLS_382;
-    const __VLS_383 = {
-        onClick: (...[$event]) => {
-            if (!(!__VLS_ctx.peripheral_form.monitor1QrCode))
-                return;
-            __VLS_ctx.generateQRCode(__VLS_ctx.peripheral_form, 'p1Form', Array.isArray(__VLS_ctx.item_id) ? __VLS_ctx.item_id[0] : __VLS_ctx.item_id, Array.isArray(__VLS_ctx.userId) ? __VLS_ctx.userId[0] : __VLS_ctx.userId);
-        }
-    };
-    __VLS_379.slots.default;
-    var __VLS_379;
-}
+const __VLS_376 = {}.FloatLabel;
+/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
+// @ts-ignore
+const __VLS_377 = __VLS_asFunctionalComponent(__VLS_376, new __VLS_376({
+    ...{ class: "w-full" },
+}));
+const __VLS_378 = __VLS_377({
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_377));
+__VLS_379.slots.default;
+const __VLS_380 = {}.InputText;
+/** @type {[typeof __VLS_components.InputText, ]} */ ;
+// @ts-ignore
+const __VLS_381 = __VLS_asFunctionalComponent(__VLS_380, new __VLS_380({
+    id: "monitor1BrandModel",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1BrandModel),
+    ...{ class: "w-full" },
+}));
+const __VLS_382 = __VLS_381({
+    id: "monitor1BrandModel",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1BrandModel),
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_381));
+__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
+    for: "monitor1BrandModel",
+});
+var __VLS_379;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "flex items-center gap-2" },
+    ...{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" },
 });
 const __VLS_384 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
-const __VLS_385 = __VLS_asFunctionalComponent(__VLS_384, new __VLS_384({}));
-const __VLS_386 = __VLS_385({}, ...__VLS_functionalComponentArgsRest(__VLS_385));
+const __VLS_385 = __VLS_asFunctionalComponent(__VLS_384, new __VLS_384({
+    ...{ class: "w-full" },
+}));
+const __VLS_386 = __VLS_385({
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_385));
 __VLS_387.slots.default;
 const __VLS_388 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_389 = __VLS_asFunctionalComponent(__VLS_388, new __VLS_388({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1BrandModel),
-    ...{ class: "w-full lg:w-100" },
+    id: "monitor1Model",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1Model),
+    ...{ class: "w-full" },
 }));
 const __VLS_390 = __VLS_389({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1BrandModel),
-    ...{ class: "w-full lg:w-100" },
+    id: "monitor1Model",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1Model),
+    ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_389));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "processor",
+    for: "monitor1Model",
 });
 var __VLS_387;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "flex items-center gap-2" },
-});
 const __VLS_392 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
-const __VLS_393 = __VLS_asFunctionalComponent(__VLS_392, new __VLS_392({}));
-const __VLS_394 = __VLS_393({}, ...__VLS_functionalComponentArgsRest(__VLS_393));
+const __VLS_393 = __VLS_asFunctionalComponent(__VLS_392, new __VLS_392({
+    ...{ class: "w-full" },
+}));
+const __VLS_394 = __VLS_393({
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_393));
 __VLS_395.slots.default;
 const __VLS_396 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_397 = __VLS_asFunctionalComponent(__VLS_396, new __VLS_396({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1Model),
-    ...{ class: "w-full md:w-100" },
+    id: "monitor1SerialNumber",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1SerialNumber),
+    ...{ class: "w-full" },
 }));
 const __VLS_398 = __VLS_397({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1Model),
-    ...{ class: "w-full md:w-100" },
+    id: "monitor1SerialNumber",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1SerialNumber),
+    ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_397));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "processor",
+    for: "monitor1SerialNumber",
 });
 var __VLS_395;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "flex items-center gap-2" },
+    ...{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" },
 });
 const __VLS_400 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
-const __VLS_401 = __VLS_asFunctionalComponent(__VLS_400, new __VLS_400({}));
-const __VLS_402 = __VLS_401({}, ...__VLS_functionalComponentArgsRest(__VLS_401));
+const __VLS_401 = __VLS_asFunctionalComponent(__VLS_400, new __VLS_400({
+    ...{ class: "w-full" },
+}));
+const __VLS_402 = __VLS_401({
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_401));
 __VLS_403.slots.default;
 const __VLS_404 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_405 = __VLS_asFunctionalComponent(__VLS_404, new __VLS_404({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1SerialNumber),
-    ...{ class: "w-full md:w-100" },
+    id: "monitor1PropertyNumber",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1PropertyNumber),
+    ...{ class: "w-full" },
 }));
 const __VLS_406 = __VLS_405({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1SerialNumber),
-    ...{ class: "w-full md:w-100" },
+    id: "monitor1PropertyNumber",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1PropertyNumber),
+    ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_405));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "processor",
+    for: "monitor1PropertyNumber",
 });
 var __VLS_403;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "card flex mb-7 mt-7 flex-wrap gap-6" },
-});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "flex items-center gap-2" },
-});
 const __VLS_408 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
-const __VLS_409 = __VLS_asFunctionalComponent(__VLS_408, new __VLS_408({}));
-const __VLS_410 = __VLS_409({}, ...__VLS_functionalComponentArgsRest(__VLS_409));
+const __VLS_409 = __VLS_asFunctionalComponent(__VLS_408, new __VLS_408({
+    ...{ class: "w-full" },
+}));
+const __VLS_410 = __VLS_409({
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_409));
 __VLS_411.slots.default;
 const __VLS_412 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_413 = __VLS_asFunctionalComponent(__VLS_412, new __VLS_412({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1PropertyNumber),
-    ...{ class: "w-full md:w-100" },
+    id: "monitor1AccountPersonInPN",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1AccountPersonInPN),
+    ...{ class: "w-full" },
 }));
 const __VLS_414 = __VLS_413({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1PropertyNumber),
-    ...{ class: "w-full md:w-100" },
+    id: "monitor1AccountPersonInPN",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1AccountPersonInPN),
+    ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_413));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "processor",
+    for: "monitor1AccountPersonInPN",
 });
 var __VLS_411;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "flex items-center gap-2" },
+    ...{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" },
 });
 const __VLS_416 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
-const __VLS_417 = __VLS_asFunctionalComponent(__VLS_416, new __VLS_416({}));
-const __VLS_418 = __VLS_417({}, ...__VLS_functionalComponentArgsRest(__VLS_417));
+const __VLS_417 = __VLS_asFunctionalComponent(__VLS_416, new __VLS_416({
+    ...{ class: "w-full" },
+}));
+const __VLS_418 = __VLS_417({
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_417));
 __VLS_419.slots.default;
 const __VLS_420 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_421 = __VLS_asFunctionalComponent(__VLS_420, new __VLS_420({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1AccountPersonInPN),
-    ...{ class: "w-full md:w-100" },
+    id: "monitor1ActualUser",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1ActualUser),
+    ...{ class: "w-full" },
 }));
 const __VLS_422 = __VLS_421({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1AccountPersonInPN),
-    ...{ class: "w-full md:w-100" },
+    id: "monitor1ActualUser",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1ActualUser),
+    ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_421));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "processor",
+    for: "monitor1ActualUser",
 });
 var __VLS_419;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "flex items-center gap-2" },
-});
-const __VLS_424 = {}.FloatLabel;
-/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
-// @ts-ignore
-const __VLS_425 = __VLS_asFunctionalComponent(__VLS_424, new __VLS_424({}));
-const __VLS_426 = __VLS_425({}, ...__VLS_functionalComponentArgsRest(__VLS_425));
-__VLS_427.slots.default;
-const __VLS_428 = {}.InputText;
-/** @type {[typeof __VLS_components.InputText, ]} */ ;
-// @ts-ignore
-const __VLS_429 = __VLS_asFunctionalComponent(__VLS_428, new __VLS_428({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1ActualUser),
-    ...{ class: "w-full md:w-100" },
-}));
-const __VLS_430 = __VLS_429({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1ActualUser),
-    ...{ class: "w-full md:w-100" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_429));
-__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "processor",
-});
-var __VLS_427;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "relative z-0 w-full group" },
-});
-const __VLS_432 = {}.Select;
+const __VLS_424 = {}.Select;
 /** @type {[typeof __VLS_components.Select, ]} */ ;
 // @ts-ignore
-const __VLS_433 = __VLS_asFunctionalComponent(__VLS_432, new __VLS_432({
+const __VLS_425 = __VLS_asFunctionalComponent(__VLS_424, new __VLS_424({
     filter: true,
     modelValue: (__VLS_ctx.peripheral_form.mon1division1),
     options: (__VLS_ctx.division_opts),
     optionValue: "id",
     optionLabel: "name",
     placeholder: "Division",
-    ...{ class: "w-full md:w-100" },
+    ...{ class: "w-full" },
 }));
-const __VLS_434 = __VLS_433({
+const __VLS_426 = __VLS_425({
     filter: true,
     modelValue: (__VLS_ctx.peripheral_form.mon1division1),
     options: (__VLS_ctx.division_opts),
     optionValue: "id",
     optionLabel: "name",
     placeholder: "Division",
-    ...{ class: "w-full md:w-100" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_433));
-if (__VLS_ctx.peripheral_form.monitor1QrCode) {
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "flex items-center gap-2" },
-    });
-    const __VLS_436 = {}.Select;
-    /** @type {[typeof __VLS_components.Select, ]} */ ;
-    // @ts-ignore
-    const __VLS_437 = __VLS_asFunctionalComponent(__VLS_436, new __VLS_436({
-        filter: true,
-        modelValue: (__VLS_ctx.peripheral_form.monitor1Status),
-        options: (__VLS_ctx.status_opts),
-        optionValue: "id",
-        optionLabel: "name",
-        placeholder: "Current Status",
-        ...{ class: "w-full md:w-100" },
-    }));
-    const __VLS_438 = __VLS_437({
-        filter: true,
-        modelValue: (__VLS_ctx.peripheral_form.monitor1Status),
-        options: (__VLS_ctx.status_opts),
-        optionValue: "id",
-        optionLabel: "name",
-        placeholder: "Current Status",
-        ...{ class: "w-full md:w-100" },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_437));
-}
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_425));
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({});
+const __VLS_428 = {}.Select;
+/** @type {[typeof __VLS_components.Select, ]} */ ;
+// @ts-ignore
+const __VLS_429 = __VLS_asFunctionalComponent(__VLS_428, new __VLS_428({
+    filter: true,
+    modelValue: (__VLS_ctx.peripheral_form.monitor1Status),
+    options: (__VLS_ctx.status_opts),
+    optionValue: "id",
+    optionLabel: "name",
+    placeholder: "Current Status",
+    ...{ class: "w-full" },
+}));
+const __VLS_430 = __VLS_429({
+    filter: true,
+    modelValue: (__VLS_ctx.peripheral_form.monitor1Status),
+    options: (__VLS_ctx.status_opts),
+    optionValue: "id",
+    optionLabel: "name",
+    placeholder: "Current Status",
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_429));
 var __VLS_363;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "relative z-0 w-full mb-5 group" },
-});
-const __VLS_440 = {}.Fieldset;
+const __VLS_432 = {}.Fieldset;
 /** @type {[typeof __VLS_components.Fieldset, typeof __VLS_components.Fieldset, ]} */ ;
 // @ts-ignore
-const __VLS_441 = __VLS_asFunctionalComponent(__VLS_440, new __VLS_440({
+const __VLS_433 = __VLS_asFunctionalComponent(__VLS_432, new __VLS_432({
     legend: "Monitor 2",
+    ...{ class: "p-5 border rounded-lg shadow-sm" },
 }));
-const __VLS_442 = __VLS_441({
+const __VLS_434 = __VLS_433({
     legend: "Monitor 2",
-}, ...__VLS_functionalComponentArgsRest(__VLS_441));
-__VLS_443.slots.default;
+    ...{ class: "p-5 border rounded-lg shadow-sm" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_433));
+__VLS_435.slots.default;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "space-y-6" },
+});
 if (__VLS_ctx.peripheral_form.monitor2QrCode) {
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "flex items-center gap-2" },
+        ...{ class: "flex justify-center" },
     });
-    const __VLS_444 = {}.QrcodeVue;
+    const __VLS_436 = {}.QrcodeVue;
     /** @type {[typeof __VLS_components.QrcodeVue, ]} */ ;
     // @ts-ignore
-    const __VLS_445 = __VLS_asFunctionalComponent(__VLS_444, new __VLS_444({
+    const __VLS_437 = __VLS_asFunctionalComponent(__VLS_436, new __VLS_436({
         value: (__VLS_ctx.peripheral_form.monitor2QrCode),
+        ...{ class: "w-32 h-32" },
     }));
-    const __VLS_446 = __VLS_445({
+    const __VLS_438 = __VLS_437({
         value: (__VLS_ctx.peripheral_form.monitor2QrCode),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_445));
+        ...{ class: "w-32 h-32" },
+    }, ...__VLS_functionalComponentArgsRest(__VLS_437));
 }
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "card flex mb-7 mt-7 flex-wrap gap-6" },
+    ...{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" },
 });
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "flex items-center gap-2" },
+const __VLS_440 = {}.FloatLabel;
+/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
+// @ts-ignore
+const __VLS_441 = __VLS_asFunctionalComponent(__VLS_440, new __VLS_440({
+    ...{ class: "w-full" },
+}));
+const __VLS_442 = __VLS_441({
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_441));
+__VLS_443.slots.default;
+const __VLS_444 = {}.InputText;
+/** @type {[typeof __VLS_components.InputText, ]} */ ;
+// @ts-ignore
+const __VLS_445 = __VLS_asFunctionalComponent(__VLS_444, new __VLS_444({
+    id: "monitor2QrCode",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2QrCode),
+    ...{ class: "w-full" },
+}));
+const __VLS_446 = __VLS_445({
+    id: "monitor2QrCode",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2QrCode),
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_445));
+__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
+    for: "monitor2QrCode",
 });
+var __VLS_443;
 const __VLS_448 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
-const __VLS_449 = __VLS_asFunctionalComponent(__VLS_448, new __VLS_448({}));
-const __VLS_450 = __VLS_449({}, ...__VLS_functionalComponentArgsRest(__VLS_449));
+const __VLS_449 = __VLS_asFunctionalComponent(__VLS_448, new __VLS_448({
+    ...{ class: "w-full" },
+}));
+const __VLS_450 = __VLS_449({
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_449));
 __VLS_451.slots.default;
 const __VLS_452 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_453 = __VLS_asFunctionalComponent(__VLS_452, new __VLS_452({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2QrCode),
-    ...{ class: "w-full md:w-100" },
+    id: "monitor2BrandModel",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2BrandModel),
+    ...{ class: "w-full" },
 }));
 const __VLS_454 = __VLS_453({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2QrCode),
-    ...{ class: "w-full md:w-100" },
+    id: "monitor2BrandModel",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2BrandModel),
+    ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_453));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "processor",
+    for: "monitor2BrandModel",
 });
 var __VLS_451;
-if (!__VLS_ctx.peripheral_form.monitor2QrCode) {
-    const __VLS_456 = {}.Button;
-    /** @type {[typeof __VLS_components.Button, typeof __VLS_components.Button, ]} */ ;
-    // @ts-ignore
-    const __VLS_457 = __VLS_asFunctionalComponent(__VLS_456, new __VLS_456({
-        ...{ 'onClick': {} },
-        ...{ style: {} },
-        size: "small",
-    }));
-    const __VLS_458 = __VLS_457({
-        ...{ 'onClick': {} },
-        ...{ style: {} },
-        size: "small",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_457));
-    let __VLS_460;
-    let __VLS_461;
-    let __VLS_462;
-    const __VLS_463 = {
-        onClick: (...[$event]) => {
-            if (!(!__VLS_ctx.peripheral_form.monitor2QrCode))
-                return;
-            __VLS_ctx.generateQRCode(__VLS_ctx.peripheral_form, 'p2Form', Array.isArray(__VLS_ctx.item_id) ? __VLS_ctx.item_id[0] : __VLS_ctx.item_id, Array.isArray(__VLS_ctx.userId) ? __VLS_ctx.userId[0] : __VLS_ctx.userId);
-        }
-    };
-    __VLS_459.slots.default;
-    var __VLS_459;
-}
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "flex items-center gap-2" },
+    ...{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" },
 });
+const __VLS_456 = {}.FloatLabel;
+/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
+// @ts-ignore
+const __VLS_457 = __VLS_asFunctionalComponent(__VLS_456, new __VLS_456({
+    ...{ class: "w-full" },
+}));
+const __VLS_458 = __VLS_457({
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_457));
+__VLS_459.slots.default;
+const __VLS_460 = {}.InputText;
+/** @type {[typeof __VLS_components.InputText, ]} */ ;
+// @ts-ignore
+const __VLS_461 = __VLS_asFunctionalComponent(__VLS_460, new __VLS_460({
+    id: "monitor2Model",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2Model),
+    ...{ class: "w-full" },
+}));
+const __VLS_462 = __VLS_461({
+    id: "monitor2Model",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2Model),
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_461));
+__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
+    for: "monitor2Model",
+});
+var __VLS_459;
 const __VLS_464 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
-const __VLS_465 = __VLS_asFunctionalComponent(__VLS_464, new __VLS_464({}));
-const __VLS_466 = __VLS_465({}, ...__VLS_functionalComponentArgsRest(__VLS_465));
+const __VLS_465 = __VLS_asFunctionalComponent(__VLS_464, new __VLS_464({
+    ...{ class: "w-full" },
+}));
+const __VLS_466 = __VLS_465({
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_465));
 __VLS_467.slots.default;
 const __VLS_468 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_469 = __VLS_asFunctionalComponent(__VLS_468, new __VLS_468({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2BrandModel),
-    ...{ class: "w-full md:w-100" },
+    id: "monitor2SerialNumber",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2SerialNumber),
+    ...{ class: "w-full" },
 }));
 const __VLS_470 = __VLS_469({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2BrandModel),
-    ...{ class: "w-full md:w-100" },
+    id: "monitor2SerialNumber",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2SerialNumber),
+    ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_469));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "processor",
+    for: "monitor2SerialNumber",
 });
 var __VLS_467;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "flex items-center gap-2" },
+    ...{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" },
 });
 const __VLS_472 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
-const __VLS_473 = __VLS_asFunctionalComponent(__VLS_472, new __VLS_472({}));
-const __VLS_474 = __VLS_473({}, ...__VLS_functionalComponentArgsRest(__VLS_473));
+const __VLS_473 = __VLS_asFunctionalComponent(__VLS_472, new __VLS_472({
+    ...{ class: "w-full" },
+}));
+const __VLS_474 = __VLS_473({
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_473));
 __VLS_475.slots.default;
 const __VLS_476 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_477 = __VLS_asFunctionalComponent(__VLS_476, new __VLS_476({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2Model),
-    ...{ class: "w-full md:w-100" },
+    id: "monitor2PropertyNumber",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2PropertyNumber),
+    ...{ class: "w-full" },
 }));
 const __VLS_478 = __VLS_477({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2Model),
-    ...{ class: "w-full md:w-100" },
+    id: "monitor2PropertyNumber",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2PropertyNumber),
+    ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_477));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "processor",
+    for: "monitor2PropertyNumber",
 });
 var __VLS_475;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "flex items-center gap-2" },
-});
 const __VLS_480 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
-const __VLS_481 = __VLS_asFunctionalComponent(__VLS_480, new __VLS_480({}));
-const __VLS_482 = __VLS_481({}, ...__VLS_functionalComponentArgsRest(__VLS_481));
+const __VLS_481 = __VLS_asFunctionalComponent(__VLS_480, new __VLS_480({
+    ...{ class: "w-full" },
+}));
+const __VLS_482 = __VLS_481({
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_481));
 __VLS_483.slots.default;
 const __VLS_484 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_485 = __VLS_asFunctionalComponent(__VLS_484, new __VLS_484({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2SerialNumber),
-    ...{ class: "w-full md:w-100" },
+    id: "monitor2AccountPersonInPN",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2AccountPersonInPN),
+    ...{ class: "w-full" },
 }));
 const __VLS_486 = __VLS_485({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2SerialNumber),
-    ...{ class: "w-full md:w-100" },
+    id: "monitor2AccountPersonInPN",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2AccountPersonInPN),
+    ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_485));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "processor",
+    for: "monitor2AccountPersonInPN",
 });
 var __VLS_483;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "card flex flex-wrap gap-6" },
-});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "flex items-center gap-2" },
+    ...{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" },
 });
 const __VLS_488 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
-const __VLS_489 = __VLS_asFunctionalComponent(__VLS_488, new __VLS_488({}));
-const __VLS_490 = __VLS_489({}, ...__VLS_functionalComponentArgsRest(__VLS_489));
+const __VLS_489 = __VLS_asFunctionalComponent(__VLS_488, new __VLS_488({
+    ...{ class: "w-full" },
+}));
+const __VLS_490 = __VLS_489({
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_489));
 __VLS_491.slots.default;
 const __VLS_492 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_493 = __VLS_asFunctionalComponent(__VLS_492, new __VLS_492({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2PropertyNumber),
-    ...{ class: "w-full md:w-100" },
+    id: "monitor2ActualUser",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2ActualUser),
+    ...{ class: "w-full" },
 }));
 const __VLS_494 = __VLS_493({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2PropertyNumber),
-    ...{ class: "w-full md:w-100" },
+    id: "monitor2ActualUser",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2ActualUser),
+    ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_493));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "processor",
+    for: "monitor2ActualUser",
 });
 var __VLS_491;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "flex items-center gap-2" },
-});
-const __VLS_496 = {}.FloatLabel;
-/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
+const __VLS_496 = {}.Select;
+/** @type {[typeof __VLS_components.Select, ]} */ ;
 // @ts-ignore
-const __VLS_497 = __VLS_asFunctionalComponent(__VLS_496, new __VLS_496({}));
-const __VLS_498 = __VLS_497({}, ...__VLS_functionalComponentArgsRest(__VLS_497));
-__VLS_499.slots.default;
-const __VLS_500 = {}.InputText;
-/** @type {[typeof __VLS_components.InputText, ]} */ ;
+const __VLS_497 = __VLS_asFunctionalComponent(__VLS_496, new __VLS_496({
+    filter: true,
+    modelValue: (__VLS_ctx.peripheral_form.mon1division2),
+    options: (__VLS_ctx.division_opts),
+    optionValue: "id",
+    optionLabel: "name",
+    placeholder: "Division",
+    ...{ class: "w-full" },
+}));
+const __VLS_498 = __VLS_497({
+    filter: true,
+    modelValue: (__VLS_ctx.peripheral_form.mon1division2),
+    options: (__VLS_ctx.division_opts),
+    optionValue: "id",
+    optionLabel: "name",
+    placeholder: "Division",
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_497));
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({});
+const __VLS_500 = {}.Select;
+/** @type {[typeof __VLS_components.Select, ]} */ ;
 // @ts-ignore
 const __VLS_501 = __VLS_asFunctionalComponent(__VLS_500, new __VLS_500({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2AccountPersonInPN),
-    ...{ class: "w-full md:w-100" },
+    filter: true,
+    modelValue: (__VLS_ctx.peripheral_form.monitor2Status),
+    options: (__VLS_ctx.status_opts),
+    optionValue: "id",
+    optionLabel: "name",
+    placeholder: "Current Status",
+    ...{ class: "w-full" },
 }));
 const __VLS_502 = __VLS_501({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2AccountPersonInPN),
-    ...{ class: "w-full md:w-100" },
+    filter: true,
+    modelValue: (__VLS_ctx.peripheral_form.monitor2Status),
+    options: (__VLS_ctx.status_opts),
+    optionValue: "id",
+    optionLabel: "name",
+    placeholder: "Current Status",
+    ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_501));
-__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "processor",
-});
-var __VLS_499;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "flex items-center gap-2" },
-});
-const __VLS_504 = {}.FloatLabel;
-/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
-// @ts-ignore
-const __VLS_505 = __VLS_asFunctionalComponent(__VLS_504, new __VLS_504({}));
-const __VLS_506 = __VLS_505({}, ...__VLS_functionalComponentArgsRest(__VLS_505));
-__VLS_507.slots.default;
-const __VLS_508 = {}.InputText;
-/** @type {[typeof __VLS_components.InputText, ]} */ ;
-// @ts-ignore
-const __VLS_509 = __VLS_asFunctionalComponent(__VLS_508, new __VLS_508({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2ActualUser),
-    ...{ class: "w-full md:w-100" },
-}));
-const __VLS_510 = __VLS_509({
-    id: "processor",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2ActualUser),
-    ...{ class: "w-full md:w-100" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_509));
-__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "processor",
-});
-var __VLS_507;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "relative z-0 w-full group" },
-});
-const __VLS_512 = {}.Select;
-/** @type {[typeof __VLS_components.Select, ]} */ ;
-// @ts-ignore
-const __VLS_513 = __VLS_asFunctionalComponent(__VLS_512, new __VLS_512({
-    filter: true,
-    modelValue: (__VLS_ctx.peripheral_form.mon1division2),
-    options: (__VLS_ctx.division_opts),
-    optionValue: "id",
-    optionLabel: "name",
-    placeholder: "Division",
-    ...{ class: "w-full md:w-100" },
-}));
-const __VLS_514 = __VLS_513({
-    filter: true,
-    modelValue: (__VLS_ctx.peripheral_form.mon1division2),
-    options: (__VLS_ctx.division_opts),
-    optionValue: "id",
-    optionLabel: "name",
-    placeholder: "Division",
-    ...{ class: "w-full md:w-100" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_513));
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "flex items-center gap-2" },
-});
-const __VLS_516 = {}.Select;
-/** @type {[typeof __VLS_components.Select, ]} */ ;
-// @ts-ignore
-const __VLS_517 = __VLS_asFunctionalComponent(__VLS_516, new __VLS_516({
-    filter: true,
-    modelValue: (__VLS_ctx.peripheral_form.monitor2Status),
-    options: (__VLS_ctx.status_opts),
-    optionValue: "id",
-    optionLabel: "name",
-    placeholder: "Current Status",
-    ...{ class: "w-full md:w-100" },
-}));
-const __VLS_518 = __VLS_517({
-    filter: true,
-    modelValue: (__VLS_ctx.peripheral_form.monitor2Status),
-    options: (__VLS_ctx.status_opts),
-    optionValue: "id",
-    optionLabel: "name",
-    placeholder: "Current Status",
-    ...{ class: "w-full md:w-100" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_517));
-var __VLS_443;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "relative z-0 w-full mb-5 group" },
-});
-const __VLS_520 = {}.Button;
+var __VLS_435;
+const __VLS_504 = {}.Button;
 /** @type {[typeof __VLS_components.Button, ]} */ ;
 // @ts-ignore
-const __VLS_521 = __VLS_asFunctionalComponent(__VLS_520, new __VLS_520({
+const __VLS_505 = __VLS_asFunctionalComponent(__VLS_504, new __VLS_504({
     ...{ 'onClick': {} },
     label: "Edit/Update",
     type: "button",
@@ -2583,40 +2548,40 @@ const __VLS_521 = __VLS_asFunctionalComponent(__VLS_520, new __VLS_520({
     ...{ class: "mr-4" },
     severity: "primary",
 }));
-const __VLS_522 = __VLS_521({
+const __VLS_506 = __VLS_505({
     ...{ 'onClick': {} },
     label: "Edit/Update",
     type: "button",
     icon: "pi pi-star",
     ...{ class: "mr-4" },
     severity: "primary",
-}, ...__VLS_functionalComponentArgsRest(__VLS_521));
-let __VLS_524;
-let __VLS_525;
-let __VLS_526;
-const __VLS_527 = {
+}, ...__VLS_functionalComponentArgsRest(__VLS_505));
+let __VLS_508;
+let __VLS_509;
+let __VLS_510;
+const __VLS_511 = {
     onClick: (...[$event]) => {
         __VLS_ctx.transferItem('peri_form');
     }
 };
-var __VLS_523;
-const __VLS_528 = {}.Button;
+var __VLS_507;
+const __VLS_512 = {}.Button;
 /** @type {[typeof __VLS_components.Button, ]} */ ;
 // @ts-ignore
-const __VLS_529 = __VLS_asFunctionalComponent(__VLS_528, new __VLS_528({
+const __VLS_513 = __VLS_asFunctionalComponent(__VLS_512, new __VLS_512({
     label: "Save",
     type: "submit",
     icon: "pi pi-save",
     severity: "info",
     ...{ class: "mr-4" },
 }));
-const __VLS_530 = __VLS_529({
+const __VLS_514 = __VLS_513({
     label: "Save",
     type: "submit",
     icon: "pi pi-save",
     severity: "info",
     ...{ class: "mr-4" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_529));
+}, ...__VLS_functionalComponentArgsRest(__VLS_513));
 var __VLS_359;
 var __VLS_67;
 var __VLS_35;
@@ -3003,144 +2968,91 @@ var __VLS_7;
 /** @type {__VLS_StyleScopedClasses['gap-3']} */ ;
 /** @type {__VLS_StyleScopedClasses['m-0']} */ ;
 /** @type {__VLS_StyleScopedClasses['grid']} */ ;
+/** @type {__VLS_StyleScopedClasses['grid-cols-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['lg:grid-cols-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['gap-8']} */ ;
+/** @type {__VLS_StyleScopedClasses['p-5']} */ ;
+/** @type {__VLS_StyleScopedClasses['border']} */ ;
+/** @type {__VLS_StyleScopedClasses['rounded-lg']} */ ;
+/** @type {__VLS_StyleScopedClasses['shadow-sm']} */ ;
+/** @type {__VLS_StyleScopedClasses['space-y-6']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['justify-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-32']} */ ;
+/** @type {__VLS_StyleScopedClasses['h-32']} */ ;
+/** @type {__VLS_StyleScopedClasses['grid']} */ ;
+/** @type {__VLS_StyleScopedClasses['grid-cols-1']} */ ;
 /** @type {__VLS_StyleScopedClasses['md:grid-cols-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:gap-6']} */ ;
-/** @type {__VLS_StyleScopedClasses['mb-4']} */ ;
-/** @type {__VLS_StyleScopedClasses['relative']} */ ;
-/** @type {__VLS_StyleScopedClasses['z-0']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['mb-5']} */ ;
-/** @type {__VLS_StyleScopedClasses['group']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['card']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['mb-7']} */ ;
-/** @type {__VLS_StyleScopedClasses['mt-7']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex-wrap']} */ ;
 /** @type {__VLS_StyleScopedClasses['gap-6']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['lg:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['card']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['mb-7']} */ ;
-/** @type {__VLS_StyleScopedClasses['mt-7']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex-wrap']} */ ;
+/** @type {__VLS_StyleScopedClasses['grid']} */ ;
+/** @type {__VLS_StyleScopedClasses['grid-cols-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['md:grid-cols-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['gap-6']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['relative']} */ ;
-/** @type {__VLS_StyleScopedClasses['z-0']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['group']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['relative']} */ ;
-/** @type {__VLS_StyleScopedClasses['z-0']} */ ;
-/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['mb-5']} */ ;
-/** @type {__VLS_StyleScopedClasses['group']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['card']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['mb-7']} */ ;
-/** @type {__VLS_StyleScopedClasses['mt-7']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex-wrap']} */ ;
+/** @type {__VLS_StyleScopedClasses['grid']} */ ;
+/** @type {__VLS_StyleScopedClasses['grid-cols-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['md:grid-cols-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['gap-6']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['card']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex-wrap']} */ ;
+/** @type {__VLS_StyleScopedClasses['grid']} */ ;
+/** @type {__VLS_StyleScopedClasses['grid-cols-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['md:grid-cols-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['gap-6']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['p-5']} */ ;
+/** @type {__VLS_StyleScopedClasses['border']} */ ;
+/** @type {__VLS_StyleScopedClasses['rounded-lg']} */ ;
+/** @type {__VLS_StyleScopedClasses['shadow-sm']} */ ;
+/** @type {__VLS_StyleScopedClasses['space-y-6']} */ ;
 /** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['justify-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-32']} */ ;
+/** @type {__VLS_StyleScopedClasses['h-32']} */ ;
+/** @type {__VLS_StyleScopedClasses['grid']} */ ;
+/** @type {__VLS_StyleScopedClasses['grid-cols-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['md:grid-cols-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['gap-6']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['relative']} */ ;
-/** @type {__VLS_StyleScopedClasses['z-0']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['group']} */ ;
+/** @type {__VLS_StyleScopedClasses['grid']} */ ;
+/** @type {__VLS_StyleScopedClasses['grid-cols-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['md:grid-cols-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['gap-6']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['items-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['md:w-100']} */ ;
-/** @type {__VLS_StyleScopedClasses['relative']} */ ;
-/** @type {__VLS_StyleScopedClasses['z-0']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-full']} */ ;
-/** @type {__VLS_StyleScopedClasses['mb-5']} */ ;
-/** @type {__VLS_StyleScopedClasses['group']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['grid']} */ ;
+/** @type {__VLS_StyleScopedClasses['grid-cols-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['md:grid-cols-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['gap-6']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['grid']} */ ;
+/** @type {__VLS_StyleScopedClasses['grid-cols-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['md:grid-cols-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['gap-6']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-full']} */ ;
 /** @type {__VLS_StyleScopedClasses['mr-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['mr-4']} */ ;
 var __VLS_dollars;

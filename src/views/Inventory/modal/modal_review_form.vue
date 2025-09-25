@@ -439,13 +439,7 @@ const getNetworkType = (key: string | null | undefined): string => {
           </table>
         </div>
         <div class="flex justify-end items-center w-full">
-          <Button
-            @click="handlePrint()"
-            severity="teal"
-            label="Print"
-            icon="pi pi-file-export"
-            class="mt-4 mr-4"
-          />
+         
           <!-- <Button @click="submitFinalReview" severity="info" label="Submit" icon="pi pi-save" class="mt-4" /> -->
         </div>
       </div>

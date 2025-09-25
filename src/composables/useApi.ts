@@ -145,6 +145,7 @@ export function useApi() {
           name: `${division.acronym} - ${division.division_title}`
         })
       )
+
     } catch (error) {
       console.error('Error fetching divisions:', error)
     }
@@ -190,8 +191,10 @@ export function useApi() {
       const res = await api.get<Employment[]>('/getEmploymentType')
       employment_opts.value = res.data.map((item) => ({
         id: item.id,
+        value:item.id,
         name: item.employment_title
       }))
+
     } catch (error) {
       console.error('Error fetching employment types:', error)
     }

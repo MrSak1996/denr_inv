@@ -99,6 +99,7 @@ Route::middleware('api')->group(function () {
 
     Route::get('/checkItemStatus', [InventoryController::class, 'checkItemStatus']);
     Route::get('/getOTPStatus', [SettingsController::class, 'getOTPStatus']);
+	Route::get('/latest-qr-code', [InventoryController::class, 'getLatestQRCode']);
 
 
     Route::post('post_insert_gen_info', [InventoryController::class, 'post_insert_gen_info']);

@@ -76,7 +76,7 @@ const post_update_user = async () => {
         params: { id },
         query: { api_token: localStorage.getItem('api_token') }
       })
-      location.reload()
+      // location.reload()
     }, 2000)
   } catch (error) {
     console.log(error)
@@ -93,6 +93,7 @@ const fetchUserData = async () => {
     }
   
 }
+
 watch(
   () => um_create_form.city_mun_c,
   (newCityMun) => {
@@ -106,6 +107,8 @@ watch(
     }
   }
 )
+
+
 watch(
   () => um_create_form.province_c,
   async (newProvince) => {
@@ -169,10 +172,14 @@ watch(
                     <label>First Name</label>
                   </FloatLabel>
                 </div>
-                <div class="relative z-0 w-full mb-5 group">
+                   <div class="relative z-0 w-full mb-5 group">
+                  <Select filter v-model="um_create_form.division_id" :options="division_opts" optionValue="id" optionLabel="name"
+                    placeholder="Division" class="w-full" />
+                </div>
+                <!-- <div class="relative z-0 w-full mb-5 group">
                   <Select filter v-model="um_create_form.province_c" :options="province_opts" optionValue="id" optionLabel="name"
                     placeholder="Province" class="w-full" />
-                </div>
+                </div> -->
                 <div class="relative z-0 w-full mb-5 group">
                   <FloatLabel>
                     <InputText v-model="um_create_form.middle_name" :value="um_create_form.middle_name"
@@ -182,10 +189,14 @@ watch(
                 </div>
               </div>
               <div class="grid md:grid-cols-2 md:gap-6 mb-4 mt-4">
-                <div class="relative z-0 w-full mb-5 group">
+                 <div class="relative z-0 w-full mb-5 group"> 
+                  <Select filter v-model="um_create_form.employment_status_id" :options="employment_opts" optionLabel="name"
+                    optionValue="id" placeholder="Employment Type" class="w-full" />
+                </div>
+                <!-- <div class="relative z-0 w-full mb-5 group">
                   <Select filter v-model="um_create_form.city_mun_c" :options="city_mun_opts" optionValue="id" optionLabel="name"
                     placeholder="City/Municipalities" class="w-full" />
-                </div>
+                </div> -->
                 <div class="relative z-0 w-full mb-5 group">
                   <FloatLabel>
                     <InputText v-model="um_create_form.last_name" :value="um_create_form.last_name" class="w-full" />
@@ -194,14 +205,8 @@ watch(
                 </div>
               </div>
               <div class="grid md:grid-cols-2 md:gap-6 mb-4 mt-4">
-                <div class="relative z-0 w-full mb-5 group">
-                  <Select filter v-model="um_create_form.division_id" :options="division_opts" optionValue="id" optionLabel="name"
-                    placeholder="Division" class="w-full" />
-                </div>
-                <div class="relative z-0 w-full mb-5 group">
-                  <Select filter v-model="um_create_form.employment_status" :options="employment_opts" optionLabel="name"
-                    optionValue="id" placeholder="Employment Type" class="w-full" />
-                </div>
+             
+               
               </div>
               <div class="grid md:grid-cols-4 md:gap-6 mb-4 mt-4">
                 <div class="relative z-0 w-full mb-5 group">

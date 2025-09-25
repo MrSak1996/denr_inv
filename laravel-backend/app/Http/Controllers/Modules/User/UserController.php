@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    
+
     public function login(Request $request)
     {
         // Retrieve the user by username
@@ -39,7 +39,7 @@ class UserController extends Controller
             return response()->json([
                 'status' => true,
                 'division_id' => $user->division_id,
-                'email'  => $user->email,
+                'email' => $user->email,
                 'message' => 'Success',
                 'api_token' => $token,
                 'user_role' => $user->user_role,
@@ -197,37 +197,37 @@ class UserController extends Controller
         try {
             // Start building the query
             $query = DB::table('users as u')
-            ->leftJoin('tbl_division as d', 'd.id', '=', 'u.division_id')
-            ->leftJoin('tbl_employment_type as e', 'e.id', '=', 'u.employment_status')
-            ->leftJoin('user_roles as ur', 'ur.id', '=', 'u.roles')
-            ->leftJoin('geo_map as g', 'g.geo_code', '=', 'u.geo_id')
-            ->select(
-                'u.id as user_id',
-                'u.first_name',
-                'u.last_name',
-                'u.middle_name',
-                'u.division_id',
-                'u.province_c',
-                'u.city_mun_c',
-                'u.complete_address',
-                'u.mobile_no',
-                'u.position',
-                'u.roles as user_role_id',
-                'u.sex',
-                'u.employment_status as employment_status_id',
-                'ur.roles as roles',
-                'ur.id as role_id',
-                'd.id as division_id',
-                'd.division_title',
-                'u.username',
-                'u.email'
-            );
-        
-        if (!empty($id)) {
-            $query->where('u.id', $id);
-        }
-        
-          
+                ->leftJoin('tbl_division as d', 'd.id', '=', 'u.division_id')
+                ->leftJoin('tbl_employment_type as e', 'e.id', '=', 'u.employment_status')
+                ->leftJoin('user_roles as ur', 'ur.id', '=', 'u.roles')
+                ->leftJoin('geo_map as g', 'g.geo_code', '=', 'u.geo_id')
+                ->select(
+                    'u.id as user_id',
+                    'u.first_name',
+                    'u.last_name',
+                    'u.middle_name',
+                    'u.division_id',
+                    'u.province_c',
+                    'u.city_mun_c',
+                    'u.complete_address',
+                    'u.mobile_no',
+                    'u.position',
+                    'u.roles as user_role_id',
+                    'u.sex',
+                    'u.employment_status as employment_status_id',
+                    'ur.roles as roles',
+                    'ur.id as role_id',
+                    'd.id as division_id',
+                    'd.division_title',
+                    'u.username',
+                    'u.email'
+                );
+
+            if (!empty($id)) {
+                $query->where('u.id', $id);
+            }
+
+
             // Execute the query
             $results = $query->get();
 
@@ -249,56 +249,64 @@ class UserController extends Controller
     public function post_update_user(Request $req)
     {
         $validated = $req->validate([
-            'id'                => 'nullable|integer|exists:users,id',
-            'geo_code'          => 'nullable|string',
-            'region'            => 'nullable|string',
-            'province'          => 'nullable|string',
-            'city_mun'          => 'nullable|string',
-            'first_name'        => 'required|string|max:255',
-            'middle_name'       => 'nullable|string|max:255',
-            'last_name'         => 'required|string|max:255',
-            'complete_address'  => 'nullable|string|max:500',
-            'designation'       => 'nullable|string|max:255',
-            'sex'               => 'nullable|integer',
-            'division'          => 'nullable|integer',
-            'employment_status' => 'nullable|integer',
-            'position'          => 'nullable|string|max:255',
-            'email'             => 'nullable|email|max:255',
-            'contact_details'   => 'nullable|string|max:20',
-            'role_id'             => 'nullable|integer',
-            'username'          => 'nullable|string|max:255',
-            'password'          => 'nullable|string',
+            'user_id' => 'required|integer|exists:users,id', // Required when updating
+            'geo_code' => 'nullable|string',
+            'region' => 'nullable|string',
+            // 'province_c' => 'nullable|integer',
+            // 'city_mun_c' => 'nullable|integer',
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'complete_address' => 'nullable|string|max:500',
+            'designation' => 'nullable|string|max:255',
+            'sex' => 'nullable|integer',
+            'division_id' => 'nullable|integer',
+            'employment_status_id' => 'nullable|integer',
+            'position' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'contact_details' => 'nullable|string|max:20',
+            'role_id' => 'nullable|integer',
+            'username' => 'nullable|string|max:255',
+            'password' => 'nullable|string',
         ]);
 
-        // Insert the data into the User model
-        $user_opts = User::updateOrCreate(
-            ['id' => $validated['id'] ?? null],
-            [
-                'geo_id'            => $validated['geo_code'] ?? null,
-                'region_c'          => $validated['region'] ?? null,
-                'province_c'        => $validated['province'] ?? null,
-                'city_mun_c'        => $validated['city_mun'] ?? null,
-                'first_name'        => $validated['first_name'],
-                'middle_name'       => $validated['middle_name'] ?? null,
-                'last_name'         => $validated['last_name'],
-                'complete_address'  => $validated['complete_address'] ?? null,
-                'designation'       => $validated['designation'] ?? null,
-                'sex'               => $validated['sex'] ?? null,
-                'division_id'       => $validated['division'] ?? null,
-                'employment_status' => $validated['employment_status'] ?? null,
-                'position'          => $validated['position'] ?? null,
-                'email'             => $validated['email'] ?? null,
-                'mobile_no'         => $validated['contact_details'] ?? null,
-                'roles'             => $validated['role_id'] ?? null,
-                'username'          => $validated['username'],
-                'password'          => bcrypt($validated['password']),
-                'updated_at'        => now(),
-            ]
-        );
+        // Fetch the user by ID
+        $user = User::find($validated['user_id']);
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found.',
+            ], 404);
+        }
+
+        // Update user data
+        $user->update([
+            'geo_id' => $validated['geo_code'] ?? null,
+            'region_c' => $validated['region'] ?? null,
+            // 'province_c' => $validated['province_c'] ?? null,
+            // 'city_mun_c' => $validated['city_mun_c'] ?? null,
+            'first_name' => $validated['first_name'],
+            'middle_name' => $validated['middle_name'] ?? null,
+            'last_name' => $validated['last_name'],
+            'complete_address' => $validated['complete_address'] ?? null,
+            'designation' => $validated['designation'] ?? null,
+            'sex' => $validated['sex'] ?? null,
+            'division_id' => $validated['division_id'] ?? null,
+            'employment_status' => $validated['employment_status_id'] ?? null,
+            'position' => $validated['position'] ?? null,
+            'email' => $validated['email'] ?? null,
+            'mobile_no' => $validated['contact_details'] ?? null,
+            'roles' => $validated['role_id'] ?? null,
+            'username' => $validated['username'],
+            // Only update password if provided
+            'password' => $validated['password'] ? bcrypt($validated['password']) : $user->password,
+            'updated_at' => now(),
+        ]);
 
         return response()->json([
-            'message' => 'Data saved successfully.',
-            'id' => $user_opts->id,
+            'message' => 'User updated successfully.',
+            'user_id' => $user->id,
         ], 200);
     }
+
 }

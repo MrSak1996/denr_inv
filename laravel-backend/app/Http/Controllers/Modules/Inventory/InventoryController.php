@@ -20,63 +20,73 @@ class InventoryController extends Controller
 {
 
     public function getControlNo(Request $req)
-    {
-        try {
-            DB::beginTransaction();
-
-            // Validate if userId exists
-            $userId = $req->query('id');
-            if (!$userId) {
-                return response()->json(['error' => 'User ID is required.'], 400);
-            }
-
-            // Fetch user data and validate existence
-            $user = DB::table('users')
-                ->select('roles')
-                ->where('id', $userId)
-                ->first();
-
-            if (!$user) {
-                return response()->json(['error' => 'User not found.'], 404);
-            }
-
-            $registered_loc = $user->roles; // Get the role of the user
-
-            // Fetch the current counter for the year 2025
-            $results = DB::table('tbl_general_info as gi')
-                ->select(DB::raw('COUNT(*)+1 as control_no'))
-                ->lockForUpdate()
-                ->first();
-
-            $counter = $results->control_no ?? 1; // Default to 1 if no records exist
-
-            // Generate the control number
-            $newCounter = str_pad($counter, 5, '0', STR_PAD_LEFT);
-            $controlNo = 'R4A-RICT-' . $newCounter;
-
-            // Insert the new record into the database
-            DB::table('tbl_general_info')->insert([
-                'control_no' => $controlNo,
-                'registered_loc' => $registered_loc,
-                'updated_by' => $userId,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-
-            DB::commit();
-
-            // Return the generated control number
-            return response()->json(['control_no' => $controlNo]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            // Log the error for debugging
-            \Log::error('Error generating control number: ' . $e->getMessage());
-
-            // Return a generic error message
-            return response()->json(['error' => $e], 500);
+{
+    try {
+        // Validate if user ID is provided
+        $userId = $req->query('id');
+        if (!$userId) {
+            return response()->json(['error' => 'User ID is required.'], 400);
         }
+
+        // Fetch user and validate existence
+        $user = DB::table('users')
+            ->select('roles')
+            ->where('id', $userId)
+            ->first();
+
+        if (!$user) {
+            return response()->json(['error' => 'User not found.'], 404);
+        }
+
+        $registeredLoc = $user->roles;
+
+        DB::beginTransaction();
+
+        // Fetch the latest control_no
+        $latest = DB::table('tbl_general_info')
+            ->select('control_no')
+            ->orderBy('id', 'desc')
+            ->lockForUpdate() // Prevent race conditions
+            ->first();
+
+        // Generate the next control number
+        if (!$latest || empty($latest->control_no)) {
+            $newControlNo = 'R4A-RICT-00001';
+        } else {
+            preg_match('/(\d+)$/', $latest->control_no, $matches);
+            $number = isset($matches[1]) ? (int) $matches[1] : 0;
+            $formattedNumber = str_pad($number + 1, 5, '0', STR_PAD_LEFT);
+            $newControlNo = "R4A-RICT-{$formattedNumber}";
+        }
+
+        // Insert the new record
+        DB::table('tbl_general_info')->insert([
+            'control_no'     => $newControlNo,
+            'registered_loc' => $registeredLoc,
+            'updated_by'     => $userId,
+            'created_at'     => now(),
+            'updated_at'     => now(),
+        ]);
+
+        DB::commit();
+
+        return response()->json([
+            'control_no' => $newControlNo
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+
+        \Log::error('Error generating control number: ' . $e->getMessage());
+
+        return response()->json([
+            'error' => 'An error occurred while generating the control number.',
+            'details' => $e->getMessage() // optional: remove in production
+        ], 500);
     }
+}
+
+
     public function fetchLatestID()
     {
         $data = DB::table('tbl_general_info')
@@ -424,7 +434,7 @@ class InventoryController extends Controller
                 WHEN s.ram_type = 12 THEN 'GDDR4'
                 WHEN s.ram_type = 13 THEN 'GDDR5'
                 WHEN s.ram_type = 14 THEN 'Flash Memory'
-                ELSE 'Unknown RAM'
+                ELSE 'No RAM Installed'
             END, CHAR(10),
             COALESCE(s.ram_capacity, ''), CHAR(10),
             COALESCE(s.dedicated_information, ''), CHAR(10),
@@ -1027,7 +1037,7 @@ class InventoryController extends Controller
             'selectedEquipmentType' => 'nullable|integer',
             'actual_user' => 'nullable|string',
             'sex' => 'nullable|string',
-            'year_acquired' => 'nullable|string',
+            'year_acquired' => 'nullable',
             'remarks' => 'nullable|string',
             'status' => 'nullable|integer',
             'shelf_life' => 'nullable|string',
@@ -1340,12 +1350,33 @@ class InventoryController extends Controller
 
     public function post_final_review(Request $request)
     {
-        $id = $request->input('id');
+       $id = $request->input('id');
 
         DB::table('tbl_general_info')
             ->where('id', $id)
             ->update(['item_status' => 2]);
+    
     }
+	
+	 public function getLatestQRCode(Request $request)
+    {
+		 $latestQR = DB::table('tbl_general_info')
+        ->select('id', 'qr_code')
+		->whereNotNull('qr_code')
+        ->orderBy('id', 'desc') // Assuming created_at is your timestamp
+        ->first(); // Fetch the latest record
+
+    // If no record found, return a meaningful response
+    if (!$latestQR) {
+        return response()->json([
+            'message' => 'Error in QR Code sequence',
+            'qr_code' => null
+        ], 404);
+    }
+
+    return response()->json($latestQR, 200);
+		 
+	 }
 
     public function getSummaryData(Request $req)
     {
@@ -1457,4 +1488,7 @@ class InventoryController extends Controller
             ], 500);
         }
     }
+
+
+	
 }

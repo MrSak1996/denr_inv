@@ -21,6 +21,7 @@ class ReportsController extends Controller
 {
     public function generateReport(Request $request)
     {
+        
         if ($request->has('export')) {
             // Define template path
             $templatePath = public_path('templates/denr.xlsx');
@@ -34,7 +35,7 @@ class ReportsController extends Controller
             $sheet = $spreadsheet->getActiveSheet();
 
             // Fetch data from the database
-            $data = $this->getInventoryData(request());
+            $data = $this->fecthVWGeneralInfo(request());
 
             // Define common style for wrapping text and borders
             $styleArray = [
@@ -64,7 +65,7 @@ class ReportsController extends Controller
                 $sheet->setCellValue('X' . $row, $record->property_no);
                 $sheet->setCellValue('Y' . $row, $record->acct_person);
                 $sheet->setCellValue('Z' . $row, $record->acct_person);
-                $sheet->setCellValue('AB' . $row, $record->acct_division_title);
+                $sheet->setCellValue('AB' . $row, $record->actual_division_title);
                 $sheet->setCellValue('AC' . $row, $record->employment_title);
                 $sheet->setCellValue('AD' . $row, $record->actual_user);
                 $sheet->setCellValue('AE' . $row, $record->actual_user);
@@ -107,6 +108,31 @@ class ReportsController extends Controller
         } else {
             return response()->json(['error' => 'Export flag missing.'], 400);
         }
+    }
+
+    public function fecthVWGeneralInfo(Request $request)
+    {
+        $designation = $request->query('role_id');
+
+        // Ensure designation is numeric
+        if (!is_numeric($designation)) {
+            return response()->json([
+                'error' => 'Invalid designation parameter.'
+            ], 400);
+        }
+
+        $tableName = 'vw_gen_info';
+
+        $query = DB::table($tableName)->orderBy('id', 'desc');
+
+        // Filter by roles unless designation is 13
+        if ($designation != 13) {
+            $query->where('role_id', $designation);
+        }
+        $data = $query->get();
+        $rowCount = $data->count();
+
+        return $data;
     }
 
 
@@ -194,80 +220,7 @@ class ReportsController extends Controller
         return response()->json(['error' => 'Export flag missing.'], 400);
     }
 
-    public function getInventoryData(Request $request)
-    {
-        $role_id = $request->query('role_id');
-
-        $equipmentData = DB::table('tbl_general_info as gi')
-            ->leftJoin('tbl_specification as s', 's.control_id', '=', 'gi.id')
-            ->leftJoin('tbl_peripherals as p', 'p.control_id', '=', 'gi.id')
-            ->leftJoin('tbl_division as acct_division', 'acct_division.id', '=', 'gi.acct_person_division_id')
-            ->leftJoin('tbl_division as actual_division', 'actual_division.id', '=', 'gi.actual_user_division_id')
-            ->leftJoin('tbl_equipment_type as eq_t', 'eq_t.id', '=', 'gi.equipment_type')
-            ->leftJoin('tbl_employment_type as emp', 'emp.id', '=', 'gi.actual_employment_type')
-            ->leftJoin('tbl_nature_of_work as nw', 'nw.id', '=', 'gi.work_nature_id')
-            ->leftJoin('users as u', 'u.roles', '=', 'gi.registered_loc')
-
-            ->select(
-                'gi.id',
-                'gi.control_no',
-                'eq_t.equipment_title',
-                'gi.year_acquired',
-                'gi.shelf_life',
-                'gi.brand',
-                DB::raw("CONCAT(
-                s.processor, CHAR(10),
-                CASE 
-                    WHEN s.ram_type = 1 THEN 'Static RAM'
-                    WHEN s.ram_type = 2 THEN '(SDRAM)'
-                    ELSE 'Unknown RAM'
-                END, CHAR(10),
-                s.ram_capacity, CHAR(10),
-                s.dedicated_information, CHAR(10),
-                CONCAT('HDD NO: ', s.no_of_hdd), CHAR(10),
-                CONCAT('SSD NO: ', s.no_of_ssd), CHAR(10),
-                s.ssd_capacity, CHAR(10),
-                CASE 
-                    WHEN s.specs_gpu = 1 THEN 'Built In'
-                    WHEN s.specs_gpu = 2 THEN 'Dedicated'
-                    ELSE 'Unknown'
-                END, CHAR(10),
-                CONCAT('Network Type: ',
-                    CASE 
-                        WHEN s.wireless_type = 1 THEN 'LAN'
-                        WHEN s.wireless_type = 2 THEN 'Wireless'
-                        WHEN s.wireless_type = 3 THEN 'Both'
-                        ELSE 'Unknown'
-                    END)
-            ) AS full_specs"),
-                DB::raw("CASE 
-                WHEN gi.range_category = 1 THEN 'Entry Level'
-                WHEN gi.range_category = 2 THEN 'Mid Level'
-                WHEN gi.range_category = 3 THEN 'High End Level'
-                ELSE 'Unknown'
-            END AS range_category"),
-                'gi.serial_no',
-                'gi.property_no',
-                'gi.acct_person',
-                'acct_division.division_title as acct_division_title',
-                'emp.employment_title',
-                'gi.actual_user',
-                'actual_division.division_title as actual_division_title',
-                'nw.nature_work_title',
-                'gi.remarks',
-                DB::raw("CONCAT( 'QR Code: ', COALESCE(gi.qr_code, 'N/A'), CHAR(10), 'MONITOR 1 QR Code: ', COALESCE(p.mon_qr_code1, 'N/A'), CHAR(10), 'MONITOR 2 QR Code:', COALESCE(p.mon_qr_code2, 'N/A'), CHAR(10), 'UPS QR Code: ', COALESCE(p.ups_qr_code, 'N/A') ) AS rict_code")
-            );
-
-        if ($role_id !== "13") {
-            $equipmentData->where('u.roles', $role_id);
-        }
-        $equipmentData = $equipmentData->get();
-
-
-
-        return $equipmentData;
-    }
-
+   
     public function getSoftwareData($id)
     {
         // Perform the query
@@ -292,9 +245,9 @@ class ReportsController extends Controller
     public function getDatabaseConfig()
     {
         return [
-            'driver'   => env('com.mysql.jdbc.Driver'),
-            'host'     => env('localhost'),
-            'port'     => env('3306'),
+            'driver' => env('com.mysql.jdbc.Driver'),
+            'host' => env('localhost'),
+            'port' => env('3306'),
             'username' => env('denr_riis'),
             'password' => env('sodniwutnubu06179'),
             'database' => env('riis'),

@@ -96,7 +96,7 @@ interface UmCreateForm {
   middle_name: string;
   last_name: string;
   complete_address: string;
-  employment_status: string;
+  employment_status_id: string;
   designation: string;
   sex: string;
   mobile_no: string;
@@ -206,7 +206,7 @@ export function useForm() {
     middle_name: '',
     last_name: '',
     complete_address: '',
-    employment_status: '',
+    employment_status_id: '',
     designation: '',
     sex: '',
     mobile_no: '',

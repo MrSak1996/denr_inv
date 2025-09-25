@@ -973,264 +973,147 @@ onMounted(() => {
         <!-- Peripherals -->
         <TabPanel value="3" as="p" class="m-0">
           <form @submit.prevent="savePeripheralInfo">
-            <div class="grid md:grid-cols-2 md:gap-6 mb-4">
-              <div class="relative z-0 w-full mb-5 group">
-                <Fieldset legend="Monitor 1">
-                  <div class="flex items-center gap-2" v-if="peripheral_form.monitor1QrCode">
-                    <QrcodeVue :value="peripheral_form.monitor1QrCode" />
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <!-- MONITOR 1 -->
+              <Fieldset legend="Monitor 1" class="p-5 border rounded-lg shadow-sm">
+                <div class="space-y-6">
+                  <!-- QR Code Display -->
+                  <div class="flex justify-center" v-if="peripheral_form.monitor1QrCode">
+                    <QrcodeVue :value="peripheral_form.monitor1QrCode" class="w-32 h-32" />
                   </div>
-                  <div class="card flex mb-7 mt-7 flex-wrap gap-6">
-                    <div class="flex items-center gap-2">
-                      <FloatLabel>
-                        <InputText id="qr_code" v-model="peripheral_form.monitor1QrCode" class="w-full md:w-100" />
-                        <label for="qr_code">QR Code</label>
-                      </FloatLabel>
-                      <Button v-if="!peripheral_form.monitor1QrCode" style="top: -0.5px; left: -88px" size="small"
-                        @click="generateQRCode(peripheral_form, 'p1Form', Array.isArray(item_id) ? item_id[0] : item_id, Array.isArray(userId) ? userId[0] : userId)">
-                        Generate
-                      </Button>
-                    </div>
 
-                    <div class="flex items-center gap-2">
-                      <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor1BrandModel"
-                          class="w-full lg:w-100" />
-                        <label for="processor">Brand</label>
-                      </FloatLabel>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                      <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor1Model" class="w-full md:w-100" />
-                        <label for="processor">Model</label>
-                      </FloatLabel>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                      <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor1SerialNumber"
-                          class="w-full md:w-100" />
-                        <label for="processor">Serial Number</label>
-                      </FloatLabel>
-                    </div>
-                  </div>
-                  <div class="card flex mb-7 mt-7 flex-wrap gap-6">
-                    <div class="flex items-center gap-2">
-                      <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor1PropertyNumber"
-                          class="w-full md:w-100" />
-                        <label for="processor">Property No</label>
-                      </FloatLabel>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                      <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor1AccountPersonInPN"
-                          class="w-full md:w-100" />
-                        <label for="processor">Accountable Person as seen in PN</label>
-                      </FloatLabel>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                      <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor1ActualUser"
-                          class="w-full md:w-100" />
-                        <label for="processor">Actual User</label>
-                      </FloatLabel>
-                    </div>
-                    <div class="relative z-0 w-full group">
-                      <Select filter v-model="peripheral_form.mon1division1" :options="division_opts" optionValue="id"
-                        optionLabel="name" placeholder="Division" class="w-full md:w-100" />
-                    </div>
-                    <div class="flex items-center gap-2" v-if="peripheral_form.monitor1QrCode">
-                      <Select filter v-model="peripheral_form.monitor1Status" :options="status_opts" optionValue="id"
-                        optionLabel="name" placeholder="Current Status" class="w-full md:w-100" />
-                    </div>
-                    
-                  </div>
-                </Fieldset>
-              </div>
-
-              <div class="relative z-0 w-full mb-5 group">
-                <Fieldset legend="Monitor 2">
-                  <div class="flex items-center gap-2" v-if="peripheral_form.monitor2QrCode">
-                    <QrcodeVue :value="peripheral_form.monitor2QrCode" />
-                  </div>
-                  <div class="card flex mb-7 mt-7 flex-wrap gap-6">
-                    <div class="flex items-center gap-2">
-                      <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor2QrCode" class="w-full md:w-100" />
-                        <label for="processor">QR Code</label>
-                      </FloatLabel>
-                      <Button v-if="!peripheral_form.monitor2QrCode" style="top: -0.5px; left: -88px" size="small"
-                        @click="generateQRCode(peripheral_form, 'p2Form', Array.isArray(item_id) ? item_id[0] : item_id, Array.isArray(userId) ? userId[0] : userId)">
-                        Generate
-                      </Button>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                      <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor2BrandModel"
-                          class="w-full md:w-100" />
-                        <label for="processor">Brand Model</label>
-                      </FloatLabel>
-                    </div>
-                    <div class="flex items-center gap-2">
-                      <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor2Model" class="w-full md:w-100" />
-                        <label for="processor">Model</label>
-                      </FloatLabel>
-                    </div>
-                    <div class="flex items-center gap-2">
-                      <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor2SerialNumber"
-                          class="w-full md:w-100" />
-                        <label for="processor">Serial Number</label>
-                      </FloatLabel>
-                    </div>
-                  </div>
-                  <div class="card flex flex-wrap gap-6">
-                    <div class="flex items-center gap-2">
-                      <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor2PropertyNumber"
-                          class="w-full md:w-100" />
-                        <label for="processor">Property No</label>
-                      </FloatLabel>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                      <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor2AccountPersonInPN"
-                          class="w-full md:w-100" />
-                        <label for="processor">Accountable Person as seen in PN</label>
-                      </FloatLabel>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                      <FloatLabel>
-                        <InputText id="processor" v-model="peripheral_form.monitor2ActualUser"
-                          class="w-full md:w-100" />
-                        <label for="processor">Actual User</label>
-                      </FloatLabel>
-                    </div>
-                    <div class="relative z-0 w-full group">
-                      <Select filter v-model="peripheral_form.mon1division2" :options="division_opts" optionValue="id"
-                        optionLabel="name" placeholder="Division" class="w-full md:w-100" />
-                    </div>
-                    <div class="flex items-center gap-2" >
-                      <Select filter v-model="peripheral_form.monitor2Status" :options="status_opts" optionValue="id"
-                        optionLabel="name" placeholder="Current Status" class="w-full md:w-100" />
-                    </div>
-                  </div>
-                </Fieldset>
-              </div>
-
-              <div class="relative z-0 w-full mb-5 group">
-                <!-- <Fieldset legend="UPS">
-                  <div class="flex items-center gap-2" v-if="peripheral_form.ups_qr_code">
-                    <QrcodeVue :value="peripheral_form.ups_qr_code" />
-                  </div>
-                  <div class="flex items-center gap-2 mt-7 mb-7">
-                    <FloatLabel>
-                      <InputText
-                        id="processor"
-                        v-model="peripheral_form.ups_qr_code"
-                        class="w-full md:w-80"
-                      />
-                      <label for="processor">QR Code</label>
+                  <!-- QR Code Input -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FloatLabel class="w-full">
+                      <InputText id="monitor1QrCode" v-model="peripheral_form.monitor1QrCode" class="w-full" />
+                      <label for="monitor1QrCode">QR Code</label>
                     </FloatLabel>
-                    <Button
-                      v-if="!peripheral_form.ups_qr_code"
-                      style="top: -0.5px; left: -88px"
-                      size="small"
-                      @click="generateQRCode(peripheral_form, 'upsForm', Array.isArray(item_id) ? item_id[0] : item_id, Array.isArray(userId) ? userId[0] : userId)"
-                    >
-                      Generate
-                    </Button>
+
+                    <FloatLabel class="w-full">
+                      <InputText id="monitor1BrandModel" v-model="peripheral_form.monitor1BrandModel" class="w-full" />
+                      <label for="monitor1BrandModel">Brand</label>
+                    </FloatLabel>
                   </div>
-                  <div class="card flex mb-7 mt-3 flex-wrap gap-6">
-                    <div class="flex items-center gap-2">
-                      <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.ups_brand"
-                          class="w-full md:w-100"
-                        />
-                        <label for="processor">Brand</label>
-                      </FloatLabel>
-                    </div>
 
-                    <div class="flex items-center gap-2">
-                      <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.ups_model"
-                          class="w-full md:w-100"
-                        />
-                        <label for="processor">Model</label>
-                      </FloatLabel>
-                    </div>
+                  <!-- Model & Serial Number -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FloatLabel class="w-full">
+                      <InputText id="monitor1Model" v-model="peripheral_form.monitor1Model" class="w-full" />
+                      <label for="monitor1Model">Model</label>
+                    </FloatLabel>
 
-                    <div class="flex items-center gap-2">
-                      <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.ups_serial_no"
-                          class="w-full md:w-100"
-                        />
-                        <label for="processor">Serial Number</label>
-                      </FloatLabel>
-                    </div>
+                    <FloatLabel class="w-full">
+                      <InputText id="monitor1SerialNumber" v-model="peripheral_form.monitor1SerialNumber"
+                        class="w-full" />
+                      <label for="monitor1SerialNumber">Serial Number</label>
+                    </FloatLabel>
                   </div>
-                  <div class="card flex flex-wrap gap-6">
-                    <div class="flex items-center gap-2">
-                      <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.ups_property_no"
-                          class="w-full lg:w-100"
-                        />
-                        <label for="processor">Property Number</label>
-                      </FloatLabel>
-                    </div>
 
-                    <div class="flex items-center gap-2">
-                      <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.ups_accountPersonInPN"
-                          class="w-full md:w-100"
-                        />
-                        <label for="processor">Accountable Person as seen in PN:</label>
-                      </FloatLabel>
-                    </div>
+                  <!-- Property Info -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FloatLabel class="w-full">
+                      <InputText id="monitor1PropertyNumber" v-model="peripheral_form.monitor1PropertyNumber"
+                        class="w-full" />
+                      <label for="monitor1PropertyNumber">Property No</label>
+                    </FloatLabel>
 
-                    <div class="flex items-center gap-2">
-                      <FloatLabel>
-                        <InputText
-                          id="processor"
-                          v-model="peripheral_form.ups_qr_acctual_user"
-                          class="w-full md:w-100"
-                        />
-                        <label for="processor">Actual User</label>
-                      </FloatLabel>
-                    </div>
-
-                    <div class="relative z-0 w-full mb-5 group" v-if="peripheral_form.ups_qr_code">
-                      <Select
-                        filter
-                        v-model="peripheral_form.ups_status"
-                        :options="status_opts"
-                        optionValue="id"
-                        optionLabel="name"
-                        placeholder="Current Status"
-                        class="w-full md:w-100"
-                      />
-                    </div>
+                    <FloatLabel class="w-full">
+                      <InputText id="monitor1AccountPersonInPN" v-model="peripheral_form.monitor1AccountPersonInPN"
+                        class="w-full" />
+                      <label for="monitor1AccountPersonInPN">Accountable Person (PN)</label>
+                    </FloatLabel>
                   </div>
-                </Fieldset> -->
-              </div>
+
+                  <!-- User Info -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FloatLabel class="w-full">
+                      <InputText id="monitor1ActualUser" v-model="peripheral_form.monitor1ActualUser" class="w-full" />
+                      <label for="monitor1ActualUser">Actual User</label>
+                    </FloatLabel>
+
+                    <Select filter v-model="peripheral_form.mon1division1" :options="division_opts" optionValue="id"
+                      optionLabel="name" placeholder="Division" class="w-full" />
+                  </div>
+
+                  <!-- Status -->
+                  <div>
+                    <Select filter v-model="peripheral_form.monitor1Status" :options="status_opts" optionValue="id"
+                      optionLabel="name" placeholder="Current Status" class="w-full" />
+                  </div>
+                  
+                </div>
+              </Fieldset>
+
+              <!-- MONITOR 2 -->
+              <Fieldset legend="Monitor 2" class="p-5 border rounded-lg shadow-sm">
+                <div class="space-y-6">
+                  <!-- QR Code Display -->
+                  <div class="flex justify-center" v-if="peripheral_form.monitor2QrCode">
+                    <QrcodeVue :value="peripheral_form.monitor2QrCode" class="w-32 h-32" />
+                  </div>
+
+                  <!-- QR Code Input -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FloatLabel class="w-full">
+                      <InputText id="monitor2QrCode" v-model="peripheral_form.monitor2QrCode" class="w-full" />
+                      <label for="monitor2QrCode">QR Code</label>
+                    </FloatLabel>
+
+                    <FloatLabel class="w-full">
+                      <InputText id="monitor2BrandModel" v-model="peripheral_form.monitor2BrandModel" class="w-full" />
+                      <label for="monitor2BrandModel">Brand Model</label>
+                    </FloatLabel>
+                  </div>
+
+                  <!-- Model & Serial Number -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FloatLabel class="w-full">
+                      <InputText id="monitor2Model" v-model="peripheral_form.monitor2Model" class="w-full" />
+                      <label for="monitor2Model">Model</label>
+                    </FloatLabel>
+
+                    <FloatLabel class="w-full">
+                      <InputText id="monitor2SerialNumber" v-model="peripheral_form.monitor2SerialNumber"
+                        class="w-full" />
+                      <label for="monitor2SerialNumber">Serial Number</label>
+                    </FloatLabel>
+                  </div>
+
+                  <!-- Property Info -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FloatLabel class="w-full">
+                      <InputText id="monitor2PropertyNumber" v-model="peripheral_form.monitor2PropertyNumber"
+                        class="w-full" />
+                      <label for="monitor2PropertyNumber">Property No</label>
+                    </FloatLabel>
+
+                    <FloatLabel class="w-full">
+                      <InputText id="monitor2AccountPersonInPN" v-model="peripheral_form.monitor2AccountPersonInPN"
+                        class="w-full" />
+                      <label for="monitor2AccountPersonInPN">Accountable Person (PN)</label>
+                    </FloatLabel>
+                  </div>
+
+                  <!-- User Info -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FloatLabel class="w-full">
+                      <InputText id="monitor2ActualUser" v-model="peripheral_form.monitor2ActualUser" class="w-full" />
+                      <label for="monitor2ActualUser">Actual User</label>
+                    </FloatLabel>
+
+                    <Select filter v-model="peripheral_form.mon1division2" :options="division_opts" optionValue="id"
+                      optionLabel="name" placeholder="Division" class="w-full" />
+                  </div>
+
+                  <!-- Status -->
+                  <div>
+                    <Select filter v-model="peripheral_form.monitor2Status" :options="status_opts" optionValue="id"
+                      optionLabel="name" placeholder="Current Status" class="w-full" />
+                  </div>
+                </div>
+              </Fieldset>
             </div>
+
 
             <Button @click="transferItem('peri_form')" label="Edit/Update" type="button" icon="pi pi-star" class="mr-4"
               severity="primary" />

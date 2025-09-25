@@ -27,7 +27,7 @@ const exportData = async () => {
                 progress.value += 10;
             }
         }, 500);
-        const response = await api.get(`https://riis.denrcalabarzon.com/api/export?export=true&role_id=${role_id}`, {
+        const response = await api.get(`/export?export=true&role_id=${role_id}`, {
             responseType: 'blob'
         });
         clearInterval(progressInterval);

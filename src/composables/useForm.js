@@ -92,7 +92,7 @@ export function useForm() {
         middle_name: '',
         last_name: '',
         complete_address: '',
-        employment_status: '',
+        employment_status_id: '',
         designation: '',
         sex: '',
         mobile_no: '',
