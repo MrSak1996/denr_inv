@@ -104,7 +104,6 @@ const onRadioChange = (key, option) => {
     }
     else if (key == 'ms_office') {
         isMicrosoftOffice.value = true;
-        console.log(key);
     }
 };
 const transferItem = async (form_val) => {
@@ -213,12 +212,11 @@ const saveSoftwareInfo = async () => {
 const savePeripheralInfo = async () => {
     try {
         errors.value = {};
-        const id = route.query.gen_id ? route.query.gen_id : route.query.item_id;
-        console.log(peripheral_form);
+        const controlId = route.params.id || route.query.item_id || null;
         const requestData = {
             ...peripheral_form,
             monitor1Model: peripheral_form.monitor1Model,
-            control_id: id,
+            control_id: controlId,
             id: userId
         };
         const response = await api.post('/post_insert_peripheral', requestData);

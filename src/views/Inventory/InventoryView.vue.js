@@ -832,6 +832,7 @@ __VLS_51.slots.default;
         icon: "pi pi-file-export",
         label: "Export",
         outlined: true,
+        ...{ style: {} },
     }));
     const __VLS_62 = __VLS_61({
         ...{ 'onClick': {} },
@@ -839,6 +840,7 @@ __VLS_51.slots.default;
         icon: "pi pi-file-export",
         label: "Export",
         outlined: true,
+        ...{ style: {} },
     }, ...__VLS_functionalComponentArgsRest(__VLS_61));
     let __VLS_64;
     let __VLS_65;
