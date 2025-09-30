@@ -177,14 +177,14 @@ const saveSpecsInfo = async () => {
 const saveSoftwareInfo = async () => {
     try {
         errors.value = {};
-        const id = route.query.gen_id ? route.query.gen_id : route.query.item_id;
+        const controlId = route.params.id || route.query.item_id || null;
         // Prepare the request data by combining form data with selected software options
         const requestData = {
             selectedSoftware: Object.fromEntries(Object.entries(selectedSoftware.value).map(([key, value]) => [
                 key,
                 remarksMap[value] || null
             ])),
-            control_id: id
+            control_id: controlId
         };
         // Make the API call
         const response = await api.post('/post_insert_software', requestData);
