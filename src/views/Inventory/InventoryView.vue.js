@@ -88,12 +88,16 @@ const loadUserData = async () => {
 const fetchData = async (selectedRoleId) => {
     try {
         startProgress(); // Start the progress bar
-        await loadUserData();
+        // await loadUserData()
         const response = await api.get(`/vw-gen-info?api_tokes=${api_token}&designation=${authStore.role_id}&office=${selectedRoleId}`);
         total_item.value = Number(response.data.count); // Set the count if it exists
         customers.value = response.data.data; // Process the fetched data
         loading.value = false;
-        completeProgress(); // Stop the progress bar
+        if (selectedRoleId == 0) {
+            completeProgress(); // Stop the progress bar
+            getCountStatus(0);
+            getOutdatedEquipment(0);
+        }
     }
     catch (error) {
         console.error('Error fetching customers:', error);

@@ -119,7 +119,7 @@ const fetchData = async (selectedRoleId: number) => {
   try {
     startProgress() // Start the progress bar
 
-    await loadUserData()
+    // await loadUserData()
 
     const response = await api.get(
       `/vw-gen-info?api_tokes=${api_token}&designation=${authStore.role_id}&office=${selectedRoleId}`
@@ -127,7 +127,12 @@ const fetchData = async (selectedRoleId: number) => {
     total_item.value = Number(response.data.count) // Set the count if it exists
     customers.value = response.data.data // Process the fetched data
     loading.value = false
-    completeProgress() // Stop the progress bar
+    if (selectedRoleId == 0) {
+      completeProgress() // Stop the progress bar
+      getCountStatus(0)
+      getOutdatedEquipment(0)
+    }
+
   } catch (error) {
     console.error('Error fetching customers:', error)
     loading.value = false
@@ -194,7 +199,7 @@ const getCountStatus = async (selectedRoleId: number | null) => {
 
 
 
-const getOutdatedEquipment = async (selectedRoleId:number) => {
+const getOutdatedEquipment = async (selectedRoleId: number) => {
   try {
     // Load user data before API call
     await loadUserData();
@@ -514,11 +519,8 @@ const pageTitle = ref('Inventory Management')
   <DefaultLayout>
     <BreadcrumbDefault :pageTitle="pageTitle" />
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-5 2xl:gap-7.5 mb-4">
-      <DataStatsOne 
-      :total_equipment="total_item" 
-      :total_serviceable_count="serviceable_count"
-        :total_unserviceable_count="unserviceable_count" 
-        :outdated_equipment="outdated_count"
+      <DataStatsOne :total_equipment="total_item" :total_serviceable_count="serviceable_count"
+        :total_unserviceable_count="unserviceable_count" :outdated_equipment="outdated_count"
         :total_returned_count="return_count" />
     </div>
 

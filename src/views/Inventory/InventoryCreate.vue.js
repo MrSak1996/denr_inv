@@ -148,11 +148,11 @@ const saveGeneralInfo = async () => {
 const saveSpecsInfo = async () => {
     try {
         errors.value = {};
-        const extractId = (item) => item?.id || null;
-        const id = route.query.gen_id ? route.query.gen_id : route.query.item_id;
+        // ✅ Extract from route params instead of query
+        const controlId = route.params.id || route.query.item_id || null;
         const requestData = {
             ...specs_form,
-            control_id: id,
+            control_id: controlId,
             specs_net: selectedNetwork.value,
             specs_gpu: selectedGPU.value,
             specs_net_iswireless: selectedWireless.value
@@ -166,11 +166,7 @@ const saveSpecsInfo = async () => {
                 life: 3000
             });
             const id = response.data.id;
-            // router.push({
-            //   name: 'Inventory',
-            //   params: { id },
-            //   query: { api_token: localStorage.getItem('api_token') }
-            // })
+            // router.push({ name: 'Inventory', params: { id }, query: { api_token: localStorage.getItem('api_token') } })
         }, 1000);
     }
     catch (error) {
