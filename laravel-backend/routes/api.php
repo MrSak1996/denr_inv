@@ -85,9 +85,11 @@ Route::middleware('api')->group(function () {
     Route::get('/retrieveSoftwareData', [InventoryController::class, 'retrieveSoftwareData']);
     Route::get('/retrievePeripheralsData', [InventoryController::class, 'retrievePeripheralsData']);
     Route::get('/getCountStatus', [InventoryController::class, 'getCountStatus']);
+    Route::get('/getCountStatusPerDivision', [InventoryController::class, 'getCountStatusPerDivision']);
     Route::get('/getInventoryData', [InventoryController::class, 'getInventoryData']);
     Route::get('/fetchTransaction', [InventoryController::class, 'fetchTransaction']);
     Route::get('/getOutdatedEquipment', [InventoryController::class, 'getOutdatedEquipment']);
+    Route::get('/getOutdatedEquipmentPerDivision', [InventoryController::class, 'getOutdatedEquipmentPerDivision']);
     Route::get('/provinces/{provinceId}/cities', [UserController::class, 'getCitiesByProvince']);
     Route::get('/getSummaryData', [InventoryController::class, 'getSummaryData']);
     Route::get('/get_equipment', [InventoryController::class, 'get_equipment']);

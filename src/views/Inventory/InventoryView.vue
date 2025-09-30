@@ -45,6 +45,7 @@ const qr_code = ref()
 const total_item = ref(0)
 const serviceable_count = ref(0)
 const unserviceable_count = ref(0)
+const return_count = ref(0)
 const outdated_count = ref(0)
 const invalid_data_count = ref(0)
 const filters = ref()
@@ -114,14 +115,14 @@ const loadUserData = async () => {
 
 }
 
-const fetchData = async () => {
+const fetchData = async (selectedRoleId: number) => {
   try {
     startProgress() // Start the progress bar
 
     await loadUserData()
 
     const response = await api.get(
-      `/vw-gen-info?api_tokes=${api_token}&designation=${authStore.role_id}`
+      `/vw-gen-info?api_tokes=${api_token}&designation=${authStore.role_id}&office=${selectedRoleId}`
     )
     total_item.value = Number(response.data.count) // Set the count if it exists
     customers.value = response.data.data // Process the fetched data
@@ -137,6 +138,10 @@ const fetchData = async () => {
 const filterByOffice = async (selectedRoleId: number) => {
   try {
     startProgress();
+    fetchData(selectedRoleId)
+    getCountStatus(selectedRoleId)
+    getOutdatedEquipment(selectedRoleId)
+
     const api_token = authStore.api_token;
 
 
@@ -154,50 +159,67 @@ const filterByOffice = async (selectedRoleId: number) => {
   }
 };
 
-const getCountStatus = async () => {
-  await loadUserData()
-
+const getCountStatus = async (selectedRoleId: number | null) => {
   try {
-    const response = await api.get(`/getCountStatus?api_token=${api_token}&designation=${role_id}`)
+    await loadUserData();
 
-    // Ensure response.data is an array and has at least one item
-    if (Array.isArray(response.data) && response.data.length > 0) {
-      serviceable_count.value = Number(response.data[0].serviceable || 0)
-      unserviceable_count.value = Number(response.data[0].unserviceable || 0)
+    // ✅ Corrected: If selectedRoleId is empty, use `/getCountStatus`
+    // Otherwise, use `/getCountStatusPerDivision`
+    const baseUrl = `/getCountStatus${selectedRoleId ? 'PerDivision' : ''}`;
+
+    const url = `${baseUrl}?api_token=${api_token}&designation=${role_id}&office=${selectedRoleId ?? 0}`;
+
+    const response = await api.get(url);
+    const data = response.data;
+
+    // ✅ Safely handle response
+    if (Array.isArray(data) && data.length > 0) {
+      serviceable_count.value = Number(data[0]?.serviceable ?? 0);
+      unserviceable_count.value = Number(data[0]?.unserviceable ?? 0);
+      return_count.value = Number(data[0]?.returned ?? 0);
     } else {
-      console.warn('No data returned from API. Setting default values.')
-      serviceable_count.value = 0
-      unserviceable_count.value = 0
+      console.warn('No data returned from API. Setting default values.');
+      serviceable_count.value = 0;
+      unserviceable_count.value = 0;
+      return_count.value = 0;
+
     }
+
   } catch (error) {
-    console.error('Error fetching count status:', error)
-    serviceable_count.value = 0
-    unserviceable_count.value = 0
+    serviceable_count.value = 0;
+    unserviceable_count.value = 0;
+    return_count.value = 0;
   }
-}
+};
 
-const getOutdatedEquipment = async () => {
-  await loadUserData()
 
+
+const getOutdatedEquipment = async (selectedRoleId:number) => {
   try {
-    const response = await api.get(
-      `/getOutdatedEquipment?api_token=${api_token}&designation=${user_role.value}`
-    )
+    // Load user data before API call
+    await loadUserData();
+    const baseUrl = `/getOutdatedEquipment${selectedRoleId ? 'PerDivision' : ''}`;
+    const url = `${baseUrl}?api_token=${api_token}&designation=${role_id}&office=${selectedRoleId ?? 0}`;
 
-    console.log('API Response:', response.data) // Debugging step
+    const response = await api.get(url);
 
-    // Ensure response.data is an array and has at least one item
-    if (Array.isArray(response.data) && response.data.length > 0) {
-      outdated_count.value = Number(response.data[0].count || 0)
-    } else {
-      console.warn('No outdated equipment data returned. Setting default value.')
-      outdated_count.value = 0
+    const data = response.data;
+
+    // ✅ Safely handle and validate response
+    outdated_count.value = Array.isArray(data) && data.length > 0
+      ? Number(data[0]?.count ?? 0)
+      : 0;
+
+    if (!Array.isArray(data) || data.length === 0) {
+      console.warn('No outdated equipment data returned. Setting default value.');
     }
+
   } catch (error) {
-    console.error('Error fetching outdated equipment:', error)
-    outdated_count.value = 0
+    console.error('Error fetching outdated equipment:', error);
+    outdated_count.value = 0; // ✅ Default to 0 in case of error
   }
-}
+};
+
 
 const getInvalidData = async () => {
   try {
@@ -467,10 +489,10 @@ onMounted(() => {
   window.addEventListener('keydown', handleKeydown)
   window.addEventListener('contextmenu', disableRightClick)
   loadUserData()
-  fetchData()
-  getCountStatus()
-  getOutdatedEquipment()
-  getInvalidData()
+  fetchData(0)
+  getCountStatus(0)
+  getOutdatedEquipment(0)
+  // getInvalidData()
   getDivision()
 })
 
@@ -492,9 +514,12 @@ const pageTitle = ref('Inventory Management')
   <DefaultLayout>
     <BreadcrumbDefault :pageTitle="pageTitle" />
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-5 2xl:gap-7.5 mb-4">
-      <DataStatsOne :total_equipment="total_item" :total_serviceable_count="serviceable_count"
-        :total_unserviceable_count="unserviceable_count" :outdated_equipment="outdated_count"
-        :invalid_data="invalid_data_count" />
+      <DataStatsOne 
+      :total_equipment="total_item" 
+      :total_serviceable_count="serviceable_count"
+        :total_unserviceable_count="unserviceable_count" 
+        :outdated_equipment="outdated_count"
+        :total_returned_count="return_count" />
     </div>
 
     <!-- <form_dash
@@ -626,10 +651,12 @@ const pageTitle = ref('Inventory Management')
               <Button type="button" icon="pi pi-file-export" label="Export" outlined @click="openReport = true" />
               <Button type="button" icon="pi pi-refresh" label="Refresh" outlined @click="fetchData()" />
               <Button severity="danger" icon="pi pi-qrcode" label="Generate QR Code [F3]" @click="openQR = true" />
-              <Select filter v-model="peripheral_form.mon1division2" :options="division_opts" optionValue="id" optionLabel="name" placeholder="Division" class="md:w-50 pull-right" @update:modelValue="filterByOffice"  />
+              <Select filter v-model="peripheral_form.mon1division2" :options="division_opts" optionValue="id"
+                optionLabel="name" placeholder="Division" class="md:w-50 pull-right"
+                @update:modelValue="filterByOffice" />
               <Button style="left: 300px" severity="info" type="button" icon="pi pi-filter-slash" label="Clear"
                 @click="clearFilter()" />
-      
+
 
               <!-- Additional space between buttons and search field -->
               <div class="ml-auto flex items-center">

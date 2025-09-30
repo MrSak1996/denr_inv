@@ -4,36 +4,36 @@ namespace App\Http\Controllers\Modules\Inventory;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\VwGenInfo;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class VwGenInfoController extends Controller
 {
     public function index(Request $req)
     {
         $designation = $req->query('designation');
-        $office = $req->input('office');      // This will be null if not passed
+        $office = $req->query('office'); // Use query() for consistency
 
-        // Ensure designation is numeric
+        // Validate designation to ensure it's numeric
         if (!is_numeric($designation)) {
             return response()->json([
                 'error' => 'Invalid designation parameter.'
             ], 400);
         }
 
-        $tableName = 'vw_gen_info';
+        $query = DB::table('vw_gen_info')
+            ->orderBy('id', 'desc');
 
-        $query = DB::table($tableName)->orderBy('id', 'desc');
+        // Apply office filter
+        $query->when($office !== null && $office !== '0' && $office !== 'undefined', function ($q) use ($office) {
+            $q->where('division_id', $office);
+        });
 
-        if (!empty($office)) {
-            $query->where('division_id', $office);
-        }
-        // Filter by roles unless designation is 13
+        // Filter by role unless designation is 13
         if ($designation != 13) {
             $query->where('role_id', $designation);
         }
 
-        // Search across multiple columns using OR
+        // Search filter
         if ($req->filled('search')) {
             $search = $req->search;
             $query->where(function ($q) use ($search) {
@@ -46,6 +46,7 @@ class VwGenInfoController extends Controller
             });
         }
 
+        // Execute query
         $data = $query->get();
         $rowCount = $data->count();
 
@@ -55,6 +56,4 @@ class VwGenInfoController extends Controller
             'total' => $rowCount
         ]);
     }
-
-
 }

@@ -574,6 +574,7 @@ class InventoryController extends Controller
     public function getCountStatus(Request $request)
     {
         $designation = $request->query('designation');
+        
         if ($designation != 13) {
             $query = DB::table('vw_count_status');
             $query->where('registered_loc', $designation);
@@ -589,6 +590,23 @@ class InventoryController extends Controller
 
     }
 
+    public function getCountStatusPerDivision(Request $request)
+{
+    $designation = $request->query('designation');
+    $office = $request->query('office'); // Use query() for consistency
+
+    // Build base query
+    $query = DB::table('vw_count_status_per_division')
+        ->where('registered_loc', $designation)
+        ->when(
+            $office !== null && $office !== '0' && $office !== 'undefined',
+            fn($q) => $q->where('division_id', $office)
+        );
+
+    return response()->json($query->get());
+}
+
+
     public function getOutdatedEquipment(Request $request)
     {
         $api_token = $request->query('api_token');
@@ -597,6 +615,25 @@ class InventoryController extends Controller
         if (!empty($designation)) {
             $query->where('registered_loc', $designation);
         }
+        $data = $query->get();
+
+        return response()->json($data);
+    }
+
+    public function getOutdatedEquipmentPerDivision(Request $request)
+    {
+        $office = $request->query('office');
+        $api_token = $request->query('api_token');
+        $designation = $request->query('designation');
+       
+
+
+          $query = DB::table('vw_count_outdated_per_division')
+        ->where('registered_loc', $designation)
+        ->when(
+            $office !== null && $office !== '0' && $office !== 'undefined',
+            fn($q) => $q->where('division_id', $office)
+        );
         $data = $query->get();
 
         return response()->json($data);

@@ -23,7 +23,7 @@ const props = defineProps({
     type: Number,
     required: true
   },
-  invalid_data: {
+  total_returned_count: {
     type: Number,
     required: true
   }
@@ -32,7 +32,7 @@ const total = ref(0)
 const serviceableCount = ref(0)
 const unserviceableCount = ref(0)
 const outdatedCount = ref(0)
-const invalidCount = ref(0)
+const returnedCount = ref(0)
 
 // Watchers to update the reactive variables when props change
 watch(
@@ -41,14 +41,14 @@ watch(
     serviceable: props.total_serviceable_count,
     unserviceable: props.total_unserviceable_count,
     outdated: props.outdated_equipment,
-    invalid: props.invalid_data
+    returned: props.total_returned_count
   }),
   (newValues) => {
     total.value = newValues.total
     serviceableCount.value = newValues.serviceable
     unserviceableCount.value = newValues.unserviceable
     outdatedCount.value = newValues.outdated
-    invalidCount.value = newValues.invalid
+    returnedCount.value = newValues.returned
   }
 )
 
@@ -130,7 +130,7 @@ const cardItems = ref([
           <path d="M78.6 5C69.1-2.4 55.6-1.5 47 7L7 47c-8.5 8.5-9.4 22-2.1 31.6l80 104c4.5 5.9 11.6 9.4 19 9.4l54.1 0 109 109c-14.7 29-10 65.4 14.3 89.6l112 112c12.5 12.5 32.8 12.5 45.3 0l64-64c12.5-12.5 12.5-32.8 0-45.3l-112-112c-24.2-24.2-60.6-29-89.6-14.3l-109-109 0-54.1c0-7.5-3.5-14.5-9.4-19L78.6 5zM19.9 396.1C7.2 408.8 0 426.1 0 444.1C0 481.6 30.4 512 67.9 512c18 0 35.3-7.2 48-19.9L233.7 374.3c-7.8-20.9-9-43.6-3.6-65.1l-61.7-61.7L19.9 396.1zM512 144c0-10.5-1.1-20.7-3.2-30.5c-2.4-11.2-16.1-14.1-24.2-6l-63.9 63.9c-3 3-7.1 4.7-11.3 4.7L352 176c-8.8 0-16-7.2-16-16l0-57.4c0-4.2 1.7-8.3 4.7-11.3l63.9-63.9c8.1-8.1 5.2-21.8-6-24.2C388.7 1.1 378.5 0 368 0C288.5 0 224 64.5 224 144l0 .8 85.3 85.3c36-9.1 75.8 .5 104 28.7L429 274.5c49-23 83-72.8 83-130.5zM56 432a24 24 0 1 1 48 0 24 24 0 1 1 -48 0z"/></svg>
           </svg>`,
     title: 'Incomplete Data',
-    total: invalidCount,
+    total: returnedCount,
     growthRate: -0.95,
     bgImage: invalidImage
   }
