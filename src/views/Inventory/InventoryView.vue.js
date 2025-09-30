@@ -23,6 +23,7 @@ const qr_code = ref();
 const total_item = ref(0);
 const serviceable_count = ref(0);
 const unserviceable_count = ref(0);
+const return_count = ref(0);
 const outdated_count = ref(0);
 const invalid_data_count = ref(0);
 const filters = ref();
@@ -84,11 +85,11 @@ const loadUserData = async () => {
     const roleId = role_id; // use the **fetched role_id**
     role_office.value = roleMapping[String(roleId)] || 'Unknown Office';
 };
-const fetchData = async () => {
+const fetchData = async (selectedRoleId) => {
     try {
         startProgress(); // Start the progress bar
         await loadUserData();
-        const response = await api.get(`/vw-gen-info?api_tokes=${api_token}&designation=${authStore.role_id}`);
+        const response = await api.get(`/vw-gen-info?api_tokes=${api_token}&designation=${authStore.role_id}&office=${selectedRoleId}`);
         total_item.value = Number(response.data.count); // Set the count if it exists
         customers.value = response.data.data; // Process the fetched data
         loading.value = false;
@@ -103,6 +104,9 @@ const fetchData = async () => {
 const filterByOffice = async (selectedRoleId) => {
     try {
         startProgress();
+        fetchData(selectedRoleId);
+        getCountStatus(selectedRoleId);
+        getOutdatedEquipment(selectedRoleId);
         const api_token = authStore.api_token;
         const response = await api.get(`/vw-gen-info?api_tokes=${api_token}&designation=${authStore.role_id}&office=${selectedRoleId}`);
         loading.value = false;
@@ -115,44 +119,53 @@ const filterByOffice = async (selectedRoleId) => {
         completeProgress();
     }
 };
-const getCountStatus = async () => {
-    await loadUserData();
+const getCountStatus = async (selectedRoleId) => {
     try {
-        const response = await api.get(`/getCountStatus?api_token=${api_token}&designation=${role_id}`);
-        // Ensure response.data is an array and has at least one item
-        if (Array.isArray(response.data) && response.data.length > 0) {
-            serviceable_count.value = Number(response.data[0].serviceable || 0);
-            unserviceable_count.value = Number(response.data[0].unserviceable || 0);
+        await loadUserData();
+        // ✅ Corrected: If selectedRoleId is empty, use `/getCountStatus`
+        // Otherwise, use `/getCountStatusPerDivision`
+        const baseUrl = `/getCountStatus${selectedRoleId ? 'PerDivision' : ''}`;
+        const url = `${baseUrl}?api_token=${api_token}&designation=${role_id}&office=${selectedRoleId ?? 0}`;
+        const response = await api.get(url);
+        const data = response.data;
+        // ✅ Safely handle response
+        if (Array.isArray(data) && data.length > 0) {
+            serviceable_count.value = Number(data[0]?.serviceable ?? 0);
+            unserviceable_count.value = Number(data[0]?.unserviceable ?? 0);
+            return_count.value = Number(data[0]?.returned ?? 0);
         }
         else {
             console.warn('No data returned from API. Setting default values.');
             serviceable_count.value = 0;
             unserviceable_count.value = 0;
+            return_count.value = 0;
         }
     }
     catch (error) {
-        console.error('Error fetching count status:', error);
         serviceable_count.value = 0;
         unserviceable_count.value = 0;
+        return_count.value = 0;
     }
 };
-const getOutdatedEquipment = async () => {
-    await loadUserData();
+const getOutdatedEquipment = async (selectedRoleId) => {
     try {
-        const response = await api.get(`/getOutdatedEquipment?api_token=${api_token}&designation=${user_role.value}`);
-        console.log('API Response:', response.data); // Debugging step
-        // Ensure response.data is an array and has at least one item
-        if (Array.isArray(response.data) && response.data.length > 0) {
-            outdated_count.value = Number(response.data[0].count || 0);
-        }
-        else {
+        // Load user data before API call
+        await loadUserData();
+        const baseUrl = `/getOutdatedEquipment${selectedRoleId ? 'PerDivision' : ''}`;
+        const url = `${baseUrl}?api_token=${api_token}&designation=${role_id}&office=${selectedRoleId ?? 0}`;
+        const response = await api.get(url);
+        const data = response.data;
+        // ✅ Safely handle and validate response
+        outdated_count.value = Array.isArray(data) && data.length > 0
+            ? Number(data[0]?.count ?? 0)
+            : 0;
+        if (!Array.isArray(data) || data.length === 0) {
             console.warn('No outdated equipment data returned. Setting default value.');
-            outdated_count.value = 0;
         }
     }
     catch (error) {
         console.error('Error fetching outdated equipment:', error);
-        outdated_count.value = 0;
+        outdated_count.value = 0; // ✅ Default to 0 in case of error
     }
 };
 const getInvalidData = async () => {
@@ -397,10 +410,10 @@ onMounted(() => {
     window.addEventListener('keydown', handleKeydown);
     window.addEventListener('contextmenu', disableRightClick);
     loadUserData();
-    fetchData();
-    getCountStatus();
-    getOutdatedEquipment();
-    getInvalidData();
+    fetchData(0);
+    getCountStatus(0);
+    getOutdatedEquipment(0);
+    // getInvalidData()
     getDivision();
 });
 const pageTitle = ref('Inventory Management');
@@ -437,14 +450,14 @@ const __VLS_10 = __VLS_asFunctionalComponent(__VLS_9, new __VLS_9({
     total_serviceable_count: (__VLS_ctx.serviceable_count),
     total_unserviceable_count: (__VLS_ctx.unserviceable_count),
     outdated_equipment: (__VLS_ctx.outdated_count),
-    invalid_data: (__VLS_ctx.invalid_data_count),
+    total_returned_count: (__VLS_ctx.return_count),
 }));
 const __VLS_11 = __VLS_10({
     total_equipment: (__VLS_ctx.total_item),
     total_serviceable_count: (__VLS_ctx.serviceable_count),
     total_unserviceable_count: (__VLS_ctx.unserviceable_count),
     outdated_equipment: (__VLS_ctx.outdated_count),
-    invalid_data: (__VLS_ctx.invalid_data_count),
+    total_returned_count: (__VLS_ctx.return_count),
 }, ...__VLS_functionalComponentArgsRest(__VLS_10));
 if (__VLS_ctx.openReviewForm) {
     /** @type {[typeof modal_review_form, ]} */ ;
@@ -854,7 +867,7 @@ __VLS_51.slots.default;
     let __VLS_74;
     const __VLS_75 = {
         onClick: (...[$event]) => {
-            __VLS_ctx.fetchData();
+            __VLS_ctx.fetchData(0);
         }
     };
     var __VLS_71;
@@ -2016,8 +2029,8 @@ const __VLS_self = (await import('vue')).defineComponent({
             total_item: total_item,
             serviceable_count: serviceable_count,
             unserviceable_count: unserviceable_count,
+            return_count: return_count,
             outdated_count: outdated_count,
-            invalid_data_count: invalid_data_count,
             filters: filters,
             loading: loading,
             imageUrl: imageUrl,

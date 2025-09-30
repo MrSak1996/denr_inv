@@ -649,7 +649,7 @@ const pageTitle = ref('Inventory Management')
             <div class="flex items-center gap-4 justify-start">
               <Button type="button" icon="pi pi-add" label="Add" outlined @click="addMore()" />
               <Button type="button" icon="pi pi-file-export" label="Export" outlined @click="openReport = true" />
-              <Button type="button" icon="pi pi-refresh" label="Refresh" outlined @click="fetchData()" />
+              <Button type="button" icon="pi pi-refresh" label="Refresh" outlined @click="fetchData(0)" />
               <Button severity="danger" icon="pi pi-qrcode" label="Generate QR Code [F3]" @click="openQR = true" />
               <Select filter v-model="peripheral_form.mon1division2" :options="division_opts" optionValue="id"
                 optionLabel="name" placeholder="Division" class="md:w-50 pull-right"
