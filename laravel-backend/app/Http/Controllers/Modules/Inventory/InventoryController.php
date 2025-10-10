@@ -20,71 +20,101 @@ class InventoryController extends Controller
 {
 
     public function getControlNo(Request $req)
-{
-    try {
-        // Validate if user ID is provided
-        $userId = $req->query('id');
-        if (!$userId) {
-            return response()->json(['error' => 'User ID is required.'], 400);
+    {
+        try {
+            // Validate if user ID is provided
+            $userId = $req->query('id');
+            if (!$userId) {
+                return response()->json(['error' => 'User ID is required.'], 400);
+            }
+
+            // Fetch user and validate existence
+            $user = DB::table('users')
+                ->select('roles')
+                ->where('id', $userId)
+                ->first();
+
+            if (!$user) {
+                return response()->json(['error' => 'User not found.'], 404);
+            }
+
+            $registeredLoc = $user->roles;
+
+            DB::beginTransaction();
+
+            // Fetch the latest control_no
+            $latest = DB::table('tbl_general_info')
+                ->select('control_no')
+                ->orderBy('id', 'desc')
+                ->lockForUpdate() // Prevent race conditions
+                ->first();
+
+            // Generate the next control number
+            if (!$latest || empty($latest->control_no)) {
+                $newControlNo = 'R4A-RICT-00001';
+            } else {
+                preg_match('/(\d+)$/', $latest->control_no, $matches);
+                $number = isset($matches[1]) ? (int) $matches[1] : 0;
+                $formattedNumber = str_pad($number + 1, 5, '0', STR_PAD_LEFT);
+                $newControlNo = "R4A-RICT-{$formattedNumber}";
+            }
+
+            // Insert the new record
+            DB::table('tbl_general_info')->insert([
+                'control_no' => $newControlNo,
+                'registered_loc' => $registeredLoc,
+                'updated_by' => $userId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'control_no' => $newControlNo
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            \Log::error('Error generating control number: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => 'An error occurred while generating the control number.',
+                'details' => $e->getMessage() // optional: remove in production
+            ], 500);
         }
-
-        // Fetch user and validate existence
-        $user = DB::table('users')
-            ->select('roles')
-            ->where('id', $userId)
-            ->first();
-
-        if (!$user) {
-            return response()->json(['error' => 'User not found.'], 404);
-        }
-
-        $registeredLoc = $user->roles;
-
-        DB::beginTransaction();
-
-        // Fetch the latest control_no
-        $latest = DB::table('tbl_general_info')
-            ->select('control_no')
-            ->orderBy('id', 'desc')
-            ->lockForUpdate() // Prevent race conditions
-            ->first();
-
-        // Generate the next control number
-        if (!$latest || empty($latest->control_no)) {
-            $newControlNo = 'R4A-RICT-00001';
-        } else {
-            preg_match('/(\d+)$/', $latest->control_no, $matches);
-            $number = isset($matches[1]) ? (int) $matches[1] : 0;
-            $formattedNumber = str_pad($number + 1, 5, '0', STR_PAD_LEFT);
-            $newControlNo = "R4A-RICT-{$formattedNumber}";
-        }
-
-        // Insert the new record
-        DB::table('tbl_general_info')->insert([
-            'control_no'     => $newControlNo,
-            'registered_loc' => $registeredLoc,
-            'updated_by'     => $userId,
-            'created_at'     => now(),
-            'updated_at'     => now(),
-        ]);
-
-        DB::commit();
-
-        return response()->json([
-            'control_no' => $newControlNo
-        ]);
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-
-        \Log::error('Error generating control number: ' . $e->getMessage());
-
-        return response()->json([
-            'error' => 'An error occurred while generating the control number.',
-            'details' => $e->getMessage() // optional: remove in production
-        ], 500);
     }
-}
+
+    public function getDesktopData(Request $request)
+    {
+        $registeredLoc = $request->query('registered_loc');
+        $equipmentType = $request->query('equipment_type');
+
+        // Start query
+        $query = DB::table('tbl_general_info as g')
+            ->select(
+                'g.registered_loc',
+                DB::raw('COUNT(*) as total')
+            )
+            ->whereNotNull('g.equipment_type');
+
+        // Apply filters only if provided
+        if (!empty($registeredLoc)) {
+            $query->where('g.registered_loc', $registeredLoc);
+        }
+
+        if (!empty($equipmentType)) {
+            $query->where('g.equipment_type', $equipmentType);
+        }
+
+        // Group and get results
+        $data = $query->groupBy('g.registered_loc')->get();
+
+        return response()->json($data);
+    }
+
+    
 
 
     public function fetchLatestID()
@@ -114,7 +144,7 @@ class InventoryController extends Controller
         }
 
         $ccode = '4A' . $userInfo->code_title . 'ICT';
-  
+
         // Step 2: Retrieve and increment the counter
         $config = DB::table('tbl_config')->where('code', $ccode)->first();
         if (!$config) {
@@ -288,7 +318,7 @@ class InventoryController extends Controller
                 created_at,
                 updated_at'
             ))
-            ->leftJoin('tbl_equipment_type as et','et.id','=','tbl_general_info.equipment_type')
+            ->leftJoin('tbl_equipment_type as et', 'et.id', '=', 'tbl_general_info.equipment_type')
             ->where('tbl_general_info.id', $id)
             ->orWhere('qr_code', $id) // Add OR condition for qr_code
             ->get();
@@ -574,13 +604,13 @@ class InventoryController extends Controller
     public function getCountStatus(Request $request)
     {
         $designation = $request->query('designation');
-        
+
         if ($designation != 13) {
             $query = DB::table('vw_count_status');
             $query->where('registered_loc', $designation);
             $data = $query->get();
             return response()->json($data);
-        }else{
+        } else {
             $query = DB::table('vw_count_status');
             $query->where('registered_loc', $designation);
             $data = $query->get();
@@ -591,20 +621,20 @@ class InventoryController extends Controller
     }
 
     public function getCountStatusPerDivision(Request $request)
-{
-    $designation = $request->query('designation');
-    $office = $request->query('office'); // Use query() for consistency
+    {
+        $designation = $request->query('designation');
+        $office = $request->query('office'); // Use query() for consistency
 
-    // Build base query
-    $query = DB::table('vw_count_status_per_division')
-        ->where('registered_loc', $designation)
-        ->when(
-            $office !== null && $office !== '0' && $office !== 'undefined',
-            fn($q) => $q->where('division_id', $office)
-        );
+        // Build base query
+        $query = DB::table('vw_count_status_per_division')
+            ->where('registered_loc', $designation)
+            ->when(
+                $office !== null && $office !== '0' && $office !== 'undefined',
+                fn($q) => $q->where('division_id', $office)
+            );
 
-    return response()->json($query->get());
-}
+        return response()->json($query->get());
+    }
 
 
     public function getOutdatedEquipment(Request $request)
@@ -625,15 +655,15 @@ class InventoryController extends Controller
         $office = $request->query('office');
         $api_token = $request->query('api_token');
         $designation = $request->query('designation');
-       
 
 
-          $query = DB::table('vw_count_outdated_per_division')
-        ->where('registered_loc', $designation)
-        ->when(
-            $office !== null && $office !== '0' && $office !== 'undefined',
-            fn($q) => $q->where('division_id', $office)
-        );
+
+        $query = DB::table('vw_count_outdated_per_division')
+            ->where('registered_loc', $designation)
+            ->when(
+                $office !== null && $office !== '0' && $office !== 'undefined',
+                fn($q) => $q->where('division_id', $office)
+            );
         $data = $query->get();
 
         return response()->json($data);
@@ -684,7 +714,7 @@ class InventoryController extends Controller
                 'g.serial_no',
                 'g.brand',
                 'g.model',
-				'g.item_status',
+                'g.item_status',
                 'g.year_acquired',
                 's.specs_net',
                 's.specs_gpu',
@@ -727,7 +757,7 @@ class InventoryController extends Controller
                 'monitor2Status'
             )
             ->where('g.qr_code', $qr_code_val)
-            
+
             ->groupBy(
                 'g.id',
                 'g.qr_code',
@@ -747,7 +777,7 @@ class InventoryController extends Controller
                 'g.brand',
                 'g.model',
                 'g.year_acquired',
-				'g.item_status',
+                'g.item_status',
                 's.specs_net',
                 'g.acquisition_cost',
                 'g.range_category',
@@ -902,7 +932,7 @@ class InventoryController extends Controller
                 'no_of_hdd' => 'nullable|integer',
                 'hdd_capacity' => 'nullable|string',
                 'wireless_type' => 'nullable|numeric',
-				'item_status' => 'nullable|numeric'
+                'item_status' => 'nullable|numeric'
             ]);
 
             // Start a transaction
@@ -1119,7 +1149,7 @@ class InventoryController extends Controller
             $transactionLog = InventoryTransaction::create([
                 'transaction_type' => "TRANSFER",
                 'gen_info_id' => $equipment->id,
-                'accountable_user' =>$validated['actual_user'],
+                'accountable_user' => $validated['actual_user'],
                 'inventory_id' => $equipment->id,
                 'transaction_date' => now(),
                 'remarks' => $validated['remarks'],
@@ -1130,7 +1160,7 @@ class InventoryController extends Controller
             $transactionLog = InventoryTransaction::create([
                 'transaction_type' => "ADD",
                 'gen_info_id' => $equipment->id,
-                'accountable_user' =>$validated['actual_user'],
+                'accountable_user' => $validated['actual_user'],
                 'inventory_id' => $equipment->id,
                 'transaction_date' => now(),
                 'remarks' => $validated['remarks'],
@@ -1387,33 +1417,48 @@ class InventoryController extends Controller
 
     public function post_final_review(Request $request)
     {
-       $id = $request->input('id');
+        $id = $request->input('id');
 
         DB::table('tbl_general_info')
             ->where('id', $id)
             ->update(['item_status' => 2]);
-    
+
     }
-	
-	 public function getLatestQRCode(Request $request)
+
+    public function getLatestQRCode(Request $request)
     {
-		 $latestQR = DB::table('tbl_general_info')
-        ->select('id', 'qr_code')
-		->whereNotNull('qr_code')
-        ->orderBy('id', 'desc') // Assuming created_at is your timestamp
-        ->first(); // Fetch the latest record
+        $registeredLoc = $request->query('registered_loc');
 
-    // If no record found, return a meaningful response
-    if (!$latestQR) {
+        if (!$registeredLoc) {
+            return response()->json([
+                'message' => 'Missing parameter: registered_loc',
+                'qr_code' => null
+            ], 400);
+        }
+
+        $latestQR = DB::table('tbl_general_info as gi')
+            ->select('gi.id', 'gi.qr_code')
+            ->leftJoin('user_roles as ur', 'ur.id', '=', 'gi.registered_loc')
+            ->where('ur.role_id', $registeredLoc)
+            ->whereNotNull('gi.qr_code')
+            ->orderByDesc('gi.id')
+            ->first();
+
+        if (!$latestQR) {
+            return response()->json([
+                'message' => 'No QR Code found for this registered_loc',
+                'qr_code' => null
+            ], 404);
+        }
+
         return response()->json([
-            'message' => 'Error in QR Code sequence',
-            'qr_code' => null
-        ], 404);
+            'id' => $latestQR->id,
+            'qr_code' => $latestQR->qr_code,
+            'message' => 'Latest QR code fetched successfully'
+        ], 200);
     }
 
-    return response()->json($latestQR, 200);
-		 
-	 }
+
 
     public function getSummaryData(Request $req)
     {
@@ -1527,5 +1572,5 @@ class InventoryController extends Controller
     }
 
 
-	
+
 }

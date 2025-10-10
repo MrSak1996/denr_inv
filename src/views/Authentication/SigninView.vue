@@ -221,7 +221,7 @@ onMounted(() => { })
     role="dialog" aria-labelledby="reserve-control-no" aria-modal="true">
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
       <DefaultAuthCard subtitle="Department of Environment and Natural Resources"
-        division="Planning and Management Division" :title="pageTitle">
+        division="" :title="pageTitle">
         <form @submit.prevent="loginUser">
           <InputGroup v-model="form.username" label="Username" type="text" placeholder="Enter your username">
             <svg class="fill-current" width="22" height="22" viewBox="0 0 22 22" fill="none"
@@ -350,7 +350,7 @@ onMounted(() => { })
             </div>
           </nav>
         </header>
-        <section class="bg-white bg-portal dark:bg-gray-900 min-h-screen flex items-center">
+        <section class="bg-blue bg-portal dark:bg-gray-900 min-h-screen flex items-center">
           <div class="grid max-w-screen-xl px-4 mx-auto lg:gap-8 xl:gap-0 lg:grid-cols-12 w-full">
             <div class="place-self-center lg:col-span-12 text-center  mt-70">
               <h1
@@ -385,7 +385,7 @@ onMounted(() => { })
         </section>
 
 
-        <section class="bg-white">
+        <section class="bg-blue">
           <div class="max-w-screen-xl px-4 py-8 mx-auto space-y-12 lg:space-y-20 lg:py-24 lg:px-6">
             <div class="items-center gap-8 lg:grid lg:grid-cols-2 xl:gap-16">
               <div class="text-gray-500 sm:text-lg dark:text-gray-400">
@@ -445,10 +445,7 @@ onMounted(() => { })
                       Access</span>
                   </li>
                 </ul>
-                <p class="mb-8 font-light lg:text-xl">
-                  Deliver great service experiences fast - without the complexity of traditional
-                  ITSM solutions.
-                </p>
+                
               </div>
               <img class="hidden w-[900px] h-auto mb-4 rounded-lg lg:mb-0 lg:flex" src="@/assets/images/feature-1.png"
                 alt="dashboard feature image" />
@@ -456,7 +453,7 @@ onMounted(() => { })
           </div>
         </section>
 
-        <section class="bg-gray-50 dark:bg-gray-800">
+        <section class="bg-green-50 dark:bg-gray-800">
           <div class="max-w-screen-xl px-4 py-8 mx-auto space-y-12 lg:space-y-20 lg:py-24 lg:px-6">
             <div class="items-center gap-8 lg:grid lg:grid-cols-2 xl:gap-16">
               <Qrcode

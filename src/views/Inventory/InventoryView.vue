@@ -108,11 +108,8 @@ const loadUserData = async () => {
     '13': 'Regional Office'
   }
 
-
-  const roleId = role_id; // use the **fetched role_id**
+  const roleId = role_id // use the **fetched role_id**
   role_office.value = roleMapping[String(roleId)] || 'Unknown Office'
-
-
 }
 
 const fetchData = async (selectedRoleId: number) => {
@@ -131,8 +128,8 @@ const fetchData = async (selectedRoleId: number) => {
       completeProgress() // Stop the progress bar
       getCountStatus(0)
       getOutdatedEquipment(0)
+      getInvalidData(0)
     }
-
   } catch (error) {
     console.error('Error fetching customers:', error)
     loading.value = false
@@ -142,98 +139,101 @@ const fetchData = async (selectedRoleId: number) => {
 
 const filterByOffice = async (selectedRoleId: number) => {
   try {
-    startProgress();
+    startProgress()
     fetchData(selectedRoleId)
     getCountStatus(selectedRoleId)
     getOutdatedEquipment(selectedRoleId)
+    getInvalidData(selectedRoleId)
 
-    const api_token = authStore.api_token;
-
+    const api_token = authStore.api_token
 
     const response = await api.get(
       `/vw-gen-info?api_tokes=${api_token}&designation=${authStore.role_id}&office=${selectedRoleId}`
     )
 
-    loading.value = false;
-    customers.value = response.data.data;
-    completeProgress();
+    loading.value = false
+    customers.value = response.data.data
+    completeProgress()
   } catch (error) {
-    console.error("Error fetching customers:", error);
-    loading.value = false;
-    completeProgress();
+    console.error('Error fetching customers:', error)
+    loading.value = false
+    completeProgress()
   }
-};
+}
 
 const getCountStatus = async (selectedRoleId: number | null) => {
   try {
-    await loadUserData();
+    await loadUserData()
 
     // ✅ Corrected: If selectedRoleId is empty, use `/getCountStatus`
     // Otherwise, use `/getCountStatusPerDivision`
-    const baseUrl = `/getCountStatus${selectedRoleId ? 'PerDivision' : ''}`;
+    const baseUrl = `/getCountStatus${selectedRoleId ? 'PerDivision' : ''}`
 
-    const url = `${baseUrl}?api_token=${api_token}&designation=${role_id}&office=${selectedRoleId ?? 0}`;
+    const url = `${baseUrl}?api_token=${api_token}&designation=${role_id}&office=${
+      selectedRoleId ?? 0
+    }`
 
-    const response = await api.get(url);
-    const data = response.data;
+    const response = await api.get(url)
+    const data = response.data
 
     // ✅ Safely handle response
     if (Array.isArray(data) && data.length > 0) {
-      serviceable_count.value = Number(data[0]?.serviceable ?? 0);
-      unserviceable_count.value = Number(data[0]?.unserviceable ?? 0);
-      return_count.value = Number(data[0]?.returned ?? 0);
+      serviceable_count.value = Number(data[0]?.serviceable ?? 0)
+      unserviceable_count.value = Number(data[0]?.unserviceable ?? 0)
+      return_count.value = Number(data[0]?.returned ?? 0)
     } else {
-      console.warn('No data returned from API. Setting default values.');
-      serviceable_count.value = 0;
-      unserviceable_count.value = 0;
-      return_count.value = 0;
-
+      console.warn('No data returned from API. Setting default values.')
+      serviceable_count.value = 0
+      unserviceable_count.value = 0
+      return_count.value = 0
     }
-
   } catch (error) {
-    serviceable_count.value = 0;
-    unserviceable_count.value = 0;
-    return_count.value = 0;
+    serviceable_count.value = 0
+    unserviceable_count.value = 0
+    return_count.value = 0
   }
-};
-
-
+}
 
 const getOutdatedEquipment = async (selectedRoleId: number) => {
   try {
     // Load user data before API call
-    await loadUserData();
-    const baseUrl = `/getOutdatedEquipment${selectedRoleId ? 'PerDivision' : ''}`;
-    const url = `${baseUrl}?api_token=${api_token}&designation=${role_id}&office=${selectedRoleId ?? 0}`;
+    await loadUserData()
+    const baseUrl = `/getOutdatedEquipment${selectedRoleId ? 'PerDivision' : ''}`
+    const url = `${baseUrl}?api_token=${api_token}&designation=${role_id}&office=${
+      selectedRoleId ?? 0
+    }`
 
-    const response = await api.get(url);
+    const response = await api.get(url)
 
-    const data = response.data;
+    const data = response.data
 
     // ✅ Safely handle and validate response
-    outdated_count.value = Array.isArray(data) && data.length > 0
-      ? Number(data[0]?.count ?? 0)
-      : 0;
+    outdated_count.value = Array.isArray(data) && data.length > 0 ? Number(data[0]?.count ?? 0) : 0
 
     if (!Array.isArray(data) || data.length === 0) {
-      console.warn('No outdated equipment data returned. Setting default value.');
+      console.warn('No outdated equipment data returned. Setting default value.')
     }
-
   } catch (error) {
-    console.error('Error fetching outdated equipment:', error);
-    outdated_count.value = 0; // ✅ Default to 0 in case of error
+    console.error('Error fetching outdated equipment:', error)
+    outdated_count.value = 0 // ✅ Default to 0 in case of error
   }
-};
+}
 
-
-const getInvalidData = async () => {
+const getInvalidData = async (selectedRoleId: number) => {
   try {
-    const response = await api.get(
-      `/vw-invalid-data?api_token=${api_token}&designation=${authStore.role_id}`
-    )
+    const baseUrl = `/vw-invalid-data${selectedRoleId ? 'PerDivision' : ''}`
+    const url = `${baseUrl}?api_token=${api_token}&designation=${role_id}&office=${
+      selectedRoleId ?? 0
+    }`
+    const response = await api.get(url)
+    const data = response.data
+    invalid_data_count.value = Number(response.data.count ?? 0)
+
+    // const response = await api.get(
+    //   `/vw-invalid-data?api_token=${api_token}&designation=${authStore.role_id}`
+    // )
 
     // Check if response.data exists and has at least one item
-    invalid_data_count.value = Number(response.data.count)
   } catch (error) {
     invalid_data_count.value = 0
   }
@@ -349,10 +349,10 @@ const viewRecord = (id: string) => {
 
 const handlePrint = (id: number) => {
   try {
-    const url = `http://127.0.0.1:8000/api/generatePDFReport?id=${id}`;
-    window.open(url);
+    const url = `http://10.201.12.189:8000/api/generatePDFReport?id=${id}`
+    window.open(url, '_blank') // opens PDF in new tab
   } catch (error) {
-    console.error('Error generating PDF:', error);
+    console.error('Error generating PDF:', error)
   }
 }
 
@@ -497,7 +497,7 @@ onMounted(() => {
   fetchData(0)
   getCountStatus(0)
   getOutdatedEquipment(0)
-  // getInvalidData()
+  getInvalidData(0)
   getDivision()
 })
 
@@ -519,9 +519,13 @@ const pageTitle = ref('Inventory Management')
   <DefaultLayout>
     <BreadcrumbDefault :pageTitle="pageTitle" />
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-5 2xl:gap-7.5 mb-4">
-      <DataStatsOne :total_equipment="total_item" :total_serviceable_count="serviceable_count"
-        :total_unserviceable_count="unserviceable_count" :outdated_equipment="outdated_count"
-        :total_returned_count="return_count" />
+      <DataStatsOne
+        :total_equipment="total_item"
+        :total_serviceable_count="serviceable_count"
+        :total_unserviceable_count="unserviceable_count"
+        :outdated_equipment="outdated_count"
+        :total_returned_count="invalid_data_count"
+      />
     </div>
 
     <!-- <form_dash
@@ -534,13 +538,29 @@ const pageTitle = ref('Inventory Management')
       :invalid_data="invalid_data_count"
     /> -->
     <!-- <modal_qr_scan v-if="openScanForm" :isLoading="openScanForm" @close="openScanForm = false" /> -->
-    <modal_review_form v-if="openReviewForm" :genForm="form" :periForm="peripheral_form" :division="division_opts"
-      :wnature="work_nature" :emp_type="employment_opts" :category="range_category" :softwareData="software"
-      :specsData="specs_form" :equipment="equipment_type" :open="openReviewForm" :item_id="item"
-      @close="openReviewForm = false" />
+    <modal_review_form
+      v-if="openReviewForm"
+      :genForm="form"
+      :periForm="peripheral_form"
+      :division="division_opts"
+      :wnature="work_nature"
+      :emp_type="employment_opts"
+      :category="range_category"
+      :softwareData="software"
+      :specsData="specs_form"
+      :equipment="equipment_type"
+      :open="openReviewForm"
+      :item_id="item"
+      @close="openReviewForm = false"
+    />
     <modal_export_report v-if="openReport" :open="openReport" @close="openReport = false" />
     <modal_gen_qr v-if="openQR" :open="openQR" @close="openQR = false"></modal_gen_qr>
-    <modal_attachments v-if="openAttachments" :open="openAttachments" :id="item_id" @close="openAttachments = false">
+    <modal_attachments
+      v-if="openAttachments"
+      :open="openAttachments"
+      :id="item_id"
+      @close="openAttachments = false"
+    >
     </modal_attachments>
 
     <modal_print_qr v-if="selectQR" :open="selectQR" @close="selectQR = false"></modal_print_qr>
@@ -548,14 +568,23 @@ const pageTitle = ref('Inventory Management')
 
     <div class="flex flex-col gap-10 mt-4">
       <div
-        class="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
+        class="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1"
+      >
         <!--Progress Bar-->
-        <div v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-          role="dialog" tabindex="-1" aria-labelledby="progress-modal">
+        <div
+          v-if="isLoading"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          role="dialog"
+          tabindex="-1"
+          aria-labelledby="progress-modal"
+        >
           <div
-            class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-sm rounded-xl w-full max-w-4xl mx-4 lg:mx-auto transition-transform duration-500 transform">
+            class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-sm rounded-xl w-full max-w-4xl mx-4 lg:mx-auto transition-transform duration-500 transform"
+          >
             <!-- Modal Header -->
-            <div class="modal-content flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700">
+            <div
+              class="modal-content flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700"
+            >
               <h3 class="text-lg font-semibold">{{ currentMessage }}</h3>
               <!-- Dynamic Message -->
             </div>
@@ -563,29 +592,45 @@ const pageTitle = ref('Inventory Management')
             <div class="flex flex-col justify-center items-center gap-x-2 py-6 px-4">
               <!-- Progress Bar Container -->
               <div class="w-full bg-gray-200 rounded-full h-4">
-                <div class="bg-teal-500 h-4 rounded-full transition-all" :style="{ width: progress + '%' }"></div>
+                <div
+                  class="bg-teal-500 h-4 rounded-full transition-all"
+                  :style="{ width: progress + '%' }"
+                ></div>
               </div>
               <!-- Progress Percentage -->
               <p class="mt-2 text-gray-700 dark:text-gray-300">{{ progress }}%</p>
             </div>
           </div>
         </div>
-        <div v-if="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-          role="dialog" tabindex="-1" aria-labelledby="progress-modal">
+        <div
+          v-if="isModalOpen"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          role="dialog"
+          tabindex="-1"
+          aria-labelledby="progress-modal"
+        >
           <div
-            class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-sm rounded-xl w-full max-w-lg mx-4 transition-transform duration-500 transform">
+            class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-sm rounded-xl w-full max-w-lg mx-4 transition-transform duration-500 transform"
+          >
             <!-- Modal Header -->
-            <div class="flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700">
+            <div
+              class="flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700"
+            >
               <h3 class="text-lg font-semibold">Attach MOV's</h3>
-              <button @click="closeModal" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-400">
+              <button
+                @click="closeModal"
+                class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-400"
+              >
                 ✖
               </button>
             </div>
 
             <!-- Modal Body -->
             <div class="p-4">
-              <div class="p-4 text-sm text-red-800 rounded-lg mb-4 bg-red-50 dark:bg-gray-800 dark:text-red-400"
-                role="alert">
+              <div
+                class="p-4 text-sm text-red-800 rounded-lg mb-4 bg-red-50 dark:bg-gray-800 dark:text-red-400"
+                role="alert"
+              >
                 <span class="font-medium">Uploading MOV'S:</span>
                 To ensure proper tracking and organization, upload clear images of ICT equipment
                 with visible serial numbers and asset tags. Use JPEG, PNG, or JPG formats with a max
@@ -596,14 +641,18 @@ const pageTitle = ref('Inventory Management')
               <form @submit.prevent="uploadImage">
                 <div
                   class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-blue-400"
-                  @click="triggerFileInput">
+                  @click="triggerFileInput"
+                >
                   <p v-if="!image" class="text-gray-400">Click to select an image file</p>
                   <p v-else class="text-gray-700 font-medium">{{ image.name }}</p>
                   <input type="file" @change="onFileChange" accept="image/*" class="hidden" />
                 </div>
 
-                <button type="submit" class="mt-4 px-4 py-2 bg-teal-900 text-white rounded-md hover:bg-teal-900 w-full"
-                  :disabled="!image || isUploading">
+                <button
+                  type="submit"
+                  class="mt-4 px-4 py-2 bg-teal-900 text-white rounded-md hover:bg-teal-900 w-full"
+                  :disabled="!image || isUploading"
+                >
                   Upload
                 </button>
               </form>
@@ -611,8 +660,10 @@ const pageTitle = ref('Inventory Management')
               <!-- Progress Bar -->
               <div v-if="isUploading" class="mt-6">
                 <div class="w-full bg-gray-200 rounded-full h-4">
-                  <div class="bg-blue-500 h-4 rounded-full transition-all duration-300"
-                    :style="{ width: progress + '%' }"></div>
+                  <div
+                    class="bg-blue-500 h-4 rounded-full transition-all duration-300"
+                    :style="{ width: progress + '%' }"
+                  ></div>
                 </div>
                 <p class="mt-2 text-center text-sm text-gray-600">{{ progress }}% completed</p>
               </div>
@@ -629,8 +680,17 @@ const pageTitle = ref('Inventory Management')
         </div>
         <!-- end of progress bar -->
 
-        <DataTable size="small" v-model:filters="filters" :value="customers" paginator showGridlines :rows="5"
-          dataKey="id" filterDisplay="menu" :loading="loading" :globalFilterFields="[
+        <DataTable
+          size="small"
+          v-model:filters="filters"
+          :value="customers"
+          paginator
+          showGridlines
+          :rows="5"
+          dataKey="id"
+          filterDisplay="menu"
+          :loading="loading"
+          :globalFilterFields="[
             'control_no',
             'file_id',
             'roles',
@@ -646,19 +706,50 @@ const pageTitle = ref('Inventory Management')
             'acct_division_title',
             'brand',
             'status'
-          ]">
+          ]"
+        >
           <template #header>
             <div class="flex items-center gap-4 justify-start">
               <Button type="button" icon="pi pi-add" label="Add" outlined @click="addMore()" />
-              <Button type="button" icon="pi pi-file-export" label="Export" outlined @click="openReport = true"  style="background-color: brown;"/>
-              <Button type="button" icon="pi pi-refresh" label="Refresh" outlined @click="fetchData(0)" />
-              <Button severity="danger" icon="pi pi-qrcode" label="Generate QR Code [F3]" @click="openQR = true" />
-              <Select filter v-model="peripheral_form.mon1division2" :options="division_opts" optionValue="id"
-                optionLabel="name" placeholder="Division" class="md:w-50 pull-right"
-                @update:modelValue="filterByOffice" />
-              <Button style="left: 300px" severity="info" type="button" icon="pi pi-filter-slash" label="Clear"
-                @click="clearFilter()" />
-
+              <Button
+                type="button"
+                icon="pi pi-file-export"
+                label="Export"
+                outlined
+                @click="openReport = true"
+                style="background-color: brown"
+              />
+              <Button
+                type="button"
+                icon="pi pi-refresh"
+                label="Refresh"
+                outlined
+                @click="fetchData(0)"
+              />
+              <Button
+                severity="danger"
+                icon="pi pi-qrcode"
+                label="Generate QR Code [F3]"
+                @click="openQR = true"
+              />
+              <Select
+                filter
+                v-model="peripheral_form.mon1division2"
+                :options="division_opts"
+                optionValue="id"
+                optionLabel="name"
+                placeholder="Division"
+                class="md:w-50 pull-right"
+                @update:modelValue="filterByOffice"
+              />
+              <Button
+                style="left: 300px"
+                severity="info"
+                type="button"
+                icon="pi pi-filter-slash"
+                label="Clear"
+                @click="clearFilter()"
+              />
 
               <!-- Additional space between buttons and search field -->
               <div class="ml-auto flex items-center">
@@ -673,27 +764,37 @@ const pageTitle = ref('Inventory Management')
           </template>
           <!-- <template #empty> No customers found. </template>
           <template #loading> Loading customers data. Please wait. </template> -->
-          <Column field="id" header="Action" style="width: 1rem">
+
+          <Column field="id" header="Action" style="width: 500px !important">
             <template #body="{ data }">
               <div class="card flex justify-center">
-                <Button @click="retrieveDataviaAPI(data.id)" icon="pi pi-eye" size="small"
-                  class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" />
-                <Button @click="viewRecord(data.id)" icon="pi pi-file-edit" size="small"
-                  class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" />
-                <!-- <Button
-                  @click="handlePrint(data.id)"
-                  icon="pi pi-print"
+                <Button
+                  @click="retrieveDataviaAPI(data.id)"
+                  icon="pi pi-eye"
                   size="small"
                   class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                /> -->
-                <Button data.mon_qr_code1 data.mon_qr_code2 data.ups_qr_code @click="openModal(data.id)"
-                  icon="pi pi-cloud-upload" size="small"
-                  class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" />
+                />
+
+                <Button
+                  @click="viewRecord(data.id)"
+                  icon="pi pi-file-edit"
+                  size="small"
+                  class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                />
+
+                <!-- Only show if file_id does not exist -->
+                <Button
+                  v-if="!data.file_id"
+                  @click="openModal(data.id)"
+                  icon="pi pi-cloud-upload"
+                  size="small"
+                  class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                />
+
+                <!-- <Button @click="handlePrint(data.id)" icon="pi pi-print" size="small"
+                class="text-white mr-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" /> -->
               </div>
             </template>
-            <!-- <template #filter="{ filterModel }">
-              <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
-            </template> -->
           </Column>
           <Column field="control_no" header="Equipment Type" style="min-width: 12rem">
             <template #body="{ data }">
@@ -705,11 +806,36 @@ const pageTitle = ref('Inventory Management')
               <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
             </template>
           </Column>
+          <Column field="attachments" header="Attachments" style="min-width: 12rem">
+            <template #body="{ data }">
+              <div v-if="data.file_id">
+                <Button
+                  @click="openFile(data.id)"
+                  rel="noopener noreferrer"
+                  class="text-white mr-2 bg-teal-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  :href="'https://drive.google.com/file/d/' + data.file_id + '/view?usp=drive_link'"
+                >
+                  <i class="pi pi-external-link mr-2"></i>
+                  Open File
+                </Button>
+              </div>
+              <span v-else> No attachment </span>
+            </template>
+          </Column>
           <Column field="qr_code" header="ICT Equipment QR Code" style="min-width: 12rem">
             <template #body="{ data }">
-              <QrcodeVue v-if="data.qr_code && data.qr_code.trim() !== ''" :value="data.qr_code" :size="80"
-                class="text-center" />
-              {{ data.qr_code }}
+     
+
+              
+               <div class="flex justify-center items-center h-24">
+                <QrcodeVue
+                  v-if="data.mon_qr_code && data.mon_qr_code1.trim() !== ''"
+                  :value="data.mon_qr_code"
+                  :size="50"
+                />
+              </div>
+
+              {{ data.mon_qr_code }}
 
               <!-- Ensure this field exists in the data object -->
             </template>
@@ -718,10 +844,18 @@ const pageTitle = ref('Inventory Management')
             </template>
           </Column>
 
-          <Column field="mon_qr_code1" header="Primary Monitor QR Code" style="min-width: 12rem">
+          <Column field="mon_qr_code1" header="Primary Monitor QR Code" style="min-width: 12rem; text-align: center;">
             <template #body="{ data }">
-              <QrcodeVue v-if="data.mon_qr_code1 && data.mon_qr_code1.trim() !== ''" :value="data.mon_qr_code1"
-                :size="80" class="text-center" />
+                           
+
+               <div class="flex justify-center items-center h-24">
+                <QrcodeVue
+                  v-if="data.mon_qr_code1 && data.mon_qr_code1.trim() !== ''"
+                  :value="data.mon_qr_code1"
+                  :size="50"
+                />
+              </div>
+
               {{ data.mon_qr_code1 }}
 
               <!-- Ensure this field exists in the data object -->
@@ -730,10 +864,20 @@ const pageTitle = ref('Inventory Management')
               <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
             </template>
           </Column>
-          <Column field="mon_qr_code2" header="Secondary Monitor QR Code" style="min-width: 12rem">
+          <Column
+            field="mon_qr_code2"
+            header="Secondary Monitor QR Code"
+            style="min-width: 12rem; text-align: center !important"
+          >
             <template #body="{ data }">
-              <QrcodeVue v-if="data.mon_qr_code2 && data.mon_qr_code2.trim() !== ''" :value="data.mon_qr_code2"
-                :size="80" class="text-center" />
+              <div class="flex justify-center items-center h-24">
+                <QrcodeVue
+                  v-if="data.mon_qr_code2 && data.mon_qr_code2.trim() !== ''"
+                  :value="data.mon_qr_code2"
+                  :size="50"
+                />
+              </div>
+
               {{ data.mon_qr_code2 }}
 
               <!-- Ensure this field exists in the data object -->
@@ -744,8 +888,12 @@ const pageTitle = ref('Inventory Management')
           </Column>
           <Column field="ups_qr_code" header="UPS QR Code" style="min-width: 12rem">
             <template #body="{ data }">
-              <QrcodeVue v-if="data.ups_qr_code && data.ups_qr_code.trim() !== ''" :value="data.ups_qr_code" :size="80"
-                class="text-center" />
+              <QrcodeVue
+                v-if="data.ups_qr_code && data.ups_qr_code.trim() !== ''"
+                :value="data.ups_qr_code"
+                :size="50"
+                class="text-center"
+              />
               {{ data.ups_qr_code }}
 
               <!-- Ensure this field exists in the data object -->
@@ -754,12 +902,22 @@ const pageTitle = ref('Inventory Management')
               <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
             </template>
           </Column>
-          <Column header="Status" field="status" :filterMenuStyle="{ width: '14rem' }" style="min-width: 12rem">
+          <Column
+            header="Status"
+            field="status"
+            :filterMenuStyle="{ width: '14rem' }"
+            style="min-width: 12rem"
+          >
             <template #body="{ data }">
               <Tag :value="data.status" :severity="getSeverity(data.status)" />
             </template>
             <template #filter="{ filterModel }">
-              <Select v-model="filterModel.value" :options="statuses" placeholder="Select One" showClear>
+              <Select
+                v-model="filterModel.value"
+                :options="statuses"
+                placeholder="Select One"
+                showClear
+              >
                 <template #option="slotProps">
                   <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)" />
                 </template>
@@ -802,20 +960,6 @@ const pageTitle = ref('Inventory Management')
               <InputText v-model="filterModel.value" type="text" placeholder="Search by name" />
             </template>
           </Column>
-          <Column field="attachments" header="Attachments" style="min-width: 12rem">
-            <template #body="{ data }">
-              <div v-if="data.file_id">
-                <Button @click="openFile(data.id)" rel="noopener noreferrer"
-                  class="text-white mr-2 bg-teal-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                  <!-- :href="'https://drive.google.com/file/d/' + data.file_id + '/view?usp=drive_link'" -->
-
-                  <i class="pi pi-external-link mr-2"></i>
-                  Open File
-                </Button>
-              </div>
-              <span v-else> No attachment </span>
-            </template>
-          </Column>
 
           <Column field="roles" header="Registered Location" style="min-width: 12rem">
             <template #body="{ data }">
@@ -823,7 +967,12 @@ const pageTitle = ref('Inventory Management')
               <!-- Ensure this field exists in the data object -->
             </template>
             <template #filter="{ filterModel }">
-              <Select v-model="filterModel.value" :options="office" placeholder="Select One" showClear>
+              <Select
+                v-model="filterModel.value"
+                :options="office"
+                placeholder="Select One"
+                showClear
+              >
                 <template #option="slotProps">
                   <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)" />
                 </template>
@@ -831,11 +980,11 @@ const pageTitle = ref('Inventory Management')
             </template>
           </Column>
 
-
-
-
-
-          <Column field="full_specs" header="Specifications / Descriptions" style="min-width: 100px">
+          <Column
+            field="full_specs"
+            header="Specifications / Descriptions"
+            style="min-width: 100px"
+          >
             <template #body="{ data }">
               <div class="wrap-text">
                 {{ data.full_specs }}

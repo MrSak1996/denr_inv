@@ -31,4 +31,32 @@ class VwInvalidDataController extends Controller
             'count' => $rowCount
         ]);
     }
+
+    public function getInvalidDataPerDivision(Request $req)
+    {
+        // Get query parameters from frontend
+        $designation = $req->query('designation'); // equivalent to registered_loc
+        $office = $req->query('office'); // equivalent to division_id
+
+        // Build base query
+        $query = DB::table('vw_invalid_data')
+            ->where('registered_loc', $designation);
+
+        // Apply division filter only if office is valid
+        if (!is_null($office) && $office !== '0' && $office !== 'undefined') {
+            $query->where('division_id', $office);
+        }
+
+        // Execute query
+        $invalidData = $query->get();
+
+        // Optional: count results
+        $rowCount = $invalidData->count();
+
+        // Return JSON response
+        return response()->json([
+            'count' => $rowCount,
+        ]);
+    }
+
 }

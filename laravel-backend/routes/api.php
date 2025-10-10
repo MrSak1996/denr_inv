@@ -73,6 +73,7 @@ Route::middleware('api')->group(function () {
     // VIEWS FUNCTION
     Route::get('/vw-gen-info', [VwGenInfoController::class, 'index']);
     Route::get('/vw-invalid-data', [VwInvalidDataController::class, 'getInvalidData']);
+    Route::get('/vw-invalid-dataPerDivision', [VwInvalidDataController::class, 'getInvalidDataPerDivision']);
     //END
     
     Route::get('/fetchLatestID', [InventoryController::class, 'fetchLatestID']);
@@ -102,6 +103,10 @@ Route::middleware('api')->group(function () {
     Route::get('/checkItemStatus', [InventoryController::class, 'checkItemStatus']);
     Route::get('/getOTPStatus', [SettingsController::class, 'getOTPStatus']);
 	Route::get('/latest-qr-code', [InventoryController::class, 'getLatestQRCode']);
+	Route::get('/getDesktopData', [InventoryController::class, 'getDesktopData']);
+
+
+    
 
 
     Route::post('post_insert_gen_info', [InventoryController::class, 'post_insert_gen_info']);

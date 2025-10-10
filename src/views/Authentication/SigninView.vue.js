@@ -237,12 +237,12 @@ if (__VLS_ctx.openLoginForm) {
     // @ts-ignore
     const __VLS_8 = __VLS_asFunctionalComponent(DefaultAuthCard, new DefaultAuthCard({
         subtitle: "Department of Environment and Natural Resources",
-        division: "Planning and Management Division",
+        division: "",
         title: (__VLS_ctx.pageTitle),
     }));
     const __VLS_9 = __VLS_8({
         subtitle: "Department of Environment and Natural Resources",
-        division: "Planning and Management Division",
+        division: "",
         title: (__VLS_ctx.pageTitle),
     }, ...__VLS_functionalComponentArgsRest(__VLS_8));
     __VLS_10.slots.default;
@@ -410,7 +410,7 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.d
     id: "mobile-menu-2",
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.section, __VLS_intrinsicElements.section)({
-    ...{ class: "bg-white bg-portal dark:bg-gray-900 min-h-screen flex items-center" },
+    ...{ class: "bg-blue bg-portal dark:bg-gray-900 min-h-screen flex items-center" },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "grid max-w-screen-xl px-4 mx-auto lg:gap-8 xl:gap-0 lg:grid-cols-12 w-full" },
@@ -454,7 +454,7 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.a, __VLS_intrinsicElements.a)(
     ...{ class: "flex items-center lg:justify-center font-black mt-50" },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.section, __VLS_intrinsicElements.section)({
-    ...{ class: "bg-white" },
+    ...{ class: "bg-blue" },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "max-w-screen-xl px-4 py-8 mx-auto space-y-12 lg:space-y-20 lg:py-24 lg:px-6" },
@@ -543,16 +543,13 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.path, __VLS_intrinsicElements.
 __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
     ...{ class: "text-base font-medium leading-tight text-gray-900 dark:text-white" },
 });
-__VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({
-    ...{ class: "mb-8 font-light lg:text-xl" },
-});
 __VLS_asFunctionalElement(__VLS_intrinsicElements.img)({
     ...{ class: "hidden w-[900px] h-auto mb-4 rounded-lg lg:mb-0 lg:flex" },
     src: "@/assets/images/feature-1.png",
     alt: "dashboard feature image",
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.section, __VLS_intrinsicElements.section)({
-    ...{ class: "bg-gray-50 dark:bg-gray-800" },
+    ...{ class: "bg-green-50 dark:bg-gray-800" },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "max-w-screen-xl px-4 py-8 mx-auto space-y-12 lg:space-y-20 lg:py-24 lg:px-6" },
@@ -833,7 +830,7 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.
 /** @type {__VLS_StyleScopedClasses['lg:flex']} */ ;
 /** @type {__VLS_StyleScopedClasses['lg:w-auto']} */ ;
 /** @type {__VLS_StyleScopedClasses['lg:order-1']} */ ;
-/** @type {__VLS_StyleScopedClasses['bg-white']} */ ;
+/** @type {__VLS_StyleScopedClasses['bg-blue']} */ ;
 /** @type {__VLS_StyleScopedClasses['bg-portal']} */ ;
 /** @type {__VLS_StyleScopedClasses['dark:bg-gray-900']} */ ;
 /** @type {__VLS_StyleScopedClasses['min-h-screen']} */ ;
@@ -903,7 +900,7 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.
 /** @type {__VLS_StyleScopedClasses['lg:justify-center']} */ ;
 /** @type {__VLS_StyleScopedClasses['font-black']} */ ;
 /** @type {__VLS_StyleScopedClasses['mt-50']} */ ;
-/** @type {__VLS_StyleScopedClasses['bg-white']} */ ;
+/** @type {__VLS_StyleScopedClasses['bg-blue']} */ ;
 /** @type {__VLS_StyleScopedClasses['max-w-screen-xl']} */ ;
 /** @type {__VLS_StyleScopedClasses['px-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['py-8']} */ ;
@@ -986,9 +983,6 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.
 /** @type {__VLS_StyleScopedClasses['leading-tight']} */ ;
 /** @type {__VLS_StyleScopedClasses['text-gray-900']} */ ;
 /** @type {__VLS_StyleScopedClasses['dark:text-white']} */ ;
-/** @type {__VLS_StyleScopedClasses['mb-8']} */ ;
-/** @type {__VLS_StyleScopedClasses['font-light']} */ ;
-/** @type {__VLS_StyleScopedClasses['lg:text-xl']} */ ;
 /** @type {__VLS_StyleScopedClasses['hidden']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-[900px]']} */ ;
 /** @type {__VLS_StyleScopedClasses['h-auto']} */ ;
@@ -996,7 +990,7 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.
 /** @type {__VLS_StyleScopedClasses['rounded-lg']} */ ;
 /** @type {__VLS_StyleScopedClasses['lg:mb-0']} */ ;
 /** @type {__VLS_StyleScopedClasses['lg:flex']} */ ;
-/** @type {__VLS_StyleScopedClasses['bg-gray-50']} */ ;
+/** @type {__VLS_StyleScopedClasses['bg-green-50']} */ ;
 /** @type {__VLS_StyleScopedClasses['dark:bg-gray-800']} */ ;
 /** @type {__VLS_StyleScopedClasses['max-w-screen-xl']} */ ;
 /** @type {__VLS_StyleScopedClasses['px-4']} */ ;

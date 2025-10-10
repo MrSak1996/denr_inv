@@ -13,7 +13,6 @@ use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
 use DB;
 use JasperPHP\JasperPHP;
-use PHPJasper\PHPJasper;
 
 
 
@@ -21,7 +20,6 @@ class ReportsController extends Controller
 {
     public function generateReport(Request $request)
     {
-        
         if ($request->has('export')) {
             // Define template path
             $templatePath = public_path('templates/denr.xlsx');
@@ -35,7 +33,7 @@ class ReportsController extends Controller
             $sheet = $spreadsheet->getActiveSheet();
 
             // Fetch data from the database
-            $data = $this->fecthVWGeneralInfo(request());
+            $data = $this->fecthVWGeneralInfo($request);
 
             // Define common style for wrapping text and borders
             $styleArray = [
@@ -49,10 +47,20 @@ class ReportsController extends Controller
                 ],
             ];
 
+            // Software mapping (fixed layout in your Excel)
+            $softwareMap = [
+                'operating_system' => ['K', 'L'], // SOFTWARE 1 OS + LIC MODEL
+                'ms_office' => ['M', 'N'], // SOFTWARE 2 MS OFFICE + LIC MODEL
+                'arcgis' => ['O', 'P'], // SOFTWARE 3 ArcGIS + LIC MODEL
+                'adobe_pdf' => ['Q', 'R'], // SOFTWARE 4 Adobe PDF + LIC MODEL
+                'photoshop' => ['S', 'T'], // SOFTWARE 5 Photoshop + LIC MODEL
+                'autocad' => ['U', 'V'], // SOFTWARE 6 AutoCAD + LIC MODEL
+            ];
+
             // Populate spreadsheet with database data
-            $row = 3; // Start from row 2
+            $row = 3; // Start from row 3
             foreach ($data as $record) {
-                // Populate other fields (you already have this code)
+                // Populate other fields
                 $sheet->setCellValue('A' . $row, $record->actual_division_title);
                 $sheet->setCellValue('D' . $row, $record->equipment_title);
                 $sheet->setCellValue('E' . $row, $record->equipment_title);
@@ -64,35 +72,59 @@ class ReportsController extends Controller
                 $sheet->setCellValue('W' . $row, $record->serial_no);
                 $sheet->setCellValue('X' . $row, $record->property_no);
                 $sheet->setCellValue('Y' . $row, $record->acct_person);
-                $sheet->setCellValue('Z' . $row, $record->acct_person);
-                $sheet->setCellValue('AB' . $row, $record->actual_division_title);
+                $sheet->setCellValue('Z' . $row, $record->actual_division_title);
+                $sheet->setCellValue('AA' . $row, $record->employment_title);
+
+                $sheet->setCellValue('AB' . $row, $record->actual_user);
                 $sheet->setCellValue('AC' . $row, $record->employment_title);
-                $sheet->setCellValue('AD' . $row, $record->actual_user);
-                $sheet->setCellValue('AE' . $row, $record->actual_user);
-                $sheet->setCellValue('AG' . $row, $record->employment_title);
-                $sheet->setCellValue('AH' . $row, $record->nature_work_title);
-                $sheet->setCellValue('AI' . $row, $record->remarks);
-                $sheet->setCellValue('AJ' . $row, $record->rict_code);
+                $sheet->setCellValue('AD' . $row, $record->nature_work_title);
+                $sheet->setCellValue('AE' . $row, $record->remarks);
+                $sheet->setCellValue('AF' . $row, $record->rict_code);
+                if (!empty($record->os_installed)) {
+                    $sheet->setCellValue('K' . $row, $record->os_installed);
+                }
 
-                // Fetch the software data
+                if (!empty($record->ms_office_installed)) {
+                    $sheet->setCellValue('M' . $row, $record->ms_office_installed);
+                }
+
+                // If vw_gen_info also has arcgis_installed, adobe_pdf_installed, etc:
+                if (!empty($record->arcgis_installed)) {
+                    $sheet->setCellValue('O' . $row, $record->arcgis_installed);
+                }
+
+                if (!empty($record->adobe_pdf_installed)) {
+                    $sheet->setCellValue('Q' . $row, $record->adobe_pdf_installed);
+                }
+
+                if (!empty($record->photoshop_installed)) {
+                    $sheet->setCellValue('S' . $row, $record->photoshop_installed);
+                }
+
+                if (!empty($record->autocad_installed)) {
+                    $sheet->setCellValue('U' . $row, $record->autocad_installed);
+                }
+                // Fetch software data for this record
+                // Fetch software data for this record
                 $software_opts = $this->getSoftwareData($record->id);
-                $colIndex = 10; // Start at column K (Index 10 in PHPExcel)
-                $columns = ['K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V']; // Columns K to V
 
-                foreach ($software_opts as $index => $item) {
-                    // Ensure the current column is within the allowed range
-                    if (isset($columns[$index])) {
-                        $softwareColumn = $columns[$index * 2]; // Software column (K, M, O, etc.)
-                        $remarksColumn = $columns[$index * 2 + 1]; // Remarks column (L, N, P, etc.)
+                // Loop through each software slot
+                foreach ($softwareMap as $key => [$colSoftware, $colLicense]) {
+                    if (isset($software_opts[$key])) {
+                        // Instead of label, use actual database value
+                        // Software values directly from vw_gen_info
 
-                        // Set the software name in the appropriate column
-                        $sheet->setCellValue($softwareColumn . $row, $item->software);
-                        // Set the remarks in the next column
-                        $sheet->setCellValue($remarksColumn . $row, $item->remarks);
+
+                        $sheet->setCellValue($colLicense . $row, $software_opts[$key]->remarks);
+                    } else {
+                        // leave blank if no software data
+                        $sheet->setCellValue($colSoftware . $row, null);
+                        $sheet->setCellValue($colLicense . $row, null);
                     }
                 }
 
-                // Apply the wrapping text and border style to the entire row at once
+
+                // Apply styling
                 $sheet->getStyle('A' . $row . ':AJ' . $row)->applyFromArray($styleArray);
 
                 $row++;
@@ -103,36 +135,64 @@ class ReportsController extends Controller
             $writer = new Xlsx($spreadsheet);
             $writer->save($tempFile);
 
-            // Send the file for download and delete after sending
             return response()->download($tempFile, 'denr_ict_inv_2024.xlsx')->deleteFileAfterSend(true);
         } else {
             return response()->json(['error' => 'Export flag missing.'], 400);
         }
     }
-
     public function fecthVWGeneralInfo(Request $request)
     {
-        $designation = $request->query('role_id');
-
-        // Ensure designation is numeric
-        if (!is_numeric($designation)) {
-            return response()->json([
-                'error' => 'Invalid designation parameter.'
-            ], 400);
-        }
-
         $tableName = 'vw_gen_info';
 
-        $query = DB::table($tableName)->orderBy('id', 'desc');
+        $query = DB::table($tableName)
+            ->whereNotNull('equipment_type')   // equipment_type IS NOT NULL
+            ->where('equipment_type', '!=', 0) // AND equipment_type != 0
+            ->orderBy('id', 'desc');
 
-        // Filter by roles unless designation is 13
-        if ($designation != 13) {
-            $query->where('role_id', $designation);
+        // If you still want to filter by role_id (designation) when passed
+        if ($request->has('role_id') && is_numeric($request->query('role_id'))) {
+            $designation = (int) $request->query('role_id');
+            $query->where('registered_loc', $designation);
         }
-        $data = $query->get();
-        $rowCount = $data->count();
 
-        return $data;
+        return $query->get();
+    }
+
+
+
+    public function getSoftwareData($controlId)
+    {
+        return DB::table('tbl_software_install AS si')
+            ->where('si.control_id', $controlId)
+            ->select(
+                'si.software',
+                DB::raw("CASE 
+                WHEN si.remarks = '1' THEN 'perpetual'
+                WHEN si.remarks = '2' THEN 'subscription'
+                WHEN si.remarks = '3' THEN 'evaluation'
+                ELSE NULL
+            END AS remarks")
+            )
+            ->get()
+            ->keyBy(function ($item) {
+                return strtolower(str_replace(' ', '_', $item->software));
+            });
+    }
+
+
+    // Optional: normalize raw DB software keys into user-friendly labels
+    protected function normalizeSoftwareName($key)
+    {
+        $map = [
+            'operating_system' => 'Windows 11',
+            'ms_office' => 'MS 365',
+            'arcgis' => 'ArcGIS',
+            'adobe_pdf' => 'Adobe PDF',
+            'photoshop' => 'Photoshop',
+            'autocad' => 'AutoCAD',
+        ];
+
+        return $map[$key] ?? ucfirst(str_replace('_', ' ', $key));
     }
 
 
@@ -220,27 +280,8 @@ class ReportsController extends Controller
         return response()->json(['error' => 'Export flag missing.'], 400);
     }
 
-   
-    public function getSoftwareData($id)
-    {
-        // Perform the query
-        $softwareData = DB::table('tbl_software_install AS si')
-            ->leftJoin('tbl_general_info AS gi', 'gi.id', '=', 'si.control_id')
-            ->select(
-                'si.software',
-                DB::raw("CASE 
-                    WHEN si.remarks = '1' THEN 'perpetual'
-                    WHEN si.remarks = '2' THEN 'subscription'
-                    WHEN si.remarks = '3' THEN 'evaluation'
-                    ELSE si.remarks
-                END AS remarks")
-            )
-            ->where('control_id', $id)
-            ->get();
 
-        // Return the results as JSON
-        return $softwareData;
-    }
+
 
     public function getDatabaseConfig()
     {
@@ -254,6 +295,7 @@ class ReportsController extends Controller
         ];
     }
 
+
     public function generatePDFReport(Request $request)
     {
         try {
@@ -265,7 +307,7 @@ class ReportsController extends Controller
 
             // Paths
             $paths = [
-                'input' => storage_path('templates/report/report.jasper'),
+                'input' => storage_path(path: 'templates/report/report.jasper'),
                 'check_icon' => storage_path('templates/report/check.png'),
                 'uncheck_icon' => storage_path('templates/report/uncheck.png'),
                 'output' => public_path('templates/report'),
@@ -329,6 +371,45 @@ class ReportsController extends Controller
             return response()->json(['error' => 'An error occurred while generating the report.'], 500);
         }
     }
+
+
+
+    private function generatePDF($paths, $jasperParams, $ext)
+    {
+        $jasper = new JasperPHP();
+
+        // Build the command (but JasperPHP doesn't expose it before execution)
+        $jasper->process(
+            $paths['input'],
+            $paths['output'],
+            [$ext],
+            $jasperParams,
+            [
+                'driver' => 'mysql',
+                'username' => env('DB_USERNAME', 'root'),
+                'password' => env('DB_PASSWORD', ''),
+                'host' => env('DB_HOST', 'localhost'),
+                'database' => env('DB_DATABASE', 'denr_staging'),
+                'port' => env('DB_PORT', '3306'),
+            ],
+            true,   // useLocale
+            false   // put to true only if you want the process command to output
+        )->execute();
+
+
+        // Build the expected output file path
+        $outputFile = "{$paths['output']}/report.{$ext}";
+
+        // Log if the file exists
+        if (file_exists($outputFile)) {
+            Log::info("Jasper report generated successfully at: $outputFile");
+        } else {
+            Log::error("Failed to generate Jasper report. File not found: $outputFile");
+        }
+
+        return $outputFile;
+    }
+
 
 
     private function fetchData($controller, $method, $id)
@@ -467,41 +548,7 @@ class ReportsController extends Controller
         return $flattened;
     }
 
-    private function generatePDF($paths, $jasperParams, $ext)
-    {
-        $jasper = new JasperPHP();
 
-        // Build the command (but JasperPHP doesn't expose it before execution)
-        $jasper->process(
-            $paths['input'],
-            $paths['output'],
-            [$ext],
-            $jasperParams,
-            [
-                'driver' => 'mysql',
-                'username' => env('DB_USERNAME', 'root'),
-                'password' => env('DB_PASSWORD', ''),
-                'host' => env('DB_HOST', 'localhost'),
-                'database' => env('DB_DATABASE', 'denr_staging'),
-                'port' => env('DB_PORT', '3306'),
-            ],
-            true,   // useLocale
-            false   // put to true only if you want the process command to output
-        )->execute();
-
-
-        // Build the expected output file path
-        $outputFile = "{$paths['output']}/report.{$ext}";
-
-        // Log if the file exists
-        if (file_exists($outputFile)) {
-            Log::info("Jasper report generated successfully at: $outputFile");
-        } else {
-            Log::error("Failed to generate Jasper report. File not found: $outputFile");
-        }
-
-        return $outputFile;
-    }
 
 
 

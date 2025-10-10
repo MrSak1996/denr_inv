@@ -624,13 +624,16 @@ onMounted(() => {
           <i class="pi pi-desktop" />
           <span class="font-bold whitespace-nowrap">Primary & Secondary Monitor</span>
         </Tab>
-
-        <Button style="margin-left: 500px; height: 40px" class="mt-2">
-          <router-link :to="`/inventory?id=${user_id}&api_token=${route.query.api_token}`"
+      <Button  style="margin-left: 300px; height: 40px;background-color: #1565C0 !important; border-color: #1565C0 !important;" @click="transferItem('peri_form')" label="Transfer" type="button" icon="pi pi-send" class="mr-4 mt-2"
+              severity="primary" />
+        <Button style="margin-left:-10px; height: 40px;background-color: #1565C0 !important; border-color: #1565C0 !important;" class="mt-2">
+          <router-link style="background-color: #1565C0 !important; border-color: #1565C0 !important;" :to="`/inventory?id=${user_id}&api_token=${route.query.api_token}`"
             class="p-button p-button-secondary mr-4">
             <i class="pi pi-undo"></i> Back
           </router-link>
         </Button>
+            
+
 
         <!-- <Badge :value="item_status" size="large" severity="danger" class="badge-align-left"></Badge> -->
       </TabList>
@@ -735,11 +738,11 @@ onMounted(() => {
                   </FloatLabel>
 
                   <!-- Button inside the input field -->
-                  <Button v-if="!form.qr_code" class="absolute top-1/2 right-2 transform -translate-y-1/2 px-2 py-2"
+                  <!-- <Button v-if="!form.qr_code" class="absolute top-1/2 right-2 transform -translate-y-1/2 px-2 py-2"
                     style="top: -21px; left: 258px" size="small"
                     @click="generateQRCode(form, 'genForm', Array.isArray(item_id) ? item_id[0] : item_id, Array.isArray(userId) ? userId[0] : userId)">
                     Generate
-                  </Button>
+                  </Button> -->
                 </div>
 
                 <div class="relative z-0 w-full mb-5 group">
@@ -796,10 +799,10 @@ onMounted(() => {
                 </div>
               </div>
             </Fieldset>
-
+<!-- 
             <Button @click="transferItem('gen_info')" label="Edit/Update" type="button" icon="pi pi-star" class="mr-4"
-              severity="primary" />
-            <Button label="Save" type="submit" icon="pi pi-save" severity="primary" class="mr-4" />
+              severity="primary" /> -->
+            <Button label="Save" type="submit" icon="pi pi-save" severity="primary" class="mr-4 mt-4" />
           </form>
         </TabPanel>
 
@@ -1114,8 +1117,7 @@ onMounted(() => {
             </div>
 
 
-            <Button @click="transferItem('peri_form')" label="Edit/Update" type="button" icon="pi pi-star" class="mr-4"
-              severity="primary" />
+      
 
             <Button label="Save" type="submit" icon="pi pi-save" severity="info" class="mr-4" />
             <!-- <Button label="Submit" @click="openReviewForm = true" icon="pi pi-verified" severity="primary" /> -->

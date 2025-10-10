@@ -6,10 +6,8 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        'http://10.201.12.189:8000',
-        'http://10.201.12.189:8080',
-        'http://10.201.12.189:8000/api/export',
-        'https://riis.denrcalabarzon.com/api/login',
+        'http://10.201.12.207:8000',
+        'http://10.201.12.207:8080',
         'https://riis.denrcalabarzon.com',
     ],
 
