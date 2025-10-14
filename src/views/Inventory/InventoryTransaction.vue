@@ -5,6 +5,7 @@ import { useApi } from '@/composables/useApi'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import api from '@/api/axiosInstance';
 import router from '@/router'
+import { useAuthStore } from '@/stores/authStore'
 
 const { fetchCurUser } = useApi()
 const route = useRoute()
@@ -17,6 +18,8 @@ const progress = ref(0)
 const isLoading = ref(false)
 const isModalOpen = ref(false)
 const currentMessage = ref('Loading, please wait...')
+const authStore = useAuthStore()
+
 const messages = ref([
   'Loading, please wait...',
   'Processing data...',
@@ -68,7 +71,7 @@ const fetchTransaction = async () => {
     const userData = await fetchCurUser()
  
     const response = await api.get(
-      `/fetchTransaction?api_token=${api_token}&designation=${userData.data[0].role_id}`
+      `/fetchTransaction?api_token=${api_token}&designation=${authStore.role_id}`
     )
     loading.value = false
     trans_logs.value = response.data.data // Process the fetched data

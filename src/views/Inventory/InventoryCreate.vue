@@ -624,9 +624,9 @@ onMounted(() => {
           <i class="pi pi-desktop" />
           <span class="font-bold whitespace-nowrap">Primary & Secondary Monitor</span>
         </Tab>
-      <Button  style="margin-left: 300px; height: 40px;background-color: #1565C0 !important; border-color: #1565C0 !important;" @click="transferItem('peri_form')" label="Transfer" type="button" icon="pi pi-send" class="mr-4 mt-2"
-              severity="primary" />
-        <Button style="margin-left:-10px; height: 40px;background-color: #1565C0 !important; border-color: #1565C0 !important;" class="mt-2">
+      <!-- <Button  style="margin-left: 300px; height: 40px;background-color: #1565C0 !important; border-color: #1565C0 !important;" @click="transferItem('peri_form')" label="Transfer" type="button" icon="pi pi-send" class="mr-4 mt-2"
+              severity="primary" /> -->
+        <Button style="margin-left:400px; height: 40px;background-color: #1565C0 !important; border-color: #1565C0 !important;" class="mt-2">
           <router-link style="background-color: #1565C0 !important; border-color: #1565C0 !important;" :to="`/inventory?id=${user_id}&api_token=${route.query.api_token}`"
             class="p-button p-button-secondary mr-4">
             <i class="pi pi-undo"></i> Back

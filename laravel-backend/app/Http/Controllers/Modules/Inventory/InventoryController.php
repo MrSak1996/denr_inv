@@ -1135,7 +1135,7 @@ class InventoryController extends Controller
                 'section_id' => $validated['selectedSection'],
                 'range_category' => $validated['selectedRangeCategory'],
                 'equipment_type' => $validated['selectedEquipmentType'],
-                'year_acquired' => $validated['year_acquired'],
+                'year_acquired' => $validated['year_acquired'].'-01-01',
                 'remarks' => $validated['remarks'],
                 'status' => $validated['status'],
                 'shelf_life' => $validated['shelf_life'],
