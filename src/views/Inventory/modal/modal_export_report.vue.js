@@ -27,7 +27,7 @@ const exportData = async () => {
                 progress.value += 10;
             }
         }, 500);
-        const response = await api.get(`/export?export=true&role_id=${role_id}`, {
+        const response = await api.get(`/export?export=true&role_id=${selectedRoles.value}`, {
             responseType: 'blob'
         });
         clearInterval(progressInterval);
@@ -109,18 +109,18 @@ if (props.open) {
         modelValue: (__VLS_ctx.selectedRoles),
         options: (__VLS_ctx.roles_opts),
         optionLabel: "name",
+        optionValue: "id",
         filter: true,
         placeholder: "Select CENRO/PENRO",
-        maxSelectedLabels: (3),
         ...{ class: "w-full" },
     }));
     const __VLS_2 = __VLS_1({
         modelValue: (__VLS_ctx.selectedRoles),
         options: (__VLS_ctx.roles_opts),
         optionLabel: "name",
+        optionValue: "id",
         filter: true,
         placeholder: "Select CENRO/PENRO",
-        maxSelectedLabels: (3),
         ...{ class: "w-full" },
     }, ...__VLS_functionalComponentArgsRest(__VLS_1));
     if (__VLS_ctx.error) {

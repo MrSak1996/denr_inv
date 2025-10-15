@@ -513,6 +513,15 @@ watch(sameAsAccountable, (newVal) => {
     form.selectedActualDivision = '';
   }
 });
+
+const isComputerType = computed(() => {
+  const selected = equipment_type.value.find(
+    (e) => e.id === Number(form.selectedEquipmentType)
+  )?.id
+  return selected === 1 || selected === 2
+})
+
+
 onMounted(() => {
   const id = route.params.id
   if (!id) {
@@ -612,11 +621,11 @@ onMounted(() => {
           <i class="pi pi-info-circle" />
           <span class="font-bold whitespace-nowrap">General Information</span>
         </Tab>
-        <Tab value="1" as="div" class="flex items-center gap-2">
+        <Tab value="1" as="div" class="flex items-center gap-2" :disabled="!isComputerType">
           <i class="pi pi-folder" />
           <span class="font-bold whitespace-nowrap">Specification</span>
         </Tab>
-        <Tab value="2" as="div" class="flex items-center gap-2">
+        <Tab value="2" as="div" class="flex items-center gap-2" :disabled="!isComputerType">
           <i class="pi pi-code" />
           <span class="font-bold whitespace-nowrap">Major Software Installed</span>
         </Tab>
@@ -637,6 +646,7 @@ onMounted(() => {
 
         <!-- <Badge :value="item_status" size="large" severity="danger" class="badge-align-left"></Badge> -->
       </TabList>
+     
 
       <TabPanels>
         <!-- General Information -->
@@ -799,9 +809,9 @@ onMounted(() => {
                 </div>
               </div>
             </Fieldset>
-<!-- 
-            <Button @click="transferItem('gen_info')" label="Edit/Update" type="button" icon="pi pi-star" class="mr-4"
-              severity="primary" /> -->
+              <!-- 
+                          <Button @click="transferItem('gen_info')" label="Edit/Update" type="button" icon="pi pi-star" class="mr-4"
+                            severity="primary" /> -->
             <Button label="Save" type="submit" icon="pi pi-save" severity="primary" class="mr-4 mt-4" />
           </form>
         </TabPanel>
@@ -949,7 +959,7 @@ onMounted(() => {
         </TabPanel>
 
         <!-- Software Install -->
-        <TabPanel value="2" as="p" class="m-0">
+        <TabPanel value="2" as="p" class="m-0" >
           <form @submit.prevent="saveSoftwareInfo">
             <div class="grid md:grid-cols-2 md:gap-6 mb-4">
               <div v-for="(software, index) in software_installed" :key="software.key + '-' + index"

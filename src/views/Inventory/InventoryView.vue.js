@@ -231,6 +231,10 @@ const initFilters = () => {
             operator: FilterOperator.OR,
             constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
         },
+        serial_no: {
+            operator: FilterOperator.OR,
+            constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
+        },
         full_specs: {
             operator: FilterOperator.OR,
             constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
@@ -1175,13 +1179,15 @@ __VLS_155.slots.default;
         const __VLS_157 = __VLS_asFunctionalComponent(__VLS_156, new __VLS_156({
             ...{ 'onClick': {} },
             rel: "noopener noreferrer",
-            ...{ class: "text-white mr-2 bg-teal-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" },
+            ...{ style: {} },
+            ...{ class: "text-white mr-2 border hover:opacity-90 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center" },
             href: ('https://drive.google.com/file/d/' + data.file_id + '/view?usp=drive_link'),
         }));
         const __VLS_158 = __VLS_157({
             ...{ 'onClick': {} },
             rel: "noopener noreferrer",
-            ...{ class: "text-white mr-2 bg-teal-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" },
+            ...{ style: {} },
+            ...{ class: "text-white mr-2 border hover:opacity-90 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center" },
             href: ('https://drive.google.com/file/d/' + data.file_id + '/view?usp=drive_link'),
         }, ...__VLS_functionalComponentArgsRest(__VLS_157));
         let __VLS_160;
@@ -1225,20 +1231,20 @@ __VLS_167.slots.default;
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "flex justify-center items-center h-24" },
     });
-    if (data.mon_qr_code && data.mon_qr_code1.trim() !== '') {
+    if (data.qr_code && data.qr_code.trim() !== '') {
         const __VLS_168 = {}.QrcodeVue;
         /** @type {[typeof __VLS_components.QrcodeVue, ]} */ ;
         // @ts-ignore
         const __VLS_169 = __VLS_asFunctionalComponent(__VLS_168, new __VLS_168({
-            value: (data.mon_qr_code),
+            value: (data.qr_code),
             size: (50),
         }));
         const __VLS_170 = __VLS_169({
-            value: (data.mon_qr_code),
+            value: (data.qr_code),
             size: (50),
         }, ...__VLS_functionalComponentArgsRest(__VLS_169));
     }
-    (data.mon_qr_code);
+    (data.qr_code);
 }
 {
     const { filter: __VLS_thisSlot } = __VLS_167.slots;
@@ -1995,11 +2001,11 @@ var __VLS_3;
 /** @type {__VLS_StyleScopedClasses['text-center']} */ ;
 /** @type {__VLS_StyleScopedClasses['text-white']} */ ;
 /** @type {__VLS_StyleScopedClasses['mr-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['bg-teal-700']} */ ;
-/** @type {__VLS_StyleScopedClasses['hover:bg-green-800']} */ ;
+/** @type {__VLS_StyleScopedClasses['border']} */ ;
+/** @type {__VLS_StyleScopedClasses['hover:opacity-90']} */ ;
 /** @type {__VLS_StyleScopedClasses['focus:ring-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['focus:outline-none']} */ ;
-/** @type {__VLS_StyleScopedClasses['focus:ring-blue-300']} */ ;
+/** @type {__VLS_StyleScopedClasses['focus:ring-orange-300']} */ ;
 /** @type {__VLS_StyleScopedClasses['font-medium']} */ ;
 /** @type {__VLS_StyleScopedClasses['rounded-lg']} */ ;
 /** @type {__VLS_StyleScopedClasses['text-sm']} */ ;
@@ -2008,9 +2014,6 @@ var __VLS_3;
 /** @type {__VLS_StyleScopedClasses['px-5']} */ ;
 /** @type {__VLS_StyleScopedClasses['py-2.5']} */ ;
 /** @type {__VLS_StyleScopedClasses['text-center']} */ ;
-/** @type {__VLS_StyleScopedClasses['dark:bg-blue-600']} */ ;
-/** @type {__VLS_StyleScopedClasses['dark:hover:bg-blue-700']} */ ;
-/** @type {__VLS_StyleScopedClasses['dark:focus:ring-blue-800']} */ ;
 /** @type {__VLS_StyleScopedClasses['pi']} */ ;
 /** @type {__VLS_StyleScopedClasses['pi-external-link']} */ ;
 /** @type {__VLS_StyleScopedClasses['mr-2']} */ ;

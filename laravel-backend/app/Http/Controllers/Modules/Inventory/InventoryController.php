@@ -1437,12 +1437,12 @@ class InventoryController extends Controller
         }
 
         $latestQR = DB::table('tbl_general_info as gi')
-            ->select('gi.id', 'gi.qr_code')
-            ->leftJoin('user_roles as ur', 'ur.id', '=', 'gi.registered_loc')
-            ->where('ur.role_id', $registeredLoc)
-            ->whereNotNull('gi.qr_code')
-            ->orderByDesc('gi.id')
-            ->first();
+        ->select('gi.id', 'gi.qr_code')
+        ->leftJoin('user_roles as ur', 'ur.id', '=', 'gi.registered_loc')
+        ->where('ur.id', $registeredLoc)
+        ->whereNotNull('gi.qr_code')
+        ->orderByDesc('gi.qr_code')
+        ->first();
 
         if (!$latestQR) {
             return response()->json([

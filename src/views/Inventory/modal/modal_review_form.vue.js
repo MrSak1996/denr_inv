@@ -139,10 +139,11 @@ if (__VLS_ctx.open) {
     __VLS_asFunctionalElement(__VLS_intrinsicElements.tr, __VLS_intrinsicElements.tr)({});
     __VLS_asFunctionalElement(__VLS_intrinsicElements.th, __VLS_intrinsicElements.th)({
         colspan: "4",
-        ...{ class: "px-2 py-1 text-left text-sm font-bold text-gray-700" },
+        ...{ class: "px-2 py-1 text-left text-sm font-bold" },
+        ...{ style: {} },
     });
     __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
-        ...{ class: "float-right text-xs font-normal text-gray-500" },
+        ...{ class: "float-right text-xs font-normal" },
     });
     __VLS_asFunctionalElement(__VLS_intrinsicElements.tbody, __VLS_intrinsicElements.tbody)({
         ...{ class: "divide-y divide-gray-300" },
@@ -278,7 +279,8 @@ if (__VLS_ctx.open) {
     __VLS_asFunctionalElement(__VLS_intrinsicElements.tr, __VLS_intrinsicElements.tr)({});
     __VLS_asFunctionalElement(__VLS_intrinsicElements.th, __VLS_intrinsicElements.th)({
         colspan: "4",
-        ...{ class: "px-2 py-1 text-left text-sm font-bold text-gray-700" },
+        ...{ class: "px-2 py-1 text-left text-sm font-bold" },
+        ...{ style: {} },
     });
     __VLS_asFunctionalElement(__VLS_intrinsicElements.tbody, __VLS_intrinsicElements.tbody)({
         ...{ class: "divide-y divide-gray-300" },
@@ -368,7 +370,8 @@ if (__VLS_ctx.open) {
     });
     __VLS_asFunctionalElement(__VLS_intrinsicElements.tr, __VLS_intrinsicElements.tr)({});
     __VLS_asFunctionalElement(__VLS_intrinsicElements.th, __VLS_intrinsicElements.th)({
-        ...{ class: "px-2 py-1 text-left text-sm font-bold text-gray-700" },
+        ...{ class: "px-2 py-1 text-left text-sm font-bold" },
+        ...{ style: {} },
         colspan: "4",
     });
     __VLS_asFunctionalElement(__VLS_intrinsicElements.tbody, __VLS_intrinsicElements.tbody)({
@@ -403,7 +406,8 @@ if (__VLS_ctx.open) {
     });
     __VLS_asFunctionalElement(__VLS_intrinsicElements.tr, __VLS_intrinsicElements.tr)({});
     __VLS_asFunctionalElement(__VLS_intrinsicElements.th, __VLS_intrinsicElements.th)({
-        ...{ class: "px-2 py-1 text-left text-sm font-bold text-gray-700" },
+        ...{ class: "px-2 py-1 text-left text-sm font-bold" },
+        ...{ style: {} },
         colspan: "4",
     });
     __VLS_asFunctionalElement(__VLS_intrinsicElements.tbody, __VLS_intrinsicElements.tbody)({
@@ -503,11 +507,12 @@ if (__VLS_ctx.open) {
         ...{ class: "table-auto w-full border border-gray-200 mt-4" },
     });
     __VLS_asFunctionalElement(__VLS_intrinsicElements.thead, __VLS_intrinsicElements.thead)({
-        ...{ class: "bg-gray-100" },
+        ...{ class: "bg-gray-500" },
     });
     __VLS_asFunctionalElement(__VLS_intrinsicElements.tr, __VLS_intrinsicElements.tr)({});
     __VLS_asFunctionalElement(__VLS_intrinsicElements.th, __VLS_intrinsicElements.th)({
-        ...{ class: "px-2 py-1 text-left text-sm font-bold text-gray-700" },
+        ...{ class: "px-2 py-1 text-left text-sm font-bold" },
+        ...{ style: {} },
         colspan: "4",
     });
     __VLS_asFunctionalElement(__VLS_intrinsicElements.tbody, __VLS_intrinsicElements.tbody)({
@@ -603,11 +608,9 @@ if (__VLS_ctx.open) {
 /** @type {__VLS_StyleScopedClasses['text-left']} */ ;
 /** @type {__VLS_StyleScopedClasses['text-sm']} */ ;
 /** @type {__VLS_StyleScopedClasses['font-bold']} */ ;
-/** @type {__VLS_StyleScopedClasses['text-gray-700']} */ ;
 /** @type {__VLS_StyleScopedClasses['float-right']} */ ;
 /** @type {__VLS_StyleScopedClasses['text-xs']} */ ;
 /** @type {__VLS_StyleScopedClasses['font-normal']} */ ;
-/** @type {__VLS_StyleScopedClasses['text-gray-500']} */ ;
 /** @type {__VLS_StyleScopedClasses['divide-y']} */ ;
 /** @type {__VLS_StyleScopedClasses['divide-gray-300']} */ ;
 /** @type {__VLS_StyleScopedClasses['px-2']} */ ;
@@ -765,7 +768,6 @@ if (__VLS_ctx.open) {
 /** @type {__VLS_StyleScopedClasses['text-left']} */ ;
 /** @type {__VLS_StyleScopedClasses['text-sm']} */ ;
 /** @type {__VLS_StyleScopedClasses['font-bold']} */ ;
-/** @type {__VLS_StyleScopedClasses['text-gray-700']} */ ;
 /** @type {__VLS_StyleScopedClasses['divide-y']} */ ;
 /** @type {__VLS_StyleScopedClasses['divide-gray-300']} */ ;
 /** @type {__VLS_StyleScopedClasses['px-2']} */ ;
@@ -869,7 +871,6 @@ if (__VLS_ctx.open) {
 /** @type {__VLS_StyleScopedClasses['text-left']} */ ;
 /** @type {__VLS_StyleScopedClasses['text-sm']} */ ;
 /** @type {__VLS_StyleScopedClasses['font-bold']} */ ;
-/** @type {__VLS_StyleScopedClasses['text-gray-700']} */ ;
 /** @type {__VLS_StyleScopedClasses['divide-y']} */ ;
 /** @type {__VLS_StyleScopedClasses['divide-gray-200']} */ ;
 /** @type {__VLS_StyleScopedClasses['px-2']} */ ;
@@ -901,7 +902,6 @@ if (__VLS_ctx.open) {
 /** @type {__VLS_StyleScopedClasses['text-left']} */ ;
 /** @type {__VLS_StyleScopedClasses['text-sm']} */ ;
 /** @type {__VLS_StyleScopedClasses['font-bold']} */ ;
-/** @type {__VLS_StyleScopedClasses['text-gray-700']} */ ;
 /** @type {__VLS_StyleScopedClasses['divide-y']} */ ;
 /** @type {__VLS_StyleScopedClasses['divide-gray-200']} */ ;
 /** @type {__VLS_StyleScopedClasses['px-2']} */ ;
@@ -1017,13 +1017,12 @@ if (__VLS_ctx.open) {
 /** @type {__VLS_StyleScopedClasses['border']} */ ;
 /** @type {__VLS_StyleScopedClasses['border-gray-200']} */ ;
 /** @type {__VLS_StyleScopedClasses['mt-4']} */ ;
-/** @type {__VLS_StyleScopedClasses['bg-gray-100']} */ ;
+/** @type {__VLS_StyleScopedClasses['bg-gray-500']} */ ;
 /** @type {__VLS_StyleScopedClasses['px-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['py-1']} */ ;
 /** @type {__VLS_StyleScopedClasses['text-left']} */ ;
 /** @type {__VLS_StyleScopedClasses['text-sm']} */ ;
 /** @type {__VLS_StyleScopedClasses['font-bold']} */ ;
-/** @type {__VLS_StyleScopedClasses['text-gray-700']} */ ;
 /** @type {__VLS_StyleScopedClasses['divide-y']} */ ;
 /** @type {__VLS_StyleScopedClasses['divide-gray-200']} */ ;
 /** @type {__VLS_StyleScopedClasses['px-2']} */ ;

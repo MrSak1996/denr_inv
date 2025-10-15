@@ -282,7 +282,7 @@ const initFilters = () => {
       operator: FilterOperator.OR,
       constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
     },
-    serial_no:{
+    serial_no: {
       operator: FilterOperator.OR,
       constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
     },
@@ -816,7 +816,8 @@ const pageTitle = ref('Inventory Management')
                 <Button
                   @click="openFile(data.id)"
                   rel="noopener noreferrer"
-                  class="text-white mr-2 bg-teal-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  style="background-color: #d84315 !important; border-color: #d84315 !important"
+                  class="text-white mr-2 border hover:opacity-90 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"
                   :href="'https://drive.google.com/file/d/' + data.file_id + '/view?usp=drive_link'"
                 >
                   <i class="pi pi-external-link mr-2"></i>
@@ -826,20 +827,17 @@ const pageTitle = ref('Inventory Management')
               <span v-else> No attachment </span>
             </template>
           </Column>
-          <Column field="qr_code" header="ICT Equipment QR Code" style="min-width: 12rem">
+          <Column field="qr_code" header="ICT Equipment QR Code" style="min-width: 12rem; text-align: center;">
             <template #body="{ data }">
-     
-
-              
-               <div class="flex justify-center items-center h-24">
+              <div class="flex justify-center items-center h-24">
                 <QrcodeVue
-                  v-if="data.mon_qr_code && data.mon_qr_code1.trim() !== ''"
-                  :value="data.mon_qr_code"
+                  v-if="data.qr_code && data.qr_code.trim() !== ''"
+                  :value="data.qr_code"
                   :size="50"
                 />
               </div>
 
-              {{ data.mon_qr_code }}
+              {{ data.qr_code }}
 
               <!-- Ensure this field exists in the data object -->
             </template>
@@ -848,11 +846,13 @@ const pageTitle = ref('Inventory Management')
             </template>
           </Column>
 
-          <Column field="mon_qr_code1" header="Primary Monitor QR Code" style="min-width: 12rem; text-align: center;">
+          <Column
+            field="mon_qr_code1"
+            header="Primary Monitor QR Code"
+            style="min-width: 12rem; text-align: center"
+          >
             <template #body="{ data }">
-                           
-
-               <div class="flex justify-center items-center h-24">
+              <div class="flex justify-center items-center h-24">
                 <QrcodeVue
                   v-if="data.mon_qr_code1 && data.mon_qr_code1.trim() !== ''"
                   :value="data.mon_qr_code1"

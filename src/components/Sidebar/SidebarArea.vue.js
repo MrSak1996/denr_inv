@@ -94,7 +94,7 @@ const menuGroups = ref([
                 route: '#',
                 children: [
                     { label: 'ICT Equipment', route: `/inventory?id=${userId}&api_token=${api_token}` },
-                    // { label: 'History Logs', route: `/inventory/logs?id=${userId}&api_token=${api_token}` }
+                    { label: 'History Logs', route: `/inventory/logs?id=${userId}&api_token=${api_token}` }
                 ]
             },
             {

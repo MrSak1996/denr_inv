@@ -66,7 +66,7 @@ class ReportsController extends Controller
                 $sheet->setCellValue('E' . $row, $record->equipment_title);
                 $sheet->setCellValue('F' . $row, $record->year_acquired);
                 $sheet->setCellValue('G' . $row, $record->shelf_life);
-                $sheet->setCellValue('H' . $row, $record->brand);
+                $sheet->setCellValue('H' . $row, $record->equipment_brand);
                 $sheet->setCellValue('I' . $row, $record->full_specs);
                 $sheet->setCellValue('J' . $row, $record->range_category);
                 $sheet->setCellValue('W' . $row, $record->serial_no);
@@ -146,7 +146,7 @@ class ReportsController extends Controller
 
         $query = DB::table($tableName)
             ->whereNotNull('equipment_type')   // equipment_type IS NOT NULL
-            ->where('equipment_type', '!=', 0) // AND equipment_type != 0
+            ->where('equipment_type', '!=', value: 0) // AND equipment_type != 0
             ->orderBy('id', 'desc');
 
         // If you still want to filter by role_id (designation) when passed

@@ -33,7 +33,7 @@ const exportData = async () => {
       }
     }, 500)
 
-    const response = await api.get(`/export?export=true&role_id=${role_id}`, {
+    const response = await api.get(`/export?export=true&role_id=${selectedRoles.value}`, {
       responseType: 'blob'
     })
 
@@ -96,8 +96,9 @@ onMounted(() => {
             <strong>"Generate Report"</strong> button to download the report.
           </div>
 
-          <Select v-model="selectedRoles" :options="roles_opts" optionLabel="name" filter
-            placeholder="Select CENRO/PENRO" :maxSelectedLabels="3" class="w-full" />
+          <Select v-model="selectedRoles" :options="roles_opts" optionLabel="name" optionValue="id" filter
+            placeholder="Select CENRO/PENRO" class="w-full" />
+
         </div>
 
         <div v-if="error" class="error">{{ error }}</div>

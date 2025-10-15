@@ -442,6 +442,10 @@ watch(sameAsAccountable, (newVal) => {
         form.selectedActualDivision = '';
     }
 });
+const isComputerType = computed(() => {
+    const selected = equipment_type.value.find((e) => e.id === Number(form.selectedEquipmentType))?.id;
+    return selected === 1 || selected === 2;
+});
 onMounted(() => {
     const id = route.params.id;
     if (!id) {
@@ -658,11 +662,13 @@ const __VLS_45 = __VLS_asFunctionalComponent(__VLS_44, new __VLS_44({
     value: "1",
     as: "div",
     ...{ class: "flex items-center gap-2" },
+    disabled: (!__VLS_ctx.isComputerType),
 }));
 const __VLS_46 = __VLS_45({
     value: "1",
     as: "div",
     ...{ class: "flex items-center gap-2" },
+    disabled: (!__VLS_ctx.isComputerType),
 }, ...__VLS_functionalComponentArgsRest(__VLS_45));
 __VLS_47.slots.default;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.i)({
@@ -679,11 +685,13 @@ const __VLS_49 = __VLS_asFunctionalComponent(__VLS_48, new __VLS_48({
     value: "2",
     as: "div",
     ...{ class: "flex items-center gap-2" },
+    disabled: (!__VLS_ctx.isComputerType),
 }));
 const __VLS_50 = __VLS_49({
     value: "2",
     as: "div",
     ...{ class: "flex items-center gap-2" },
+    disabled: (!__VLS_ctx.isComputerType),
 }, ...__VLS_functionalComponentArgsRest(__VLS_49));
 __VLS_51.slots.default;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.i)({
@@ -715,136 +723,106 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.
 });
 var __VLS_55;
 const __VLS_56 = {}.Button;
-/** @type {[typeof __VLS_components.Button, ]} */ ;
-// @ts-ignore
-const __VLS_57 = __VLS_asFunctionalComponent(__VLS_56, new __VLS_56({
-    ...{ 'onClick': {} },
-    ...{ style: {} },
-    label: "Transfer",
-    type: "button",
-    icon: "pi pi-send",
-    ...{ class: "mr-4 mt-2" },
-    severity: "primary",
-}));
-const __VLS_58 = __VLS_57({
-    ...{ 'onClick': {} },
-    ...{ style: {} },
-    label: "Transfer",
-    type: "button",
-    icon: "pi pi-send",
-    ...{ class: "mr-4 mt-2" },
-    severity: "primary",
-}, ...__VLS_functionalComponentArgsRest(__VLS_57));
-let __VLS_60;
-let __VLS_61;
-let __VLS_62;
-const __VLS_63 = {
-    onClick: (...[$event]) => {
-        __VLS_ctx.transferItem('peri_form');
-    }
-};
-var __VLS_59;
-const __VLS_64 = {}.Button;
 /** @type {[typeof __VLS_components.Button, typeof __VLS_components.Button, ]} */ ;
 // @ts-ignore
-const __VLS_65 = __VLS_asFunctionalComponent(__VLS_64, new __VLS_64({
+const __VLS_57 = __VLS_asFunctionalComponent(__VLS_56, new __VLS_56({
     ...{ style: {} },
     ...{ class: "mt-2" },
 }));
-const __VLS_66 = __VLS_65({
+const __VLS_58 = __VLS_57({
     ...{ style: {} },
     ...{ class: "mt-2" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_65));
-__VLS_67.slots.default;
-const __VLS_68 = {}.RouterLink;
+}, ...__VLS_functionalComponentArgsRest(__VLS_57));
+__VLS_59.slots.default;
+const __VLS_60 = {}.RouterLink;
 /** @type {[typeof __VLS_components.RouterLink, typeof __VLS_components.routerLink, typeof __VLS_components.RouterLink, typeof __VLS_components.routerLink, ]} */ ;
 // @ts-ignore
-const __VLS_69 = __VLS_asFunctionalComponent(__VLS_68, new __VLS_68({
+const __VLS_61 = __VLS_asFunctionalComponent(__VLS_60, new __VLS_60({
     ...{ style: {} },
     to: (`/inventory?id=${__VLS_ctx.user_id}&api_token=${__VLS_ctx.route.query.api_token}`),
     ...{ class: "p-button p-button-secondary mr-4" },
 }));
-const __VLS_70 = __VLS_69({
+const __VLS_62 = __VLS_61({
     ...{ style: {} },
     to: (`/inventory?id=${__VLS_ctx.user_id}&api_token=${__VLS_ctx.route.query.api_token}`),
     ...{ class: "p-button p-button-secondary mr-4" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_69));
-__VLS_71.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_61));
+__VLS_63.slots.default;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.i, __VLS_intrinsicElements.i)({
     ...{ class: "pi pi-undo" },
 });
-var __VLS_71;
-var __VLS_67;
+var __VLS_63;
+var __VLS_59;
 var __VLS_39;
-const __VLS_72 = {}.TabPanels;
+const __VLS_64 = {}.TabPanels;
 /** @type {[typeof __VLS_components.TabPanels, typeof __VLS_components.TabPanels, ]} */ ;
 // @ts-ignore
-const __VLS_73 = __VLS_asFunctionalComponent(__VLS_72, new __VLS_72({}));
-const __VLS_74 = __VLS_73({}, ...__VLS_functionalComponentArgsRest(__VLS_73));
-__VLS_75.slots.default;
-const __VLS_76 = {}.TabPanel;
+const __VLS_65 = __VLS_asFunctionalComponent(__VLS_64, new __VLS_64({}));
+const __VLS_66 = __VLS_65({}, ...__VLS_functionalComponentArgsRest(__VLS_65));
+__VLS_67.slots.default;
+const __VLS_68 = {}.TabPanel;
 /** @type {[typeof __VLS_components.TabPanel, typeof __VLS_components.TabPanel, ]} */ ;
 // @ts-ignore
-const __VLS_77 = __VLS_asFunctionalComponent(__VLS_76, new __VLS_76({
+const __VLS_69 = __VLS_asFunctionalComponent(__VLS_68, new __VLS_68({
     value: "0",
     as: "p",
     ...{ class: "m-0" },
 }));
-const __VLS_78 = __VLS_77({
+const __VLS_70 = __VLS_69({
     value: "0",
     as: "p",
     ...{ class: "m-0" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_77));
-__VLS_79.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_69));
+__VLS_71.slots.default;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.form, __VLS_intrinsicElements.form)({
     ...{ onSubmit: (__VLS_ctx.saveGeneralInfo) },
 });
-const __VLS_80 = {}.Fieldset;
+const __VLS_72 = {}.Fieldset;
 /** @type {[typeof __VLS_components.Fieldset, typeof __VLS_components.Fieldset, ]} */ ;
 // @ts-ignore
-const __VLS_81 = __VLS_asFunctionalComponent(__VLS_80, new __VLS_80({
+const __VLS_73 = __VLS_asFunctionalComponent(__VLS_72, new __VLS_72({
     legend: "Acountable Person Information",
 }));
-const __VLS_82 = __VLS_81({
+const __VLS_74 = __VLS_73({
     legend: "Acountable Person Information",
-}, ...__VLS_functionalComponentArgsRest(__VLS_81));
-__VLS_83.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_73));
+__VLS_75.slots.default;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "grid md:grid-cols-2 md:gap-6 mb-4" },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full mb-5 group mt-4" },
 });
-const __VLS_84 = {}.FloatLabel;
+const __VLS_76 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
-const __VLS_85 = __VLS_asFunctionalComponent(__VLS_84, new __VLS_84({}));
-const __VLS_86 = __VLS_85({}, ...__VLS_functionalComponentArgsRest(__VLS_85));
-__VLS_87.slots.default;
-const __VLS_88 = {}.InputText;
+const __VLS_77 = __VLS_asFunctionalComponent(__VLS_76, new __VLS_76({}));
+const __VLS_78 = __VLS_77({}, ...__VLS_functionalComponentArgsRest(__VLS_77));
+__VLS_79.slots.default;
+const __VLS_80 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
-const __VLS_89 = __VLS_asFunctionalComponent(__VLS_88, new __VLS_88({
+const __VLS_81 = __VLS_asFunctionalComponent(__VLS_80, new __VLS_80({
     modelValue: (__VLS_ctx.form.control_no),
     value: (__VLS_ctx.form.control_no),
     ...{ class: "w-full" },
     readonly: "true",
 }));
-const __VLS_90 = __VLS_89({
+const __VLS_82 = __VLS_81({
     modelValue: (__VLS_ctx.form.control_no),
     value: (__VLS_ctx.form.control_no),
     ...{ class: "w-full" },
     readonly: "true",
-}, ...__VLS_functionalComponentArgsRest(__VLS_89));
+}, ...__VLS_functionalComponentArgsRest(__VLS_81));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-var __VLS_87;
+var __VLS_79;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full mb-5 group mt-4" },
 });
-const __VLS_92 = {}.Select;
+const __VLS_84 = {}.Select;
 /** @type {[typeof __VLS_components.Select, ]} */ ;
 // @ts-ignore
-const __VLS_93 = __VLS_asFunctionalComponent(__VLS_92, new __VLS_92({
+const __VLS_85 = __VLS_asFunctionalComponent(__VLS_84, new __VLS_84({
     filter: true,
     modelValue: (__VLS_ctx.form.status),
     options: (__VLS_ctx.status_opts),
@@ -853,7 +831,7 @@ const __VLS_93 = __VLS_asFunctionalComponent(__VLS_92, new __VLS_92({
     placeholder: "Current Status",
     ...{ class: "w-full" },
 }));
-const __VLS_94 = __VLS_93({
+const __VLS_86 = __VLS_85({
     filter: true,
     modelValue: (__VLS_ctx.form.status),
     options: (__VLS_ctx.status_opts),
@@ -861,17 +839,17 @@ const __VLS_94 = __VLS_93({
     optionLabel: "name",
     placeholder: "Current Status",
     ...{ class: "w-full" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_93));
+}, ...__VLS_functionalComponentArgsRest(__VLS_85));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "grid md:grid-cols-2 md:gap-6 mb-4" },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full mb-5 group" },
 });
-const __VLS_96 = {}.Select;
+const __VLS_88 = {}.Select;
 /** @type {[typeof __VLS_components.Select, ]} */ ;
 // @ts-ignore
-const __VLS_97 = __VLS_asFunctionalComponent(__VLS_96, new __VLS_96({
+const __VLS_89 = __VLS_asFunctionalComponent(__VLS_88, new __VLS_88({
     filter: true,
     modelValue: (__VLS_ctx.form.selectedDivision),
     options: (__VLS_ctx.division_opts),
@@ -880,7 +858,7 @@ const __VLS_97 = __VLS_asFunctionalComponent(__VLS_96, new __VLS_96({
     placeholder: "Division",
     ...{ class: "w-full" },
 }));
-const __VLS_98 = __VLS_97({
+const __VLS_90 = __VLS_89({
     filter: true,
     modelValue: (__VLS_ctx.form.selectedDivision),
     options: (__VLS_ctx.division_opts),
@@ -888,43 +866,43 @@ const __VLS_98 = __VLS_97({
     optionLabel: "name",
     placeholder: "Division",
     ...{ class: "w-full" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_97));
+}, ...__VLS_functionalComponentArgsRest(__VLS_89));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "grid md:grid-cols-3 md:gap-6 mb-4" },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full mb-5 group" },
 });
-const __VLS_100 = {}.FloatLabel;
+const __VLS_92 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
-const __VLS_101 = __VLS_asFunctionalComponent(__VLS_100, new __VLS_100({}));
-const __VLS_102 = __VLS_101({}, ...__VLS_functionalComponentArgsRest(__VLS_101));
-__VLS_103.slots.default;
-const __VLS_104 = {}.InputText;
+const __VLS_93 = __VLS_asFunctionalComponent(__VLS_92, new __VLS_92({}));
+const __VLS_94 = __VLS_93({}, ...__VLS_functionalComponentArgsRest(__VLS_93));
+__VLS_95.slots.default;
+const __VLS_96 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
-const __VLS_105 = __VLS_asFunctionalComponent(__VLS_104, new __VLS_104({
+const __VLS_97 = __VLS_asFunctionalComponent(__VLS_96, new __VLS_96({
     id: "username",
     modelValue: (__VLS_ctx.form.acct_person),
     ...{ class: "w-full" },
 }));
-const __VLS_106 = __VLS_105({
+const __VLS_98 = __VLS_97({
     id: "username",
     modelValue: (__VLS_ctx.form.acct_person),
     ...{ class: "w-full" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_105));
+}, ...__VLS_functionalComponentArgsRest(__VLS_97));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
     for: "username",
 });
-var __VLS_103;
+var __VLS_95;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full mb-5 group" },
 });
-const __VLS_108 = {}.Select;
+const __VLS_100 = {}.Select;
 /** @type {[typeof __VLS_components.Select, ]} */ ;
 // @ts-ignore
-const __VLS_109 = __VLS_asFunctionalComponent(__VLS_108, new __VLS_108({
+const __VLS_101 = __VLS_asFunctionalComponent(__VLS_100, new __VLS_100({
     filter: true,
     modelValue: (__VLS_ctx.form.sex),
     options: (__VLS_ctx.sex_opts),
@@ -933,7 +911,7 @@ const __VLS_109 = __VLS_asFunctionalComponent(__VLS_108, new __VLS_108({
     placeholder: "Sex",
     ...{ class: "w-full" },
 }));
-const __VLS_110 = __VLS_109({
+const __VLS_102 = __VLS_101({
     filter: true,
     modelValue: (__VLS_ctx.form.sex),
     options: (__VLS_ctx.sex_opts),
@@ -941,14 +919,14 @@ const __VLS_110 = __VLS_109({
     optionLabel: "name",
     placeholder: "Sex",
     ...{ class: "w-full" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_109));
+}, ...__VLS_functionalComponentArgsRest(__VLS_101));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full mb-5 group" },
 });
-const __VLS_112 = {}.Select;
+const __VLS_104 = {}.Select;
 /** @type {[typeof __VLS_components.Select, ]} */ ;
 // @ts-ignore
-const __VLS_113 = __VLS_asFunctionalComponent(__VLS_112, new __VLS_112({
+const __VLS_105 = __VLS_asFunctionalComponent(__VLS_104, new __VLS_104({
     filter: true,
     modelValue: (__VLS_ctx.form.selectedAcctDivision),
     options: (__VLS_ctx.division_opts),
@@ -957,7 +935,7 @@ const __VLS_113 = __VLS_asFunctionalComponent(__VLS_112, new __VLS_112({
     placeholder: "Division",
     ...{ class: "w-full" },
 }));
-const __VLS_114 = __VLS_113({
+const __VLS_106 = __VLS_105({
     filter: true,
     modelValue: (__VLS_ctx.form.selectedAcctDivision),
     options: (__VLS_ctx.division_opts),
@@ -965,82 +943,82 @@ const __VLS_114 = __VLS_113({
     optionLabel: "name",
     placeholder: "Division",
     ...{ class: "w-full" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_113));
+}, ...__VLS_functionalComponentArgsRest(__VLS_105));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "grid md:grid-cols-2 md:gap-6 mb-4" },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full mb-5 group" },
 });
-const __VLS_116 = {}.FloatLabel;
+const __VLS_108 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
-const __VLS_117 = __VLS_asFunctionalComponent(__VLS_116, new __VLS_116({}));
-const __VLS_118 = __VLS_117({}, ...__VLS_functionalComponentArgsRest(__VLS_117));
-__VLS_119.slots.default;
-const __VLS_120 = {}.InputText;
+const __VLS_109 = __VLS_asFunctionalComponent(__VLS_108, new __VLS_108({}));
+const __VLS_110 = __VLS_109({}, ...__VLS_functionalComponentArgsRest(__VLS_109));
+__VLS_111.slots.default;
+const __VLS_112 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
-const __VLS_121 = __VLS_asFunctionalComponent(__VLS_120, new __VLS_120({
+const __VLS_113 = __VLS_asFunctionalComponent(__VLS_112, new __VLS_112({
     ...{ 'onInput': {} },
     id: "year_acquired",
     modelValue: (__VLS_ctx.form.year_acquired),
     ...{ class: "w-full" },
 }));
-const __VLS_122 = __VLS_121({
+const __VLS_114 = __VLS_113({
     ...{ 'onInput': {} },
     id: "year_acquired",
     modelValue: (__VLS_ctx.form.year_acquired),
     ...{ class: "w-full" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_121));
-let __VLS_124;
-let __VLS_125;
-let __VLS_126;
-const __VLS_127 = {
+}, ...__VLS_functionalComponentArgsRest(__VLS_113));
+let __VLS_116;
+let __VLS_117;
+let __VLS_118;
+const __VLS_119 = {
     onInput: (__VLS_ctx.checkYear)
 };
-var __VLS_123;
+var __VLS_115;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
     for: "year_acquired",
 });
-var __VLS_119;
+var __VLS_111;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full mb-5 group" },
 });
-const __VLS_128 = {}.FloatLabel;
+const __VLS_120 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
-const __VLS_129 = __VLS_asFunctionalComponent(__VLS_128, new __VLS_128({}));
-const __VLS_130 = __VLS_129({}, ...__VLS_functionalComponentArgsRest(__VLS_129));
-__VLS_131.slots.default;
-const __VLS_132 = {}.InputText;
+const __VLS_121 = __VLS_asFunctionalComponent(__VLS_120, new __VLS_120({}));
+const __VLS_122 = __VLS_121({}, ...__VLS_functionalComponentArgsRest(__VLS_121));
+__VLS_123.slots.default;
+const __VLS_124 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
-const __VLS_133 = __VLS_asFunctionalComponent(__VLS_132, new __VLS_132({
+const __VLS_125 = __VLS_asFunctionalComponent(__VLS_124, new __VLS_124({
     id: "shelf_life",
     modelValue: (__VLS_ctx.form.shelf_life),
     ...{ class: "w-full" },
 }));
-const __VLS_134 = __VLS_133({
+const __VLS_126 = __VLS_125({
     id: "shelf_life",
     modelValue: (__VLS_ctx.form.shelf_life),
     ...{ class: "w-full" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_133));
+}, ...__VLS_functionalComponentArgsRest(__VLS_125));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
     for: "shelf_life",
 });
-var __VLS_131;
-var __VLS_83;
-const __VLS_136 = {}.Fieldset;
+var __VLS_123;
+var __VLS_75;
+const __VLS_128 = {}.Fieldset;
 /** @type {[typeof __VLS_components.Fieldset, typeof __VLS_components.Fieldset, ]} */ ;
 // @ts-ignore
-const __VLS_137 = __VLS_asFunctionalComponent(__VLS_136, new __VLS_136({
+const __VLS_129 = __VLS_asFunctionalComponent(__VLS_128, new __VLS_128({
     legend: "Actual User Information",
 }));
-const __VLS_138 = __VLS_137({
+const __VLS_130 = __VLS_129({
     legend: "Actual User Information",
-}, ...__VLS_functionalComponentArgsRest(__VLS_137));
-__VLS_139.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_129));
+__VLS_131.slots.default;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "grid md:grid-cols-4 md:gap-6 mb-4" },
 });
@@ -1050,44 +1028,92 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.d
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "flex items-center gap-2" },
 });
-const __VLS_140 = {}.Checkbox;
+const __VLS_132 = {}.Checkbox;
 /** @type {[typeof __VLS_components.Checkbox, ]} */ ;
 // @ts-ignore
-const __VLS_141 = __VLS_asFunctionalComponent(__VLS_140, new __VLS_140({
+const __VLS_133 = __VLS_asFunctionalComponent(__VLS_132, new __VLS_132({
     modelValue: (__VLS_ctx.sameAsAccountable),
     inputId: "sameAsAccountable",
 }));
-const __VLS_142 = __VLS_141({
+const __VLS_134 = __VLS_133({
     modelValue: (__VLS_ctx.sameAsAccountable),
     inputId: "sameAsAccountable",
-}, ...__VLS_functionalComponentArgsRest(__VLS_141));
+}, ...__VLS_functionalComponentArgsRest(__VLS_133));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
     for: "sameAsAccountable",
 });
-const __VLS_144 = {}.FloatLabel;
+const __VLS_136 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
-const __VLS_145 = __VLS_asFunctionalComponent(__VLS_144, new __VLS_144({}));
-const __VLS_146 = __VLS_145({}, ...__VLS_functionalComponentArgsRest(__VLS_145));
-__VLS_147.slots.default;
-const __VLS_148 = {}.InputText;
+const __VLS_137 = __VLS_asFunctionalComponent(__VLS_136, new __VLS_136({}));
+const __VLS_138 = __VLS_137({}, ...__VLS_functionalComponentArgsRest(__VLS_137));
+__VLS_139.slots.default;
+const __VLS_140 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
-const __VLS_149 = __VLS_asFunctionalComponent(__VLS_148, new __VLS_148({
+const __VLS_141 = __VLS_asFunctionalComponent(__VLS_140, new __VLS_140({
     id: "username1",
     modelValue: (__VLS_ctx.form.actual_user),
     ...{ class: "w-full mt-8" },
 }));
-const __VLS_150 = __VLS_149({
+const __VLS_142 = __VLS_141({
     id: "username1",
     modelValue: (__VLS_ctx.form.actual_user),
     ...{ class: "w-full mt-8" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_149));
+}, ...__VLS_functionalComponentArgsRest(__VLS_141));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
     for: "username1",
     ...{ class: "mt-8" },
 });
-var __VLS_147;
+var __VLS_139;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "relative z-0 w-full mt-14 group" },
+});
+const __VLS_144 = {}.Select;
+/** @type {[typeof __VLS_components.Select, ]} */ ;
+// @ts-ignore
+const __VLS_145 = __VLS_asFunctionalComponent(__VLS_144, new __VLS_144({
+    filter: true,
+    modelValue: (__VLS_ctx.form.selectedWorkNature),
+    options: (__VLS_ctx.work_nature),
+    optionValue: "id",
+    optionLabel: "name",
+    placeholder: "Nature of Works",
+    ...{ class: "w-full" },
+}));
+const __VLS_146 = __VLS_145({
+    filter: true,
+    modelValue: (__VLS_ctx.form.selectedWorkNature),
+    options: (__VLS_ctx.work_nature),
+    optionValue: "id",
+    optionLabel: "name",
+    placeholder: "Nature of Works",
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_145));
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "relative z-0 w-full mt-14 group" },
+});
+const __VLS_148 = {}.Select;
+/** @type {[typeof __VLS_components.Select, ]} */ ;
+// @ts-ignore
+const __VLS_149 = __VLS_asFunctionalComponent(__VLS_148, new __VLS_148({
+    filter: true,
+    modelValue: (__VLS_ctx.form.selectedActualDivision),
+    options: (__VLS_ctx.division_opts),
+    optionLabel: "name",
+    optionValue: "id",
+    placeholder: "Division",
+    ...{ class: "w-full" },
+}));
+const __VLS_150 = __VLS_149({
+    filter: true,
+    modelValue: (__VLS_ctx.form.selectedActualDivision),
+    options: (__VLS_ctx.division_opts),
+    optionLabel: "name",
+    optionValue: "id",
+    placeholder: "Division",
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_149));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full mt-14 group" },
 });
@@ -1096,81 +1122,33 @@ const __VLS_152 = {}.Select;
 // @ts-ignore
 const __VLS_153 = __VLS_asFunctionalComponent(__VLS_152, new __VLS_152({
     filter: true,
-    modelValue: (__VLS_ctx.form.selectedWorkNature),
-    options: (__VLS_ctx.work_nature),
-    optionValue: "id",
+    modelValue: (__VLS_ctx.form.employmentType),
+    options: (__VLS_ctx.employment_opts),
     optionLabel: "name",
-    placeholder: "Nature of Works",
+    optionValue: "id",
+    placeholder: "Employment Type",
     ...{ class: "w-full" },
 }));
 const __VLS_154 = __VLS_153({
     filter: true,
-    modelValue: (__VLS_ctx.form.selectedWorkNature),
-    options: (__VLS_ctx.work_nature),
-    optionValue: "id",
+    modelValue: (__VLS_ctx.form.employmentType),
+    options: (__VLS_ctx.employment_opts),
     optionLabel: "name",
-    placeholder: "Nature of Works",
+    optionValue: "id",
+    placeholder: "Employment Type",
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_153));
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "relative z-0 w-full mt-14 group" },
-});
-const __VLS_156 = {}.Select;
-/** @type {[typeof __VLS_components.Select, ]} */ ;
-// @ts-ignore
-const __VLS_157 = __VLS_asFunctionalComponent(__VLS_156, new __VLS_156({
-    filter: true,
-    modelValue: (__VLS_ctx.form.selectedActualDivision),
-    options: (__VLS_ctx.division_opts),
-    optionLabel: "name",
-    optionValue: "id",
-    placeholder: "Division",
-    ...{ class: "w-full" },
-}));
-const __VLS_158 = __VLS_157({
-    filter: true,
-    modelValue: (__VLS_ctx.form.selectedActualDivision),
-    options: (__VLS_ctx.division_opts),
-    optionLabel: "name",
-    optionValue: "id",
-    placeholder: "Division",
-    ...{ class: "w-full" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_157));
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "relative z-0 w-full mt-14 group" },
-});
-const __VLS_160 = {}.Select;
-/** @type {[typeof __VLS_components.Select, ]} */ ;
-// @ts-ignore
-const __VLS_161 = __VLS_asFunctionalComponent(__VLS_160, new __VLS_160({
-    filter: true,
-    modelValue: (__VLS_ctx.form.employmentType),
-    options: (__VLS_ctx.employment_opts),
-    optionLabel: "name",
-    optionValue: "id",
-    placeholder: "Employment Type",
-    ...{ class: "w-full" },
-}));
-const __VLS_162 = __VLS_161({
-    filter: true,
-    modelValue: (__VLS_ctx.form.employmentType),
-    options: (__VLS_ctx.employment_opts),
-    optionLabel: "name",
-    optionValue: "id",
-    placeholder: "Employment Type",
-    ...{ class: "w-full" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_161));
-var __VLS_139;
-const __VLS_164 = {}.Fieldset;
+var __VLS_131;
+const __VLS_156 = {}.Fieldset;
 /** @type {[typeof __VLS_components.Fieldset, typeof __VLS_components.Fieldset, ]} */ ;
 // @ts-ignore
-const __VLS_165 = __VLS_asFunctionalComponent(__VLS_164, new __VLS_164({
+const __VLS_157 = __VLS_asFunctionalComponent(__VLS_156, new __VLS_156({
     legend: "Equipment Information",
 }));
-const __VLS_166 = __VLS_165({
+const __VLS_158 = __VLS_157({
     legend: "Equipment Information",
-}, ...__VLS_functionalComponentArgsRest(__VLS_165));
-__VLS_167.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_157));
+__VLS_159.slots.default;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "grid md:grid-cols-4 md:gap-6 mb-4 text-right" },
 });
@@ -1178,15 +1156,15 @@ if (__VLS_ctx.form.qr_code) {
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "relative z-0 w-full mb-5 group" },
     });
-    const __VLS_168 = {}.QrcodeVue;
+    const __VLS_160 = {}.QrcodeVue;
     /** @type {[typeof __VLS_components.QrcodeVue, ]} */ ;
     // @ts-ignore
-    const __VLS_169 = __VLS_asFunctionalComponent(__VLS_168, new __VLS_168({
+    const __VLS_161 = __VLS_asFunctionalComponent(__VLS_160, new __VLS_160({
         value: (__VLS_ctx.form.qr_code),
     }));
-    const __VLS_170 = __VLS_169({
+    const __VLS_162 = __VLS_161({
         value: (__VLS_ctx.form.qr_code),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_169));
+    }, ...__VLS_functionalComponentArgsRest(__VLS_161));
 }
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "grid md:grid-cols-4 md:gap-6 mt-7" },
@@ -1194,86 +1172,86 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.d
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full group" },
 });
-const __VLS_172 = {}.FloatLabel;
+const __VLS_164 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
-const __VLS_173 = __VLS_asFunctionalComponent(__VLS_172, new __VLS_172({}));
-const __VLS_174 = __VLS_173({}, ...__VLS_functionalComponentArgsRest(__VLS_173));
-__VLS_175.slots.default;
-const __VLS_176 = {}.InputText;
+const __VLS_165 = __VLS_asFunctionalComponent(__VLS_164, new __VLS_164({}));
+const __VLS_166 = __VLS_165({}, ...__VLS_functionalComponentArgsRest(__VLS_165));
+__VLS_167.slots.default;
+const __VLS_168 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
-const __VLS_177 = __VLS_asFunctionalComponent(__VLS_176, new __VLS_176({
+const __VLS_169 = __VLS_asFunctionalComponent(__VLS_168, new __VLS_168({
     id: "qr_code",
     modelValue: (__VLS_ctx.form.qr_code),
     ...{ class: "w-full pr-16" },
 }));
-const __VLS_178 = __VLS_177({
+const __VLS_170 = __VLS_169({
     id: "qr_code",
     modelValue: (__VLS_ctx.form.qr_code),
     ...{ class: "w-full pr-16" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_177));
+}, ...__VLS_functionalComponentArgsRest(__VLS_169));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
     for: "qr_code",
 });
-var __VLS_175;
+var __VLS_167;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full mb-5 group" },
 });
-const __VLS_180 = {}.Select;
+const __VLS_172 = {}.Select;
 /** @type {[typeof __VLS_components.Select, ]} */ ;
 // @ts-ignore
-const __VLS_181 = __VLS_asFunctionalComponent(__VLS_180, new __VLS_180({
+const __VLS_173 = __VLS_asFunctionalComponent(__VLS_172, new __VLS_172({
     filter: true,
     modelValue: (__VLS_ctx.form.selectedEquipmentType),
     options: (__VLS_ctx.equipment_type),
     optionValue: "id",
     optionLabel: "name",
     placeholder: "Equipment Type",
+    ...{ class: "w-full" },
+}));
+const __VLS_174 = __VLS_173({
+    filter: true,
+    modelValue: (__VLS_ctx.form.selectedEquipmentType),
+    options: (__VLS_ctx.equipment_type),
+    optionValue: "id",
+    optionLabel: "name",
+    placeholder: "Equipment Type",
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_173));
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "relative z-0 w-full mb-5 group" },
+});
+const __VLS_176 = {}.FloatLabel;
+/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
+// @ts-ignore
+const __VLS_177 = __VLS_asFunctionalComponent(__VLS_176, new __VLS_176({}));
+const __VLS_178 = __VLS_177({}, ...__VLS_functionalComponentArgsRest(__VLS_177));
+__VLS_179.slots.default;
+const __VLS_180 = {}.InputText;
+/** @type {[typeof __VLS_components.InputText, ]} */ ;
+// @ts-ignore
+const __VLS_181 = __VLS_asFunctionalComponent(__VLS_180, new __VLS_180({
+    id: "property_no",
+    modelValue: (__VLS_ctx.form.property_no),
     ...{ class: "w-full" },
 }));
 const __VLS_182 = __VLS_181({
-    filter: true,
-    modelValue: (__VLS_ctx.form.selectedEquipmentType),
-    options: (__VLS_ctx.equipment_type),
-    optionValue: "id",
-    optionLabel: "name",
-    placeholder: "Equipment Type",
+    id: "property_no",
+    modelValue: (__VLS_ctx.form.property_no),
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_181));
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "relative z-0 w-full mb-5 group" },
-});
-const __VLS_184 = {}.FloatLabel;
-/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
-// @ts-ignore
-const __VLS_185 = __VLS_asFunctionalComponent(__VLS_184, new __VLS_184({}));
-const __VLS_186 = __VLS_185({}, ...__VLS_functionalComponentArgsRest(__VLS_185));
-__VLS_187.slots.default;
-const __VLS_188 = {}.InputText;
-/** @type {[typeof __VLS_components.InputText, ]} */ ;
-// @ts-ignore
-const __VLS_189 = __VLS_asFunctionalComponent(__VLS_188, new __VLS_188({
-    id: "property_no",
-    modelValue: (__VLS_ctx.form.property_no),
-    ...{ class: "w-full" },
-}));
-const __VLS_190 = __VLS_189({
-    id: "property_no",
-    modelValue: (__VLS_ctx.form.property_no),
-    ...{ class: "w-full" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_189));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
     for: "property_no",
 });
-var __VLS_187;
+var __VLS_179;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full mb-5 group" },
 });
-const __VLS_192 = {}.Select;
+const __VLS_184 = {}.Select;
 /** @type {[typeof __VLS_components.Select, ]} */ ;
 // @ts-ignore
-const __VLS_193 = __VLS_asFunctionalComponent(__VLS_192, new __VLS_192({
+const __VLS_185 = __VLS_asFunctionalComponent(__VLS_184, new __VLS_184({
     filter: true,
     modelValue: (__VLS_ctx.form.selectedRangeCategory),
     options: (__VLS_ctx.range_category),
@@ -1282,7 +1260,7 @@ const __VLS_193 = __VLS_asFunctionalComponent(__VLS_192, new __VLS_192({
     placeholder: "Range Category",
     ...{ class: "w-full" },
 }));
-const __VLS_194 = __VLS_193({
+const __VLS_186 = __VLS_185({
     filter: true,
     modelValue: (__VLS_ctx.form.selectedRangeCategory),
     options: (__VLS_ctx.range_category),
@@ -1290,10 +1268,37 @@ const __VLS_194 = __VLS_193({
     optionValue: "id",
     placeholder: "Range Category",
     ...{ class: "w-full" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_193));
+}, ...__VLS_functionalComponentArgsRest(__VLS_185));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "grid md:grid-cols-4 md:gap-6 mb-4" },
 });
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "relative z-0 w-full mb-5 group" },
+});
+const __VLS_188 = {}.FloatLabel;
+/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
+// @ts-ignore
+const __VLS_189 = __VLS_asFunctionalComponent(__VLS_188, new __VLS_188({}));
+const __VLS_190 = __VLS_189({}, ...__VLS_functionalComponentArgsRest(__VLS_189));
+__VLS_191.slots.default;
+const __VLS_192 = {}.InputText;
+/** @type {[typeof __VLS_components.InputText, ]} */ ;
+// @ts-ignore
+const __VLS_193 = __VLS_asFunctionalComponent(__VLS_192, new __VLS_192({
+    id: "brand",
+    modelValue: (__VLS_ctx.form.brand),
+    ...{ class: "w-full mt-4" },
+}));
+const __VLS_194 = __VLS_193({
+    id: "brand",
+    modelValue: (__VLS_ctx.form.brand),
+    ...{ class: "w-full mt-4" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_193));
+__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
+    for: "brand",
+    ...{ class: "mt-4" },
+});
+var __VLS_191;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full mb-5 group" },
 });
@@ -1307,17 +1312,17 @@ const __VLS_200 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_201 = __VLS_asFunctionalComponent(__VLS_200, new __VLS_200({
-    id: "brand",
-    modelValue: (__VLS_ctx.form.brand),
+    id: "model",
+    modelValue: (__VLS_ctx.form.model),
     ...{ class: "w-full mt-4" },
 }));
 const __VLS_202 = __VLS_201({
-    id: "brand",
-    modelValue: (__VLS_ctx.form.brand),
+    id: "model",
+    modelValue: (__VLS_ctx.form.model),
     ...{ class: "w-full mt-4" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_201));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "brand",
+    for: "model",
     ...{ class: "mt-4" },
 });
 var __VLS_199;
@@ -1330,21 +1335,25 @@ const __VLS_204 = {}.FloatLabel;
 const __VLS_205 = __VLS_asFunctionalComponent(__VLS_204, new __VLS_204({}));
 const __VLS_206 = __VLS_205({}, ...__VLS_functionalComponentArgsRest(__VLS_205));
 __VLS_207.slots.default;
-const __VLS_208 = {}.InputText;
-/** @type {[typeof __VLS_components.InputText, ]} */ ;
+const __VLS_208 = {}.InputNumber;
+/** @type {[typeof __VLS_components.InputNumber, ]} */ ;
 // @ts-ignore
 const __VLS_209 = __VLS_asFunctionalComponent(__VLS_208, new __VLS_208({
-    id: "model",
-    modelValue: (__VLS_ctx.form.model),
+    inputId: "currency-ph",
+    prefix: "₱",
+    id: "acquisition_cost",
+    modelValue: (__VLS_ctx.form.acquisition_cost),
     ...{ class: "w-full mt-4" },
 }));
 const __VLS_210 = __VLS_209({
-    id: "model",
-    modelValue: (__VLS_ctx.form.model),
+    inputId: "currency-ph",
+    prefix: "₱",
+    id: "acquisition_cost",
+    modelValue: (__VLS_ctx.form.acquisition_cost),
     ...{ class: "w-full mt-4" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_209));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "model",
+    for: "aquisition_cost",
     ...{ class: "mt-4" },
 });
 var __VLS_207;
@@ -1357,28 +1366,27 @@ const __VLS_212 = {}.FloatLabel;
 const __VLS_213 = __VLS_asFunctionalComponent(__VLS_212, new __VLS_212({}));
 const __VLS_214 = __VLS_213({}, ...__VLS_functionalComponentArgsRest(__VLS_213));
 __VLS_215.slots.default;
-const __VLS_216 = {}.InputNumber;
-/** @type {[typeof __VLS_components.InputNumber, ]} */ ;
+const __VLS_216 = {}.InputText;
+/** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_217 = __VLS_asFunctionalComponent(__VLS_216, new __VLS_216({
-    inputId: "currency-ph",
-    prefix: "₱",
-    id: "acquisition_cost",
-    modelValue: (__VLS_ctx.form.acquisition_cost),
+    id: "serial_no",
+    modelValue: (__VLS_ctx.form.serial_no),
     ...{ class: "w-full mt-4" },
 }));
 const __VLS_218 = __VLS_217({
-    inputId: "currency-ph",
-    prefix: "₱",
-    id: "acquisition_cost",
-    modelValue: (__VLS_ctx.form.acquisition_cost),
+    id: "serial_no",
+    modelValue: (__VLS_ctx.form.serial_no),
     ...{ class: "w-full mt-4" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_217));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "aquisition_cost",
+    for: "serial_no",
     ...{ class: "mt-4" },
 });
 var __VLS_215;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "grid md:grid-cols-1 md:gap-6 mb-4" },
+});
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full mb-5 group" },
 });
@@ -1388,90 +1396,60 @@ const __VLS_220 = {}.FloatLabel;
 const __VLS_221 = __VLS_asFunctionalComponent(__VLS_220, new __VLS_220({}));
 const __VLS_222 = __VLS_221({}, ...__VLS_functionalComponentArgsRest(__VLS_221));
 __VLS_223.slots.default;
-const __VLS_224 = {}.InputText;
-/** @type {[typeof __VLS_components.InputText, ]} */ ;
-// @ts-ignore
-const __VLS_225 = __VLS_asFunctionalComponent(__VLS_224, new __VLS_224({
-    id: "serial_no",
-    modelValue: (__VLS_ctx.form.serial_no),
-    ...{ class: "w-full mt-4" },
-}));
-const __VLS_226 = __VLS_225({
-    id: "serial_no",
-    modelValue: (__VLS_ctx.form.serial_no),
-    ...{ class: "w-full mt-4" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_225));
-__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "serial_no",
-    ...{ class: "mt-4" },
-});
-var __VLS_223;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "grid md:grid-cols-1 md:gap-6 mb-4" },
-});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "relative z-0 w-full mb-5 group" },
-});
-const __VLS_228 = {}.FloatLabel;
-/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
-// @ts-ignore
-const __VLS_229 = __VLS_asFunctionalComponent(__VLS_228, new __VLS_228({}));
-const __VLS_230 = __VLS_229({}, ...__VLS_functionalComponentArgsRest(__VLS_229));
-__VLS_231.slots.default;
-const __VLS_232 = {}.Textarea;
+const __VLS_224 = {}.Textarea;
 /** @type {[typeof __VLS_components.Textarea, ]} */ ;
 // @ts-ignore
-const __VLS_233 = __VLS_asFunctionalComponent(__VLS_232, new __VLS_232({
+const __VLS_225 = __VLS_asFunctionalComponent(__VLS_224, new __VLS_224({
     id: "remarks",
     modelValue: (__VLS_ctx.form.remarks),
     rows: "5",
     cols: "172",
     ...{ style: {} },
 }));
-const __VLS_234 = __VLS_233({
+const __VLS_226 = __VLS_225({
     id: "remarks",
     modelValue: (__VLS_ctx.form.remarks),
     rows: "5",
     cols: "172",
     ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_233));
+}, ...__VLS_functionalComponentArgsRest(__VLS_225));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
     for: "remarks",
 });
-var __VLS_231;
-var __VLS_167;
-const __VLS_236 = {}.Button;
+var __VLS_223;
+var __VLS_159;
+const __VLS_228 = {}.Button;
 /** @type {[typeof __VLS_components.Button, ]} */ ;
 // @ts-ignore
-const __VLS_237 = __VLS_asFunctionalComponent(__VLS_236, new __VLS_236({
+const __VLS_229 = __VLS_asFunctionalComponent(__VLS_228, new __VLS_228({
     label: "Save",
     type: "submit",
     icon: "pi pi-save",
     severity: "primary",
     ...{ class: "mr-4 mt-4" },
 }));
-const __VLS_238 = __VLS_237({
+const __VLS_230 = __VLS_229({
     label: "Save",
     type: "submit",
     icon: "pi pi-save",
     severity: "primary",
     ...{ class: "mr-4 mt-4" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_237));
-var __VLS_79;
-const __VLS_240 = {}.TabPanel;
+}, ...__VLS_functionalComponentArgsRest(__VLS_229));
+var __VLS_71;
+const __VLS_232 = {}.TabPanel;
 /** @type {[typeof __VLS_components.TabPanel, typeof __VLS_components.TabPanel, ]} */ ;
 // @ts-ignore
-const __VLS_241 = __VLS_asFunctionalComponent(__VLS_240, new __VLS_240({
+const __VLS_233 = __VLS_asFunctionalComponent(__VLS_232, new __VLS_232({
     value: "1",
     as: "p",
     ...{ class: "m-0" },
 }));
-const __VLS_242 = __VLS_241({
+const __VLS_234 = __VLS_233({
     value: "1",
     as: "p",
     ...{ class: "m-0" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_241));
-__VLS_243.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_233));
+__VLS_235.slots.default;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.form, __VLS_intrinsicElements.form)({
     ...{ onSubmit: (__VLS_ctx.saveSpecsInfo) },
 });
@@ -1481,55 +1459,106 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.d
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full mb-5 group" },
 });
+const __VLS_236 = {}.FloatLabel;
+/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
+// @ts-ignore
+const __VLS_237 = __VLS_asFunctionalComponent(__VLS_236, new __VLS_236({}));
+const __VLS_238 = __VLS_237({}, ...__VLS_functionalComponentArgsRest(__VLS_237));
+__VLS_239.slots.default;
+const __VLS_240 = {}.InputText;
+/** @type {[typeof __VLS_components.InputText, ]} */ ;
+// @ts-ignore
+const __VLS_241 = __VLS_asFunctionalComponent(__VLS_240, new __VLS_240({
+    id: "processor",
+    modelValue: (__VLS_ctx.specs_form.specs_processor),
+    ...{ class: "w-full" },
+}));
+const __VLS_242 = __VLS_241({
+    id: "processor",
+    modelValue: (__VLS_ctx.specs_form.specs_processor),
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_241));
+__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
+    for: "processor",
+});
+var __VLS_239;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "relative z-0 w-full mb-5 group" },
+});
 const __VLS_244 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
 const __VLS_245 = __VLS_asFunctionalComponent(__VLS_244, new __VLS_244({}));
 const __VLS_246 = __VLS_245({}, ...__VLS_functionalComponentArgsRest(__VLS_245));
 __VLS_247.slots.default;
-const __VLS_248 = {}.InputText;
-/** @type {[typeof __VLS_components.InputText, ]} */ ;
+const __VLS_248 = {}.InputNumber;
+/** @type {[typeof __VLS_components.InputNumber, ]} */ ;
 // @ts-ignore
 const __VLS_249 = __VLS_asFunctionalComponent(__VLS_248, new __VLS_248({
-    id: "processor",
-    modelValue: (__VLS_ctx.specs_form.specs_processor),
+    id: "hdd",
+    modelValue: (__VLS_ctx.specs_form.specs_hdd),
     ...{ class: "w-full" },
 }));
 const __VLS_250 = __VLS_249({
-    id: "processor",
-    modelValue: (__VLS_ctx.specs_form.specs_processor),
+    id: "hdd",
+    modelValue: (__VLS_ctx.specs_form.specs_hdd),
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_249));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "processor",
+    for: "hdd",
 });
 var __VLS_247;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full mb-5 group" },
 });
-const __VLS_252 = {}.FloatLabel;
-/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
+const __VLS_252 = {}.Select;
+/** @type {[typeof __VLS_components.Select, ]} */ ;
 // @ts-ignore
-const __VLS_253 = __VLS_asFunctionalComponent(__VLS_252, new __VLS_252({}));
-const __VLS_254 = __VLS_253({}, ...__VLS_functionalComponentArgsRest(__VLS_253));
-__VLS_255.slots.default;
-const __VLS_256 = {}.InputNumber;
-/** @type {[typeof __VLS_components.InputNumber, ]} */ ;
+const __VLS_253 = __VLS_asFunctionalComponent(__VLS_252, new __VLS_252({
+    filter: true,
+    modelValue: (__VLS_ctx.specs_form.specs_hdd_capacity),
+    options: (__VLS_ctx.capacity_opts),
+    optionValue: "value",
+    optionLabel: "name",
+    placeholder: "Capacity",
+    ...{ class: "w-full" },
+}));
+const __VLS_254 = __VLS_253({
+    filter: true,
+    modelValue: (__VLS_ctx.specs_form.specs_hdd_capacity),
+    options: (__VLS_ctx.capacity_opts),
+    optionValue: "value",
+    optionLabel: "name",
+    placeholder: "Capacity",
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_253));
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "grid md:grid-cols-4 md:gap-6" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "relative z-0 w-full mb-5 group" },
+});
+const __VLS_256 = {}.Select;
+/** @type {[typeof __VLS_components.Select, ]} */ ;
 // @ts-ignore
 const __VLS_257 = __VLS_asFunctionalComponent(__VLS_256, new __VLS_256({
-    id: "hdd",
-    modelValue: (__VLS_ctx.specs_form.specs_hdd),
+    filter: true,
+    modelValue: (__VLS_ctx.specs_form.specs_ram),
+    options: (__VLS_ctx.ram_opts),
+    optionValue: "id",
+    optionLabel: "name",
+    placeholder: "RAM Type",
     ...{ class: "w-full" },
 }));
 const __VLS_258 = __VLS_257({
-    id: "hdd",
-    modelValue: (__VLS_ctx.specs_form.specs_hdd),
+    filter: true,
+    modelValue: (__VLS_ctx.specs_form.specs_ram),
+    options: (__VLS_ctx.ram_opts),
+    optionValue: "id",
+    optionLabel: "name",
+    placeholder: "RAM Type",
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_257));
-__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "hdd",
-});
-var __VLS_255;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full mb-5 group" },
 });
@@ -1538,73 +1567,48 @@ const __VLS_260 = {}.Select;
 // @ts-ignore
 const __VLS_261 = __VLS_asFunctionalComponent(__VLS_260, new __VLS_260({
     filter: true,
-    modelValue: (__VLS_ctx.specs_form.specs_hdd_capacity),
-    options: (__VLS_ctx.capacity_opts),
+    modelValue: (__VLS_ctx.specs_form.specs_ram_capacity),
+    options: (__VLS_ctx.ram_capacity_opts),
     optionValue: "value",
     optionLabel: "name",
-    placeholder: "Capacity",
+    placeholder: "RAM Capacity",
     ...{ class: "w-full" },
 }));
 const __VLS_262 = __VLS_261({
     filter: true,
-    modelValue: (__VLS_ctx.specs_form.specs_hdd_capacity),
-    options: (__VLS_ctx.capacity_opts),
+    modelValue: (__VLS_ctx.specs_form.specs_ram_capacity),
+    options: (__VLS_ctx.ram_capacity_opts),
     optionValue: "value",
     optionLabel: "name",
-    placeholder: "Capacity",
+    placeholder: "RAM Capacity",
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_261));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "grid md:grid-cols-4 md:gap-6" },
-});
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full mb-5 group" },
 });
-const __VLS_264 = {}.Select;
-/** @type {[typeof __VLS_components.Select, ]} */ ;
+const __VLS_264 = {}.FloatLabel;
+/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
-const __VLS_265 = __VLS_asFunctionalComponent(__VLS_264, new __VLS_264({
-    filter: true,
-    modelValue: (__VLS_ctx.specs_form.specs_ram),
-    options: (__VLS_ctx.ram_opts),
-    optionValue: "id",
-    optionLabel: "name",
-    placeholder: "RAM Type",
-    ...{ class: "w-full" },
-}));
-const __VLS_266 = __VLS_265({
-    filter: true,
-    modelValue: (__VLS_ctx.specs_form.specs_ram),
-    options: (__VLS_ctx.ram_opts),
-    optionValue: "id",
-    optionLabel: "name",
-    placeholder: "RAM Type",
-    ...{ class: "w-full" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_265));
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "relative z-0 w-full mb-5 group" },
-});
-const __VLS_268 = {}.Select;
-/** @type {[typeof __VLS_components.Select, ]} */ ;
+const __VLS_265 = __VLS_asFunctionalComponent(__VLS_264, new __VLS_264({}));
+const __VLS_266 = __VLS_265({}, ...__VLS_functionalComponentArgsRest(__VLS_265));
+__VLS_267.slots.default;
+const __VLS_268 = {}.InputNumber;
+/** @type {[typeof __VLS_components.InputNumber, ]} */ ;
 // @ts-ignore
 const __VLS_269 = __VLS_asFunctionalComponent(__VLS_268, new __VLS_268({
-    filter: true,
-    modelValue: (__VLS_ctx.specs_form.specs_ram_capacity),
-    options: (__VLS_ctx.ram_capacity_opts),
-    optionValue: "value",
-    optionLabel: "name",
-    placeholder: "RAM Capacity",
+    id: "ssd",
+    modelValue: (__VLS_ctx.specs_form.specs_ssd),
     ...{ class: "w-full" },
 }));
 const __VLS_270 = __VLS_269({
-    filter: true,
-    modelValue: (__VLS_ctx.specs_form.specs_ram_capacity),
-    options: (__VLS_ctx.ram_capacity_opts),
-    optionValue: "value",
-    optionLabel: "name",
-    placeholder: "RAM Capacity",
+    id: "ssd",
+    modelValue: (__VLS_ctx.specs_form.specs_ssd),
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_269));
+__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
+    for: "ssd",
+});
+var __VLS_267;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full mb-5 group" },
 });
@@ -1614,75 +1618,49 @@ const __VLS_272 = {}.FloatLabel;
 const __VLS_273 = __VLS_asFunctionalComponent(__VLS_272, new __VLS_272({}));
 const __VLS_274 = __VLS_273({}, ...__VLS_functionalComponentArgsRest(__VLS_273));
 __VLS_275.slots.default;
-const __VLS_276 = {}.InputNumber;
-/** @type {[typeof __VLS_components.InputNumber, ]} */ ;
+const __VLS_276 = {}.Select;
+/** @type {[typeof __VLS_components.Select, ]} */ ;
 // @ts-ignore
 const __VLS_277 = __VLS_asFunctionalComponent(__VLS_276, new __VLS_276({
-    id: "ssd",
-    modelValue: (__VLS_ctx.specs_form.specs_ssd),
+    filter: true,
+    modelValue: (__VLS_ctx.specs_form.specs_ssd_capacity),
+    options: (__VLS_ctx.capacity_opts),
+    optionValue: "value",
+    optionLabel: "name",
+    placeholder: "Capacity",
     ...{ class: "w-full" },
 }));
 const __VLS_278 = __VLS_277({
-    id: "ssd",
-    modelValue: (__VLS_ctx.specs_form.specs_ssd),
+    filter: true,
+    modelValue: (__VLS_ctx.specs_form.specs_ssd_capacity),
+    options: (__VLS_ctx.capacity_opts),
+    optionValue: "value",
+    optionLabel: "name",
+    placeholder: "Capacity",
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_277));
-__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "ssd",
-});
 var __VLS_275;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "relative z-0 w-full mb-5 group" },
-});
-const __VLS_280 = {}.FloatLabel;
-/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
+const __VLS_280 = {}.Divider;
+/** @type {[typeof __VLS_components.Divider, ]} */ ;
 // @ts-ignore
 const __VLS_281 = __VLS_asFunctionalComponent(__VLS_280, new __VLS_280({}));
 const __VLS_282 = __VLS_281({}, ...__VLS_functionalComponentArgsRest(__VLS_281));
-__VLS_283.slots.default;
-const __VLS_284 = {}.Select;
-/** @type {[typeof __VLS_components.Select, ]} */ ;
-// @ts-ignore
-const __VLS_285 = __VLS_asFunctionalComponent(__VLS_284, new __VLS_284({
-    filter: true,
-    modelValue: (__VLS_ctx.specs_form.specs_ssd_capacity),
-    options: (__VLS_ctx.capacity_opts),
-    optionValue: "value",
-    optionLabel: "name",
-    placeholder: "Capacity",
-    ...{ class: "w-full" },
-}));
-const __VLS_286 = __VLS_285({
-    filter: true,
-    modelValue: (__VLS_ctx.specs_form.specs_ssd_capacity),
-    options: (__VLS_ctx.capacity_opts),
-    optionValue: "value",
-    optionLabel: "name",
-    placeholder: "Capacity",
-    ...{ class: "w-full" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_285));
-var __VLS_283;
-const __VLS_288 = {}.Divider;
-/** @type {[typeof __VLS_components.Divider, ]} */ ;
-// @ts-ignore
-const __VLS_289 = __VLS_asFunctionalComponent(__VLS_288, new __VLS_288({}));
-const __VLS_290 = __VLS_289({}, ...__VLS_functionalComponentArgsRest(__VLS_289));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "grid md:grid-cols-2 md:gap-6 mb-4" },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full mb-5 group" },
 });
-const __VLS_292 = {}.Fieldset;
+const __VLS_284 = {}.Fieldset;
 /** @type {[typeof __VLS_components.Fieldset, typeof __VLS_components.Fieldset, ]} */ ;
 // @ts-ignore
-const __VLS_293 = __VLS_asFunctionalComponent(__VLS_292, new __VLS_292({
+const __VLS_285 = __VLS_asFunctionalComponent(__VLS_284, new __VLS_284({
     legend: "GPU",
 }));
-const __VLS_294 = __VLS_293({
+const __VLS_286 = __VLS_285({
     legend: "GPU",
-}, ...__VLS_functionalComponentArgsRest(__VLS_293));
-__VLS_295.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_285));
+__VLS_287.slots.default;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "card flex flex-wrap gap-6" },
 });
@@ -1691,65 +1669,65 @@ for (const [gpu] of __VLS_getVForSourceType((__VLS_ctx.gpu_type))) {
         key: (gpu.key),
         ...{ class: "flex items-center gap-2" },
     });
-    const __VLS_296 = {}.RadioButton;
+    const __VLS_288 = {}.RadioButton;
     /** @type {[typeof __VLS_components.RadioButton, ]} */ ;
     // @ts-ignore
-    const __VLS_297 = __VLS_asFunctionalComponent(__VLS_296, new __VLS_296({
+    const __VLS_289 = __VLS_asFunctionalComponent(__VLS_288, new __VLS_288({
         modelValue: (__VLS_ctx.selectedGPU),
         inputId: (gpu.key),
         name: "dynamdic",
         value: (gpu.key),
     }));
-    const __VLS_298 = __VLS_297({
+    const __VLS_290 = __VLS_289({
         modelValue: (__VLS_ctx.selectedGPU),
         inputId: (gpu.key),
         name: "dynamdic",
         value: (gpu.key),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_297));
+    }, ...__VLS_functionalComponentArgsRest(__VLS_289));
     __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
         for: (gpu.key),
     });
     (gpu.name);
 }
-const __VLS_300 = {}.FloatLabel;
+const __VLS_292 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
-const __VLS_301 = __VLS_asFunctionalComponent(__VLS_300, new __VLS_300({}));
-const __VLS_302 = __VLS_301({}, ...__VLS_functionalComponentArgsRest(__VLS_301));
-__VLS_303.slots.default;
-const __VLS_304 = {}.InputText;
+const __VLS_293 = __VLS_asFunctionalComponent(__VLS_292, new __VLS_292({}));
+const __VLS_294 = __VLS_293({}, ...__VLS_functionalComponentArgsRest(__VLS_293));
+__VLS_295.slots.default;
+const __VLS_296 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
-const __VLS_305 = __VLS_asFunctionalComponent(__VLS_304, new __VLS_304({
+const __VLS_297 = __VLS_asFunctionalComponent(__VLS_296, new __VLS_296({
     id: "gpu_dedic_info",
     modelValue: (__VLS_ctx.specs_form.specs_gpu_dedic_info),
     ...{ class: "w-full md:w-100" },
     disabled: (!__VLS_ctx.isDedicatedSelected),
 }));
-const __VLS_306 = __VLS_305({
+const __VLS_298 = __VLS_297({
     id: "gpu_dedic_info",
     modelValue: (__VLS_ctx.specs_form.specs_gpu_dedic_info),
     ...{ class: "w-full md:w-100" },
     disabled: (!__VLS_ctx.isDedicatedSelected),
-}, ...__VLS_functionalComponentArgsRest(__VLS_305));
+}, ...__VLS_functionalComponentArgsRest(__VLS_297));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
     for: "gpu_dedic_info",
 });
-var __VLS_303;
 var __VLS_295;
+var __VLS_287;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "relative z-0 w-full mb-5 group" },
 });
-const __VLS_308 = {}.Fieldset;
+const __VLS_300 = {}.Fieldset;
 /** @type {[typeof __VLS_components.Fieldset, typeof __VLS_components.Fieldset, ]} */ ;
 // @ts-ignore
-const __VLS_309 = __VLS_asFunctionalComponent(__VLS_308, new __VLS_308({
+const __VLS_301 = __VLS_asFunctionalComponent(__VLS_300, new __VLS_300({
     legend: "Network",
 }));
-const __VLS_310 = __VLS_309({
+const __VLS_302 = __VLS_301({
     legend: "Network",
-}, ...__VLS_functionalComponentArgsRest(__VLS_309));
-__VLS_311.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_301));
+__VLS_303.slots.default;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "card flex flex-wrap gap-6 mb-6" },
 });
@@ -1758,21 +1736,21 @@ for (const [category] of __VLS_getVForSourceType((__VLS_ctx.network_type))) {
         key: (category.key),
         ...{ class: "flex items-center gap-2" },
     });
-    const __VLS_312 = {}.RadioButton;
+    const __VLS_304 = {}.RadioButton;
     /** @type {[typeof __VLS_components.RadioButton, ]} */ ;
     // @ts-ignore
-    const __VLS_313 = __VLS_asFunctionalComponent(__VLS_312, new __VLS_312({
+    const __VLS_305 = __VLS_asFunctionalComponent(__VLS_304, new __VLS_304({
         modelValue: (__VLS_ctx.selectedNetwork),
         inputId: (category.key),
         name: "dynamic",
         value: (category.key),
     }));
-    const __VLS_314 = __VLS_313({
+    const __VLS_306 = __VLS_305({
         modelValue: (__VLS_ctx.selectedNetwork),
         inputId: (category.key),
         name: "dynamic",
         value: (category.key),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_313));
+    }, ...__VLS_functionalComponentArgsRest(__VLS_305));
     __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
         for: (category.key),
     });
@@ -1782,80 +1760,80 @@ __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "flex items-center gap-2" },
 });
-const __VLS_316 = {}.RadioButton;
+const __VLS_308 = {}.RadioButton;
 /** @type {[typeof __VLS_components.RadioButton, ]} */ ;
 // @ts-ignore
-const __VLS_317 = __VLS_asFunctionalComponent(__VLS_316, new __VLS_316({
+const __VLS_309 = __VLS_asFunctionalComponent(__VLS_308, new __VLS_308({
     modelValue: (__VLS_ctx.selectedWireless),
     disabled: (!__VLS_ctx.isWirelessSelected),
     inputId: "networkBuiltIn",
     name: "networkBuiltIn",
     value: "1",
 }));
-const __VLS_318 = __VLS_317({
+const __VLS_310 = __VLS_309({
     modelValue: (__VLS_ctx.selectedWireless),
     disabled: (!__VLS_ctx.isWirelessSelected),
     inputId: "networkBuiltIn",
     name: "networkBuiltIn",
     value: "1",
-}, ...__VLS_functionalComponentArgsRest(__VLS_317));
+}, ...__VLS_functionalComponentArgsRest(__VLS_309));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
     for: "networkBuiltIn",
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "flex items-center gap-2" },
 });
-const __VLS_320 = {}.RadioButton;
+const __VLS_312 = {}.RadioButton;
 /** @type {[typeof __VLS_components.RadioButton, ]} */ ;
 // @ts-ignore
-const __VLS_321 = __VLS_asFunctionalComponent(__VLS_320, new __VLS_320({
+const __VLS_313 = __VLS_asFunctionalComponent(__VLS_312, new __VLS_312({
     modelValue: (__VLS_ctx.selectedWireless),
     inputId: "networkDongle",
     name: "networkDongle",
     value: "2",
     disabled: (!__VLS_ctx.isWirelessSelected),
 }));
-const __VLS_322 = __VLS_321({
+const __VLS_314 = __VLS_313({
     modelValue: (__VLS_ctx.selectedWireless),
     inputId: "networkDongle",
     name: "networkDongle",
     value: "2",
     disabled: (!__VLS_ctx.isWirelessSelected),
-}, ...__VLS_functionalComponentArgsRest(__VLS_321));
+}, ...__VLS_functionalComponentArgsRest(__VLS_313));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
     for: "networkDongle",
 });
-var __VLS_311;
-const __VLS_324 = {}.Button;
+var __VLS_303;
+const __VLS_316 = {}.Button;
 /** @type {[typeof __VLS_components.Button, ]} */ ;
 // @ts-ignore
-const __VLS_325 = __VLS_asFunctionalComponent(__VLS_324, new __VLS_324({
+const __VLS_317 = __VLS_asFunctionalComponent(__VLS_316, new __VLS_316({
     label: "Save",
     type: "submit",
     icon: "pi pi-save",
     severity: "primary",
 }));
-const __VLS_326 = __VLS_325({
+const __VLS_318 = __VLS_317({
     label: "Save",
     type: "submit",
     icon: "pi pi-save",
     severity: "primary",
-}, ...__VLS_functionalComponentArgsRest(__VLS_325));
-var __VLS_243;
-const __VLS_328 = {}.TabPanel;
+}, ...__VLS_functionalComponentArgsRest(__VLS_317));
+var __VLS_235;
+const __VLS_320 = {}.TabPanel;
 /** @type {[typeof __VLS_components.TabPanel, typeof __VLS_components.TabPanel, ]} */ ;
 // @ts-ignore
-const __VLS_329 = __VLS_asFunctionalComponent(__VLS_328, new __VLS_328({
+const __VLS_321 = __VLS_asFunctionalComponent(__VLS_320, new __VLS_320({
     value: "2",
     as: "p",
     ...{ class: "m-0" },
 }));
-const __VLS_330 = __VLS_329({
+const __VLS_322 = __VLS_321({
     value: "2",
     as: "p",
     ...{ class: "m-0" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_329));
-__VLS_331.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_321));
+__VLS_323.slots.default;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.form, __VLS_intrinsicElements.form)({
     ...{ onSubmit: (__VLS_ctx.saveSoftwareInfo) },
 });
@@ -1867,16 +1845,16 @@ for (const [software, index] of __VLS_getVForSourceType((__VLS_ctx.software_inst
         key: (software.key + '-' + index),
         ...{ class: "relative z-0 w-full mb-5 group" },
     });
-    const __VLS_332 = {}.Fieldset;
+    const __VLS_324 = {}.Fieldset;
     /** @type {[typeof __VLS_components.Fieldset, typeof __VLS_components.Fieldset, ]} */ ;
     // @ts-ignore
-    const __VLS_333 = __VLS_asFunctionalComponent(__VLS_332, new __VLS_332({
+    const __VLS_325 = __VLS_asFunctionalComponent(__VLS_324, new __VLS_324({
         legend: (software.title),
     }));
-    const __VLS_334 = __VLS_333({
+    const __VLS_326 = __VLS_325({
         legend: (software.title),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_333));
-    __VLS_335.slots.default;
+    }, ...__VLS_functionalComponentArgsRest(__VLS_325));
+    __VLS_327.slots.default;
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "card flex flex-wrap gap-9" },
     });
@@ -1885,87 +1863,87 @@ for (const [software, index] of __VLS_getVForSourceType((__VLS_ctx.software_inst
             key: (option),
             ...{ class: "flex items-center gap-3" },
         });
-        const __VLS_336 = {}.RadioButton;
+        const __VLS_328 = {}.RadioButton;
         /** @type {[typeof __VLS_components.RadioButton, ]} */ ;
         // @ts-ignore
-        const __VLS_337 = __VLS_asFunctionalComponent(__VLS_336, new __VLS_336({
+        const __VLS_329 = __VLS_asFunctionalComponent(__VLS_328, new __VLS_328({
             ...{ 'onChange': {} },
             modelValue: (__VLS_ctx.selectedSoftware[software.key]),
             inputId: (option.toLowerCase() + '-' + index),
             name: (software.key),
             value: (option.toLowerCase()),
         }));
-        const __VLS_338 = __VLS_337({
+        const __VLS_330 = __VLS_329({
             ...{ 'onChange': {} },
             modelValue: (__VLS_ctx.selectedSoftware[software.key]),
             inputId: (option.toLowerCase() + '-' + index),
             name: (software.key),
             value: (option.toLowerCase()),
-        }, ...__VLS_functionalComponentArgsRest(__VLS_337));
-        let __VLS_340;
-        let __VLS_341;
-        let __VLS_342;
-        const __VLS_343 = {
+        }, ...__VLS_functionalComponentArgsRest(__VLS_329));
+        let __VLS_332;
+        let __VLS_333;
+        let __VLS_334;
+        const __VLS_335 = {
             onChange: (...[$event]) => {
                 __VLS_ctx.onRadioChange(software.key, option);
             }
         };
-        var __VLS_339;
+        var __VLS_331;
         __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
             for: (option.toLowerCase() + '-' + index),
         });
         (option);
     }
-    var __VLS_335;
+    var __VLS_327;
 }
-const __VLS_344 = {}.Button;
+const __VLS_336 = {}.Button;
 /** @type {[typeof __VLS_components.Button, ]} */ ;
 // @ts-ignore
-const __VLS_345 = __VLS_asFunctionalComponent(__VLS_344, new __VLS_344({
+const __VLS_337 = __VLS_asFunctionalComponent(__VLS_336, new __VLS_336({
     label: "Save",
     type: "submit",
     icon: "pi pi-save",
     severity: "primary",
 }));
-const __VLS_346 = __VLS_345({
+const __VLS_338 = __VLS_337({
     label: "Save",
     type: "submit",
     icon: "pi pi-save",
     severity: "primary",
-}, ...__VLS_functionalComponentArgsRest(__VLS_345));
-var __VLS_331;
-const __VLS_348 = {}.TabPanel;
+}, ...__VLS_functionalComponentArgsRest(__VLS_337));
+var __VLS_323;
+const __VLS_340 = {}.TabPanel;
 /** @type {[typeof __VLS_components.TabPanel, typeof __VLS_components.TabPanel, ]} */ ;
 // @ts-ignore
-const __VLS_349 = __VLS_asFunctionalComponent(__VLS_348, new __VLS_348({
+const __VLS_341 = __VLS_asFunctionalComponent(__VLS_340, new __VLS_340({
     value: "3",
     as: "p",
     ...{ class: "m-0" },
 }));
-const __VLS_350 = __VLS_349({
+const __VLS_342 = __VLS_341({
     value: "3",
     as: "p",
     ...{ class: "m-0" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_349));
-__VLS_351.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_341));
+__VLS_343.slots.default;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.form, __VLS_intrinsicElements.form)({
     ...{ onSubmit: (__VLS_ctx.savePeripheralInfo) },
 });
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "grid grid-cols-1 lg:grid-cols-2 gap-8" },
 });
-const __VLS_352 = {}.Fieldset;
+const __VLS_344 = {}.Fieldset;
 /** @type {[typeof __VLS_components.Fieldset, typeof __VLS_components.Fieldset, ]} */ ;
 // @ts-ignore
-const __VLS_353 = __VLS_asFunctionalComponent(__VLS_352, new __VLS_352({
+const __VLS_345 = __VLS_asFunctionalComponent(__VLS_344, new __VLS_344({
     legend: "Monitor 1",
     ...{ class: "p-5 border rounded-lg shadow-sm" },
 }));
-const __VLS_354 = __VLS_353({
+const __VLS_346 = __VLS_345({
     legend: "Monitor 1",
     ...{ class: "p-5 border rounded-lg shadow-sm" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_353));
-__VLS_355.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_345));
+__VLS_347.slots.default;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "space-y-6" },
 });
@@ -1973,21 +1951,48 @@ if (__VLS_ctx.peripheral_form.monitor1QrCode) {
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "flex justify-center" },
     });
-    const __VLS_356 = {}.QrcodeVue;
+    const __VLS_348 = {}.QrcodeVue;
     /** @type {[typeof __VLS_components.QrcodeVue, ]} */ ;
     // @ts-ignore
-    const __VLS_357 = __VLS_asFunctionalComponent(__VLS_356, new __VLS_356({
+    const __VLS_349 = __VLS_asFunctionalComponent(__VLS_348, new __VLS_348({
         value: (__VLS_ctx.peripheral_form.monitor1QrCode),
         ...{ class: "w-32 h-32" },
     }));
-    const __VLS_358 = __VLS_357({
+    const __VLS_350 = __VLS_349({
         value: (__VLS_ctx.peripheral_form.monitor1QrCode),
         ...{ class: "w-32 h-32" },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_357));
+    }, ...__VLS_functionalComponentArgsRest(__VLS_349));
 }
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" },
 });
+const __VLS_352 = {}.FloatLabel;
+/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
+// @ts-ignore
+const __VLS_353 = __VLS_asFunctionalComponent(__VLS_352, new __VLS_352({
+    ...{ class: "w-full" },
+}));
+const __VLS_354 = __VLS_353({
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_353));
+__VLS_355.slots.default;
+const __VLS_356 = {}.InputText;
+/** @type {[typeof __VLS_components.InputText, ]} */ ;
+// @ts-ignore
+const __VLS_357 = __VLS_asFunctionalComponent(__VLS_356, new __VLS_356({
+    id: "monitor1QrCode",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1QrCode),
+    ...{ class: "w-full" },
+}));
+const __VLS_358 = __VLS_357({
+    id: "monitor1QrCode",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1QrCode),
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_357));
+__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
+    for: "monitor1QrCode",
+});
+var __VLS_355;
 const __VLS_360 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
@@ -2002,19 +2007,22 @@ const __VLS_364 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_365 = __VLS_asFunctionalComponent(__VLS_364, new __VLS_364({
-    id: "monitor1QrCode",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1QrCode),
+    id: "monitor1BrandModel",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1BrandModel),
     ...{ class: "w-full" },
 }));
 const __VLS_366 = __VLS_365({
-    id: "monitor1QrCode",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1QrCode),
+    id: "monitor1BrandModel",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1BrandModel),
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_365));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "monitor1QrCode",
+    for: "monitor1BrandModel",
 });
 var __VLS_363;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" },
+});
 const __VLS_368 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
@@ -2029,22 +2037,19 @@ const __VLS_372 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_373 = __VLS_asFunctionalComponent(__VLS_372, new __VLS_372({
-    id: "monitor1BrandModel",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1BrandModel),
+    id: "monitor1Model",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1Model),
     ...{ class: "w-full" },
 }));
 const __VLS_374 = __VLS_373({
-    id: "monitor1BrandModel",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1BrandModel),
+    id: "monitor1Model",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1Model),
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_373));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "monitor1BrandModel",
+    for: "monitor1Model",
 });
 var __VLS_371;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" },
-});
 const __VLS_376 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
@@ -2059,19 +2064,22 @@ const __VLS_380 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_381 = __VLS_asFunctionalComponent(__VLS_380, new __VLS_380({
-    id: "monitor1Model",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1Model),
+    id: "monitor1SerialNumber",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1SerialNumber),
     ...{ class: "w-full" },
 }));
 const __VLS_382 = __VLS_381({
-    id: "monitor1Model",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1Model),
+    id: "monitor1SerialNumber",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1SerialNumber),
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_381));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "monitor1Model",
+    for: "monitor1SerialNumber",
 });
 var __VLS_379;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" },
+});
 const __VLS_384 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
@@ -2086,22 +2094,19 @@ const __VLS_388 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_389 = __VLS_asFunctionalComponent(__VLS_388, new __VLS_388({
-    id: "monitor1SerialNumber",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1SerialNumber),
+    id: "monitor1PropertyNumber",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1PropertyNumber),
     ...{ class: "w-full" },
 }));
 const __VLS_390 = __VLS_389({
-    id: "monitor1SerialNumber",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1SerialNumber),
+    id: "monitor1PropertyNumber",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1PropertyNumber),
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_389));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "monitor1SerialNumber",
+    for: "monitor1PropertyNumber",
 });
 var __VLS_387;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" },
-});
 const __VLS_392 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
@@ -2116,19 +2121,22 @@ const __VLS_396 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_397 = __VLS_asFunctionalComponent(__VLS_396, new __VLS_396({
-    id: "monitor1PropertyNumber",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1PropertyNumber),
+    id: "monitor1AccountPersonInPN",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1AccountPersonInPN),
     ...{ class: "w-full" },
 }));
 const __VLS_398 = __VLS_397({
-    id: "monitor1PropertyNumber",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1PropertyNumber),
+    id: "monitor1AccountPersonInPN",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1AccountPersonInPN),
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_397));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "monitor1PropertyNumber",
+    for: "monitor1AccountPersonInPN",
 });
 var __VLS_395;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" },
+});
 const __VLS_400 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
@@ -2143,105 +2151,75 @@ const __VLS_404 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_405 = __VLS_asFunctionalComponent(__VLS_404, new __VLS_404({
-    id: "monitor1AccountPersonInPN",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1AccountPersonInPN),
+    id: "monitor1ActualUser",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1ActualUser),
     ...{ class: "w-full" },
 }));
 const __VLS_406 = __VLS_405({
-    id: "monitor1AccountPersonInPN",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1AccountPersonInPN),
+    id: "monitor1ActualUser",
+    modelValue: (__VLS_ctx.peripheral_form.monitor1ActualUser),
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_405));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "monitor1AccountPersonInPN",
+    for: "monitor1ActualUser",
 });
 var __VLS_403;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" },
-});
-const __VLS_408 = {}.FloatLabel;
-/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
+const __VLS_408 = {}.Select;
+/** @type {[typeof __VLS_components.Select, ]} */ ;
 // @ts-ignore
 const __VLS_409 = __VLS_asFunctionalComponent(__VLS_408, new __VLS_408({
+    filter: true,
+    modelValue: (__VLS_ctx.peripheral_form.mon1division1),
+    options: (__VLS_ctx.division_opts),
+    optionValue: "id",
+    optionLabel: "name",
+    placeholder: "Division",
     ...{ class: "w-full" },
 }));
 const __VLS_410 = __VLS_409({
+    filter: true,
+    modelValue: (__VLS_ctx.peripheral_form.mon1division1),
+    options: (__VLS_ctx.division_opts),
+    optionValue: "id",
+    optionLabel: "name",
+    placeholder: "Division",
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_409));
-__VLS_411.slots.default;
-const __VLS_412 = {}.InputText;
-/** @type {[typeof __VLS_components.InputText, ]} */ ;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({});
+const __VLS_412 = {}.Select;
+/** @type {[typeof __VLS_components.Select, ]} */ ;
 // @ts-ignore
 const __VLS_413 = __VLS_asFunctionalComponent(__VLS_412, new __VLS_412({
-    id: "monitor1ActualUser",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1ActualUser),
+    filter: true,
+    modelValue: (__VLS_ctx.peripheral_form.monitor1Status),
+    options: (__VLS_ctx.status_opts),
+    optionValue: "id",
+    optionLabel: "name",
+    placeholder: "Current Status",
     ...{ class: "w-full" },
 }));
 const __VLS_414 = __VLS_413({
-    id: "monitor1ActualUser",
-    modelValue: (__VLS_ctx.peripheral_form.monitor1ActualUser),
+    filter: true,
+    modelValue: (__VLS_ctx.peripheral_form.monitor1Status),
+    options: (__VLS_ctx.status_opts),
+    optionValue: "id",
+    optionLabel: "name",
+    placeholder: "Current Status",
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_413));
-__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "monitor1ActualUser",
-});
-var __VLS_411;
-const __VLS_416 = {}.Select;
-/** @type {[typeof __VLS_components.Select, ]} */ ;
-// @ts-ignore
-const __VLS_417 = __VLS_asFunctionalComponent(__VLS_416, new __VLS_416({
-    filter: true,
-    modelValue: (__VLS_ctx.peripheral_form.mon1division1),
-    options: (__VLS_ctx.division_opts),
-    optionValue: "id",
-    optionLabel: "name",
-    placeholder: "Division",
-    ...{ class: "w-full" },
-}));
-const __VLS_418 = __VLS_417({
-    filter: true,
-    modelValue: (__VLS_ctx.peripheral_form.mon1division1),
-    options: (__VLS_ctx.division_opts),
-    optionValue: "id",
-    optionLabel: "name",
-    placeholder: "Division",
-    ...{ class: "w-full" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_417));
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({});
-const __VLS_420 = {}.Select;
-/** @type {[typeof __VLS_components.Select, ]} */ ;
-// @ts-ignore
-const __VLS_421 = __VLS_asFunctionalComponent(__VLS_420, new __VLS_420({
-    filter: true,
-    modelValue: (__VLS_ctx.peripheral_form.monitor1Status),
-    options: (__VLS_ctx.status_opts),
-    optionValue: "id",
-    optionLabel: "name",
-    placeholder: "Current Status",
-    ...{ class: "w-full" },
-}));
-const __VLS_422 = __VLS_421({
-    filter: true,
-    modelValue: (__VLS_ctx.peripheral_form.monitor1Status),
-    options: (__VLS_ctx.status_opts),
-    optionValue: "id",
-    optionLabel: "name",
-    placeholder: "Current Status",
-    ...{ class: "w-full" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_421));
-var __VLS_355;
-const __VLS_424 = {}.Fieldset;
+var __VLS_347;
+const __VLS_416 = {}.Fieldset;
 /** @type {[typeof __VLS_components.Fieldset, typeof __VLS_components.Fieldset, ]} */ ;
 // @ts-ignore
-const __VLS_425 = __VLS_asFunctionalComponent(__VLS_424, new __VLS_424({
+const __VLS_417 = __VLS_asFunctionalComponent(__VLS_416, new __VLS_416({
     legend: "Monitor 2",
     ...{ class: "p-5 border rounded-lg shadow-sm" },
 }));
-const __VLS_426 = __VLS_425({
+const __VLS_418 = __VLS_417({
     legend: "Monitor 2",
     ...{ class: "p-5 border rounded-lg shadow-sm" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_425));
-__VLS_427.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_417));
+__VLS_419.slots.default;
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "space-y-6" },
 });
@@ -2249,21 +2227,48 @@ if (__VLS_ctx.peripheral_form.monitor2QrCode) {
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "flex justify-center" },
     });
-    const __VLS_428 = {}.QrcodeVue;
+    const __VLS_420 = {}.QrcodeVue;
     /** @type {[typeof __VLS_components.QrcodeVue, ]} */ ;
     // @ts-ignore
-    const __VLS_429 = __VLS_asFunctionalComponent(__VLS_428, new __VLS_428({
+    const __VLS_421 = __VLS_asFunctionalComponent(__VLS_420, new __VLS_420({
         value: (__VLS_ctx.peripheral_form.monitor2QrCode),
         ...{ class: "w-32 h-32" },
     }));
-    const __VLS_430 = __VLS_429({
+    const __VLS_422 = __VLS_421({
         value: (__VLS_ctx.peripheral_form.monitor2QrCode),
         ...{ class: "w-32 h-32" },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_429));
+    }, ...__VLS_functionalComponentArgsRest(__VLS_421));
 }
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" },
 });
+const __VLS_424 = {}.FloatLabel;
+/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
+// @ts-ignore
+const __VLS_425 = __VLS_asFunctionalComponent(__VLS_424, new __VLS_424({
+    ...{ class: "w-full" },
+}));
+const __VLS_426 = __VLS_425({
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_425));
+__VLS_427.slots.default;
+const __VLS_428 = {}.InputText;
+/** @type {[typeof __VLS_components.InputText, ]} */ ;
+// @ts-ignore
+const __VLS_429 = __VLS_asFunctionalComponent(__VLS_428, new __VLS_428({
+    id: "monitor2QrCode",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2QrCode),
+    ...{ class: "w-full" },
+}));
+const __VLS_430 = __VLS_429({
+    id: "monitor2QrCode",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2QrCode),
+    ...{ class: "w-full" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_429));
+__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
+    for: "monitor2QrCode",
+});
+var __VLS_427;
 const __VLS_432 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
@@ -2278,19 +2283,22 @@ const __VLS_436 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_437 = __VLS_asFunctionalComponent(__VLS_436, new __VLS_436({
-    id: "monitor2QrCode",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2QrCode),
+    id: "monitor2BrandModel",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2BrandModel),
     ...{ class: "w-full" },
 }));
 const __VLS_438 = __VLS_437({
-    id: "monitor2QrCode",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2QrCode),
+    id: "monitor2BrandModel",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2BrandModel),
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_437));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "monitor2QrCode",
+    for: "monitor2BrandModel",
 });
 var __VLS_435;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" },
+});
 const __VLS_440 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
@@ -2305,22 +2313,19 @@ const __VLS_444 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_445 = __VLS_asFunctionalComponent(__VLS_444, new __VLS_444({
-    id: "monitor2BrandModel",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2BrandModel),
+    id: "monitor2Model",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2Model),
     ...{ class: "w-full" },
 }));
 const __VLS_446 = __VLS_445({
-    id: "monitor2BrandModel",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2BrandModel),
+    id: "monitor2Model",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2Model),
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_445));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "monitor2BrandModel",
+    for: "monitor2Model",
 });
 var __VLS_443;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" },
-});
 const __VLS_448 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
@@ -2335,19 +2340,22 @@ const __VLS_452 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_453 = __VLS_asFunctionalComponent(__VLS_452, new __VLS_452({
-    id: "monitor2Model",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2Model),
+    id: "monitor2SerialNumber",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2SerialNumber),
     ...{ class: "w-full" },
 }));
 const __VLS_454 = __VLS_453({
-    id: "monitor2Model",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2Model),
+    id: "monitor2SerialNumber",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2SerialNumber),
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_453));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "monitor2Model",
+    for: "monitor2SerialNumber",
 });
 var __VLS_451;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" },
+});
 const __VLS_456 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
@@ -2362,22 +2370,19 @@ const __VLS_460 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_461 = __VLS_asFunctionalComponent(__VLS_460, new __VLS_460({
-    id: "monitor2SerialNumber",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2SerialNumber),
+    id: "monitor2PropertyNumber",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2PropertyNumber),
     ...{ class: "w-full" },
 }));
 const __VLS_462 = __VLS_461({
-    id: "monitor2SerialNumber",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2SerialNumber),
+    id: "monitor2PropertyNumber",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2PropertyNumber),
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_461));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "monitor2SerialNumber",
+    for: "monitor2PropertyNumber",
 });
 var __VLS_459;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" },
-});
 const __VLS_464 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
@@ -2392,19 +2397,22 @@ const __VLS_468 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_469 = __VLS_asFunctionalComponent(__VLS_468, new __VLS_468({
-    id: "monitor2PropertyNumber",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2PropertyNumber),
+    id: "monitor2AccountPersonInPN",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2AccountPersonInPN),
     ...{ class: "w-full" },
 }));
 const __VLS_470 = __VLS_469({
-    id: "monitor2PropertyNumber",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2PropertyNumber),
+    id: "monitor2AccountPersonInPN",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2AccountPersonInPN),
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_469));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "monitor2PropertyNumber",
+    for: "monitor2AccountPersonInPN",
 });
 var __VLS_467;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" },
+});
 const __VLS_472 = {}.FloatLabel;
 /** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
 // @ts-ignore
@@ -2419,112 +2427,82 @@ const __VLS_476 = {}.InputText;
 /** @type {[typeof __VLS_components.InputText, ]} */ ;
 // @ts-ignore
 const __VLS_477 = __VLS_asFunctionalComponent(__VLS_476, new __VLS_476({
-    id: "monitor2AccountPersonInPN",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2AccountPersonInPN),
+    id: "monitor2ActualUser",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2ActualUser),
     ...{ class: "w-full" },
 }));
 const __VLS_478 = __VLS_477({
-    id: "monitor2AccountPersonInPN",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2AccountPersonInPN),
+    id: "monitor2ActualUser",
+    modelValue: (__VLS_ctx.peripheral_form.monitor2ActualUser),
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_477));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "monitor2AccountPersonInPN",
+    for: "monitor2ActualUser",
 });
 var __VLS_475;
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "grid grid-cols-1 md:grid-cols-2 gap-6" },
-});
-const __VLS_480 = {}.FloatLabel;
-/** @type {[typeof __VLS_components.FloatLabel, typeof __VLS_components.FloatLabel, ]} */ ;
+const __VLS_480 = {}.Select;
+/** @type {[typeof __VLS_components.Select, ]} */ ;
 // @ts-ignore
 const __VLS_481 = __VLS_asFunctionalComponent(__VLS_480, new __VLS_480({
+    filter: true,
+    modelValue: (__VLS_ctx.peripheral_form.mon1division2),
+    options: (__VLS_ctx.division_opts),
+    optionValue: "id",
+    optionLabel: "name",
+    placeholder: "Division",
     ...{ class: "w-full" },
 }));
 const __VLS_482 = __VLS_481({
+    filter: true,
+    modelValue: (__VLS_ctx.peripheral_form.mon1division2),
+    options: (__VLS_ctx.division_opts),
+    optionValue: "id",
+    optionLabel: "name",
+    placeholder: "Division",
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_481));
-__VLS_483.slots.default;
-const __VLS_484 = {}.InputText;
-/** @type {[typeof __VLS_components.InputText, ]} */ ;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({});
+const __VLS_484 = {}.Select;
+/** @type {[typeof __VLS_components.Select, ]} */ ;
 // @ts-ignore
 const __VLS_485 = __VLS_asFunctionalComponent(__VLS_484, new __VLS_484({
-    id: "monitor2ActualUser",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2ActualUser),
+    filter: true,
+    modelValue: (__VLS_ctx.peripheral_form.monitor2Status),
+    options: (__VLS_ctx.status_opts),
+    optionValue: "id",
+    optionLabel: "name",
+    placeholder: "Current Status",
     ...{ class: "w-full" },
 }));
 const __VLS_486 = __VLS_485({
-    id: "monitor2ActualUser",
-    modelValue: (__VLS_ctx.peripheral_form.monitor2ActualUser),
+    filter: true,
+    modelValue: (__VLS_ctx.peripheral_form.monitor2Status),
+    options: (__VLS_ctx.status_opts),
+    optionValue: "id",
+    optionLabel: "name",
+    placeholder: "Current Status",
     ...{ class: "w-full" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_485));
-__VLS_asFunctionalElement(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
-    for: "monitor2ActualUser",
-});
-var __VLS_483;
-const __VLS_488 = {}.Select;
-/** @type {[typeof __VLS_components.Select, ]} */ ;
-// @ts-ignore
-const __VLS_489 = __VLS_asFunctionalComponent(__VLS_488, new __VLS_488({
-    filter: true,
-    modelValue: (__VLS_ctx.peripheral_form.mon1division2),
-    options: (__VLS_ctx.division_opts),
-    optionValue: "id",
-    optionLabel: "name",
-    placeholder: "Division",
-    ...{ class: "w-full" },
-}));
-const __VLS_490 = __VLS_489({
-    filter: true,
-    modelValue: (__VLS_ctx.peripheral_form.mon1division2),
-    options: (__VLS_ctx.division_opts),
-    optionValue: "id",
-    optionLabel: "name",
-    placeholder: "Division",
-    ...{ class: "w-full" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_489));
-__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({});
-const __VLS_492 = {}.Select;
-/** @type {[typeof __VLS_components.Select, ]} */ ;
-// @ts-ignore
-const __VLS_493 = __VLS_asFunctionalComponent(__VLS_492, new __VLS_492({
-    filter: true,
-    modelValue: (__VLS_ctx.peripheral_form.monitor2Status),
-    options: (__VLS_ctx.status_opts),
-    optionValue: "id",
-    optionLabel: "name",
-    placeholder: "Current Status",
-    ...{ class: "w-full" },
-}));
-const __VLS_494 = __VLS_493({
-    filter: true,
-    modelValue: (__VLS_ctx.peripheral_form.monitor2Status),
-    options: (__VLS_ctx.status_opts),
-    optionValue: "id",
-    optionLabel: "name",
-    placeholder: "Current Status",
-    ...{ class: "w-full" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_493));
-var __VLS_427;
-const __VLS_496 = {}.Button;
+var __VLS_419;
+const __VLS_488 = {}.Button;
 /** @type {[typeof __VLS_components.Button, ]} */ ;
 // @ts-ignore
-const __VLS_497 = __VLS_asFunctionalComponent(__VLS_496, new __VLS_496({
+const __VLS_489 = __VLS_asFunctionalComponent(__VLS_488, new __VLS_488({
     label: "Save",
     type: "submit",
     icon: "pi pi-save",
     severity: "info",
     ...{ class: "mr-4" },
 }));
-const __VLS_498 = __VLS_497({
+const __VLS_490 = __VLS_489({
     label: "Save",
     type: "submit",
     icon: "pi pi-save",
     severity: "info",
     ...{ class: "mr-4" },
-}, ...__VLS_functionalComponentArgsRest(__VLS_497));
-var __VLS_351;
-var __VLS_75;
+}, ...__VLS_functionalComponentArgsRest(__VLS_489));
+var __VLS_343;
+var __VLS_67;
 var __VLS_35;
 var __VLS_7;
 /** @type {__VLS_StyleScopedClasses['fixed']} */ ;
@@ -2604,8 +2582,6 @@ var __VLS_7;
 /** @type {__VLS_StyleScopedClasses['pi-desktop']} */ ;
 /** @type {__VLS_StyleScopedClasses['font-bold']} */ ;
 /** @type {__VLS_StyleScopedClasses['whitespace-nowrap']} */ ;
-/** @type {__VLS_StyleScopedClasses['mr-4']} */ ;
-/** @type {__VLS_StyleScopedClasses['mt-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['mt-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['p-button']} */ ;
 /** @type {__VLS_StyleScopedClasses['p-button-secondary']} */ ;
@@ -3034,12 +3010,12 @@ const __VLS_self = (await import('vue')).defineComponent({
             gpu_type: gpu_type,
             software_installed: software_installed,
             onRadioChange: onRadioChange,
-            transferItem: transferItem,
             saveGeneralInfo: saveGeneralInfo,
             saveSpecsInfo: saveSpecsInfo,
             saveSoftwareInfo: saveSoftwareInfo,
             savePeripheralInfo: savePeripheralInfo,
             closeModal: closeModal,
+            isComputerType: isComputerType,
         };
     },
 });

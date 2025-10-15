@@ -195,9 +195,10 @@ const getNetworkType = (key: string | null | undefined): string => {
           <table class="table-auto w-full border border-gray-300 mt-4">
             <thead class="bg-gray-200">
               <tr>
-                <th colspan="4" class="px-2 py-1 text-left text-sm font-bold text-gray-700">
+                <th colspan="4" class="px-2 py-1 text-left text-sm font-bold" style="background-color: #F44336;color:#fff">
+
                   GENERAL INFORMATION
-                  <span class="float-right text-xs font-normal text-gray-500"></span>
+                  <span class="float-right text-xs font-normal"></span>
                 </th>
               </tr>
             </thead>
@@ -260,7 +261,7 @@ const getNetworkType = (key: string | null | undefined): string => {
           <table class="table-auto w-full border border-gray-300 mt-4">
             <thead class="bg-gray-200">
               <tr>
-                <th colspan="4" class="px-2 py-1 text-left text-sm font-bold text-gray-700">
+                <th colspan="4" class="px-2 py-1 text-left text-sm font-bold" style="background-color: #2196F3;color:#fff">
                   SPECIFICATION
                 </th>
               </tr>
@@ -326,7 +327,7 @@ const getNetworkType = (key: string | null | undefined): string => {
           <table class="table-auto w-full border border-gray-200 mt-4">
             <thead class="bg-gray-100">
               <tr>
-                <th class="px-2 py-1 text-left text-sm font-bold text-gray-700" colspan="4">
+                <th class="px-2 py-1 text-left text-sm font-bold" style="background-color: #4CAF50; color: #fff;" colspan="4">
                   MAJOR SOFTWARE INSTALLED
                 </th>
               </tr>
@@ -355,7 +356,7 @@ const getNetworkType = (key: string | null | undefined): string => {
           <table class="table-auto w-full border border-gray-200 mt-4">
             <thead class="bg-gray-100">
               <tr>
-                <th class="px-2 py-1 text-left text-sm font-bold text-gray-700" colspan="4">
+                <th class="px-2 py-1 text-left text-sm font-bold" style="background-color: #FFEB3B;color:#000;" colspan="4">
                   MONITOR & UPS
                 </th>
               </tr>
@@ -413,9 +414,9 @@ const getNetworkType = (key: string | null | undefined): string => {
           </table>
 
           <table class="table-auto w-full border border-gray-200 mt-4">
-            <thead class="bg-gray-100">
+            <thead class="bg-gray-500">
               <tr>
-                <th class="px-2 py-1 text-left text-sm font-bold text-gray-700" colspan="4">UPS</th>
+                <th class="px-2 py-1 text-left text-sm font-bold" style="color:#fff;" colspan="4">UPS</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
