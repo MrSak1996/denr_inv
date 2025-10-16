@@ -246,67 +246,65 @@ class UserController extends Controller
         }
     }
 
-    public function post_update_user(Request $req)
-    {
-        $validated = $req->validate([
-            'user_id' => 'required|integer|exists:users,id', // Required when updating
-            'geo_code' => 'nullable|string',
-            'region' => 'nullable|string',
-            // 'province_c' => 'nullable|integer',
-            // 'city_mun_c' => 'nullable|integer',
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'complete_address' => 'nullable|string|max:500',
-            'designation' => 'nullable|string|max:255',
-            'sex' => 'nullable|integer',
-            'division_id' => 'nullable|integer',
-            'employment_status_id' => 'nullable|integer',
-            'position' => 'nullable|string|max:255',
-            'email' => 'nullable|email|max:255',
-            'contact_details' => 'nullable|string|max:20',
-            'role_id' => 'nullable|integer',
-            'username' => 'nullable|string|max:255',
-            'password' => 'nullable|string',
-        ]);
+   public function post_update_user(Request $req)
+{
+    // Validate input (customize as needed)
+    $validator = Validator::make($req->all(), [
+        'user_id' => 'required|exists:users,id',
+        'first_name' => 'required|string|max:255',
+        'last_name' => 'required|string|max:255',
+        'middle_name' => 'nullable|string|max:255',
+        'division_id' => 'nullable|exists:tbl_division,id',
+      
+        'complete_address' => 'nullable|string|max:255',
+        'mobile_no' => 'nullable|string|max:20',
+        'position' => 'nullable|string|max:255',
+        'user_role_id' => 'required|exists:user_roles,id',
+        // 'sex' => 'nullable|in:Male,Female',
+        'employment_status' => 'nullable|exists:tbl_employment_type,id',
+        // 'username' => 'required|string|max:255|unique:users,username,' . $req->id,
+        // 'email' => 'required|email|max:255|unique:users,email,' . $req->id,
+    ]);
 
-        // Fetch the user by ID
-        $user = User::find($validated['user_id']);
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => 'error',
+            'errors' => $validator->errors()
+        ], 422);
+    }
 
-        if (!$user) {
-            return response()->json([
-                'message' => 'User not found.',
-            ], 404);
-        }
-
-        // Update user data
-        $user->update([
-            'geo_id' => $validated['geo_code'] ?? null,
-            'region_c' => $validated['region'] ?? null,
-            // 'province_c' => $validated['province_c'] ?? null,
-            // 'city_mun_c' => $validated['city_mun_c'] ?? null,
-            'first_name' => $validated['first_name'],
-            'middle_name' => $validated['middle_name'] ?? null,
-            'last_name' => $validated['last_name'],
-            'complete_address' => $validated['complete_address'] ?? null,
-            'designation' => $validated['designation'] ?? null,
-            'sex' => $validated['sex'] ?? null,
-            'division_id' => $validated['division_id'] ?? null,
-            'employment_status' => $validated['employment_status_id'] ?? null,
-            'position' => $validated['position'] ?? null,
-            'email' => $validated['email'] ?? null,
-            'mobile_no' => $validated['contact_details'] ?? null,
-            'roles' => $validated['role_id'] ?? null,
-            'username' => $validated['username'],
-            // Only update password if provided
-            'password' => $validated['password'] ? bcrypt($validated['password']) : $user->password,
+    // Update the user
+    $affected = DB::table('users')
+        ->where('id', $req->user_id)
+        ->update([
+            'first_name' => $req->first_name,
+            'last_name' => $req->last_name,
+            'middle_name' => $req->middle_name,
+            'division_id' => $req->division_id,
+            // 'province_c' => $req->province_c,
+            // 'city_mun_c' => $req->city_mun_c,
+            'complete_address' => $req->complete_address,
+            'mobile_no' => $req->mobile_no,
+            'position' => $req->position,
+            'roles' => $req->user_role_id,
+            'sex' => $req->sex,
+            'employment_status' => $req->employment_status,
+            'username' => $req->username,
+            'email' => $req->email,
             'updated_at' => now(),
         ]);
 
+    if ($affected) {
         return response()->json([
-            'message' => 'User updated successfully.',
-            'user_id' => $user->id,
-        ], 200);
+            'status' => 'success',
+            'message' => 'User updated successfully.'
+        ]);
+    } else {
+        return response()->json([
+            'status' => 'warning',
+            'message' => 'No changes were made or user not found.'
+        ]);
     }
+}
 
 }
