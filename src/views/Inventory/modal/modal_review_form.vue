@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted} from 'vue'
 import { useApi } from '@/composables/useApi'
 import { useInventory } from '@/composables/useInventory'
 import { useToast } from 'primevue/usetoast'
 import { useRouter, useRoute } from 'vue-router'
+import { useItemHistory} from '@/composables/useItemHistory'
+const { itemHistory, loadingVal, error, loadItemHistory } = useItemHistory();
+
 import api from '@/api/axiosInstance'
 
 const { printRecord } = useInventory()
@@ -112,6 +115,7 @@ const handlePrint = () => {
   const idToPrint = props.item_id ? props.item_id : route.params.id
   printRecord(Number(idToPrint))
 }
+
 const submitFinalReview = async () => {
   try {
     const item_id = props.item_id ? props.item_id : route.params.id;
@@ -152,6 +156,8 @@ const ram_opts = ref([
   { name: 'Flash Memory', id: '14' }
 ])
 
+
+
 const getRamName = (id: string | null | undefined): string => {
   if (!id) return 'Unknown RAM'
   const ram = ram_opts.value.find((option) => option.id === id.toString())
@@ -161,6 +167,10 @@ const getRamName = (id: string | null | undefined): string => {
 const getNetworkType = (key: string | null | undefined): string => {
   return key ? networkTypeMap[key] || 'Unknown' : 'Unknown'
 }
+
+onMounted(() => {
+  loadItemHistory(props.item_id ? props.item_id : route.params.id)
+})
 </script>
 
 <style>
@@ -171,16 +181,10 @@ const getNetworkType = (key: string | null | undefined): string => {
 }
 </style>
 <template>
-  <div
-    v-if="open"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-    role="dialog"
-    tabindex="-1"
-    aria-labelledby="progress-modal"
-  >
+  <div v-if="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog"
+    tabindex="-1" aria-labelledby="progress-modal">
     <div
-      class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-lg rounded-lg w-130 h-[80vh] max-w-2xl mx-4 lg:mx-auto transition-transform duration-300 transform scale-100"
-    >
+      class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-lg rounded-lg w-130 h-[80vh] max-w-2xl mx-4 lg:mx-auto transition-transform duration-300 transform scale-100">
       <!-- Modal Header -->
       <div class="flex justify-between items-center py-4 px-6 border-b dark:border-neutral-700">
         <h3 id="reserve-control-no" class="text-lg font-semibold text-gray-800 dark:text-gray-200">
@@ -193,9 +197,49 @@ const getNetworkType = (key: string | null | undefined): string => {
       <div class="flex flex-col justify-center items-center py-2 px-2 h-[70vh]">
         <div class="relative overflow-x-auto">
           <table class="table-auto w-full border border-gray-300 mt-4">
+            <thead>
+              <tr>
+                <th colspan="5" class="px-3 py-2 text-left text-sm font-bold bg-blue-900 text-white">
+                  ITEM HISTORY LOGS
+                </th>
+              </tr>
+              <tr class="bg-gray-200 text-gray-800 text-sm font-semibold">
+                <th class="px-2 py-1 border">#</th>
+                <th class="px-2 py-1 border text-left">Date Transferred</th>
+                <th class="px-2 py-1 border text-left">Previous Owner / Office</th>
+                <th class="px-2 py-1 border text-left">New Owner / Office</th>
+                <th class="px-2 py-1 border text-left">Remarks</th>
+              </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-300">
+              <tr v-for="(log, index) in itemHistory" :key="index" class="text-sm text-gray-700">
+                <td class="px-2 py-1 border text-center">{{ index + 1 }}</td>
+                <td class="px-2 py-1 border">{{ log.date_transferred }}</td>
+                <td class="px-2 py-1 border">
+                  <div class="font-medium text-gray-800">{{ log.prev_owner }}</div>
+                  <div class="text-xs text-gray-500">{{ log.prev_office }}</div>
+                </td>
+                <td class="px-2 py-1 border">
+                  <div class="font-medium text-gray-800">{{ log.new_owner }}</div>
+                  <div class="text-xs text-gray-500">{{ log.new_office }}</div>
+                </td>
+                <td class="px-2 py-1 border">{{ log.remarks }}</td>
+              </tr>
+
+              <tr v-if="itemHistory.length === 0">
+                <td colspan="5" class="px-2 py-2 text-center text-gray-500">
+                  No history records found.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <table class="table-auto w-full border border-gray-300 mt-4">
             <thead class="bg-gray-200">
               <tr>
-                <th colspan="4" class="px-2 py-1 text-left text-sm font-bold" style="background-color: #F44336;color:#fff">
+                <th colspan="4" class="px-2 py-1 text-left text-sm font-bold"
+                  style="background-color: #F44336;color:#fff">
 
                   GENERAL INFORMATION
                   <span class="float-right text-xs font-normal"></span>
@@ -261,7 +305,8 @@ const getNetworkType = (key: string | null | undefined): string => {
           <table class="table-auto w-full border border-gray-300 mt-4">
             <thead class="bg-gray-200">
               <tr>
-                <th colspan="4" class="px-2 py-1 text-left text-sm font-bold" style="background-color: #2196F3;color:#fff">
+                <th colspan="4" class="px-2 py-1 text-left text-sm font-bold"
+                  style="background-color: #2196F3;color:#fff">
                   SPECIFICATION
                 </th>
               </tr>
@@ -278,7 +323,8 @@ const getNetworkType = (key: string | null | undefined): string => {
               <tr>
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">GPU:</td>
                 <td class="px-2 py-1 text-sm text-gray-600">
-                  {{ specsData.specs_gpu == 1 ? 'Built-In' : 'Dedicated ' + (specsData.specs_gpu_dedic_info || 'Unknown') }}
+                  {{ specsData.specs_gpu == 1 ? 'Built-In' : 'Dedicated ' + (specsData.specs_gpu_dedic_info ||
+                  'Unknown') }}
 
                 </td>
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">RAM Capacity:</td>
@@ -327,16 +373,14 @@ const getNetworkType = (key: string | null | undefined): string => {
           <table class="table-auto w-full border border-gray-200 mt-4">
             <thead class="bg-gray-100">
               <tr>
-                <th class="px-2 py-1 text-left text-sm font-bold" style="background-color: #4CAF50; color: #fff;" colspan="4">
+                <th class="px-2 py-1 text-left text-sm font-bold" style="background-color: #4CAF50; color: #fff;"
+                  colspan="4">
                   MAJOR SOFTWARE INSTALLED
                 </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
-              <tr
-                v-for="(row, index) in predefinedSoftware.slice(0, predefinedSoftware.length / 2)"
-                :key="index"
-              >
+              <tr v-for="(row, index) in predefinedSoftware.slice(0, predefinedSoftware.length / 2)" :key="index">
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">{{ row.label }}:</td>
                 <td class="px-2 py-1 text-sm text-gray-600">
                   {{ getRemarks(row.key) }}
@@ -356,7 +400,8 @@ const getNetworkType = (key: string | null | undefined): string => {
           <table class="table-auto w-full border border-gray-200 mt-4">
             <thead class="bg-gray-100">
               <tr>
-                <th class="px-2 py-1 text-left text-sm font-bold" style="background-color: #FFEB3B;color:#000;" colspan="4">
+                <th class="px-2 py-1 text-left text-sm font-bold" style="background-color: #FFEB3B;color:#000;"
+                  colspan="4">
                   MONITOR & UPS
                 </th>
               </tr>
@@ -440,7 +485,7 @@ const getNetworkType = (key: string | null | undefined): string => {
           </table>
         </div>
         <div class="flex justify-end items-center w-full">
-         
+
           <!-- <Button @click="submitFinalReview" severity="info" label="Submit" icon="pi pi-save" class="mt-4" /> -->
         </div>
       </div>

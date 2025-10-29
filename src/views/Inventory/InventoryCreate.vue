@@ -78,8 +78,17 @@ const item_id = ref(null)
 const api_token = route.query.api_token
 const openTransferModal = ref(false)
 const loading = ref(false)
+const showForm = ref(false);
+const softwareName = ref("");
+const softwareCategory = ref("");
 
 const user_id = route.params.id ? route.params.id : route.query.id
+// Reactive references
+const serialNo = ref('PS-2025-09-146')
+const propertyNo = ref('')
+const duplicates = ref<string[]>([])
+const records = ref<{ serial_no: string; property_no: string }[]>([])
+const message = ref('')
 
 // Functions
 const checkUrlAndDisableButton = () => {
@@ -237,7 +246,9 @@ const saveSoftwareInfo = async () => {
           remarksMap[value] || null
         ])
       ),
-      control_id: controlId
+      control_id: controlId,
+      softwareNameVal: form.softwareName.value,
+      softwareCategoryVal: form.softwareCategory.value
     }
     // Make the API call
     const response = await api.post('/post_insert_software', requestData)
@@ -315,19 +326,37 @@ const retrieveDataviaAPI = async () => {
 
 const retrieveSpecsData = async () => {
   const id = route.params.id
-  if (id) {
-    try {
-      const response = await api.get(`/retrieveSpecsData?id=${id}`)
-      selectedNetwork.value = String(response.data[0].specs_net)
-      selectedGPU.value = String(response.data[0].specs_gpu)
-      selectedWireless.value = String(response.data[0].specs_net_iswireless)
 
-      Object.assign(specs_form, response.data[0])
-    } catch (error) {
-      console.error('Error retrieving data:', error)
+  if (!id) {
+    console.warn('⚠️ No ID found in route params.')
+    return
+  }
+
+  try {
+    const response = await api.get(`/retrieveSpecsData?id=${id}`)
+
+    // ✅ Check if response and data exist
+    const data = response.data && Array.isArray(response.data) ? response.data[0] : null
+
+    if (data) {
+      selectedNetwork.value = String(data.specs_net || '')
+      selectedGPU.value = String(data.specs_gpu || '')
+      selectedWireless.value = String(data.specs_net_iswireless || '')
+
+      Object.assign(specs_form, data)
+    } else {
+      // Optional: clear existing form values
+      Object.assign(specs_form, {
+        specs_net: '',
+        specs_gpu: '',
+        specs_net_iswireless: ''
+      })
     }
+  } catch (error) {
+    console.error('❌ Error retrieving data:', error)
   }
 }
+
 
 const retrieveSoftwareData = async () => {
   const id = route.query.item_id;
@@ -521,8 +550,76 @@ const isComputerType = computed(() => {
   return selected === 1 || selected === 2
 })
 
+const toggleForm = () => {
+  showForm.value = !showForm.value;
+};
+
+
+
+// Fetch existing serials and property numbers
+// Fetch existing serials and property numbers
+const fetchSerialPropertyData = async () => {
+  try {
+    const response = await api.get('/getSerialProno')
+    records.value = response.data.data // ✅ Access the array inside "data"
+  } catch (error) {
+    console.error('Error fetching data:', error)
+  }
+}
+
+
+// Check for duplicates across full dataset
+const checkDuplicates = () => {
+  if (!records.value || records.value.length === 0) {
+    console.warn('⚠ No data loaded yet.')
+    return
+  }
+
+  const data = records.value
+
+  // ✅ find duplicates based on property_no across all items
+  const duplicates = data.filter((item, index, self) =>
+    self.some(
+      (other, otherIndex) =>
+        otherIndex !== index && other.property_no === item.property_no
+    )
+  )
+
+
+  if (duplicates.length > 0) {
+    // ✅ Extract unique property_no values that are duplicated
+    const duplicateProps = [
+      ...new Set(duplicates.map(d => d.property_no).filter(p => p && p !== ''))
+    ]
+
+    toast.add({
+      severity: 'error',
+      summary: 'Duplicate Found',
+      detail: `⚠️ Duplicate Property No(s): ${duplicateProps.join(', ')}`,
+      life: 5000
+    })
+  } else {
+    toast.add({
+      severity: 'success',
+      summary: 'No Duplicates',
+      detail: '✅ No duplicates found in the dataset.',
+      life: 3000
+    })
+  }
+}
+
+
+
+
+
+
 
 onMounted(() => {
+
+
+
+
+
   const id = route.params.id
   if (!id) {
     getControlNo(form, userId ? Number(userId) : 0)
@@ -538,6 +635,7 @@ onMounted(() => {
     }, 1000)
   }
   retrieveDataviaAPI(), retrieveSpecsData(), retrieveSoftwareData(), retrievePeripheralsData()
+  fetchSerialPropertyData()
   // fetchLatestID()
   status_checker()
   getDivision()
@@ -545,7 +643,7 @@ onMounted(() => {
   getEquipment()
   getRangeCategory()
   getEmploymentType()
-  retrieveData()
+  // retrieveData() wag muna ilagay
   checkUrlAndDisableButton()
 
 })
@@ -566,13 +664,6 @@ onMounted(() => {
 
   <DefaultLayout>
     <BreadcrumbDefault :pageTitle="pageTitle" />
-    <!-- <modal_reserved
-      v-if="isModalOpen"
-      :controlNo="form.control_no"
-      :isLoading="isModalOpen"
-      @proceed="saveGeneralInfo"
-      @close="isModalOpen = false"
-    /> -->
     <modal_software v-if="isVisible" :isLoading="isVisible" @close="closeModal" />
     <modal_transfer_item v-if="openTransferModal" :form="form_option" :openModal="openTransferModal"
       :gen_info_id="route.params.id" :division="division_opts" :status="status_opts" :userID="userId"
@@ -581,20 +672,10 @@ onMounted(() => {
       :monitor1ActualUser="peripheral_form.monitor1ActualUser" :monitor1QrCode="peripheral_form.monitor1QrCode"
       :monitor1Model="peripheral_form.monitor1Model" :monitor1BrandModel="peripheral_form.monitor1BrandModel"
       :form_option="form_option" @close="openTransferModal = false" />
-
-    <!-- <modal_review_form v-if="openReviewForm" 
-    :genForm="form" 
-    :periForm="peripheral_form" 
-    :division="division_opts"
-    :wnature="work_nature" 
-    :emp_type="employment_opts" 
-    :equipment="equipment_type" 
-    :category="range_category"
-    :softwareData="software"
-    :open="openReviewForm" 
-    @close="openReviewForm = false" /> -->
-
     <Modal_msoffice v-if="isMicrosoftOffice" :isLoading="isMicrosoftOffice" @close="closeModal" />
+
+
+
     <div v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
       role="dialog" tabindex="-1" aria-labelledby="progress-modal">
       <div
@@ -615,6 +696,8 @@ onMounted(() => {
         </div>
       </div>
     </div>
+
+
     <Tabs value="0">
       <TabList>
         <Tab value="0" as="div" class="flex items-center gap-2">
@@ -633,26 +716,41 @@ onMounted(() => {
           <i class="pi pi-desktop" />
           <span class="font-bold whitespace-nowrap">Primary & Secondary Monitor</span>
         </Tab>
-      <!-- <Button  style="margin-left: 300px; height: 40px;background-color: #1565C0 !important; border-color: #1565C0 !important;" @click="transferItem('peri_form')" label="Transfer" type="button" icon="pi pi-send" class="mr-4 mt-2"
+
+        <!-- <Button  style="margin-left: 300px; height: 40px;background-color: #1565C0 !important; border-color: #1565C0 !important;" @click="transferItem('peri_form')" label="Transfer" type="button" icon="pi pi-send" class="mr-4 mt-2"
               severity="primary" /> -->
-        <Button style="margin-left:400px; height: 40px;background-color: #1565C0 !important; border-color: #1565C0 !important;" class="mt-2">
-          <router-link style="background-color: #1565C0 !important; border-color: #1565C0 !important;" :to="`/inventory?id=${user_id}&api_token=${route.query.api_token}`"
-            class="p-button p-button-secondary mr-4">
-            <i class="pi pi-undo"></i> Back
-          </router-link>
-        </Button>
-            
+        <div class="flex justify-between items-center mt-2">
+          <!-- Left Side Tabs or Title -->
+
+
+          <!-- Right Side Buttons -->
+
+          <!-- <div class="flex space-x-2 relative">
+            <Button class="bg-blue-700 hover:bg-blue-800 border-blue-700 text-white px-4 py-2 rounded left-75"
+              style="height: 40px;">
+              <router-link :to="`/inventory?id=${user_id}&api_token=${route.query.api_token}`"
+                class="flex items-center text-white no-underline">
+                <i class="pi pi-undo mr-2"></i> Back
+              </router-link>
+            </Button>
+
+          
+          </div> -->
+        </div>
+
+
+
 
 
         <!-- <Badge :value="item_status" size="large" severity="danger" class="badge-align-left"></Badge> -->
       </TabList>
-     
+
 
       <TabPanels>
         <!-- General Information -->
         <TabPanel value="0" as="p" class="m-0">
           <form @submit.prevent="saveGeneralInfo">
-            <Fieldset legend="Acountable Person Information">
+            <Fieldset legend="Acountable Person Information" :toggleable="true">
               <!-- <div class="grid md:grid-cols-2 md:gap-6 mb-4 text-right">
                 <div class="relative z-0 w-full mb-5 group" v-if="form.qr_code">
                   <QrcodeVue :value="form.qr_code" />
@@ -707,7 +805,7 @@ onMounted(() => {
                 </div>
               </div>
             </Fieldset>
-            <Fieldset legend="Actual User Information">
+            <Fieldset legend="Actual User Information" :toggleable="true">
               <div class="grid md:grid-cols-4 md:gap-6 mb-4">
                 <div class="relative z-0 w-full mb-5 group">
                   <div class="flex items-center gap-2">
@@ -734,7 +832,7 @@ onMounted(() => {
                 </div>
               </div>
             </Fieldset>
-            <Fieldset legend="Equipment Information">
+            <Fieldset legend="Equipment Information" :toggleable="true">
               <div class="grid md:grid-cols-4 md:gap-6 mb-4 text-right">
                 <div class="relative z-0 w-full mb-5 group" v-if="form.qr_code">
                   <QrcodeVue :value="form.qr_code" />
@@ -753,6 +851,8 @@ onMounted(() => {
                     @click="generateQRCode(form, 'genForm', Array.isArray(item_id) ? item_id[0] : item_id, Array.isArray(userId) ? userId[0] : userId)">
                     Generate
                   </Button> -->
+
+
                 </div>
 
                 <div class="relative z-0 w-full mb-5 group">
@@ -809,11 +909,13 @@ onMounted(() => {
                 </div>
               </div>
             </Fieldset>
-              <!-- 
-                          <Button @click="transferItem('gen_info')" label="Edit/Update" type="button" icon="pi pi-star" class="mr-4"
-                            severity="primary" /> -->
             <Button label="Save" type="submit" icon="pi pi-save" severity="primary" class="mr-4 mt-4" />
+
+
           </form>
+          <Button @click="checkDuplicates" label="Check Duplicates" type="submit" icon="pi pi-verified"
+            severity="primary" class="mr-4 mt-4" />
+
         </TabPanel>
 
         <!--Specification-->
@@ -959,7 +1061,7 @@ onMounted(() => {
         </TabPanel>
 
         <!-- Software Install -->
-        <TabPanel value="2" as="p" class="m-0" >
+        <TabPanel value="2" as="p" class="m-0">
           <form @submit.prevent="saveSoftwareInfo">
             <div class="grid md:grid-cols-2 md:gap-6 mb-4">
               <div v-for="(software, index) in software_installed" :key="software.key + '-' + index"
@@ -977,8 +1079,37 @@ onMounted(() => {
                 </Fieldset>
               </div>
             </div>
+            <!-- Conditional Form -->
+            <div v-if="showForm || form.softwareName" class="mt-4 bg-gray-50 p-4 rounded-lg border">
+              <h3 class="font-semibold mb-2 text-gray-700">Add Software Details</h3>
 
+              <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Software Name</label>
+                <textarea v-model="form.softwareName" placeholder="Enter software name or details..."
+                  class="w-full border rounded p-2 focus:ring-2 focus:ring-blue-400 outline-none" rows="2"></textarea>
+              </div>
+
+              <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <select v-model="form.softwareCategory"
+                  class="w-full border rounded p-2 focus:ring-2 focus:ring-blue-400 outline-none">
+                  <option value="">-- Select Category --</option>
+                  <option value="System Utility">System Utility</option>
+                  <option value="Office Suite">Office Suite</option>
+                  <option value="Design Software">Design Software</option>
+                  <option value="Development Tool">Development Tool</option>
+                  <option value="Security Software">Security Software</option>
+                </select>
+              </div>
+            </div>
             <Button label="Save" type="submit" icon="pi pi-save" severity="primary" />
+
+            <Button @click="toggleForm"
+              class="bg-blue-700 hover:bg-blue-800 border-blue-700 text-white px-4 py-2 rounded ml-3"
+              style="height: 40px;">
+              <i class="pi pi-plus mr-2"></i>
+              {{ showForm ? "Cancel" : "Add more software" }}
+            </Button>
           </form>
         </TabPanel>
 
@@ -1052,7 +1183,7 @@ onMounted(() => {
                     <Select filter v-model="peripheral_form.monitor1Status" :options="status_opts" optionValue="id"
                       optionLabel="name" placeholder="Current Status" class="w-full" />
                   </div>
-                  
+
                 </div>
               </Fieldset>
 
@@ -1127,7 +1258,7 @@ onMounted(() => {
             </div>
 
 
-      
+
 
             <Button label="Save" type="submit" icon="pi pi-save" severity="info" class="mr-4" />
             <!-- <Button label="Submit" @click="openReviewForm = true" icon="pi pi-verified" severity="primary" /> -->

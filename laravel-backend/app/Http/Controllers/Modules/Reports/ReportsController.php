@@ -62,24 +62,34 @@ class ReportsController extends Controller
             foreach ($data as $record) {
                 // Populate other fields
                 $sheet->setCellValue('A' . $row, $record->actual_division_title);
-                $sheet->setCellValue('D' . $row, $record->equipment_title);
-                $sheet->setCellValue('E' . $row, $record->equipment_title);
-                $sheet->setCellValue('F' . $row, $record->year_acquired);
-                $sheet->setCellValue('G' . $row, $record->shelf_life);
-                $sheet->setCellValue('H' . $row, $record->equipment_brand);
-                $sheet->setCellValue('I' . $row, $record->full_specs);
-                $sheet->setCellValue('J' . $row, $record->range_category);
-                $sheet->setCellValue('W' . $row, $record->serial_no);
-                $sheet->setCellValue('X' . $row, $record->property_no);
-                $sheet->setCellValue('Y' . $row, $record->acct_person);
-                $sheet->setCellValue('Z' . $row, $record->actual_division_title);
-                $sheet->setCellValue('AA' . $row, $record->employment_title);
+                $sheet->setCellValue('B' . $row, $record->equipment_title);
+                $sheet->setCellValue('C' . $row, $record->year_acquired);
+                $sheet->setCellValue('D' . $row, $record->shelf_life);
+                $sheet->setCellValue('E' . $row, $record->equipment_brand);
+                $sheet->setCellValue('F' . $row, $record->model);
+                $sheet->setCellValue('G' . $row, $record->full_specs);
+                $sheet->setCellValue('H' . $row,"");
+                $sheet->setCellValue('I' . $row,"");
 
-                $sheet->setCellValue('AB' . $row, $record->actual_user);
-                $sheet->setCellValue('AC' . $row, $record->employment_title);
-                $sheet->setCellValue('AD' . $row, $record->nature_work_title);
-                $sheet->setCellValue('AE' . $row, $record->remarks);
-                $sheet->setCellValue('AF' . $row, $record->rict_code);
+
+
+                $sheet->setCellValue('J' . $row, $record->range_category);
+
+
+
+                $sheet->setCellValue('Q' . $row, $record->serial_no);
+                $sheet->setCellValue('R' . $row, $record->property_no);
+                $sheet->setCellValue('S' . $row, $record->acct_person);
+                $sheet->setCellValue('T' . $row, $record->sex);
+                $sheet->setCellValue('U' . $row, $record->employment_title);
+                $sheet->setCellValue('V' . $row, $record->actual_user);
+                $sheet->setCellValue('W' . $row, $record->sex);
+                $sheet->setCellValue('X' . $row, $record->employment_title);
+                $sheet->setCellValue('Y' . $row, $record->nature_work_title);
+                $sheet->setCellValue('Z' . $row, $record->remarks);
+
+
+
                 if (!empty($record->os_installed)) {
                     $sheet->setCellValue('K' . $row, $record->os_installed);
                 }
@@ -89,21 +99,21 @@ class ReportsController extends Controller
                 }
 
                 // If vw_gen_info also has arcgis_installed, adobe_pdf_installed, etc:
-                if (!empty($record->arcgis_installed)) {
-                    $sheet->setCellValue('O' . $row, $record->arcgis_installed);
-                }
+                // if (!empty($record->arcgis_installed)) {
+                //     $sheet->setCellValue('O' . $row, $record->arcgis_installed);
+                // }
 
-                if (!empty($record->adobe_pdf_installed)) {
-                    $sheet->setCellValue('Q' . $row, $record->adobe_pdf_installed);
-                }
+                // if (!empty($record->adobe_pdf_installed)) {
+                //     $sheet->setCellValue('Q' . $row, $record->adobe_pdf_installed);
+                // }
 
-                if (!empty($record->photoshop_installed)) {
-                    $sheet->setCellValue('S' . $row, $record->photoshop_installed);
-                }
+                // if (!empty($record->photoshop_installed)) {
+                //     $sheet->setCellValue('S' . $row, $record->photoshop_installed);
+                // }
 
-                if (!empty($record->autocad_installed)) {
-                    $sheet->setCellValue('U' . $row, $record->autocad_installed);
-                }
+                // if (!empty($record->autocad_installed)) {
+                //     $sheet->setCellValue('U' . $row, $record->autocad_installed);
+                // }
                 // Fetch software data for this record
                 // Fetch software data for this record
                 $software_opts = $this->getSoftwareData($record->id);
@@ -125,7 +135,7 @@ class ReportsController extends Controller
 
 
                 // Apply styling
-                $sheet->getStyle('A' . $row . ':AJ' . $row)->applyFromArray($styleArray);
+                $sheet->getStyle('A' . $row . ':Z' . $row)->applyFromArray($styleArray);
 
                 $row++;
             }

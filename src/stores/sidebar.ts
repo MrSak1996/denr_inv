@@ -3,7 +3,9 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useSidebarStore = defineStore('sidebar', () => {
-  const isSidebarOpen = ref(false)
+  const isSidebarOpen = ref(true)
+  const isSidebarCollapsed = ref(false) // 👈 add this
+
   const selected = useStorage('selected', ref('eCommerce'))
   const page = useStorage('page', ref('Dashboard'))
 
@@ -11,5 +13,24 @@ export const useSidebarStore = defineStore('sidebar', () => {
     isSidebarOpen.value = !isSidebarOpen.value
   }
 
-  return { isSidebarOpen, toggleSidebar, selected, page }
+    function toggleCollapse() {
+    isSidebarCollapsed.value = !isSidebarCollapsed.value // 👈 add this
+  }
+
+
+  return { isSidebarOpen,isSidebarCollapsed,toggleCollapse, toggleSidebar, selected, page }
 })
+
+// export const useSidebarStore = defineStore('sidebar', () => {
+//   const isSidebarOpen = ref(true)
+//   const isSidebarCollapsed = ref(false) // 👈 add this
+
+//   const toggleSidebar = () => {
+//     isSidebarOpen.value = !isSidebarOpen.value
+//   }
+
+//   const toggleCollapse = () => {
+//   }
+
+//   return { isSidebarOpen, isSidebarCollapsed, toggleSidebar, toggleCollapse }
+// })

@@ -56,4 +56,53 @@ class VwGenInfoController extends Controller
             'total' => $rowCount
         ]);
     }
+ public function print_preview(Request $req)
+{
+    $designation = $req->query('designation');
+    $office = $req->query('office');
+
+    // Validate designation
+    if (!is_numeric($designation)) {
+        return response()->json([
+            'error' => 'Invalid designation parameter.'
+        ], 400);
+    }
+
+    $query = DB::table('vw_gen_info')
+        ->orderBy('equipment_type'); // You can stack multiple orderBy calls
+
+    // Apply office filter
+    $query->when($office !== null && $office !== '0' && $office !== 'undefined', function ($q) use ($office) {
+        $q->where('division_id', $office);
+    });
+
+    // Filter by role unless designation is 13
+    if ($designation != 13) {
+        $query->where('role_id', $designation);
+    }
+
+    // Search filter
+    if ($req->filled('search')) {
+        $search = $req->search;
+        $query->where(function ($q) use ($search) {
+            $q->where('brand', 'like', "%{$search}%")
+                ->orWhere('model', 'like', "%{$search}%")
+                ->orWhere('serial_no', 'like', "%{$search}%")
+                ->orWhere('qr_code', 'like', "%{$search}%")
+                ->orWhere('control_no', 'like', "%{$search}%")
+                ->orWhere('property_no', 'like', "%{$search}%");
+        });
+    }
+
+    // Execute query
+    $data = $query->get();
+    $rowCount = $data->count();
+
+    return response()->json([
+        'data' => $data,
+        'count' => $rowCount,
+        'total' => $rowCount
+    ]);
+}
+
 }

@@ -28,6 +28,10 @@ interface Form {
   status: string;
   source_div: string;
   target_div: string;
+  softwareName: string;
+  softwareCategory: string;
+
+  
 }
 
 interface SpecsForm {
@@ -138,6 +142,8 @@ export function useForm() {
     status: '',
     source_div: '',
     target_div: '',
+    softwareCategory: '',
+    softwareName: ''
   });
 
   const specs_form = reactive<SpecsForm>({

@@ -10,6 +10,7 @@ use App\Http\Controllers\Modules\OTP\OTPController;
 use App\Http\Controllers\Modules\GoogleDrive\GoogleDriveController;
 use App\Http\Controllers\Modules\Settings\SettingsController;
 
+use App\Http\Controllers\Modules\Inventory\ItemHistoryController;
 use App\Http\Controllers\Modules\Inventory\VwGenInfoController;
 use App\Http\Controllers\Modules\Inventory\VwInvalidDataController;
 use App\Models\VwInvalidData;
@@ -72,6 +73,7 @@ Route::middleware('api')->group(function () {
 
     // VIEWS FUNCTION
     Route::get('/vw-gen-info', [VwGenInfoController::class, 'index']);
+    Route::get('/print_preview', [VwGenInfoController::class, 'print_preview']);
     Route::get('/vw-invalid-data', [VwInvalidDataController::class, 'getInvalidData']);
     Route::get('/vw-invalid-dataPerDivision', [VwInvalidDataController::class, 'getInvalidDataPerDivision']);
     //END
@@ -129,8 +131,11 @@ Route::middleware('api')->group(function () {
     Route::post('/upload-image', [GoogleDriveController::class, 'uploadImage']);
     Route::get('/view-image/{fileId}', [GoogleDriveController::class, 'viewImage']);
     Route::get('/getGoogleFile', [GoogleDriveController::class, 'getGoogleFile']);
-
     Route::post('/transfer', [InventoryController::class, 'transfer']);
+
+    //CHECK DUPLICATES
+    Route::get('/getSerialProno', [InventoryController::class, 'getSerialProno']);
+    Route::get('/item-history/{itemId}', [ItemHistoryController::class, 'getItemHistory']);
 
 
    

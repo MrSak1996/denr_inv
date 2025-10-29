@@ -114,7 +114,7 @@ class InventoryController extends Controller
         return response()->json($data);
     }
 
-    
+
 
 
     public function fetchLatestID()
@@ -313,7 +313,9 @@ class InventoryController extends Controller
                 acquisition_cost, 
                 year_acquired, 
                 shelf_life, 
-                remarks, 
+                remarks,
+                softwareName,
+                softwareCategory, 
                 item_status as status, 
                 created_at,
                 updated_at'
@@ -1135,7 +1137,7 @@ class InventoryController extends Controller
                 'section_id' => $validated['selectedSection'],
                 'range_category' => $validated['selectedRangeCategory'],
                 'equipment_type' => $validated['selectedEquipmentType'],
-                'year_acquired' => $validated['year_acquired'].'-01-01',
+                'year_acquired' => $validated['year_acquired'] . '-01-01',
                 'remarks' => $validated['remarks'],
                 'status' => $validated['status'],
                 'shelf_life' => $validated['shelf_life'],
@@ -1255,6 +1257,15 @@ class InventoryController extends Controller
                 ]
             );
         }
+
+        GeneralInformation::updateOrCreate(
+            ['id' => $validated['control_id']],
+            [
+                'softwareName' => $request->input('softwareNameVal'),
+                'softwareCategory' => $request->input('softwareCategoryVal'),
+            ]
+        );
+
 
         // Return a success response
         return response()->json(['message' => 'Data inserted successfully'], 200);
@@ -1437,12 +1448,12 @@ class InventoryController extends Controller
         }
 
         $latestQR = DB::table('tbl_general_info as gi')
-        ->select('gi.id', 'gi.qr_code')
-        ->leftJoin('user_roles as ur', 'ur.id', '=', 'gi.registered_loc')
-        ->where('ur.id', $registeredLoc)
-        ->whereNotNull('gi.qr_code')
-        ->orderByDesc('gi.qr_code')
-        ->first();
+            ->select('gi.id', 'gi.qr_code')
+            ->leftJoin('user_roles as ur', 'ur.id', '=', 'gi.registered_loc')
+            ->where('ur.id', $registeredLoc)
+            ->whereNotNull('gi.qr_code')
+            ->orderByDesc('gi.qr_code')
+            ->first();
 
         if (!$latestQR) {
             return response()->json([
@@ -1570,6 +1581,23 @@ class InventoryController extends Controller
             ], 500);
         }
     }
+
+    public function getSerialProno()
+    {
+        $results = DB::table('tbl_general_info')
+            ->select('id', 'serial_no', 'property_no')
+            ->orderBy('id', 'desc')
+            ->limit(2)
+            ->get()
+            ->map(function ($row) {
+                $row->serial_no = strtolower(trim($row->serial_no ?? ''));
+                $row->property_no = strtolower(trim($row->property_no ?? ''));
+                return $row;
+            });
+
+        return response()->json(['data' => $results]);
+    }
+
 
 
 

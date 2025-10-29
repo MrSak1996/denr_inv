@@ -6,8 +6,8 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        'http://10.201.12.207:8000',
-        'http://10.201.12.207:8080',
+        'http://10.201.13.78:8000',
+        'http://10.201.13.78:8080',
         'https://riis.denrcalabarzon.com',
     ],
 
