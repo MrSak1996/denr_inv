@@ -135,10 +135,10 @@ const menuGroups = ref([
       },
       {
         icon: importIcon,
-        label: 'Import Data',
-        route: `/inventory/summary?id=${userId}&api_token=${api_token}`
+        label: 'DataMonitoring',
+        route: `/monitoring`
       },
-      
+
       {
         icon: userMgnmtIcon,
         label: 'User Management',

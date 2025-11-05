@@ -1,4 +1,9 @@
-import { createRouter, createWebHistory, RouteLocationNormalized, NavigationGuardNext } from 'vue-router'
+import {
+  createRouter,
+  createWebHistory,
+  RouteLocationNormalized,
+  NavigationGuardNext
+} from 'vue-router'
 import SigninView from '@/views/Authentication/SigninView.vue'
 import ECommerceView from '@/views/Dashboard/ECommerceView.vue'
 import InventoryView from '@/views/Inventory/InventoryView.vue'
@@ -10,6 +15,7 @@ import AccountEditView from '@/views/UserManagement/form_edit.vue'
 import api from '@/api/axiosInstance'
 import QRCodeScanner from '@/views/Inventory/QRCodeScanner.vue'
 import summaryVue from '@/views/Inventory/summary.vue'
+import DTRMonitoring from '@/views/Monitoring/index.vue'
 const api_token = localStorage.getItem('api_token')
 const routes = [
   {
@@ -17,7 +23,7 @@ const routes = [
     name: 'signin',
     component: SigninView,
     meta: {
-      title: 'Signin',
+      title: 'Signin'
     }
   },
   {
@@ -28,7 +34,11 @@ const routes = [
       title: 'History Logs',
       requiresAuth: true
     },
-    beforeEnter: (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
+    beforeEnter: (
+      to: RouteLocationNormalized,
+      from: RouteLocationNormalized,
+      next: NavigationGuardNext
+    ) => {
       const token = localStorage.getItem('api_token')
       api
         .get('/authenticated', {
@@ -55,7 +65,11 @@ const routes = [
     meta: {
       requiresAuth: true
     },
-    beforeEnter: (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
+    beforeEnter: (
+      to: RouteLocationNormalized,
+      from: RouteLocationNormalized,
+      next: NavigationGuardNext
+    ) => {
       const token = localStorage.getItem('api_token')
       api
         .get('/authenticated', {
@@ -83,7 +97,11 @@ const routes = [
       title: 'Inventory Add Item',
       requiresAuth: true
     },
-    beforeEnter: (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
+    beforeEnter: (
+      to: RouteLocationNormalized,
+      from: RouteLocationNormalized,
+      next: NavigationGuardNext
+    ) => {
       const token = localStorage.getItem('api_token')
       api
         .get('/authenticated', {
@@ -128,6 +146,14 @@ const routes = [
       title: 'Update Item',
       requiresAuth: true
     }
+  },
+  {
+    path: '/monitoring',
+    name: 'DataMonitoring',
+    component: DTRMonitoring,
+    meta: {
+      requiresAuth: true
+    },
   },
   {
     path: '/user-management/',

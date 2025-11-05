@@ -70,12 +70,7 @@ class ReportsController extends Controller
                 $sheet->setCellValue('G' . $row, $record->full_specs);
                 $sheet->setCellValue('H' . $row,"");
                 $sheet->setCellValue('I' . $row,"");
-
-
-
                 $sheet->setCellValue('J' . $row, $record->range_category);
-
-
 
                 $sheet->setCellValue('Q' . $row, $record->serial_no);
                 $sheet->setCellValue('R' . $row, $record->property_no);

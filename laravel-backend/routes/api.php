@@ -13,6 +13,11 @@ use App\Http\Controllers\Modules\Settings\SettingsController;
 use App\Http\Controllers\Modules\Inventory\ItemHistoryController;
 use App\Http\Controllers\Modules\Inventory\VwGenInfoController;
 use App\Http\Controllers\Modules\Inventory\VwInvalidDataController;
+
+use App\Http\Controllers\Modules\DataCleaning\FileUploadController;
+use App\Http\Controllers\Modules\DataCleaning\FileSummaryController;
+
+
 use App\Models\VwInvalidData;
 
 /*
@@ -136,6 +141,10 @@ Route::middleware('api')->group(function () {
     //CHECK DUPLICATES
     Route::get('/getSerialProno', [InventoryController::class, 'getSerialProno']);
     Route::get('/item-history/{itemId}', [ItemHistoryController::class, 'getItemHistory']);
+    Route::get('/file-summary', [FileSummaryController::class, 'index']);
+
+
+    Route::post('/upload-excel', [FileUploadController::class, 'upload']);
 
 
    

@@ -18,6 +18,7 @@ import modal_gen_qr from './modal/modal_gen_qr.vue'
 import modal_print_qr from './modal/modal_print_qr.vue'
 import modal_export_report from './modal/modal_export_report.vue'
 import modal_attachments from './modal/modal_attachments.vue'
+import upload_form from '../FileUpload/ExcelUploader.vue'
 
 const {
   isLoading,
