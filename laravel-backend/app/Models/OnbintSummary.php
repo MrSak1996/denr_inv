@@ -13,7 +13,13 @@ class OnbintSummary extends Model
         'total_rows',
         'uploaded_by',
         'date_imported',
-    ];
+        'status',
+        'message',
+        'details'
 
+    ];
+    protected $casts = [
+        'details' => 'array',
+    ];
     public $timestamps = false;
 }

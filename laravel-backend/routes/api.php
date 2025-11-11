@@ -87,6 +87,7 @@ Route::middleware('api')->group(function () {
     Route::get('/getQRCodeTemp', [InventoryController::class, 'getQRCodeTemp']);
     Route::get('/getEquipment', [InventoryController::class, 'getEquipment']);
     Route::get('/getRangeCategory', [InventoryController::class, 'getRangeCategory']);
+    Route::get('/getRamTypes', [InventoryController::class, 'getRamTypes']);
     Route::get('/getEmploymentType', [InventoryController::class, 'getEmploymentType']);
     Route::get('/retriveDataviaAPI', [InventoryController::class, 'retriveDataviaAPI']);
     Route::get('/retrieveSpecsData', [InventoryController::class, 'retrieveSpecsData']);

@@ -3,8 +3,10 @@ import { ref, computed, onMounted } from 'vue'
 import { useApi } from '@/composables/useApi'
 import api from '@/api/axiosInstance'
 import { useToast } from 'primevue/usetoast'
+import { useAuthStore } from '@/stores/authStore'
 
 const emit = defineEmits(['close', 'proceed'])
+const authStore = useAuthStore()
 
 const toast = useToast()
 const selectedFile = ref(null)
@@ -12,6 +14,8 @@ const isUploading = ref(false)
 const progress = ref(0)
 const message = ref('')
 const fileInput = ref(null)
+const registered_loc = authStore.role_id
+const userId = authStore.userId;
 
 const handleFileChange = (e) => {
   selectedFile.value = e.target.files[0]
@@ -24,9 +28,12 @@ const handleDrop = (e) => {
 const uploadFile = async () => {
   if (!selectedFile.value) return
 
+
   const formData = new FormData()
   formData.append('excel_file', selectedFile.value)
   formData.append('filename', selectedFile.value.name)
+  formData.append('registered_loc',registered_loc)
+  formData.append('userId',userId)
 
   isUploading.value = true
   progress.value = 0
@@ -145,7 +152,16 @@ onMounted(() => {})
                 <span v-else>Uploading...</span>
               </button>
 
-              
+              <!-- Progress -->
+              <div v-if="isUploading" class="w-full mt-4 bg-gray-200 rounded-full h-2">
+                <div
+                  class="bg-green-600 h-2 rounded-full transition-all duration-300"
+                  :style="{ width: progress + '%' }"
+                ></div>
+              </div>
+
+              <!-- Message -->
+              <p v-if="message" class="mt-4 text-gray-700 text-center">{{ message }}</p>
             </div>
           </div>
         </div>

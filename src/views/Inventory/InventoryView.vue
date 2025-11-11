@@ -18,7 +18,6 @@ import modal_gen_qr from './modal/modal_gen_qr.vue'
 import modal_print_qr from './modal/modal_print_qr.vue'
 import modal_export_report from './modal/modal_export_report.vue'
 import modal_attachments from './modal/modal_attachments.vue'
-import upload_form from '../FileUpload/ExcelUploader.vue'
 
 const {
   isLoading,
@@ -518,7 +517,7 @@ const openPrintPreview = () => {
           <td>${d.employment_title ?? ''}</td>
           <td>${d.nature_work_title ?? ''}</td>
           <td>${d.actual_user ?? ''}</td>
-          <td></td>
+          <td>${d.sex_2 ?? ''}</td>
           <td></td>
           <td></td>
           <td>${d.remarks ?? ''}</td>

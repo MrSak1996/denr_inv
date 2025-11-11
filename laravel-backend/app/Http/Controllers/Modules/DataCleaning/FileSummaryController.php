@@ -14,7 +14,7 @@ class FileSummaryController extends Controller
     {
         // Run your SQL query using Laravel's query builder
         $data = DB::table('dp_onbint_summary')
-            ->select('filename', 'created_at','uploaded_by', 'total_rows')
+            ->select('filename','status','message','details', 'created_at','uploaded_by', 'total_rows')
             ->orderByDesc('created_at')
             ->get();
 

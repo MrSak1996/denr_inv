@@ -32,7 +32,7 @@ class OnbintModel extends Model
         'brand',
         'model',
         'processor',
-        'installed_memory_ram_size',
+        'installed_memory_ram_size', 
         'installed_gpu',
         'range_category',
         'operating_system_version',

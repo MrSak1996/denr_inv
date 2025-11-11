@@ -22,6 +22,12 @@ interface RangeCategory {
   range_title: string
 }
 
+
+interface RamTypes {
+  id: number
+  name: string
+}
+
 interface Employment {
   id: number
   employment_title: string
@@ -52,6 +58,7 @@ export function useApi() {
   const work_nature = ref<Option[]>([])
   const equipment_type = ref<Option[]>([])
   const range_category = ref<Option[]>([])
+  const ram_opts = ref<Option[]>([])
   const employment_opts = ref<Option[]>([])
   const roles_opts = ref<{ id: number; name: string }[]>([])
 
@@ -185,6 +192,17 @@ export function useApi() {
       console.error('Error fetching range categories:', error)
     }
   }
+    const getRamTypes = async (): Promise<void> => {
+    try {
+      const res = await api.get<RamTypes[]>('/getRamTypes')
+      ram_opts.value = res.data.map((item) => ({
+        id: item.id,
+        name: item.name
+      }))
+    } catch (error) {
+      console.error('Error fetching ram types:', error)
+    }
+  }
 
   const getEmploymentType = async (): Promise<void> => {
     try {
@@ -284,8 +302,8 @@ export function useApi() {
     { name: 'PPS', id: 3 }
   ])
   const sex_opts = ref([
-    { name: 'Male', value: 'Male' },
-    { name: 'Female', value: 'Female' }
+    { name: 'MALE', value: 'MALE' },
+    { name: 'FEMALE', value: 'FEMALE' }
   ])
   const capacity_opts = ref([
     { name: '1 TB', value: '1 TB' },
@@ -309,22 +327,7 @@ export function useApi() {
     { name: '64 GB', value: '64 GB' }
   ])
 
-  const ram_opts = ref([
-    { name: 'Static RAM', id: '1' },
-    { name: 'Dynamic RAM', id: '2' },
-    { name: 'Synchronous Dynamic RAM (SDRAM)', id: '3' },
-    { name: 'Single Data Rate Synchronous Dynamic RAM', id: '4' },
-    { name: 'DDR2', id: '5' },
-    { name: 'DDR3', id: '6' },
-    { name: 'DDR4', id: '7' },
-    { name: 'GDDR', id: '8' },
-    { name: 'SDRAM', id: '9' },
-    { name: 'GDDR2', id: '10' },
-    { name: 'GDDR3', id: '11' },
-    { name: 'GDDR4', id: '12' },
-    { name: 'GDDR5', id: '13' },
-    { name: 'Flash Memory', id: '14' }
-  ])
+
 
   return {
     sex_opts,
@@ -357,6 +360,7 @@ export function useApi() {
     getNatureWork,
     getEquipment,
     getRangeCategory,
+    getRamTypes,
     getEmploymentType,
     getUserRoles
   }

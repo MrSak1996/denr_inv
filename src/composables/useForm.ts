@@ -4,20 +4,23 @@ interface Form {
   control_no: string;
   qr_code: string;
   acct_person: string;
-  sex: string;
-  employmentType: string;
+  acct_sex: string;
+  actual_sex: string;
+  acct_employmentType: string;
+  actual_employmentType: string;
   brand: string;
   model: string;
   property_no: string;
   serial_no: string;
-  acquisition_cost: number; 
+  acquisition_cost: number;
   processor: string;
   division_id: string;
   acct_person_division_id: string;
   selectedDivision: string;
   selectedAcctDivision: string;
   selectedActualDivision: string;
-  selectedWorkNature: string;
+  selectedAcctWorkNature: string;
+  selectedActualWorkNature: string;
   selectedSection: string;
   selectedRangeCategory: string;
   selectedEquipmentType: string;
@@ -31,7 +34,7 @@ interface Form {
   softwareName: string;
   softwareCategory: string;
 
-  
+
 }
 
 interface SpecsForm {
@@ -118,20 +121,23 @@ export function useForm() {
     control_no: '',
     qr_code: '',
     acct_person: '',
-    sex: '',
-    employmentType: '',
+    acct_sex: '',
+    actual_sex: '',
+    acct_employmentType: '',
+    actual_employmentType: '',
     brand: '',
     model: '',
     property_no: '',
     serial_no: '',
-    acquisition_cost:0,
+    acquisition_cost: 0,
     processor: '',
     division_id: '',
     acct_person_division_id: '',
     selectedDivision: '',
     selectedAcctDivision: '',
     selectedActualDivision: '',
-    selectedWorkNature: '',
+    selectedAcctWorkNature: '',
+    selectedActualWorkNature: '',
     selectedSection: '',
     selectedRangeCategory: '',
     selectedEquipmentType: '',

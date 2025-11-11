@@ -14,6 +14,8 @@ export function useApi() {
     const work_nature = ref([]);
     const equipment_type = ref([]);
     const range_category = ref([]);
+    const ram_opts = ref([])
+
     const employment_opts = ref([]);
     const roles_opts = ref([]);
     const currentMessage = ref('Loading, please wait...');
@@ -144,6 +146,18 @@ export function useApi() {
             console.error('Error fetching range categories:', error);
         }
     };
+
+    const getRamTypes = async () => {
+    try {
+      const res = await api.get('/getRamTypes')
+      ram_opts.value = res.data.map((item) => ({
+        id: item.id,
+        name: item.name
+      }))
+    } catch (error) {
+      console.error('Error fetching ram types:', error)
+    }
+  }
     const getEmploymentType = async () => {
         try {
             const res = await api.get('/getEmploymentType');
@@ -236,10 +250,10 @@ export function useApi() {
         { name: 'MES', id: 2 },
         { name: 'PPS', id: 3 }
     ]);
-    const sex_opts = ref([
-        { name: 'Male', value: 'Male' },
-        { name: 'Female', value: 'Female' }
-    ]);
+  const sex_opts = ref([
+    { name: 'MALE', value: 'MALE' },
+    { name: 'FEMALE', value: 'FEMALE' }
+  ])
     const capacity_opts = ref([
         { name: '1 TB', value: '1 TB' },
         { name: '2 TB', value: '2 TB' },
@@ -261,22 +275,7 @@ export function useApi() {
         { name: '32 GB', value: '32 GB' },
         { name: '64 GB', value: '64 GB' }
     ]);
-    const ram_opts = ref([
-        { name: 'Static RAM', id: '1' },
-        { name: 'Dynamic RAM', id: '2' },
-        { name: 'Synchronous Dynamic RAM (SDRAM)', id: '3' },
-        { name: 'Single Data Rate Synchronous Dynamic RAM', id: '4' },
-        { name: 'DDR2', id: '5' },
-        { name: 'DDR3', id: '6' },
-        { name: 'DDR4', id: '7' },
-        { name: 'GDDR', id: '8' },
-        { name: 'SDRAM', id: '9' },
-        { name: 'GDDR2', id: '10' },
-        { name: 'GDDR3', id: '11' },
-        { name: 'GDDR4', id: '12' },
-        { name: 'GDDR5', id: '13' },
-        { name: 'Flash Memory', id: '14' }
-    ]);
+   
     return {
         sex_opts,
         qr_opts,
@@ -308,6 +307,7 @@ export function useApi() {
         getNatureWork,
         getEquipment,
         getRangeCategory,
+        getRamTypes,
         getEmploymentType,
         getUserRoles
     };

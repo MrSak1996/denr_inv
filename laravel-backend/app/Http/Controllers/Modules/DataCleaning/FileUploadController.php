@@ -17,9 +17,13 @@ class FileUploadController extends Controller
     {
         $request->validate([
             'excel_file' => 'required|mimes:xls,xlsx|max:10240',
+            'registered_loc' => 'required',
+            'userId' => 'required'
         ]);
 
         $uploadedFile = $request->file('excel_file');
+        $registered_loc = $request->input('registered_loc');
+        $userId = $request->input('userId');
 
         // ✅ Get original filename (real name)
         $originalFileName = $uploadedFile->getClientOriginalName();
@@ -31,7 +35,7 @@ class FileUploadController extends Controller
         $uploadedBy = auth()->user()->username ?? 'system';
 
         // ✅ Dispatch the job with the CORRECT parameters
-        ProcessUploadedFileJob::dispatch($originalFileName, $path, $uploadedBy);
+        ProcessUploadedFileJob::dispatch($userId,$registered_loc,$originalFileName, $path, $uploadedBy);
 
         return response()->json([
             'message' => 'File uploaded successfully!',

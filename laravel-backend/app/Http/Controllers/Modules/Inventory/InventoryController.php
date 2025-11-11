@@ -277,6 +277,14 @@ class InventoryController extends Controller
         return response()->json($results);
     }
 
+    public function getRamTypes()
+    {
+        $results = DB::table('ram_types')
+            ->select(DB::raw('id,name'))
+            ->get();
+        return response()->json($results);
+    }
+
     public function getEmploymentType()
     {
         $results = DB::table('tbl_employment_type')
@@ -298,10 +306,13 @@ class InventoryController extends Controller
                 acct_person, 
                 acct_person_division_id as selectedAcctDivision , 
                 actual_user, 
-                sex, 
+                sex as acct_sex, 
+                sex_2 as actual_sex, 
                 actual_user_division_id as selectedActualDivision, 
-                actual_employment_type as employmentType , 
-                work_nature_id as selectedWorkNature, 
+                acct_status_of_employment as acct_employmentType , 
+                actual_employment_type as actual_employmentType,
+                acct_work_nature_id as selectedAcctWorkNature, 
+                work_nature_id as selectedActualWorkNature, 
                 qr_code, 
                 equipment_type as selectedEquipmentType,
                 et.equipment_title,
@@ -1090,7 +1101,10 @@ class InventoryController extends Controller
             'control_no' => 'required|string',
             'qr_code' => 'nullable|string',
             'acct_person' => 'nullable|string',
-            'employmentType' => 'nullable|integer',
+            'acct_sex' => 'nullable|string',
+            'actual_sex' => 'nullable|string',
+            'acct_employmentType' => 'nullable|integer',
+            'actual_employmentType' => 'nullable|integer',
             'brand' => 'nullable|string',
             'model' => 'nullable|string',
             'property_no' => 'nullable|string',
@@ -1100,12 +1114,12 @@ class InventoryController extends Controller
             'selectedDivision' => 'nullable|integer',
             'selectedAcctDivision' => 'nullable|integer',
             'selectedActualDivision' => 'nullable|integer',
-            'selectedWorkNature' => 'nullable|integer',
+            'selectedAcctWorkNature' => 'nullable|integer',
+            'selectedActualWorkNature' => 'nullable|integer',
             'selectedSection' => 'nullable|integer',
             'selectedRangeCategory' => 'nullable|integer',
             'selectedEquipmentType' => 'nullable|integer',
             'actual_user' => 'nullable|string',
-            'sex' => 'nullable|string',
             'year_acquired' => 'nullable',
             'remarks' => 'nullable|string',
             'status' => 'nullable|integer',
@@ -1121,19 +1135,20 @@ class InventoryController extends Controller
                 'qr_code' => $validated['qr_code'],
                 'acct_person' => $validated['acct_person'],
                 'actual_user' => $validated['actual_user'],
-                'employment_type' => $validated['employmentType'],
+                'acct_status_of_employment' => $validated['acct_employmentType'],
                 'brand' => $validated['brand'],
                 'model' => $validated['model'],
-                'sex' => $validated['sex'],
+                'sex' => $validated['acct_sex'],
+                'sex_2' => $validated['actual_sex'],
                 'property_no' => $validated['property_no'],
                 'serial_no' => $validated['serial_no'],
                 'acquisition_cost' => $validated['acquisition_cost'],
                 'processor' => $validated['processor'],
-                'division_id' => $validated['selectedDivision'],
                 'acct_person_division_id' => $validated['selectedAcctDivision'],
                 'actual_user_division_id' => $validated['selectedActualDivision'],
-                'actual_employment_type' => $validated['employmentType'],
-                'work_nature_id' => $validated['selectedWorkNature'],
+                'actual_employment_type' => $validated['actual_employmentType'],
+                'work_nature_id' => $validated['selectedActualWorkNature'],
+                'acct_work_nature_id' => $validated['selectedAcctWorkNature'],
                 'section_id' => $validated['selectedSection'],
                 'range_category' => $validated['selectedRangeCategory'],
                 'equipment_type' => $validated['selectedEquipmentType'],
@@ -1204,7 +1219,6 @@ class InventoryController extends Controller
             'specs_hdd' => 'nullable|integer',
             'specs_hdd_capacity' => 'nullable|string|max:255',
             'specs_ram' => 'nullable|integer',
-            'specs_ram_capacity' => 'nullable|string|max:255',
             'specs_ssd' => 'nullable|integer',
             'specs_ssd_capacity' => 'nullable|string|max:255',
             'specs_gpu_dedic_info' => 'nullable|string|max:255',
@@ -1218,7 +1232,6 @@ class InventoryController extends Controller
             [
                 'processor' => $validatedData['specs_processor'],
                 'ram_type' => $validatedData['specs_ram'],
-                'ram_capacity' => $validatedData['specs_ram_capacity'],
                 'dedicated_information' => $validatedData['specs_gpu_dedic_info'],
                 'no_of_hdd' => $validatedData['specs_hdd'],
                 'hdd_capacity' => $validatedData['specs_hdd_capacity'],

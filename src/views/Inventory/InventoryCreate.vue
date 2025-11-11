@@ -44,6 +44,7 @@ const {
   getNatureWork,
   getEquipment,
   getRangeCategory,
+  getRamTypes,
   getEmploymentType,
   isLoading,
   currentMessage,
@@ -52,7 +53,7 @@ const {
   progress
 } = useApi()
 
-const sameAsAccountable = ref(false);
+const sameAsAccountable = ref(false)
 
 const isButtonDisabled = ref(false)
 const errors = ref({})
@@ -78,9 +79,9 @@ const item_id = ref(null)
 const api_token = route.query.api_token
 const openTransferModal = ref(false)
 const loading = ref(false)
-const showForm = ref(false);
-const softwareName = ref("");
-const softwareCategory = ref("");
+const showForm = ref(false)
+const softwareName = ref('')
+const softwareCategory = ref('')
 
 const user_id = route.params.id ? route.params.id : route.query.id
 // Reactive references
@@ -146,6 +147,11 @@ const remarksMap: Record<string, string> = {
   subscription: '2',
   evaluation: '3'
 }
+
+const reverseRemarksMap = Object.fromEntries(
+  Object.entries(remarksMap).map(([key, val]) => [val, key])
+)
+
 const onRadioChange = (key: string, option: string) => {
   modalData.value = `${key}: ${option}`
   if (key == 'operating_system') {
@@ -188,8 +194,6 @@ const saveGeneralInfo = async () => {
           api_token: localStorage.getItem('api_token')
         }
       })
-
-
 
       // location.reload()
     }, 1000)
@@ -237,7 +241,6 @@ const saveSoftwareInfo = async () => {
     errors.value = {}
     const controlId = route.params.id || route.query.item_id || null
 
-
     // Prepare the request data by combining form data with selected software options
     const requestData = {
       selectedSoftware: Object.fromEntries(
@@ -247,8 +250,8 @@ const saveSoftwareInfo = async () => {
         ])
       ),
       control_id: controlId,
-      softwareNameVal: form.softwareName.value,
-      softwareCategoryVal: form.softwareCategory.value
+      softwareNameVal: form.softwareName,
+      softwareCategoryVal: form.softwareCategory
     }
     // Make the API call
     const response = await api.post('/post_insert_software', requestData)
@@ -357,22 +360,19 @@ const retrieveSpecsData = async () => {
   }
 }
 
-
 const retrieveSoftwareData = async () => {
-  const id = route.query.item_id;
+  const id = route.query.item_id
   if (id) {
     try {
       const response = await api.get(`/retrieveSoftwareData?id=${id}`)
       software.value = response.data
+      console.log(software.value)
 
-      response.data.forEach((software: { software: string; remarks: string }) => {
-        // Reverse the mapping: match the value from 'remarksMap' and find the option
-        const selectedOption = Object.keys(remarksMap).find(
-          (key) => remarksMap[key] === software.remarks
-        )
-
-        if (selectedOption) {
-          selectedSoftware.value[software.software] = selectedOption // Update the selectedSoftware object
+      response.data.forEach((item) => {
+        // Convert numeric remark -> radio option string
+        const option = reverseRemarksMap[item.remarks]
+        if (option) {
+          selectedSoftware.value[item.software] = option
         }
       })
     } catch (error) {
@@ -381,8 +381,9 @@ const retrieveSoftwareData = async () => {
   }
 }
 
+
 const retrievePeripheralsData = async () => {
-  const id = route.query.item_id;
+  const id = route.query.item_id
   if (id) {
     try {
       const response = await api.get(`/retrievePeripheralsData?id=${id}`)
@@ -535,26 +536,22 @@ const formattedCost = computed(() => {
 })
 watch(sameAsAccountable, (newVal) => {
   if (newVal) {
-    form.actual_user = form.acct_person;
-    form.selectedActualDivision = form.selectedAcctDivision;
+    form.actual_user = form.acct_person
+    form.selectedActualDivision = form.selectedAcctDivision
   } else {
-    form.actual_user = '';
-    form.selectedActualDivision = '';
+    form.actual_user = ''
+    form.selectedActualDivision = ''
   }
-});
+})
 
 const isComputerType = computed(() => {
-  const selected = equipment_type.value.find(
-    (e) => e.id === Number(form.selectedEquipmentType)
-  )?.id
+  const selected = equipment_type.value.find((e) => e.id === Number(form.selectedEquipmentType))?.id
   return selected === 1 || selected === 2
 })
 
 const toggleForm = () => {
-  showForm.value = !showForm.value;
-};
-
-
+  showForm.value = !showForm.value
+}
 
 // Fetch existing serials and property numbers
 // Fetch existing serials and property numbers
@@ -567,7 +564,6 @@ const fetchSerialPropertyData = async () => {
   }
 }
 
-
 // Check for duplicates across full dataset
 const checkDuplicates = () => {
   if (!records.value || records.value.length === 0) {
@@ -579,17 +575,13 @@ const checkDuplicates = () => {
 
   // ✅ find duplicates based on property_no across all items
   const duplicates = data.filter((item, index, self) =>
-    self.some(
-      (other, otherIndex) =>
-        otherIndex !== index && other.property_no === item.property_no
-    )
+    self.some((other, otherIndex) => otherIndex !== index && other.property_no === item.property_no)
   )
-
 
   if (duplicates.length > 0) {
     // ✅ Extract unique property_no values that are duplicated
     const duplicateProps = [
-      ...new Set(duplicates.map(d => d.property_no).filter(p => p && p !== ''))
+      ...new Set(duplicates.map((d) => d.property_no).filter((p) => p && p !== ''))
     ]
 
     toast.add({
@@ -608,18 +600,7 @@ const checkDuplicates = () => {
   }
 }
 
-
-
-
-
-
-
 onMounted(() => {
-
-
-
-
-
   const id = route.params.id
   if (!id) {
     getControlNo(form, userId ? Number(userId) : 0)
@@ -643,9 +624,9 @@ onMounted(() => {
   getEquipment()
   getRangeCategory()
   getEmploymentType()
+  getRamTypes()
   // retrieveData() wag muna ilagay
   checkUrlAndDisableButton()
-
 })
 </script>
 <style>
@@ -674,8 +655,6 @@ onMounted(() => {
       :form_option="form_option" @close="openTransferModal = false" />
     <Modal_msoffice v-if="isMicrosoftOffice" :isLoading="isMicrosoftOffice" @close="closeModal" />
 
-
-
     <div v-if="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
       role="dialog" tabindex="-1" aria-labelledby="progress-modal">
       <div
@@ -697,7 +676,6 @@ onMounted(() => {
       </div>
     </div>
 
-
     <Tabs value="0">
       <TabList>
         <Tab value="0" as="div" class="flex items-center gap-2">
@@ -716,12 +694,12 @@ onMounted(() => {
           <i class="pi pi-desktop" />
           <span class="font-bold whitespace-nowrap">Primary & Secondary Monitor</span>
         </Tab>
-
+      <Button @click="checkDuplicates" label="Check Duplicates" type="submit" icon="pi pi-verified"   style="margin-left: 450px; height: 30px; margin-top:10px;" 
+            severity="primary" class="mr-4 mb-4 btn-xs" />
         <!-- <Button  style="margin-left: 300px; height: 40px;background-color: #1565C0 !important; border-color: #1565C0 !important;" @click="transferItem('peri_form')" label="Transfer" type="button" icon="pi pi-send" class="mr-4 mt-2"
               severity="primary" /> -->
         <div class="flex justify-between items-center mt-2">
           <!-- Left Side Tabs or Title -->
-
 
           <!-- Right Side Buttons -->
 
@@ -738,13 +716,8 @@ onMounted(() => {
           </div> -->
         </div>
 
-
-
-
-
         <!-- <Badge :value="item_status" size="large" severity="danger" class="badge-align-left"></Badge> -->
       </TabList>
-
 
       <TabPanels>
         <!-- General Information -->
@@ -768,13 +741,8 @@ onMounted(() => {
                     placeholder="Current Status" class="w-full" />
                 </div>
               </div>
-              <div class="grid md:grid-cols-2 md:gap-6 mb-4">
-                <div class="relative z-0 w-full mb-5 group">
-                  <Select filter v-model="form.selectedDivision" :options="division_opts" optionValue="id"
-                    optionLabel="name" placeholder="Division" class="w-full" />
-                </div>
-              </div>
-              <div class="grid md:grid-cols-3 md:gap-6 mb-4">
+            
+              <div class="grid md:grid-cols-5 md:gap-6 mb-4">
                 <div class="relative z-0 w-full mb-5 group">
                   <FloatLabel>
                     <InputText id="username" v-model="form.acct_person" class="w-full" />
@@ -782,12 +750,26 @@ onMounted(() => {
                   </FloatLabel>
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
-                  <Select filter v-model="form.sex" :options="sex_opts" optionValue="value" optionLabel="name"
+                  <FloatLabel>
+                    <Select filter v-model="form.selectedAcctWorkNature" :options="work_nature" optionValue="id"
+                      optionLabel="name" placeholder="Nature of Works" class="w-full" />
+                  </FloatLabel>
+                </div>
+
+                <div class="relative z-0 w-full mb-5 group">
+                  <Select filter v-model="form.acct_sex" :options="sex_opts" optionValue="value" optionLabel="name"
                     placeholder="Sex" class="w-full" />
+                </div>
+                <div class="relative z-0 w-full mb-5 group">
+
+                  <Select filter v-model="form.acct_employmentType" :options="employment_opts" optionLabel="name"
+                    optionValue="id" placeholder="Employment Type" class="w-full" />
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
                   <Select filter v-model="form.selectedAcctDivision" :options="division_opts" optionValue="id"
                     optionLabel="name" placeholder="Division" class="w-full" />
+
+                 
                 </div>
               </div>
               <div class="grid md:grid-cols-2 md:gap-6 mb-4">
@@ -806,7 +788,7 @@ onMounted(() => {
               </div>
             </Fieldset>
             <Fieldset legend="Actual User Information" :toggleable="true">
-              <div class="grid md:grid-cols-4 md:gap-6 mb-4">
+              <div class="grid md:grid-cols-5 md:gap-6 mb-4">
                 <div class="relative z-0 w-full mb-5 group">
                   <div class="flex items-center gap-2">
                     <Checkbox v-model="sameAsAccountable" inputId="sameAsAccountable" />
@@ -819,16 +801,21 @@ onMounted(() => {
                   </FloatLabel>
                 </div>
                 <div class="relative z-0 w-full mt-14 group">
-                  <Select filter v-model="form.selectedWorkNature" :options="work_nature" optionValue="id"
+                  <Select filter v-model="form.selectedActualWorkNature" :options="work_nature" optionValue="id"
                     optionLabel="name" placeholder="Nature of Works" class="w-full" />
+                </div>
+                 <div class="relative z-0 w-full mt-14 group">
+                  <Select filter v-model="form.actual_sex" :options="sex_opts" optionValue="value" optionLabel="name"
+                    placeholder="Sex" class="w-full" />
+                </div>
+                
+                <div class="relative z-0 w-full mt-14 group">
+                  <Select filter v-model="form.actual_employmentType" :options="employment_opts" optionLabel="name"
+                    optionValue="id" placeholder="Employment Type" class="w-full" />
                 </div>
                 <div class="relative z-0 w-full mt-14 group">
                   <Select filter v-model="form.selectedActualDivision" :options="division_opts" optionLabel="name"
                     optionValue="id" placeholder="Division" class="w-full" />
-                </div>
-                <div class="relative z-0 w-full mt-14 group">
-                  <Select filter v-model="form.employmentType" :options="employment_opts" optionLabel="name"
-                    optionValue="id" placeholder="Employment Type" class="w-full" />
                 </div>
               </div>
             </Fieldset>
@@ -851,8 +838,6 @@ onMounted(() => {
                     @click="generateQRCode(form, 'genForm', Array.isArray(item_id) ? item_id[0] : item_id, Array.isArray(userId) ? userId[0] : userId)">
                     Generate
                   </Button> -->
-
-
                 </div>
 
                 <div class="relative z-0 w-full mb-5 group">
@@ -910,12 +895,8 @@ onMounted(() => {
               </div>
             </Fieldset>
             <Button label="Save" type="submit" icon="pi pi-save" severity="primary" class="mr-4 mt-4" />
-
-
           </form>
-          <Button @click="checkDuplicates" label="Check Duplicates" type="submit" icon="pi pi-verified"
-            severity="primary" class="mr-4 mt-4" />
-
+    
         </TabPanel>
 
         <!--Specification-->
@@ -944,10 +925,10 @@ onMounted(() => {
                 <Select filter v-model="specs_form.specs_ram" :options="ram_opts" optionValue="id" optionLabel="name"
                   placeholder="RAM Type" class="w-full" />
               </div>
-              <div class="relative z-0 w-full mb-5 group">
+              <!-- <div class="relative z-0 w-full mb-5 group">
                 <Select filter v-model="specs_form.specs_ram_capacity" :options="ram_capacity_opts" optionValue="value"
                   optionLabel="name" placeholder="RAM Capacity" class="w-full" />
-              </div>
+              </div> -->
               <div class="relative z-0 w-full mb-5 group">
                 <FloatLabel>
                   <InputNumber id="ssd" v-model="specs_form.specs_ssd" class="w-full" />
@@ -1070,6 +1051,7 @@ onMounted(() => {
                   <div class="card flex flex-wrap gap-9">
                     <div v-for="option in ['perpetual', 'subscription', 'evaluation']" :key="option"
                       class="flex items-center gap-3">
+                      
                       <RadioButton v-model="selectedSoftware[software.key]"
                         :inputId="option.toLowerCase() + '-' + index" :name="software.key" :value="option.toLowerCase()"
                         @change="onRadioChange(software.key, option)" />
@@ -1106,9 +1088,9 @@ onMounted(() => {
 
             <Button @click="toggleForm"
               class="bg-blue-700 hover:bg-blue-800 border-blue-700 text-white px-4 py-2 rounded ml-3"
-              style="height: 40px;">
+              style="height: 40px">
               <i class="pi pi-plus mr-2"></i>
-              {{ showForm ? "Cancel" : "Add more software" }}
+              {{ showForm ? 'Cancel' : 'Add more software' }}
             </Button>
           </form>
         </TabPanel>
@@ -1183,7 +1165,6 @@ onMounted(() => {
                     <Select filter v-model="peripheral_form.monitor1Status" :options="status_opts" optionValue="id"
                       optionLabel="name" placeholder="Current Status" class="w-full" />
                   </div>
-
                 </div>
               </Fieldset>
 
@@ -1256,9 +1237,6 @@ onMounted(() => {
                 </div>
               </Fieldset>
             </div>
-
-
-
 
             <Button label="Save" type="submit" icon="pi pi-save" severity="info" class="mr-4" />
             <!-- <Button label="Submit" @click="openReviewForm = true" icon="pi pi-verified" severity="primary" /> -->

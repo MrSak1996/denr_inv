@@ -133,6 +133,21 @@ const openModal = async () => {
   openFileUploader.value = true;
 }
 
+const formatMessage = (message) => {
+  if (!message) return '';
+  // Preserve emojis and timestamps; replace newlines with <br>
+  return message.replace(/\n/g, '<br>');
+};
+
+const formatDetails = (details) => {
+  if (!details) return '';
+  try {
+    const parsed = typeof details === 'string' ? JSON.parse(details) : details;
+    return JSON.stringify(parsed, null, 2);
+  } catch {
+    return details;
+  }
+};
 
 
 initFilters()
@@ -150,56 +165,67 @@ const pageTitle = ref('Data Monitoring')
 
   <DefaultLayout>
     <BreadcrumbDefault :pageTitle="pageTitle" />
-    <modal_excel_fileuploader v-if="openFileUploader" :open="openFileUploader" @close="openFileUploader = false"  @uploaded="fetchImportedData()"/>
+    <modal_excel_fileuploader v-if="openFileUploader" :open="openFileUploader" @close="openFileUploader = false"
+      @uploaded="fetchImportedData()" />
     <div class="flex flex-col gap-10 mt-4">
       <div
         class="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
-       
+
         <DataTable size="small" :value="imported_data" paginator showGridlines :rows="10" dataKey="filename"
-          :loading="loading" :globalFilterFields="['filename', 'Date Imported', 'Total Rows']">
+          :loading="loading" :globalFilterFields="['filename', 'created_at', 'uploaded_by']">
           <template #header>
             <div class="flex items-center gap-4 justify-start">
               <Button
-                class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"
-                type="button" icon="pi pi-filter-slash" label="Clear" @click="clearFilter()" />
+                class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5"
+                icon="pi pi-filter-slash" label="Clear" @click="clearFilter" />
               <Button
-                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"
-                type="button" icon="pi pi-file-export" label="Import Report" @click="openModal()" />
-              <!-- <div class="ml-auto flex items-center">
-                <IconField class="flex items-center">
-                  <InputIcon><i class="pi pi-search" /></InputIcon>
-                  <InputText v-model="filters['global'].value" placeholder="Keyword Search" />
-                </IconField>
-              </div> -->
+                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5"
+                icon="pi pi-file-export" label="Import Report" @click="openModal" />
             </div>
           </template>
 
           <!-- File Name -->
-          <Column field="filename" header="File Name" style="min-width: 10rem">
+          <Column field="filename" header="File Name" style="min-width: 12rem;">
             <template #body="{ data }">
-              {{ data.filename }}
+              <span class="font-semibold">{{ data.filename }}</span>
+            </template>
+          </Column>
+
+          <!-- Message -->
+          <Column field="message" header="Message" style="min-width: 600px;">
+            <template #body="{ data }">
+              <div
+                class="whitespace-pre-wrap text-xs bg-gray-50 p-2 rounded-md border overflow-y-auto  max-w-[600px] max-h-32 leading-relaxed"
+                v-html="formatMessage(data.message)"></div>
+            </template>
+          </Column>
+
+          <!-- Details -->
+          <Column field="details" header="Details" style="min-width: 10rem;">
+            <template #body="{ data }">
+              <div class="bg-gray-50 text-xs p-2 rounded-md border overflow-y-auto max-h-32 max-w-[250px] whitespace-pre-wrap">
+                <pre>{{ formatDetails(data.details) }}</pre>
+              </div>
             </template>
           </Column>
 
           <!-- Date Imported -->
-          <Column field="Date Imported" header="Date Imported" style="min-width: 10rem">
+          <Column field="created_at" header="Date Imported" style="min-width: 10rem;">
             <template #body="{ data }">
-              {{ new Date(data['created_at']).toLocaleString() }}
+              {{ new Date(data.created_at).toLocaleString() }}
             </template>
           </Column>
 
-          <!-- Total Rows -->
-          <Column field="Total Rows" header="Total Rows" style="min-width: 5rem">
+         
+
+          <!-- Uploaded By -->
+          <Column field="uploaded_by" header="Uploaded By" style="min-width: 8rem;">
             <template #body="{ data }">
-              {{ data['total_rows'] }}
-            </template>
-          </Column>
-                   <Column field="uploaded_by" header="Uploaded By" style="min-width: 5rem">
-            <template #body="{ data }">
-              {{ data['uploaded_by'] }}
+              {{ data.uploaded_by }}
             </template>
           </Column>
         </DataTable>
+
 
       </div>
     </div>
