@@ -1,23 +1,36 @@
 <script setup lang="ts">
-import { ref, computed, onMounted} from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { useInventory } from '@/composables/useInventory'
 import { useToast } from 'primevue/usetoast'
 import { useRouter, useRoute } from 'vue-router'
-import { useItemHistory} from '@/composables/useItemHistory'
-const { itemHistory, loadingVal, error, loadItemHistory } = useItemHistory();
-
+import { useItemHistory } from '@/composables/useItemHistory'
+import { useAuthStore } from '@/stores/authStore'
 import api from '@/api/axiosInstance'
 
+// =============================
+// 🔧 Composables
+// =============================
+const { itemHistory, loadingVal, error, loadItemHistory } = useItemHistory()
 const { printRecord } = useInventory()
-const { predefinedSoftware } = useApi()
+const { predefinedSoftware, ram_opts, division_opts, getDivision, getRamTypes } = useApi()
 
 const route = useRoute()
-const toast = useToast()
 const router = useRouter()
+const toast = useToast()
+const authStore = useAuthStore()
 
-const emit = defineEmits(['close', 'proceed'])
+// =============================
+// 🎯 Emits
+// =============================
+const emit = defineEmits<{
+  (e: 'close'): void
+  (e: 'proceed'): void
+}>()
 
+// =============================
+// 📘 Interfaces
+// =============================
 interface SpecsData {
   specs_processor: string
   specs_ram: string
@@ -51,31 +64,53 @@ interface PeriForm {
   ups_serial_no: string
 }
 
+// =============================
+// 🧩 Props
+// =============================
 const props = defineProps<{
   open: boolean
   genForm: Record<string, any>
   periForm: PeriForm
-  division: Array<any>
-  wnature: Array<any>
-  emp_type: Array<any>
-  category: Array<any>
+  division: Array<{ id: number; name: string }>
+  wnature: Array<{ id: number; name: string }>
+  emp_type: Array<{ id: number; name: string }>
+  category: Array<{ id: number; name: string }>
   softwareData: Array<{ software: string; remarks: string }>
   specsData: SpecsData
-  equipment: Array<any>
+  equipment: Array<{ id: number; name: string }>
   item_id: number
 }>()
 
+// =============================
+// 💼 Local State
+// =============================
+const modalOpen = ref(false)
+
+const form = ref({
+  item_id: props.item_id ?? '',
+  date_transferred: '',
+  prev_owner: '',
+  prev_office: '',
+  new_owner: '',
+  new_office: '',
+  remarks: '',
+  recorded_by: authStore.userId ?? null
+})
+
+// =============================
+// 🧠 Computed
+// =============================
 const empType = {
   1: 'Consultant',
   2: 'CIT',
   3: 'Contract of Service/Job Order',
   4: 'Permanent',
   5: 'PS Contractual'
-}
+} as const
 
-const employmentTypeLabel = computed(() => {
-  return empType[props.genForm.employmentType as keyof typeof empType] ?? 'Unknown Role'
-})
+const employmentTypeLabel = computed(() =>
+  empType[props.genForm.employmentType as keyof typeof empType] ?? 'Unknown Role'
+)
 
 const remarksMap: Record<string, string> = {
   '1': 'Needs Review',
@@ -83,18 +118,23 @@ const remarksMap: Record<string, string> = {
   '3': 'Rejected'
 }
 
-const createSelector = (sourceProp: string, targetKey: string) => {
-  return computed(() => {
-    const source = props[sourceProp as keyof typeof props];
+const networkTypeMap: Record<string, string> = {
+  '1': 'LAN',
+  '2': 'Wireless',
+  '3': 'Both'
+}
+
+const createSelector = <T extends keyof typeof props>(sourceProp: T, targetKey: string) =>
+  computed(() => {
+    const source = props[sourceProp]
     if (Array.isArray(source)) {
       const selected = source.find(
-        (item: { id: any; name: string }) => item.id === props.genForm[targetKey]
-      );
-      return selected ? selected.name : '~';
+        (item: { id: number; name: string }) => item.id === props.genForm[targetKey]
+      )
+      return selected?.name ?? '~'
     }
-    return '~';
-  });
-};
+    return '~'
+  })
 
 const selectedDivisionName = createSelector('division', 'selectedDivision')
 const selectedWorkNature = createSelector('wnature', 'selectedWorkNature')
@@ -102,76 +142,64 @@ const selectedEmpType = createSelector('emp_type', 'employmentType')
 const selectedEquipmentType = createSelector('equipment', 'selectedEquipmentType')
 const selectedRangeCategory = createSelector('category', 'selectedRangeCategory')
 
+// =============================
+// 🔍 Utility Functions
+// =============================
 const getRemarks = (key: string): string => {
-  const software = props.softwareData.find((item) => item.software === key)
-  return software?.remarks ? remarksMap[software.remarks] || '' : ''
+  const software = props.softwareData.find(item => item.software === key)
+  return software ? (remarksMap[software.remarks] ?? '') : ''
 }
 
-const closeModal = () => {
-  emit('close')
-}
-
-const handlePrint = () => {
-  const idToPrint = props.item_id ? props.item_id : route.params.id
-  printRecord(Number(idToPrint))
-}
-
-const submitFinalReview = async () => {
-  try {
-    const item_id = props.item_id ? props.item_id : route.params.id;
-    const requestData = { id: item_id };
-
-    const response = await api.post('/post_final_review', requestData);
-
-    setTimeout(() => {
-      toast.add({ severity: 'success', summary: 'Success', detail: 'Data saved successfully!', life: 3000 });
-      router.push({ name: 'Inventory', params: { id: response.data.id }, query: { api_token: localStorage.getItem('api_token') } });
-    }, 1000);
-  } catch (error: any) {
-    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save data.', life: 3000 });
-    console.error('Validation errors:', error);
-  }
-};
-
-const networkTypeMap: Record<string, string> = {
-  '1': 'LAN',
-  '2': 'Wireless',
-  '3': 'Both'
-}
-
-const ram_opts = ref([
-  { name: 'Static RAM', id: '1' },
-  { name: 'Dynamic RAM', id: '2' },
-  { name: 'Synchronous Dynamic RAM (SDRAM)', id: '3' },
-  { name: 'Single Data Rate Synchronous Dynamic RAM', id: '4' },
-  { name: 'DDR2', id: '5' },
-  { name: 'DDR3', id: '6' },
-  { name: 'DDR4', id: '7' },
-  { name: 'GDDR', id: '8' },
-  { name: 'SDRAM', id: '9' },
-  { name: 'GDDR2', id: '10' },
-  { name: 'GDDR3', id: '11' },
-  { name: 'GDDR4', id: '12' },
-  { name: 'GDDR5', id: '13' },
-  { name: 'Flash Memory', id: '14' }
-])
-
-
-
-const getRamName = (id: string | null | undefined): string => {
+const getRamName = (id?: string | null): string => {
   if (!id) return 'Unknown RAM'
-  const ram = ram_opts.value.find((option) => option.id === id.toString())
-  return ram ? ram.name : 'Unknown RAM'
+  const ram = ram_opts.value.find(opt => String(opt.id) === String(id))
+  return ram?.name ?? 'Unknown RAM'
 }
 
-const getNetworkType = (key: string | null | undefined): string => {
-  return key ? networkTypeMap[key] || 'Unknown' : 'Unknown'
+const getNetworkType = (key?: string | null): string =>
+  key ? (networkTypeMap[key] ?? 'Unknown') : 'Unknown'
+
+// =============================
+// 🧾 Modal Actions
+// =============================
+const closeModal = () => emit('close')
+const closeTransferModal = () => (modalOpen.value = false)
+const openTransferItem = () => (modalOpen.value = true)
+
+// =============================
+// 💾 Save Transfer
+// =============================
+const saveTransfer = async () => {
+  if (!form.value.new_owner) {
+    toast.add({ severity: 'warn', summary: 'Missing Field', detail: 'Please fill in the required fields.', life: 3000 })
+    return
+  }
+
+  try {
+    const payload = {
+      ...form.value,
+      prev_owner: props.genForm.acct_person
+    }
+
+    await api.post('/ict-transfers', payload)
+    toast.add({ severity: 'success', summary: 'Success', detail: 'Transfer recorded successfully!', life: 3000 })
+    closeTransferModal()
+  } catch (err) {
+    console.error('Error saving transfer:', err)
+    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to save transfer record.', life: 3000 })
+  }
 }
 
+// =============================
+// 🚀 Lifecycle
+// =============================
 onMounted(() => {
-  loadItemHistory(props.item_id ? props.item_id : route.params.id)
+  loadItemHistory(props.item_id || Number(route.params.id))
+  getRamTypes()
+  getDivision()
 })
 </script>
+
 
 <style>
 .p-button {
@@ -183,6 +211,92 @@ onMounted(() => {
 <template>
   <div v-if="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" role="dialog"
     tabindex="-1" aria-labelledby="progress-modal">
+
+    <!-- ================= TRANSFERING ITEM =================-->
+    <div v-if="modalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+      @click.self="closeTransferModal()">
+      <div
+        class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-md rounded-xl w-full max-w-lg mx-4">
+        <!-- Header -->
+        <div class="flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Transfer Actual User ICT Equipment</h3>
+          <button @click="closeTransferModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-400">
+            ✖
+          </button>
+          
+        </div>
+
+        <!-- Body -->
+        <div class="p-4 space-y-4">
+          <div>
+            <label class="block text-sm font-extrabold text-gray-900 dark:text-gray-900">Accountable User: {{ genForm.acct_person }}</label>
+
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Item ID</label>
+            <input type="text" v-model="form.item_id"
+              class="w-full mt-1 p-2 border rounded-lg text-sm dark:bg-neutral-900 dark:border-neutral-600" readonly />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Date Transferred</label>
+            <input type="date" v-model="form.date_transferred"
+              class="w-full mt-1 p-2 border rounded-lg text-sm dark:bg-neutral-900 dark:border-neutral-600" />
+          </div>
+          <div class="grid md:grid-cols-2 md:gap-6 mb-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Previous User</label>
+              <input type="text" v-model="genForm.actual_user"
+                class="w-full mt-1 p-2 border rounded-lg text-sm dark:bg-neutral-900 dark:border-neutral-600"
+                placeholder="e.g. John Doe" />
+            </div>
+            <div class=" w-full  group">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Previous Office</label>
+              <Select filter v-model="form.prev_office" :options="division_opts" optionLabel="name" optionValue="id"
+                placeholder="Division" class="w-full mt-1 h-[37px]" />
+            </div>
+          </div>
+          <div class="grid md:grid-cols-2 md:gap-6 mb-4">
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">New Owner</label>
+              <input type="text" v-model="form.new_owner"
+                class="w-full mt-1 p-2 border rounded-lg text-sm dark:bg-neutral-900 dark:border-neutral-600"
+                placeholder="e.g. Jane Smith" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">New Office</label>
+
+              <Select filter v-model="form.new_office" :options="division_opts" optionValue="id" optionLabel="name"
+                placeholder="Division" class="w-full mt-1 h-[37px]" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Remarks</label>
+            <textarea v-model="form.remarks" rows="3"
+              class="w-full mt-1 p-2 border rounded-lg text-sm dark:bg-neutral-900 dark:border-neutral-600"
+              placeholder="Enter remarks..."></textarea>
+          </div>
+
+
+        </div>
+
+        <!-- Footer -->
+        <div class="flex justify-end gap-3 py-3 px-4 border-t dark:border-neutral-700">
+          <button @click="closeTransferModal"
+            class="px-4 py-2 text-sm rounded-md border border-gray-300 hover:bg-gray-100 dark:border-neutral-600 dark:text-gray-300 dark:hover:bg-neutral-700">
+            Cancel
+          </button>
+          <button @click="saveTransfer"
+            class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md">
+            Save Transfer
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div
       class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-lg rounded-lg w-130 h-[80vh] max-w-2xl mx-4 lg:mx-auto transition-transform duration-300 transform scale-100">
       <!-- Modal Header -->
@@ -201,38 +315,53 @@ onMounted(() => {
               <tr>
                 <th colspan="5" class="px-3 py-2 text-left text-sm font-bold bg-blue-900 text-white">
                   ITEM HISTORY LOGS
+                  <Button @click="openTransferItem()" type="button" label="Transfer Item" icon="pi pi-undo" size="small"
+                    style="margin-left: 56%;" />
+
                 </th>
               </tr>
               <tr class="bg-gray-200 text-gray-800 text-sm font-semibold">
-                <th class="px-2 py-1 border">#</th>
                 <th class="px-2 py-1 border text-left">Date Transferred</th>
-                <th class="px-2 py-1 border text-left">Previous Owner / Office</th>
-                <th class="px-2 py-1 border text-left">New Owner / Office</th>
+                <th class="px-2 py-1 border text-left">Previous Actual Owner / Office</th>
+                <th class="px-2 py-1 border text-left">New Actual Owner / Office</th>
                 <th class="px-2 py-1 border text-left">Remarks</th>
               </tr>
             </thead>
 
             <tbody class="divide-y divide-gray-300">
-              <tr v-for="(log, index) in itemHistory" :key="index" class="text-sm text-gray-700">
-                <td class="px-2 py-1 border text-center">{{ index + 1 }}</td>
-                <td class="px-2 py-1 border">{{ log.date_transferred }}</td>
-                <td class="px-2 py-1 border">
-                  <div class="font-medium text-gray-800">{{ log.prev_owner }}</div>
-                  <div class="text-xs text-gray-500">{{ log.prev_office }}</div>
+              <tr v-for="(log, index) in itemHistory" :key="log.id">
+                <td><Tag severity="info" :value="log.date_transferred" class="ml-2"/></td>
+                <td>
+                  <div>{{ log.prev_owner }}</div>
+                  <div>{{ log.prev_office }}</div>
                 </td>
-                <td class="px-2 py-1 border">
-                  <div class="font-medium text-gray-800">{{ log.new_owner }}</div>
-                  <div class="text-xs text-gray-500">{{ log.new_office }}</div>
+                <td>
+                  <div>{{ log.new_owner }}</div>
+                  <div>{{ log.new_office }}</div>
                 </td>
-                <td class="px-2 py-1 border">{{ log.remarks }}</td>
+                <td>{{ log.remarks }}</td>
               </tr>
 
-              <tr v-if="itemHistory.length === 0">
+
+              <tr v-if="!loadingVal && itemHistory.length === 0">
                 <td colspan="5" class="px-2 py-2 text-center text-gray-500">
                   No history records found.
                 </td>
               </tr>
+
+              <tr v-if="loadingVal">
+                <td colspan="5" class="px-2 py-2 text-center text-gray-500">
+                  Loading...
+                </td>
+              </tr>
+
+              <tr v-if="error">
+                <td colspan="5" class="px-2 py-2 text-center text-red-500">
+                  {{ error }}
+                </td>
+              </tr>
             </tbody>
+
           </table>
 
           <table class="table-auto w-full border border-gray-300 mt-4">
@@ -324,7 +453,7 @@ onMounted(() => {
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">GPU:</td>
                 <td class="px-2 py-1 text-sm text-gray-600">
                   {{ specsData.specs_gpu == 1 ? 'Built-In' : 'Dedicated ' + (specsData.specs_gpu_dedic_info ||
-                  'Unknown') }}
+                    'Unknown') }}
 
                 </td>
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">RAM Capacity:</td>

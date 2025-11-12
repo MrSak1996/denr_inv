@@ -1,17 +1,47 @@
-import { useStorage } from '@vueuse/core';
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
+
 export const useSidebarStore = defineStore('sidebar', () => {
-    const isSidebarOpen = ref(true);
-    const isSidebarCollapsed = ref(false);
-    const selected = useStorage('selected', ref('eCommerce'));
-    const page = useStorage('page', ref('Dashboard'));
-    function toggleSidebar() {
-        isSidebarOpen.value = !isSidebarOpen.value;
+  const isSidebarOpen = ref(true)
+  const isSidebarCollapsed = ref(false)
+  const manuallyLocked = ref(false) // ✅ renamed for clarity
+
+  // Toggle mobile sidebar (burger button)
+  function toggleSidebar() {
+    isSidebarOpen.value = !isSidebarOpen.value
+    manuallyLocked.value = true
+  }
+
+  // Toggle collapse for desktop
+  function toggleCollapse() {
+    isSidebarCollapsed.value = !isSidebarCollapsed.value
+    manuallyLocked.value = true
+    console.log('Collapsed:', isSidebarCollapsed.value)
+  }
+
+  // Automatically close (e.g., click outside) — only if not manually locked
+  function closeSidebar() {
+    if (!manuallyLocked.value) {
+      isSidebarOpen.value = false
+      isSidebarCollapsed.value = false
+      console.log('Auto-closed sidebar')
+    } else {
+      console.log('Ignored auto-close (locked by user)')
     }
-        function toggleCollapse() {
-        isSidebarCollapsed.value = !isSidebarCollapsed.value;
-    }
-    
-    return { isSidebarOpen,isSidebarCollapsed,toggleCollapse, toggleSidebar, selected, page };
-});
+  }
+
+  // Reset lock if you want sidebar to respond to outside clicks again
+  function unlockSidebar() {
+    manuallyLocked.value = false
+  }
+
+  return {
+    isSidebarOpen,
+    isSidebarCollapsed,
+    manuallyLocked,
+    toggleSidebar,
+    toggleCollapse,
+    closeSidebar,
+    unlockSidebar,
+  }
+})

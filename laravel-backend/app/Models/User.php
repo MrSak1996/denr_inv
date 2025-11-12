@@ -43,6 +43,7 @@ class User extends Authenticatable
         'api_token',
         'employment_status',
         'roles',
+        'is_admin',
         'created_at',
         'updated_at'
     ];

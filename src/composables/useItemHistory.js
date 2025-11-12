@@ -1,33 +1,31 @@
-// src/composables/useItemHistory.js
 import { ref } from "vue";
-import api from '../api/axiosInstance'
-
+import api from '@/api/axiosInstance';
 
 export function useItemHistory() {
   const itemHistory = ref([]);
-  const loading = ref(false);
+  const loadingVal = ref(false);
   const error = ref(null);
 
   const loadItemHistory = async (itemId) => {
-    
-    loading.value = true;
+    loadingVal.value = true;
     error.value = null;
 
     try {
       const response = await api.get(`/item-history/${itemId}`);
-      itemHistory.value = response.data;
-      console.log(response.data);
+      // Make sure to use response.data.data since Laravel Resource wraps it in "data"
+      itemHistory.value = response.data.data;
     } catch (err) {
-      error.value = err.message || "Failed to load item history.";
+      error.value = err.response?.data?.message || err.message || "Failed to load item history.";
+      console.error("Item history error:", error.value);
     } finally {
-      loading.value = false;
+      loadingVal.value = false;
     }
   };
 
   return {
     itemHistory,
-    loading,
+    loadingVal,
     error,
-    loadItemHistory,
+    loadItemHistory
   };
 }

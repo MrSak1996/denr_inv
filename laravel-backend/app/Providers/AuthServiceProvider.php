@@ -4,6 +4,8 @@ namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use App\Models\ItemHistory;
+use App\Policies\ItemHistoryPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -13,14 +15,16 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        //
+        ItemHistory::class => ItemHistoryPolicy::class,
     ];
+
 
     /**
      * Register any authentication / authorization services.
      */
     public function boot(): void
     {
-        //
+        $this->registerPolicies();
+
     }
 }

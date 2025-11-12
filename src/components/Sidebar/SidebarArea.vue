@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useSidebarStore } from '@/stores/sidebar'
-import { onClickOutside } from '@vueuse/core'
 import { ref, onMounted, computed } from 'vue'
 import { useApi } from '../../composables/useApi'
 import { useAuthStore } from '@/stores/authStore'
@@ -20,13 +19,13 @@ const userId = !route.query.id ? localStorage.getItem('userId') : route.query.id
 const api_token = localStorage.getItem('api_token')
 const { fetchCurUser } = useApi()
 
-onClickOutside(target, () => {
-  sidebarStore.isSidebarOpen = false
-})
+// onClickOutside(target, () => {
+//   sidebarStore.isSidebarOpen = false
+// })
 
-onClickOutside(target, () => {
-  sidebarStore.isSidebarCollapsed = false
-})
+// onClickOutside(target, () => {
+//   sidebarStore.isSidebarCollapsed = false
+// })
 
 
 

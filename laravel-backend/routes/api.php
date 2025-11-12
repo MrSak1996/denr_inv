@@ -144,6 +144,10 @@ Route::middleware('api')->group(function () {
     Route::get('/item-history/{itemId}', [ItemHistoryController::class, 'getItemHistory']);
     Route::get('/file-summary', [FileSummaryController::class, 'index']);
 
+    //TRANSFER ICT EQUIPMENT
+    Route::post('/ict-transfers', [ItemHistoryController::class, 'post_insert_ict_transfer']);
+
+
 
     Route::post('/upload-excel', [FileUploadController::class, 'upload']);
 

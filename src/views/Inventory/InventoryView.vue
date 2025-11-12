@@ -895,14 +895,14 @@ const pageTitle = ref('Inventory Management')
             </template>
 
           </Column>
-          <Column field="acct_person" header="Accountable Person" style="min-width: 1rem">
+          <Column field="acct_person" header="Accountable Person" style="min-width: 300px">
             <template #body="{ data }">
               {{ data.acct_person }}
               <!-- Ensure this field exists in the data object -->
             </template>
 
           </Column>
-          <Column field="actual_user" header="Actual User" style="min-width: 1rem">
+          <Column field="actual_user" header="Actual User" style="min-width: 300px">
             <template #body="{ data }">
               {{ data.actual_user }}
               <!-- Ensure this field exists in the data object -->
@@ -918,7 +918,7 @@ const pageTitle = ref('Inventory Management')
 
           </Column>
 
-          <Column field="full_specs" header="Specifications / Descriptions" style="min-width: 100px">
+          <Column field="full_specs" header="Specifications / Descriptions" style="min-width: 300px">
             <template #body="{ data }">
               <div class="wrap-text">
                 {{ data.full_specs }}
