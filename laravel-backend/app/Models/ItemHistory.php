@@ -14,11 +14,17 @@ class ItemHistory extends Model
     protected $fillable = [
         'item_id',
         'date_transferred',
-        'prev_owner',
-        'prev_office',
-        'new_owner',
-        'new_office',
+        'prev_acct_owner',
+        'prev_actual_owner',
+        'prev_acct_user_office',
+        'prev_actual_user_office',
+        'new_actual_owner',
+        'new_actual_user_office',
+        'new_acct_owner',
+        'new_acct_user_office',
         'remarks',
         'recorded_by',
-    ];
+        'created_at',
+        'updated_at', 
+       ];
 }

@@ -169,6 +169,14 @@ const transferItem = async (form_val: string) => {
 const saveGeneralInfo = async () => {
   try {
     errors.value = {}
+    const propertyNo = form.property_no || ''
+    const serialNo = form.serial_no || ''
+
+    // ✅ Check for duplicates first
+   if (checkDuplicates(propertyNo, serialNo)) {
+    return 
+  }
+
     const requestData = {
       ...form,
       registered_loc: role_id.value,
@@ -554,7 +562,6 @@ const toggleForm = () => {
 }
 
 // Fetch existing serials and property numbers
-// Fetch existing serials and property numbers
 const fetchSerialPropertyData = async () => {
   try {
     const response = await api.get('/getSerialProno')
@@ -565,40 +572,55 @@ const fetchSerialPropertyData = async () => {
 }
 
 // Check for duplicates across full dataset
-const checkDuplicates = () => {
+const checkDuplicates = (propertyNo, serialNo) => {
   if (!records.value || records.value.length === 0) {
     console.warn('⚠ No data loaded yet.')
-    return
+    return false
   }
 
-  const data = records.value
+  // ✅ Trim + lowercase input values safely
+  const property = propertyNo?.trim().toLowerCase() || ''
+  const serial = serialNo?.trim().toLowerCase() || ''
 
-  // ✅ find duplicates based on property_no across all items
-  const duplicates = data.filter((item, index, self) =>
-    self.some((other, otherIndex) => otherIndex !== index && other.property_no === item.property_no)
+  // ✅ Ignore check if either property or serial is empty
+  if (!property || !serial) {
+    console.warn('⚠ Skipping duplicate check because Property No or Serial No is empty.')
+    return false
+  }
+
+  // ✅ Normalize dataset
+  const data = records.value.map(item => ({
+    property_no: item.property_no?.trim().toLowerCase() || '',
+    serial_no: item.serial_no?.trim().toLowerCase() || ''
+  }))
+
+  // ✅ Check if both property_no and serial_no combination already exists
+  const isDuplicate = data.some(
+    item => item.property_no === property && item.serial_no === serial
   )
 
-  if (duplicates.length > 0) {
-    // ✅ Extract unique property_no values that are duplicated
-    const duplicateProps = [
-      ...new Set(duplicates.map((d) => d.property_no).filter((p) => p && p !== ''))
-    ]
-
+  if (isDuplicate) {
     toast.add({
       severity: 'error',
       summary: 'Duplicate Found',
-      detail: `⚠️ Duplicate Property No(s): ${duplicateProps.join(', ')}`,
+      detail: `⚠️ The combination of Property No: "${propertyNo}" and Serial No: "${serialNo}" already exists.`,
       life: 5000
     })
-  } else {
-    toast.add({
-      severity: 'success',
-      summary: 'No Duplicates',
-      detail: '✅ No duplicates found in the dataset.',
-      life: 3000
-    })
+    return true
   }
+
+  // (Optional) You can remove this toast if you only want to show when duplicate found
+  toast.add({
+    severity: 'success',
+    summary: 'No Duplicates',
+    detail: '✅ No duplicates found in the dataset.',
+    life: 3000
+  })
+
+  return false
 }
+
+
 
 onMounted(() => {
   const id = route.params.id
@@ -694,8 +716,8 @@ onMounted(() => {
           <i class="pi pi-desktop" />
           <span class="font-bold whitespace-nowrap">Primary & Secondary Monitor</span>
         </Tab>
-      <Button @click="checkDuplicates" label="Check Duplicates" type="submit" icon="pi pi-verified"   style="margin-left: 450px; height: 30px; margin-top:10px;" 
-            severity="primary" class="mr-4 mb-4 btn-xs" />
+        <Button @click="checkDuplicates" label="Check Duplicates" type="submit" icon="pi pi-verified"
+          style="margin-left: 450px; height: 30px; margin-top:10px;" severity="primary" class="mr-4 mb-4 btn-xs" />
         <!-- <Button  style="margin-left: 300px; height: 40px;background-color: #1565C0 !important; border-color: #1565C0 !important;" @click="transferItem('peri_form')" label="Transfer" type="button" icon="pi pi-send" class="mr-4 mt-2"
               severity="primary" /> -->
         <div class="flex justify-between items-center mt-2">
@@ -741,7 +763,7 @@ onMounted(() => {
                     placeholder="Current Status" class="w-full" />
                 </div>
               </div>
-            
+
               <div class="grid md:grid-cols-5 md:gap-6 mb-4">
                 <div class="relative z-0 w-full mb-5 group">
                   <FloatLabel>
@@ -769,7 +791,7 @@ onMounted(() => {
                   <Select filter v-model="form.selectedAcctDivision" :options="division_opts" optionValue="id"
                     optionLabel="name" placeholder="Division" class="w-full" />
 
-                 
+
                 </div>
               </div>
               <div class="grid md:grid-cols-2 md:gap-6 mb-4">
@@ -804,11 +826,11 @@ onMounted(() => {
                   <Select filter v-model="form.selectedActualWorkNature" :options="work_nature" optionValue="id"
                     optionLabel="name" placeholder="Nature of Works" class="w-full" />
                 </div>
-                 <div class="relative z-0 w-full mt-14 group">
+                <div class="relative z-0 w-full mt-14 group">
                   <Select filter v-model="form.actual_sex" :options="sex_opts" optionValue="value" optionLabel="name"
                     placeholder="Sex" class="w-full" />
                 </div>
-                
+
                 <div class="relative z-0 w-full mt-14 group">
                   <Select filter v-model="form.actual_employmentType" :options="employment_opts" optionLabel="name"
                     optionValue="id" placeholder="Employment Type" class="w-full" />
@@ -896,7 +918,7 @@ onMounted(() => {
             </Fieldset>
             <Button label="Save" type="submit" icon="pi pi-save" severity="primary" class="mr-4 mt-4" />
           </form>
-    
+
         </TabPanel>
 
         <!--Specification-->
@@ -1051,7 +1073,7 @@ onMounted(() => {
                   <div class="card flex flex-wrap gap-9">
                     <div v-for="option in ['perpetual', 'subscription', 'evaluation']" :key="option"
                       class="flex items-center gap-3">
-                      
+
                       <RadioButton v-model="selectedSoftware[software.key]"
                         :inputId="option.toLowerCase() + '-' + index" :name="software.key" :value="option.toLowerCase()"
                         @change="onRadioChange(software.key, option)" />

@@ -89,10 +89,12 @@ const modalOpen = ref(false)
 const form = ref({
   item_id: props.item_id ?? '',
   date_transferred: '',
-  prev_owner: '',
-  prev_office: '',
-  new_owner: '',
-  new_office: '',
+  prev_acct_user_office: '',
+  prev_actual_user_office: '',
+  new_actual_owner: '',
+  new_acct_owner: '',
+  new_acct_user_office: '',
+  new_actual_user_office: '',
   remarks: '',
   recorded_by: authStore.userId ?? null
 })
@@ -170,15 +172,16 @@ const openTransferItem = () => (modalOpen.value = true)
 // 💾 Save Transfer
 // =============================
 const saveTransfer = async () => {
-  if (!form.value.new_owner) {
-    toast.add({ severity: 'warn', summary: 'Missing Field', detail: 'Please fill in the required fields.', life: 3000 })
-    return
-  }
+  // if (!form.value.new_owner) {
+  //   toast.add({ severity: 'warn', summary: 'Missing Field', detail: 'Please fill in the required fields.', life: 3000 })
+  //   return
+  // }
 
   try {
     const payload = {
       ...form.value,
-      prev_owner: props.genForm.acct_person
+      prev_acct_owner: props.genForm.acct_person,
+      prev_actual_owner: props.genForm.actual_user,
     }
 
     await api.post('/ict-transfers', payload)
@@ -197,6 +200,8 @@ onMounted(() => {
   loadItemHistory(props.item_id || Number(route.params.id))
   getRamTypes()
   getDivision()
+  const today = new Date().toISOString().split('T')[0]
+  form.value.date_transferred = today
 })
 </script>
 
@@ -215,7 +220,7 @@ onMounted(() => {
     <!-- ================= TRANSFERING ITEM =================-->
     <div v-if="modalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
       @click.self="closeTransferModal()">
-      <div
+      <div style="max-width: 50rem;"
         class="bg-white dark:bg-neutral-800 border dark:border-neutral-700 shadow-md rounded-xl w-full max-w-lg mx-4">
         <!-- Header -->
         <div class="flex justify-between items-center py-3 px-4 border-b dark:border-neutral-700">
@@ -223,55 +228,93 @@ onMounted(() => {
           <button @click="closeTransferModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-400">
             ✖
           </button>
-          
+
         </div>
 
         <!-- Body -->
-        <div class="p-4 space-y-4">
-          <div>
-            <label class="block text-sm font-extrabold text-gray-900 dark:text-gray-900">Accountable User: {{ genForm.acct_person }}</label>
+        <div class="p-4 space-y-4" style="height: 500px; overflow: auto;">
 
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Item ID</label>
-            <input type="text" v-model="form.item_id"
-              class="w-full mt-1 p-2 border rounded-lg text-sm dark:bg-neutral-900 dark:border-neutral-600" readonly />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Date Transferred</label>
-            <input type="date" v-model="form.date_transferred"
-              class="w-full mt-1 p-2 border rounded-lg text-sm dark:bg-neutral-900 dark:border-neutral-600" />
-          </div>
           <div class="grid md:grid-cols-2 md:gap-6 mb-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Previous User</label>
-              <input type="text" v-model="genForm.actual_user"
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Item ID</label>
+              <input type="text" v-model="form.item_id"
                 class="w-full mt-1 p-2 border rounded-lg text-sm dark:bg-neutral-900 dark:border-neutral-600"
-                placeholder="e.g. John Doe" />
-            </div>
-            <div class=" w-full  group">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Previous Office</label>
-              <Select filter v-model="form.prev_office" :options="division_opts" optionLabel="name" optionValue="id"
-                placeholder="Division" class="w-full mt-1 h-[37px]" />
-            </div>
-          </div>
-          <div class="grid md:grid-cols-2 md:gap-6 mb-4">
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">New Owner</label>
-              <input type="text" v-model="form.new_owner"
-                class="w-full mt-1 p-2 border rounded-lg text-sm dark:bg-neutral-900 dark:border-neutral-600"
-                placeholder="e.g. Jane Smith" />
+                readonly />
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">New Office</label>
-
-              <Select filter v-model="form.new_office" :options="division_opts" optionValue="id" optionLabel="name"
-                placeholder="Division" class="w-full mt-1 h-[37px]" />
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Date Transferred
+              </label>
+              <input type="date" v-model="form.date_transferred" value="form.date_transferred" readonly
+                class="w-full mt-1 p-2 border rounded-lg text-sm bg-gray-100 dark:bg-neutral-900 dark:border-neutral-600 cursor-not-allowed" />
             </div>
+
           </div>
+          <Fieldset legend="Accountable User" :toggleable="true">
+            <div class="grid md:grid-cols-2 md:gap-6 mb-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Previous Accountable
+                  User</label>
+                <input type="text" v-model="genForm.acct_person"
+                  class="w-full mt-1 p-2 border rounded-lg text-sm dark:bg-neutral-900 dark:border-neutral-600"
+                  placeholder="e.g. John Doe" />
+              </div>
+              <div class=" w-full  group">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Previous Office</label>
+                <Select filter v-model="form.prev_acct_user_office" :options="division_opts" optionLabel="name"
+                  optionValue="id" placeholder="Division" class="w-full mt-1 h-[37px]" />
+              </div>
+            </div>
+            <div class="grid md:grid-cols-2 md:gap-6 mb-4">
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">New Accountable Owner</label>
+                <input type="text" v-model="form.new_acct_owner"
+                  class="w-full mt-1 p-2 border rounded-lg text-sm dark:bg-neutral-900 dark:border-neutral-600"
+                  placeholder="e.g. Jane Smith" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">New Office</label>
+
+                <Select filter v-model="form.new_acct_user_office" :options="division_opts" optionValue="id"
+                  optionLabel="name" placeholder="Division" class="w-full mt-1 h-[37px]" />
+              </div>
+            </div>
+          </Fieldset>
+
+          <Fieldset legend="Actual User" :toggleable="true">
+            <div class="grid md:grid-cols-2 md:gap-6 mb-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Previous User</label>
+                <input type="text" v-model="genForm.actual_user"
+                  class="w-full mt-1 p-2 border rounded-lg text-sm dark:bg-neutral-900 dark:border-neutral-600"
+                  placeholder="e.g. John Doe" />
+              </div>
+              <div class=" w-full  group">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Previous Office</label>
+                <Select filter v-model="form.prev_actual_user_office" :options="division_opts" optionLabel="name"
+                  optionValue="id" placeholder="Division" class="w-full mt-1 h-[37px]" />
+              </div>
+            </div>
+            <div class="grid md:grid-cols-2 md:gap-6 mb-4">
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">New Owner</label>
+                <input type="text" v-model="form.new_actual_owner"
+                  class="w-full mt-1 p-2 border rounded-lg text-sm dark:bg-neutral-900 dark:border-neutral-600"
+                  placeholder="e.g. Jane Smith" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">New Office</label>
+
+                <Select filter v-model="form.new_actual_user_office" :options="division_opts" optionValue="id"
+                  optionLabel="name" placeholder="Division" class="w-full mt-1 h-[37px]" />
+              </div>
+            </div>
+          </Fieldset>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Remarks</label>
@@ -310,10 +353,10 @@ onMounted(() => {
       <!-- Modal Body -->
       <div class="flex flex-col justify-center items-center py-2 px-2 h-[70vh]">
         <div class="relative overflow-x-auto">
-          <table class="table-auto w-full border border-gray-300 mt-4">
+          <table class="table-auto w-full border border-gray-300 mt-4" style="font-size:small;">
             <thead>
               <tr>
-                <th colspan="5" class="px-3 py-2 text-left text-sm font-bold bg-blue-900 text-white">
+                <th colspan="7" class="px-3 py-2 text-left text-sm font-bold bg-blue-900 text-white">
                   ITEM HISTORY LOGS
                   <Button @click="openTransferItem()" type="button" label="Transfer Item" icon="pi pi-undo" size="small"
                     style="margin-left: 56%;" />
@@ -322,22 +365,36 @@ onMounted(() => {
               </tr>
               <tr class="bg-gray-200 text-gray-800 text-sm font-semibold">
                 <th class="px-2 py-1 border text-left">Date Transferred</th>
-                <th class="px-2 py-1 border text-left">Previous Actual Owner / Office</th>
-                <th class="px-2 py-1 border text-left">New Actual Owner / Office</th>
+                <th class="px-2 py-1 border text-left">Prev Accountable</th>
+                <th class="px-2 py-1 border text-left">New Accountable</th>
+                <th class="px-2 py-1 border text-left">Prev User</th>
+                <th class="px-2 py-1 border text-left">New User</th>
                 <th class="px-2 py-1 border text-left">Remarks</th>
               </tr>
             </thead>
 
             <tbody class="divide-y divide-gray-300">
               <tr v-for="(log, index) in itemHistory" :key="log.id">
-                <td><Tag severity="info" :value="log.date_transferred" class="ml-2"/></td>
                 <td>
-                  <div>{{ log.prev_owner }}</div>
-                  <div>{{ log.prev_office }}</div>
+                  <Tag severity="info" :value="log.date_transferred" class="ml-2" />
                 </td>
                 <td>
-                  <div>{{ log.new_owner }}</div>
-                  <div>{{ log.new_office }}</div>
+                  <div>{{ log.prev_acct_owner }}</div>
+                  <div class="font-bold">{{ log.prev_acct_user_office }}</div>
+                </td>
+                <td>
+                  <div>{{ log.new_acct_owner }}</div>
+                  <div class="font-bold">{{ log.new_acct_user_office }}</div>
+                </td>
+
+
+                <td>
+                  <div>{{ log.prev_actual_owner }}</div>
+                  <div class="font-bold">{{ log.prev_actual_user_office }}</div>
+                </td>
+                <td>
+                  <div>{{ log.new_actual_owner }}</div>
+                  <div class="font-bold">{{ log.new_actual_user_office }}</div>
                 </td>
                 <td>{{ log.remarks }}</td>
               </tr>
@@ -363,6 +420,7 @@ onMounted(() => {
             </tbody>
 
           </table>
+
 
           <table class="table-auto w-full border border-gray-300 mt-4">
             <thead class="bg-gray-200">

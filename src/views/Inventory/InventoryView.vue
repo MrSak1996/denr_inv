@@ -35,7 +35,6 @@ const {
 } = useApi()
 
 const { form, specs_form, peripheral_form } = useForm()
-
 const { printRecord } = useInventory()
 const authStore = useAuthStore()
 
@@ -73,8 +72,20 @@ const user_role = ref(0)
 const api_token = authStore.api_token
 const role_id = authStore.role_id
 const role_office = ref('')
+const expandedRows = ref({});
 
-
+const onRowExpand = (event) => {
+  expandedRows.value = { [event.data.id]: true }
+};
+const onRowCollapse = (event) => {
+  expandedRows.value = null
+};
+const expandAll = () => {
+  expandedRows.value = customers.value.reduce((acc, p) => (acc[p.id] = true) && acc, {});
+};
+const collapseAll = () => {
+  expandedRows.value = null;
+};
 
 const loadUserData = async () => {
   const userData = await fetchCurUser()
@@ -110,7 +121,7 @@ const fetchData = async (selectedRoleId: number) => {
     const response = await api.get(
       `/vw-gen-info?api_tokes=${api_token}&designation=${authStore.role_id}&office=${selectedRoleId}`
     )
-      const res = await api.get(
+    const res = await api.get(
       `/print_preview?api_tokes=${api_token}&designation=${authStore.role_id}&office=${selectedRoleId}`
     )
     total_item.value = Number(response.data.count) // Set the count if it exists
@@ -341,14 +352,6 @@ const viewRecord = (id: string) => {
   })
 }
 
-const handlePrint = (id: number) => {
-  try {
-    const url = `http://10.201.12.189:8000/api/generatePDFReport?id=${id}`
-    window.open(url, '_blank') // opens PDF in new tab
-  } catch (error) {
-    console.error('Error generating PDF:', error)
-  }
-}
 
 const simulateUpload = () => {
   isUploading.value = true
@@ -410,6 +413,7 @@ const uploadImage = async () => {
       uploadSuccess.value = true
       uploadError.value = null
       imageUrl.value = response.data.image_url
+      location.reload();
     }
   } catch (error) {
     uploadSuccess.value = false
@@ -736,8 +740,9 @@ const pageTitle = ref('Inventory Management')
         </div>
         <!-- end of progress bar -->
 
-        <DataTable size="small" v-model:filters="filters" :value="customers" paginator showGridlines :rows="5"
-          dataKey="id" filterDisplay="menu" :loading="loading" :globalFilterFields="[
+        <DataTable size="small" v-model:expandedRows="expandedRows" @rowExpand="onRowExpand"
+          @rowCollapse="onRowCollapse" :value="customers" paginator stripedRows showGridlines :rows="10" dataKey="id"
+          filterDisplay="menu" :loading="loading" :globalFilterFields="[
             'control_no',
             'file_id',
             'roles',
@@ -755,20 +760,22 @@ const pageTitle = ref('Inventory Management')
             'status'
           ]">
           <template #header>
+            
             <div class="flex items-center gap-4 justify-start">
               <Button type="button" icon="pi pi-add" label="Add" outlined @click="addMore()" />
               <Button type="button" icon="pi pi-file-export" label="Export" outlined @click="openReport = true"
                 style="background-color: brown" />
               <Button type="button" icon="pi pi-refresh" label="Refresh" outlined @click="fetchData(0)" />
               <Button severity="danger" icon="pi pi-qrcode" label="Generate QR Code [F3]" @click="openQR = true" />
+              <Button severity="info" type="button" icon="pi pi-print" label="Print Preview"
+                @click="openPrintPreview()" />
               <Select filter v-model="peripheral_form.mon1division2" :options="division_opts" optionValue="id"
                 optionLabel="name" placeholder="Division" class="md:w-50 pull-right"
                 @update:modelValue="filterByOffice" />
               <Button style="left: 400px" severity="info" type="button" icon="pi pi-filter-slash" label="Clear"
                 @click="clearFilter()" />
-              <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" @click="openPrintPreview">
-                Print Preview
-              </button>
+
+
 
               <!-- Additional space between buttons and search field -->
               <div class="ml-auto flex items-center">
@@ -783,12 +790,13 @@ const pageTitle = ref('Inventory Management')
           </template>
           <!-- <template #empty> No customers found. </template>
           <template #loading> Loading customers data. Please wait. </template> -->
+          <Column expander style="width: 5rem" />
 
           <Column field="id" header="Action" style="width: 500px !important">
             <template #body="{ data }">
               <div class="card flex justify-center">
                 <Button @click="retrieveDataviaAPI(data.id)" icon="pi pi-eye" size="small"
-                  class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" />
+                  class="text-white mr-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" />
 
                 <Button @click="viewRecord(data.id)" icon="pi pi-file-edit" size="small"
                   class="text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" />
@@ -836,7 +844,6 @@ const pageTitle = ref('Inventory Management')
             </template>
 
           </Column>
-
           <Column field="mon_qr_code1" header="Primary Monitor QR Code" style="min-width: 12rem; text-align: center">
             <template #body="{ data }">
               <div class="flex justify-center items-center h-24">
@@ -850,7 +857,6 @@ const pageTitle = ref('Inventory Management')
             </template>
 
           </Column>
-
           <Column field="mon_qr_code2" header="Secondary Monitor QR Code"
             style="min-width: 12rem; text-align: center !important">
             <template #body="{ data }">
@@ -875,50 +881,25 @@ const pageTitle = ref('Inventory Management')
             </template>
 
           </Column>
-          <Column header="Status" field="status" :filterMenuStyle="{ width: '14rem' }" style="min-width: 12rem">
-            <template #body="{ data }">
-              <Tag :value="data.status" :severity="getSeverity(data.status)" />
-            </template>
 
-          </Column>
-          <Column field="brand" header="Brand & Model" style="min-width: 12rem">
-            <template #body="{ data }">
-              {{ data.brand }}
-              <!-- Ensure this field exists in the data object -->
-            </template>
+         
 
-          </Column>
-          <Column field="serial_no" header="Serial No." style="min-width: 12rem">
-            <template #body="{ data }">
-              {{ data.serial_no }}
-              <!-- Ensure this field exists in the data object -->
-            </template>
-
-          </Column>
-          <Column field="acct_person" header="Accountable Person" style="min-width: 300px">
-            <template #body="{ data }">
-              {{ data.acct_person }}
-              <!-- Ensure this field exists in the data object -->
-            </template>
-
-          </Column>
-          <Column field="actual_user" header="Actual User" style="min-width: 300px">
-            <template #body="{ data }">
-              {{ data.actual_user }}
-              <!-- Ensure this field exists in the data object -->
-            </template>
-
-          </Column>
-
-          <Column field="roles" header="Registered Location" style="min-width: 12rem">
-            <template #body="{ data }">
-              {{ data.roles }}<br />{{ data.actual_division_title }}
-              <!-- Ensure this field exists in the data object -->
-            </template>
-
-          </Column>
-
-          <Column field="full_specs" header="Specifications / Descriptions" style="min-width: 300px">
+        
+          <!-- ✅ Add this *inside* your main DataTable, after all <Column> tags -->
+          <template #expansion="slotProps">
+            <div class="p-4">
+              <h5 class="font-semibold mb-2">ICT Equipment Information</h5>
+              <DataTable size="small" showGridlines :value="[slotProps.data]">
+                <Column field="brand" header="Brand" />
+                <Column field="serial_no" header="Serial No" />
+                <Column field="acct_person" header="Accountable Person" />
+                <Column field="actual_user" header="Actual User" />
+                <Column field="roles" header="Registered Location" style="min-width: 12rem">
+                  <template #body="{ data }">
+                    {{ data.roles }}<br />{{ data.actual_division_title }}
+                  </template>
+                </Column>
+                 <Column field="full_specs" header="Specifications / Descriptions" style="min-width: 300px">
             <template #body="{ data }">
               <div class="wrap-text">
                 {{ data.full_specs }}
@@ -926,14 +907,22 @@ const pageTitle = ref('Inventory Management')
             </template>
 
           </Column>
-
-          <Column field="range_category" header="Range Category" style="min-width: 1rem">
+                <Column field="status" header="Status">
+                  <template #body="{ data }">
+                    <Tag :value="data.status" :severity="getSeverity(data.status)" />
+                  </template>
+                </Column>
+                  <Column field="range_category" header="Range Category" style="min-width: 1rem">
             <template #body="{ data }">
               {{ data.range_category }}
               <!-- Ensure this field exists in the data object -->
             </template>
 
           </Column>
+              </DataTable>
+            </div>
+          </template>
+
         </DataTable>
         <iframe ref="printFrame" class="hidden" title="Print Preview"
           style="width:100%; height:90vh; border:none;"></iframe>

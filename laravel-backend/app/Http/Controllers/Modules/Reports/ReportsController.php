@@ -65,7 +65,7 @@ class ReportsController extends Controller
                 $sheet->setCellValue('B' . $row, $record->equipment_title);
                 $sheet->setCellValue('C' . $row, $record->year_acquired);
                 $sheet->setCellValue('D' . $row, $record->shelf_life);
-                $sheet->setCellValue('E' . $row, $record->equipment_brand);
+                $sheet->setCellValue('E' . $row, $record->brand);
                 $sheet->setCellValue('F' . $row, $record->model);
                 $sheet->setCellValue('G' . $row, $record->full_specs);
                 $sheet->setCellValue('H' . $row,"");
