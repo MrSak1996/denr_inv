@@ -20,150 +20,128 @@ class ReportsController extends Controller
 {
     public function generateReport(Request $request)
     {
-        if ($request->has('export')) {
-            // Define template path
-            $templatePath = public_path('templates/denr.xlsx');
-
-            if (!file_exists($templatePath)) {
-                return response()->json(['error' => 'Template file not found.'], 404);
-            }
-
-            // Load the spreadsheet template
-            $spreadsheet = IOFactory::load($templatePath);
-            $sheet = $spreadsheet->getActiveSheet();
-
-            // Fetch data from the database
-            $data = $this->fecthVWGeneralInfo($request);
-
-            // Define common style for wrapping text and borders
-            $styleArray = [
-                'alignment' => [
-                    'wrapText' => true,
-                ],
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                    ],
-                ],
-            ];
-
-            // Software mapping (fixed layout in your Excel)
-            $softwareMap = [
-                'operating_system' => ['K', 'L'], // SOFTWARE 1 OS + LIC MODEL
-                'ms_office' => ['M', 'N'], // SOFTWARE 2 MS OFFICE + LIC MODEL
-                'arcgis' => ['O', 'P'], // SOFTWARE 3 ArcGIS + LIC MODEL
-                'adobe_pdf' => ['Q', 'R'], // SOFTWARE 4 Adobe PDF + LIC MODEL
-                'photoshop' => ['S', 'T'], // SOFTWARE 5 Photoshop + LIC MODEL
-                'autocad' => ['U', 'V'], // SOFTWARE 6 AutoCAD + LIC MODEL
-            ];
-
-            // Populate spreadsheet with database data
-            $row = 3; // Start from row 3
-            foreach ($data as $record) {
-                // Populate other fields
-                $sheet->setCellValue('A' . $row, $record->actual_division_title);
-                $sheet->setCellValue('B' . $row, $record->equipment_title);
-                $sheet->setCellValue('C' . $row, $record->year_acquired);
-                $sheet->setCellValue('D' . $row, $record->shelf_life);
-                $sheet->setCellValue('E' . $row, $record->brand);
-                $sheet->setCellValue('F' . $row, $record->model);
-                $sheet->setCellValue('G' . $row, $record->full_specs);
-                $sheet->setCellValue('H' . $row,"");
-                $sheet->setCellValue('I' . $row,"");
-                $sheet->setCellValue('J' . $row, $record->range_category);
-
-                $sheet->setCellValue('Q' . $row, $record->serial_no);
-                $sheet->setCellValue('R' . $row, $record->property_no);
-                $sheet->setCellValue('S' . $row, $record->acct_person);
-                $sheet->setCellValue('T' . $row, $record->sex);
-                $sheet->setCellValue('U' . $row, $record->employment_title);
-                $sheet->setCellValue('V' . $row, $record->actual_user);
-                $sheet->setCellValue('W' . $row, $record->sex);
-                $sheet->setCellValue('X' . $row, $record->employment_title);
-                $sheet->setCellValue('Y' . $row, $record->nature_work_title);
-                $sheet->setCellValue('Z' . $row, $record->remarks);
-
-
-
-                if (!empty($record->os_installed)) {
-                    $sheet->setCellValue('K' . $row, $record->os_installed);
-                }
-
-                if (!empty($record->ms_office_installed)) {
-                    $sheet->setCellValue('M' . $row, $record->ms_office_installed);
-                }
-
-                // If vw_gen_info also has arcgis_installed, adobe_pdf_installed, etc:
-                // if (!empty($record->arcgis_installed)) {
-                //     $sheet->setCellValue('O' . $row, $record->arcgis_installed);
-                // }
-
-                // if (!empty($record->adobe_pdf_installed)) {
-                //     $sheet->setCellValue('Q' . $row, $record->adobe_pdf_installed);
-                // }
-
-                // if (!empty($record->photoshop_installed)) {
-                //     $sheet->setCellValue('S' . $row, $record->photoshop_installed);
-                // }
-
-                // if (!empty($record->autocad_installed)) {
-                //     $sheet->setCellValue('U' . $row, $record->autocad_installed);
-                // }
-                // Fetch software data for this record
-                // Fetch software data for this record
-                $software_opts = $this->getSoftwareData($record->id);
-
-                // Loop through each software slot
-                foreach ($softwareMap as $key => [$colSoftware, $colLicense]) {
-                    if (isset($software_opts[$key])) {
-                        // Instead of label, use actual database value
-                        // Software values directly from vw_gen_info
-
-
-                        $sheet->setCellValue($colLicense . $row, $software_opts[$key]->remarks);
-                    } else {
-                        // leave blank if no software data
-                        $sheet->setCellValue($colSoftware . $row, null);
-                        $sheet->setCellValue($colLicense . $row, null);
-                    }
-                }
-
-
-                // Apply styling
-                $sheet->getStyle('A' . $row . ':Z' . $row)->applyFromArray($styleArray);
-
-                $row++;
-            }
-
-            // Save to a temporary file
-            $tempFile = tempnam(sys_get_temp_dir(), 'denr');
-            $writer = new Xlsx($spreadsheet);
-            $writer->save($tempFile);
-
-            return response()->download($tempFile, 'denr_ict_inv_2024.xlsx')->deleteFileAfterSend(true);
-        } else {
+        if (!$request->has('export')) {
             return response()->json(['error' => 'Export flag missing.'], 400);
         }
+
+        $templatePath = public_path('templates/denr_ict_inv_template.xlsx');
+
+        if (!file_exists($templatePath)) {
+            return response()->json(['error' => 'Template file not found.'], 404);
+        }
+
+        $spreadsheet = IOFactory::load($templatePath);
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $records = $this->fecthVWGeneralInfo($request);
+
+        $styleArray = [
+            'alignment' => ['wrapText' => true],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                ],
+            ],
+        ];
+
+        // SOFTWARE COLUMN MAP
+        $softwareMap = [
+            'operating_system' => ['L', 'M'],
+            'ms_office' => ['N', 'O'],
+        ];
+
+        $row = 7;
+
+        foreach ($records as $rec) {
+
+            // Convert all string fields to UPPERCASE
+            foreach ($rec as $key => $value) {
+                if (is_string($value)) {
+                    $rec->$key = strtoupper($value);
+                }
+            }
+
+            // ======================
+            // MAIN FIELDS
+            // ======================
+            $sheet->setCellValue("A{$row}", $rec->acct_person_division_id);
+            $sheet->setCellValue("B{$row}", $rec->qr_code);
+            $sheet->setCellValue("C{$row}", $rec->equipment_title);
+            $sheet->setCellValue("D{$row}", $rec->year_acquired);
+            $sheet->setCellValue("E{$row}", $rec->shelf_life);
+            $sheet->setCellValue("F{$row}", $rec->brand);
+            $sheet->setCellValue("G{$row}", $rec->model);
+            $sheet->setCellValue("H{$row}", $rec->processor);
+            $sheet->setCellValue("I{$row}", $rec->ram_type);
+            $sheet->setCellValue("J{$row}", $rec->installed_gpu);
+            $sheet->setCellValue("K{$row}", $rec->range_category);
+            $sheet->setCellValue("P{$row}", $rec->type_endpoint_protection);
+            $sheet->setCellValue("Q{$row}", $rec->computer_name);
+
+            $sheet->setCellValue("R{$row}", $rec->serial_no);
+            $sheet->setCellValue("S{$row}", $rec->property_no);
+            $sheet->setCellValue("T{$row}", $rec->acct_person);
+            $sheet->setCellValue("U{$row}", $rec->sex);
+            $sheet->setCellValue("V{$row}", $rec->acct_status_of_employment);
+            $sheet->setCellValue("W{$row}", $rec->acct_nature_work_title);
+
+            $sheet->setCellValue("X{$row}", $rec->actual_user_division_id);
+            $sheet->setCellValue("Y{$row}", $rec->actual_user);
+            $sheet->setCellValue("Z{$row}", $rec->sex_2);
+            $sheet->setCellValue("AA{$row}", $rec->employment_title);
+            $sheet->setCellValue("AB{$row}", $rec->actual_nature_work_title);
+            $sheet->setCellValue("AC{$row}", $rec->remarks);
+
+            // DIRECT SOFTWARE INSTALLED COLUMNS
+            if (!empty($rec->os_installed)) {
+                $sheet->setCellValue("L{$row}", $rec->os_installed);
+            }
+
+            if (!empty($rec->ms_office_installed)) {
+                $sheet->setCellValue("N{$row}", $rec->ms_office_installed);
+            }
+
+            // ======================
+            // SOFTWARE INSTALLATION TABLE
+            // ======================
+
+            $softwareData = $this->getSoftwareData($rec->id);
+
+            foreach ($softwareMap as $key => [$colSW, $colLic]) {
+                if (isset($softwareData[$key])) {
+                    $sheet->setCellValue("{$colLic}{$row}", strtoupper($softwareData[$key]->remarks));
+                } else {
+                    $sheet->setCellValue("{$colSW}{$row}", null);
+                    $sheet->setCellValue("{$colLic}{$row}", null);
+                }
+            }
+
+            // STYLE
+            $sheet->getStyle("A{$row}:AC{$row}")->applyFromArray($styleArray);
+
+            $row++;
+        }
+
+        $tempFile = tempnam(sys_get_temp_dir(), 'denr');
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($tempFile);
+
+        return response()->download($tempFile, 'denr_ict_inv_2025.xlsx')->deleteFileAfterSend(true);
     }
+
     public function fecthVWGeneralInfo(Request $request)
     {
-        $tableName = 'vw_gen_info';
-
-        $query = DB::table($tableName)
-            ->whereNotNull('equipment_type')   // equipment_type IS NOT NULL
-            ->where('equipment_type', '!=', value: 0) // AND equipment_type != 0
+        $query = DB::table('vw_gen_info')
+            ->whereNotNull('equipment_type')
+            ->where('equipment_type', '!=', 0)
             ->orderBy('id', 'desc');
 
-        // If you still want to filter by role_id (designation) when passed
-        if ($request->has('role_id') && is_numeric($request->query('role_id'))) {
-            $designation = (int) $request->query('role_id');
-            $query->where('registered_loc', $designation);
+        if ($request->filled('role_id') && is_numeric($request->role_id)) {
+            $query->where('registered_loc', (int) $request->role_id);
         }
 
         return $query->get();
     }
-
-
 
     public function getSoftwareData($controlId)
     {
@@ -172,17 +150,16 @@ class ReportsController extends Controller
             ->select(
                 'si.software',
                 DB::raw("CASE 
-                WHEN si.remarks = '1' THEN 'perpetual'
-                WHEN si.remarks = '2' THEN 'subscription'
-                WHEN si.remarks = '3' THEN 'evaluation'
-                ELSE NULL
+                WHEN si.remarks = '1' THEN 'PERPETUAL'
+                WHEN si.remarks = '2' THEN 'SUBSCRIPTION'
+                WHEN si.remarks = '3' THEN 'EVALUATION'
+                ELSE ''
             END AS remarks")
             )
             ->get()
-            ->keyBy(function ($item) {
-                return strtolower(str_replace(' ', '_', $item->software));
-            });
+            ->keyBy(fn($item) => strtolower(str_replace(' ', '_', $item->software)));
     }
+
 
 
     // Optional: normalize raw DB software keys into user-friendly labels

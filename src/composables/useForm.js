@@ -4,8 +4,10 @@ export function useForm() {
         control_no: '',
         qr_code: '',
         acct_person: '',
-        sex: '',
-        employmentType: '',
+        acct_sex: '',
+        actual_sex: '',
+        acct_employmentType: '',
+        actual_employmentType: '',
         brand: '',
         model: '',
         property_no: '',
@@ -17,7 +19,8 @@ export function useForm() {
         selectedDivision: '',
         selectedAcctDivision: '',
         selectedActualDivision: '',
-        selectedWorkNature: '',
+        selectedAcctWorkNature: '',
+        selectedActualWorkNature: '',
         selectedSection: '',
         selectedRangeCategory: '',
         selectedEquipmentType: '',
@@ -28,6 +31,8 @@ export function useForm() {
         status: '',
         source_div: '',
         target_div: '',
+        softwareCategory: '',
+        softwareName: ''
     });
     const specs_form = reactive({
         specs_processor: '',

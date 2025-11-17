@@ -20,7 +20,7 @@ const __VLS_3 = __VLS_asFunctionalComponent(HeaderArea, new HeaderArea({}));
 const __VLS_4 = __VLS_3({}, ...__VLS_functionalComponentArgsRest(__VLS_3));
 __VLS_asFunctionalElement(__VLS_intrinsicElements.main, __VLS_intrinsicElements.main)({});
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-    ...{ class: "mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10" },
+    ...{ class: "mx-auto max-w-screen-3xl p-4 md:p-6 2xl:p-10" },
 });
 var __VLS_6 = {};
 /** @type {__VLS_StyleScopedClasses['flex']} */ ;
@@ -33,7 +33,7 @@ var __VLS_6 = {};
 /** @type {__VLS_StyleScopedClasses['overflow-y-auto']} */ ;
 /** @type {__VLS_StyleScopedClasses['overflow-x-hidden']} */ ;
 /** @type {__VLS_StyleScopedClasses['mx-auto']} */ ;
-/** @type {__VLS_StyleScopedClasses['max-w-screen-2xl']} */ ;
+/** @type {__VLS_StyleScopedClasses['max-w-screen-3xl']} */ ;
 /** @type {__VLS_StyleScopedClasses['p-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['md:p-6']} */ ;
 /** @type {__VLS_StyleScopedClasses['2xl:p-10']} */ ;

@@ -9,7 +9,7 @@ import AccountEditView from '@/views/UserManagement/form_edit.vue';
 import api from '@/api/axiosInstance';
 import QRCodeScanner from '@/views/Inventory/QRCodeScanner.vue';
 import summaryVue from '@/views/Inventory/summary.vue';
-import DTRMonitoring from '@/views/monitoring/index.vue'
+import DTRMonitoring from '@/views/Monitoring/index.vue';
 const api_token = localStorage.getItem('api_token');
 const routes = [
     {
@@ -17,7 +17,7 @@ const routes = [
         name: 'signin',
         component: SigninView,
         meta: {
-            title: 'Signin',
+            title: 'Signin'
         }
     },
     {
@@ -132,23 +132,20 @@ const routes = [
             requiresAuth: true
         }
     },
-    
+    {
+        path: '/monitoring',
+        name: 'DataMonitoring',
+        component: DTRMonitoring,
+        meta: {
+            requiresAuth: true
+        },
+    },
     {
         path: '/user-management/',
         name: 'Account List', // Different name for this route
         component: AccountsView,
         meta: {
             title: 'Account List',
-            requiresAuth: true
-        }
-    },
-       
-    {
-        path: '/monitoring',
-        name: 'DataMonitoring', // Different name for this route
-        component: DTRMonitoring,
-        meta: {
-            title: 'DataMonitoring',
             requiresAuth: true
         }
     },

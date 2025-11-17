@@ -10,7 +10,6 @@ const sidebarStore = useSidebarStore()
 // ✅ This function toggles collapse and logs output
 const handleSidebarToggle = () => {
   sidebarStore.toggleCollapse()
-  console.log('Toggled! Collapsed:', sidebarStore.isSidebarCollapsed)
 }
 </script>
 

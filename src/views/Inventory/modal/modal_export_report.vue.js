@@ -36,7 +36,7 @@ const exportData = async () => {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'denr_ict_inv_2024.xlsx';
+        link.download = 'denr_ict_inv_2025.xlsx';
         document.body.appendChild(link);
         link.click();
         link.remove();

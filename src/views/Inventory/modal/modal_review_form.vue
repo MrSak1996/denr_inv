@@ -346,7 +346,9 @@ onMounted(() => {
       <div class="flex justify-between items-center py-4 px-6 border-b dark:border-neutral-700">
         <h3 id="reserve-control-no" class="text-lg font-semibold text-gray-800 dark:text-gray-200">
           ICT Equipment Information
-        </h3>
+        </h3> 
+        <Button @click="openTransferItem()" type="button" label="Transfer Item" icon="pi pi-undo" size="small"
+                    style="margin-left: 30%;" />
         <button @click="closeModal" class="text-gray-300 hover:text-gray-100">✖</button>
       </div>
 
@@ -358,8 +360,7 @@ onMounted(() => {
               <tr>
                 <th colspan="7" class="px-3 py-2 text-left text-sm font-bold bg-blue-900 text-white">
                   ITEM HISTORY LOGS
-                  <Button @click="openTransferItem()" type="button" label="Transfer Item" icon="pi pi-undo" size="small"
-                    style="margin-left: 56%;" />
+                  
 
                 </th>
               </tr>
@@ -437,8 +438,7 @@ onMounted(() => {
               <tr>
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">Division:</td>
                 <td class="px-2 py-1 text-sm text-gray-600">{{ selectedDivisionName }}</td>
-                <td class="px-2 py-1 text-sm font-medium text-gray-700">Section:</td>
-                <td class="px-2 py-1 text-sm text-gray-600"></td>
+             
               </tr>
               <tr>
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">Accountable Person:</td>
@@ -514,8 +514,7 @@ onMounted(() => {
                     'Unknown') }}
 
                 </td>
-                <td class="px-2 py-1 text-sm font-medium text-gray-700">RAM Capacity:</td>
-                <td class="px-2 py-1 text-sm text-gray-600">{{ specsData.specs_ram_capacity }}</td>
+        
               </tr>
               <tr>
                 <td class="px-2 py-1 text-sm font-medium text-gray-700">No. of HDD:</td>

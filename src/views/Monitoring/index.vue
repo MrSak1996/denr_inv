@@ -133,13 +133,13 @@ const openModal = async () => {
   openFileUploader.value = true;
 }
 
-const formatMessage = (message) => {
+const formatMessage = (message:string) => {
   if (!message) return '';
   // Preserve emojis and timestamps; replace newlines with <br>
   return message.replace(/\n/g, '<br>');
 };
 
-const formatDetails = (details) => {
+const formatDetails = (details:string) => {
   if (!details) return '';
   try {
     const parsed = typeof details === 'string' ? JSON.parse(details) : details;

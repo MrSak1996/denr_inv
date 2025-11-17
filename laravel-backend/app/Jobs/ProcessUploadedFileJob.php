@@ -250,8 +250,8 @@ class ProcessUploadedFileJob implements ShouldQueue
                     'sex_2' => $this->normalizeString($row['Z'] ?? null),
                     'status_of_employment_2' => $status_of_employment_2,
                     'nature_of_work' => $nature_of_work_2,
-                    'remarks' => $this->normalizeString($row['AA'] ?? null),
-                    'rict_code_local' => $this->normalizeString($row['AB'] ?? null),
+                    'remarks' => $this->normalizeString($row['AC'] ?? null),
+                    'rict_code_local' => $this->normalizeString($row['AD'] ?? null),
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
@@ -279,7 +279,7 @@ class ProcessUploadedFileJob implements ShouldQueue
             $counter = 1;
 
             foreach ($onbintRecords as $record) {
-                $controlNo = sprintf('R4A-RICT-%04d', $counter); // e.g., R4A-RICT-0001
+                $controlNo = sprintf('R4A-RICT-%04d', $counter++); // e.g., R4A-RICT-0001
 
                 $generalInsert[] = [
                     'registered_loc' => $this->registered_loc, // or your default
@@ -288,11 +288,11 @@ class ProcessUploadedFileJob implements ShouldQueue
                     'section_id' => null,
                     'acct_person' => $record->accountable_person,
                     'acct_status_of_employment' => $record->status_of_employment,
-                    'acct_person_division_id' => $record->$office_division,
+                    'acct_person_division_id' => $record->office_division,
                     'actual_user' => $record->actual_user,
                     'sex' => $record->sex,
                     'sex_2' => $record->sex_2,
-                    'actual_user_division_id' => $record->office_division,
+                    'actual_user_division_id' => $record->actual_user_division_id,
                     'actual_employment_type' => $record->status_of_employment_2,
                     'work_nature_id' => $record->nature_of_work,
                     'acct_work_nature_id' => $record->nature_of_work_2,

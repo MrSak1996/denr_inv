@@ -5,6 +5,10 @@ export const useSidebarStore = defineStore('sidebar', () => {
   const isSidebarOpen = ref(true)
   const isSidebarCollapsed = ref(false)
   const manuallyLocked = ref(false) // ✅ renamed for clarity
+  const selected = ref('')
+  const page = ref('')
+
+
 
   // Toggle mobile sidebar (burger button)
   function toggleSidebar() {
@@ -36,6 +40,8 @@ export const useSidebarStore = defineStore('sidebar', () => {
   }
 
   return {
+    selected,
+    page,
     isSidebarOpen,
     isSidebarCollapsed,
     manuallyLocked,

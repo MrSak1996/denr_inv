@@ -21,6 +21,7 @@ class GeneralInformation extends Model
         'control_no',
         'division_id',
         'section_id',
+        
         'acct_person',
         'sex',
         'acct_status_of_employment',

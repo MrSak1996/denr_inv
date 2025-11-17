@@ -376,7 +376,7 @@ const retrieveSoftwareData = async () => {
       software.value = response.data
       console.log(software.value)
 
-      response.data.forEach((item) => {
+      response.data.forEach((item:any) => {
         // Convert numeric remark -> radio option string
         const option = reverseRemarksMap[item.remarks]
         if (option) {
@@ -572,7 +572,7 @@ const fetchSerialPropertyData = async () => {
 }
 
 // Check for duplicates across full dataset
-const checkDuplicates = (propertyNo, serialNo) => {
+const checkDuplicates = (propertyNo:string, serialNo:string) => {
   if (!records.value || records.value.length === 0) {
     console.warn('⚠ No data loaded yet.')
     return false
@@ -716,7 +716,7 @@ onMounted(() => {
           <i class="pi pi-desktop" />
           <span class="font-bold whitespace-nowrap">Primary & Secondary Monitor</span>
         </Tab>
-        <Button @click="checkDuplicates" label="Check Duplicates" type="submit" icon="pi pi-verified"
+        <Button @click="checkDuplicates(form.property_no,form.serial_no)" label="Check Duplicates" type="submit" icon="pi pi-verified"
           style="margin-left: 450px; height: 30px; margin-top:10px;" severity="primary" class="mr-4 mb-4 btn-xs" />
         <!-- <Button  style="margin-left: 300px; height: 40px;background-color: #1565C0 !important; border-color: #1565C0 !important;" @click="transferItem('peri_form')" label="Transfer" type="button" icon="pi pi-send" class="mr-4 mt-2"
               severity="primary" /> -->

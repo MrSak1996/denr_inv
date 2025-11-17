@@ -13,40 +13,46 @@ interface SidebarItem {
 }
 
 const handleItemClick = () => {
-  const pageName = sidebarStore.page === props.item.label ? '' : props.item.label
-  sidebarStore.page = pageName
+  const pageName =
+    sidebarStore.selected === props.item.label ? '' : props.item.label
+
+  sidebarStore.selected = pageName
 
   if (props.item.children) {
-    return props.item.children.some((child: SidebarItem) => sidebarStore.selected === child.label)
+    return props.item.children.some(
+      (child: SidebarItem) => sidebarStore.selected === child.label
+    )
   }
 }
 </script>
 
 <template>
   <li>
-    <router-link :to="item.route"
+    <router-link
+      :to="item.route"
       class="group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4"
-      @click.prevent="handleItemClick" :class="{
-        'bg-graydark dark:bg-meta-4': sidebarStore.page === item.label
-      }" :title="sidebarStore.isSidebarCollapsed ? item.label : ''" 
-      >
+      @click.prevent="handleItemClick"
+      :class="{
+        'bg-graydark dark:bg-meta-4': sidebarStore.selected === item.label
+      }"
+      :title="sidebarStore.isSidebarCollapsed ? item.label : ''"
+    >
       <span v-html="item.icon"></span>
 
-      <!-- Hide text when collapsed -->
       <transition name="fade">
         <span v-if="!sidebarStore.isSidebarCollapsed">{{ item.label }}</span>
       </transition>
-
-     
     </router-link>
 
-
-
-
-    <!-- Dropdown Menu Start -->
-    <div class="translate transform overflow-hidden" v-show="sidebarStore.page === item.label">
-      <SidebarDropdown v-if="item.children" :items="item.children" :currentPage="currentPage" :page="item.label" />
-      <!-- Dropdown Menu End -->
+    <!-- Dropdown -->
+    <div class="translate transform overflow-hidden"
+        v-show="sidebarStore.selected === item.label">
+      <SidebarDropdown
+        v-if="item.children"
+        :items="item.children"
+        :currentPage="currentPage"
+        :page="item.label"
+      />
     </div>
   </li>
 </template>

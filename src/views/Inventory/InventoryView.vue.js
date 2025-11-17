@@ -18,6 +18,8 @@ const { printRecord } = useInventory();
 const authStore = useAuthStore();
 const route = useRoute();
 const customers = ref([]);
+const ict_report_data = ref([]);
+const expandedRows = ref({}); // fix null assignment error
 const software = ref([]);
 const qr_code = ref();
 const total_item = ref(0);
@@ -41,28 +43,30 @@ const selectQR = ref(false);
 const openReviewForm = ref(false);
 const uploadSuccess = ref(false);
 const uploadError = ref();
-const statuses = ref(['Serviceable', 'Unserviceable', 'Returned']);
-const office = ref([
-    'PENRO CAVITE',
-    'PENRO LAGUNA',
-    'PENRO BATANGAS',
-    'PENRO RIZAL',
-    'PENRO QUEZON',
-    'CENRO Sta. Cruz',
-    'CENRO Lipa City',
-    'CENRO Calaca',
-    'CENRO Calauag',
-    'CENRO Catanauan',
-    'CENRO Tayabas',
-    'CENRO Real',
-    'Regional Office'
-]);
 const userId = route.query.id;
 const item = ref(0);
 const user_role = ref(0);
 const api_token = authStore.api_token;
 const role_id = authStore.role_id;
 const role_office = ref('');
+// -------------------------
+// Row expand/collapse handlers
+// -------------------------
+const onRowExpand = (event) => {
+    expandedRows.value = { [event.data.id]: true };
+};
+const onRowCollapse = (event) => {
+    expandedRows.value = {}; // use empty object instead of null
+};
+const expandAll = () => {
+    expandedRows.value = customers.value.reduce((acc, p) => {
+        acc[p.id] = true;
+        return acc;
+    }, {});
+};
+const collapseAll = () => {
+    expandedRows.value = {};
+};
 const loadUserData = async () => {
     const userData = await fetchCurUser();
     user_role.value = role_id;
@@ -90,8 +94,10 @@ const fetchData = async (selectedRoleId) => {
         startProgress(); // Start the progress bar
         // await loadUserData()
         const response = await api.get(`/vw-gen-info?api_tokes=${api_token}&designation=${authStore.role_id}&office=${selectedRoleId}`);
+        const res = await api.get(`/print_preview?api_tokes=${api_token}&designation=${authStore.role_id}&office=${selectedRoleId}`);
         total_item.value = Number(response.data.count); // Set the count if it exists
         customers.value = response.data.data; // Process the fetched data
+        ict_report_data.value = res.data.data;
         loading.value = false;
         if (selectedRoleId == 0) {
             completeProgress(); // Stop the progress bar
@@ -292,15 +298,6 @@ const viewRecord = (id) => {
         query: { api_token: localStorage.getItem('api_token'), item_id: id }
     });
 };
-const handlePrint = (id) => {
-    try {
-        const url = `http://10.201.12.189:8000/api/generatePDFReport?id=${id}`;
-        window.open(url, '_blank'); // opens PDF in new tab
-    }
-    catch (error) {
-        console.error('Error generating PDF:', error);
-    }
-};
 const simulateUpload = () => {
     isUploading.value = true;
     progress.value = 0;
@@ -354,6 +351,7 @@ const uploadImage = async () => {
             uploadSuccess.value = true;
             uploadError.value = null;
             imageUrl.value = response.data.image_url;
+            location.reload();
         }
     }
     catch (error) {
@@ -376,9 +374,6 @@ const resetForm = () => {
     isUploading.value = false;
     uploadSuccess.value = false;
     uploadError.value = '';
-};
-const updateFilterWithQrValue = (qrValue) => {
-    filters.value['global'].value = qrValue;
 };
 const remarksMap = {
     perpetual: '1',
@@ -420,6 +415,43 @@ const handleKeydown = (event) => {
 const disableRightClick = (event) => {
     event.preventDefault();
 };
+// REPORTING
+const printFrame = ref(null);
+const openPrintPreview = () => {
+    if (!ict_report_data.value.length) {
+        alert('No data available for printing.');
+        return;
+    }
+    // -------------------------
+    // Example ICT report usage
+    // -------------------------
+    const tableRows = ict_report_data.value
+        .map((d) => `<tr>
+        <td>${d.roles ?? ''}</td>
+        <td>${d.equipment_title ?? ''}</td>
+        <td>${d.year_acquired ?? ''}</td>
+        <td>${d.shelf_life ?? ''}</td>
+        <td>${d.brand ?? ''}</td>
+        <td>${d.model ?? ''}</td>
+        <td>${d.processor ?? ''}</td>
+        <td>${d.ram_capacity ?? ''}</td>
+        <td>${d.installed_gpu ?? ''}</td>
+        <td>${d.range_category ?? ''}</td>
+        <td>${d.os_installed ?? ''}</td>
+        <td>${d.office_productivity ?? ''}</td>
+        <td>${d.serial_no ?? ''}</td>
+        <td>${d.property_no ?? ''}</td>
+        <td>${d.acct_person ?? ''}</td>
+        <td>${d.sex ?? ''}</td>
+        <td>${d.employment_title ?? ''}</td>
+        <td>${d.nature_work_title ?? ''}</td>
+        <td>${d.actual_user ?? ''}</td>
+        <td>${d.sex_2 ?? ''}</td>
+        <td>${d.remarks ?? ''}</td>
+        <td>${d.rict_code ?? ''}</td>
+      </tr>`)
+        .join('');
+};
 onMounted(() => {
     window.addEventListener('keydown', handleKeydown);
     window.addEventListener('contextmenu', disableRightClick);
@@ -456,27 +488,10 @@ const __VLS_7 = __VLS_6({
 __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
     ...{ class: "grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-5 2xl:gap-7.5 mb-4" },
 });
-const __VLS_9 = {}.DataStatsOne;
-/** @type {[typeof __VLS_components.DataStatsOne, ]} */ ;
-// @ts-ignore
-const __VLS_10 = __VLS_asFunctionalComponent(__VLS_9, new __VLS_9({
-    total_equipment: (__VLS_ctx.total_item),
-    total_serviceable_count: (__VLS_ctx.serviceable_count),
-    total_unserviceable_count: (__VLS_ctx.unserviceable_count),
-    outdated_equipment: (__VLS_ctx.outdated_count),
-    total_returned_count: (__VLS_ctx.invalid_data_count),
-}));
-const __VLS_11 = __VLS_10({
-    total_equipment: (__VLS_ctx.total_item),
-    total_serviceable_count: (__VLS_ctx.serviceable_count),
-    total_unserviceable_count: (__VLS_ctx.unserviceable_count),
-    outdated_equipment: (__VLS_ctx.outdated_count),
-    total_returned_count: (__VLS_ctx.invalid_data_count),
-}, ...__VLS_functionalComponentArgsRest(__VLS_10));
 if (__VLS_ctx.openReviewForm) {
     /** @type {[typeof modal_review_form, ]} */ ;
     // @ts-ignore
-    const __VLS_13 = __VLS_asFunctionalComponent(modal_review_form, new modal_review_form({
+    const __VLS_9 = __VLS_asFunctionalComponent(modal_review_form, new modal_review_form({
         ...{ 'onClose': {} },
         genForm: (__VLS_ctx.form),
         periForm: (__VLS_ctx.peripheral_form),
@@ -490,7 +505,7 @@ if (__VLS_ctx.openReviewForm) {
         open: (__VLS_ctx.openReviewForm),
         item_id: (__VLS_ctx.item),
     }));
-    const __VLS_14 = __VLS_13({
+    const __VLS_10 = __VLS_9({
         ...{ 'onClose': {} },
         genForm: (__VLS_ctx.form),
         periForm: (__VLS_ctx.peripheral_form),
@@ -503,112 +518,112 @@ if (__VLS_ctx.openReviewForm) {
         equipment: (__VLS_ctx.equipment_type),
         open: (__VLS_ctx.openReviewForm),
         item_id: (__VLS_ctx.item),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_13));
-    let __VLS_16;
-    let __VLS_17;
-    let __VLS_18;
-    const __VLS_19 = {
+    }, ...__VLS_functionalComponentArgsRest(__VLS_9));
+    let __VLS_12;
+    let __VLS_13;
+    let __VLS_14;
+    const __VLS_15 = {
         onClose: (...[$event]) => {
             if (!(__VLS_ctx.openReviewForm))
                 return;
             __VLS_ctx.openReviewForm = false;
         }
     };
-    var __VLS_15;
+    var __VLS_11;
 }
 if (__VLS_ctx.openReport) {
     /** @type {[typeof modal_export_report, ]} */ ;
     // @ts-ignore
-    const __VLS_20 = __VLS_asFunctionalComponent(modal_export_report, new modal_export_report({
+    const __VLS_16 = __VLS_asFunctionalComponent(modal_export_report, new modal_export_report({
         ...{ 'onClose': {} },
         open: (__VLS_ctx.openReport),
     }));
-    const __VLS_21 = __VLS_20({
+    const __VLS_17 = __VLS_16({
         ...{ 'onClose': {} },
         open: (__VLS_ctx.openReport),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_20));
-    let __VLS_23;
-    let __VLS_24;
-    let __VLS_25;
-    const __VLS_26 = {
+    }, ...__VLS_functionalComponentArgsRest(__VLS_16));
+    let __VLS_19;
+    let __VLS_20;
+    let __VLS_21;
+    const __VLS_22 = {
         onClose: (...[$event]) => {
             if (!(__VLS_ctx.openReport))
                 return;
             __VLS_ctx.openReport = false;
         }
     };
-    var __VLS_22;
+    var __VLS_18;
 }
 if (__VLS_ctx.openQR) {
     /** @type {[typeof modal_gen_qr, typeof modal_gen_qr, ]} */ ;
     // @ts-ignore
-    const __VLS_27 = __VLS_asFunctionalComponent(modal_gen_qr, new modal_gen_qr({
+    const __VLS_23 = __VLS_asFunctionalComponent(modal_gen_qr, new modal_gen_qr({
         ...{ 'onClose': {} },
         open: (__VLS_ctx.openQR),
     }));
-    const __VLS_28 = __VLS_27({
+    const __VLS_24 = __VLS_23({
         ...{ 'onClose': {} },
         open: (__VLS_ctx.openQR),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_27));
-    let __VLS_30;
-    let __VLS_31;
-    let __VLS_32;
-    const __VLS_33 = {
+    }, ...__VLS_functionalComponentArgsRest(__VLS_23));
+    let __VLS_26;
+    let __VLS_27;
+    let __VLS_28;
+    const __VLS_29 = {
         onClose: (...[$event]) => {
             if (!(__VLS_ctx.openQR))
                 return;
             __VLS_ctx.openQR = false;
         }
     };
-    var __VLS_29;
+    var __VLS_25;
 }
 if (__VLS_ctx.openAttachments) {
     /** @type {[typeof modal_attachments, typeof modal_attachments, ]} */ ;
     // @ts-ignore
-    const __VLS_34 = __VLS_asFunctionalComponent(modal_attachments, new modal_attachments({
+    const __VLS_30 = __VLS_asFunctionalComponent(modal_attachments, new modal_attachments({
         ...{ 'onClose': {} },
         open: (__VLS_ctx.openAttachments),
         id: (__VLS_ctx.item_id),
     }));
-    const __VLS_35 = __VLS_34({
+    const __VLS_31 = __VLS_30({
         ...{ 'onClose': {} },
         open: (__VLS_ctx.openAttachments),
         id: (__VLS_ctx.item_id),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_34));
-    let __VLS_37;
-    let __VLS_38;
-    let __VLS_39;
-    const __VLS_40 = {
+    }, ...__VLS_functionalComponentArgsRest(__VLS_30));
+    let __VLS_33;
+    let __VLS_34;
+    let __VLS_35;
+    const __VLS_36 = {
         onClose: (...[$event]) => {
             if (!(__VLS_ctx.openAttachments))
                 return;
             __VLS_ctx.openAttachments = false;
         }
     };
-    var __VLS_36;
+    var __VLS_32;
 }
 if (__VLS_ctx.selectQR) {
     /** @type {[typeof modal_print_qr, typeof modal_print_qr, ]} */ ;
     // @ts-ignore
-    const __VLS_41 = __VLS_asFunctionalComponent(modal_print_qr, new modal_print_qr({
+    const __VLS_37 = __VLS_asFunctionalComponent(modal_print_qr, new modal_print_qr({
         ...{ 'onClose': {} },
         open: (__VLS_ctx.selectQR),
     }));
-    const __VLS_42 = __VLS_41({
+    const __VLS_38 = __VLS_37({
         ...{ 'onClose': {} },
         open: (__VLS_ctx.selectQR),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_41));
-    let __VLS_44;
-    let __VLS_45;
-    let __VLS_46;
-    const __VLS_47 = {
+    }, ...__VLS_functionalComponentArgsRest(__VLS_37));
+    let __VLS_40;
+    let __VLS_41;
+    let __VLS_42;
+    const __VLS_43 = {
         onClose: (...[$event]) => {
             if (!(__VLS_ctx.selectQR))
                 return;
             __VLS_ctx.selectQR = false;
         }
     };
-    var __VLS_43;
+    var __VLS_39;
 }
 if (__VLS_ctx.imageUrl) {
     __VLS_asFunctionalElement(__VLS_intrinsicElements.img)({
@@ -742,16 +757,20 @@ if (__VLS_ctx.isModalOpen) {
         (__VLS_ctx.uploadError);
     }
 }
-const __VLS_48 = {}.DataTable;
+const __VLS_44 = {}.DataTable;
 /** @type {[typeof __VLS_components.DataTable, typeof __VLS_components.DataTable, ]} */ ;
 // @ts-ignore
-const __VLS_49 = __VLS_asFunctionalComponent(__VLS_48, new __VLS_48({
+const __VLS_45 = __VLS_asFunctionalComponent(__VLS_44, new __VLS_44({
+    ...{ 'onRowExpand': {} },
+    ...{ 'onRowCollapse': {} },
     size: "small",
+    expandedRows: (__VLS_ctx.expandedRows),
     filters: (__VLS_ctx.filters),
     value: (__VLS_ctx.customers),
     paginator: true,
+    stripedRows: true,
     showGridlines: true,
-    rows: (5),
+    rows: (10),
     dataKey: "id",
     filterDisplay: "menu",
     loading: (__VLS_ctx.loading),
@@ -773,13 +792,17 @@ const __VLS_49 = __VLS_asFunctionalComponent(__VLS_48, new __VLS_48({
         'status'
     ]),
 }));
-const __VLS_50 = __VLS_49({
+const __VLS_46 = __VLS_45({
+    ...{ 'onRowExpand': {} },
+    ...{ 'onRowCollapse': {} },
     size: "small",
+    expandedRows: (__VLS_ctx.expandedRows),
     filters: (__VLS_ctx.filters),
     value: (__VLS_ctx.customers),
     paginator: true,
+    stripedRows: true,
     showGridlines: true,
-    rows: (5),
+    rows: (10),
     dataKey: "id",
     filterDisplay: "menu",
     loading: (__VLS_ctx.loading),
@@ -800,43 +823,52 @@ const __VLS_50 = __VLS_49({
         'brand',
         'status'
     ]),
-}, ...__VLS_functionalComponentArgsRest(__VLS_49));
-__VLS_51.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_45));
+let __VLS_48;
+let __VLS_49;
+let __VLS_50;
+const __VLS_51 = {
+    onRowExpand: (__VLS_ctx.onRowExpand)
+};
+const __VLS_52 = {
+    onRowCollapse: (__VLS_ctx.onRowCollapse)
+};
+__VLS_47.slots.default;
 {
-    const { header: __VLS_thisSlot } = __VLS_51.slots;
+    const { header: __VLS_thisSlot } = __VLS_47.slots;
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "flex items-center gap-4 justify-start" },
     });
-    const __VLS_52 = {}.Button;
+    const __VLS_53 = {}.Button;
     /** @type {[typeof __VLS_components.Button, ]} */ ;
     // @ts-ignore
-    const __VLS_53 = __VLS_asFunctionalComponent(__VLS_52, new __VLS_52({
+    const __VLS_54 = __VLS_asFunctionalComponent(__VLS_53, new __VLS_53({
         ...{ 'onClick': {} },
         type: "button",
         icon: "pi pi-add",
         label: "Add",
         outlined: true,
     }));
-    const __VLS_54 = __VLS_53({
+    const __VLS_55 = __VLS_54({
         ...{ 'onClick': {} },
         type: "button",
         icon: "pi pi-add",
         label: "Add",
         outlined: true,
-    }, ...__VLS_functionalComponentArgsRest(__VLS_53));
-    let __VLS_56;
+    }, ...__VLS_functionalComponentArgsRest(__VLS_54));
     let __VLS_57;
     let __VLS_58;
-    const __VLS_59 = {
+    let __VLS_59;
+    const __VLS_60 = {
         onClick: (...[$event]) => {
             __VLS_ctx.addMore();
         }
     };
-    var __VLS_55;
-    const __VLS_60 = {}.Button;
+    var __VLS_56;
+    const __VLS_61 = {}.Button;
     /** @type {[typeof __VLS_components.Button, ]} */ ;
     // @ts-ignore
-    const __VLS_61 = __VLS_asFunctionalComponent(__VLS_60, new __VLS_60({
+    const __VLS_62 = __VLS_asFunctionalComponent(__VLS_61, new __VLS_61({
         ...{ 'onClick': {} },
         type: "button",
         icon: "pi pi-file-export",
@@ -844,107 +876,133 @@ __VLS_51.slots.default;
         outlined: true,
         ...{ style: {} },
     }));
-    const __VLS_62 = __VLS_61({
+    const __VLS_63 = __VLS_62({
         ...{ 'onClick': {} },
         type: "button",
         icon: "pi pi-file-export",
         label: "Export",
         outlined: true,
         ...{ style: {} },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_61));
-    let __VLS_64;
+    }, ...__VLS_functionalComponentArgsRest(__VLS_62));
     let __VLS_65;
     let __VLS_66;
-    const __VLS_67 = {
+    let __VLS_67;
+    const __VLS_68 = {
         onClick: (...[$event]) => {
             __VLS_ctx.openReport = true;
         }
     };
-    var __VLS_63;
-    const __VLS_68 = {}.Button;
+    var __VLS_64;
+    const __VLS_69 = {}.Button;
     /** @type {[typeof __VLS_components.Button, ]} */ ;
     // @ts-ignore
-    const __VLS_69 = __VLS_asFunctionalComponent(__VLS_68, new __VLS_68({
+    const __VLS_70 = __VLS_asFunctionalComponent(__VLS_69, new __VLS_69({
         ...{ 'onClick': {} },
         type: "button",
         icon: "pi pi-refresh",
         label: "Refresh",
         outlined: true,
     }));
-    const __VLS_70 = __VLS_69({
+    const __VLS_71 = __VLS_70({
         ...{ 'onClick': {} },
         type: "button",
         icon: "pi pi-refresh",
         label: "Refresh",
         outlined: true,
-    }, ...__VLS_functionalComponentArgsRest(__VLS_69));
-    let __VLS_72;
+    }, ...__VLS_functionalComponentArgsRest(__VLS_70));
     let __VLS_73;
     let __VLS_74;
-    const __VLS_75 = {
+    let __VLS_75;
+    const __VLS_76 = {
         onClick: (...[$event]) => {
             __VLS_ctx.fetchData(0);
         }
     };
-    var __VLS_71;
-    const __VLS_76 = {}.Button;
+    var __VLS_72;
+    const __VLS_77 = {}.Button;
     /** @type {[typeof __VLS_components.Button, ]} */ ;
     // @ts-ignore
-    const __VLS_77 = __VLS_asFunctionalComponent(__VLS_76, new __VLS_76({
+    const __VLS_78 = __VLS_asFunctionalComponent(__VLS_77, new __VLS_77({
         ...{ 'onClick': {} },
         severity: "danger",
         icon: "pi pi-qrcode",
         label: "Generate QR Code [F3]",
     }));
-    const __VLS_78 = __VLS_77({
+    const __VLS_79 = __VLS_78({
         ...{ 'onClick': {} },
         severity: "danger",
         icon: "pi pi-qrcode",
         label: "Generate QR Code [F3]",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_77));
-    let __VLS_80;
+    }, ...__VLS_functionalComponentArgsRest(__VLS_78));
     let __VLS_81;
     let __VLS_82;
-    const __VLS_83 = {
+    let __VLS_83;
+    const __VLS_84 = {
         onClick: (...[$event]) => {
             __VLS_ctx.openQR = true;
         }
     };
-    var __VLS_79;
-    const __VLS_84 = {}.Select;
-    /** @type {[typeof __VLS_components.Select, ]} */ ;
-    // @ts-ignore
-    const __VLS_85 = __VLS_asFunctionalComponent(__VLS_84, new __VLS_84({
-        ...{ 'onUpdate:modelValue': {} },
-        filter: true,
-        modelValue: (__VLS_ctx.peripheral_form.mon1division2),
-        options: (__VLS_ctx.division_opts),
-        optionValue: "id",
-        optionLabel: "name",
-        placeholder: "Division",
-        ...{ class: "md:w-50 pull-right" },
-    }));
-    const __VLS_86 = __VLS_85({
-        ...{ 'onUpdate:modelValue': {} },
-        filter: true,
-        modelValue: (__VLS_ctx.peripheral_form.mon1division2),
-        options: (__VLS_ctx.division_opts),
-        optionValue: "id",
-        optionLabel: "name",
-        placeholder: "Division",
-        ...{ class: "md:w-50 pull-right" },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_85));
-    let __VLS_88;
-    let __VLS_89;
-    let __VLS_90;
-    const __VLS_91 = {
-        'onUpdate:modelValue': (__VLS_ctx.filterByOffice)
-    };
-    var __VLS_87;
-    const __VLS_92 = {}.Button;
+    var __VLS_80;
+    const __VLS_85 = {}.Button;
     /** @type {[typeof __VLS_components.Button, ]} */ ;
     // @ts-ignore
-    const __VLS_93 = __VLS_asFunctionalComponent(__VLS_92, new __VLS_92({
+    const __VLS_86 = __VLS_asFunctionalComponent(__VLS_85, new __VLS_85({
+        ...{ 'onClick': {} },
+        severity: "info",
+        type: "button",
+        icon: "pi pi-print",
+        label: "Print Preview",
+    }));
+    const __VLS_87 = __VLS_86({
+        ...{ 'onClick': {} },
+        severity: "info",
+        type: "button",
+        icon: "pi pi-print",
+        label: "Print Preview",
+    }, ...__VLS_functionalComponentArgsRest(__VLS_86));
+    let __VLS_89;
+    let __VLS_90;
+    let __VLS_91;
+    const __VLS_92 = {
+        onClick: (...[$event]) => {
+            __VLS_ctx.openPrintPreview();
+        }
+    };
+    var __VLS_88;
+    const __VLS_93 = {}.Select;
+    /** @type {[typeof __VLS_components.Select, ]} */ ;
+    // @ts-ignore
+    const __VLS_94 = __VLS_asFunctionalComponent(__VLS_93, new __VLS_93({
+        ...{ 'onUpdate:modelValue': {} },
+        filter: true,
+        modelValue: (__VLS_ctx.peripheral_form.mon1division2),
+        options: (__VLS_ctx.division_opts),
+        optionValue: "id",
+        optionLabel: "name",
+        placeholder: "Division",
+        ...{ class: "md:w-50 pull-right" },
+    }));
+    const __VLS_95 = __VLS_94({
+        ...{ 'onUpdate:modelValue': {} },
+        filter: true,
+        modelValue: (__VLS_ctx.peripheral_form.mon1division2),
+        options: (__VLS_ctx.division_opts),
+        optionValue: "id",
+        optionLabel: "name",
+        placeholder: "Division",
+        ...{ class: "md:w-50 pull-right" },
+    }, ...__VLS_functionalComponentArgsRest(__VLS_94));
+    let __VLS_97;
+    let __VLS_98;
+    let __VLS_99;
+    const __VLS_100 = {
+        'onUpdate:modelValue': (__VLS_ctx.filterByOffice)
+    };
+    var __VLS_96;
+    const __VLS_101 = {}.Button;
+    /** @type {[typeof __VLS_components.Button, ]} */ ;
+    // @ts-ignore
+    const __VLS_102 = __VLS_asFunctionalComponent(__VLS_101, new __VLS_101({
         ...{ 'onClick': {} },
         ...{ style: {} },
         severity: "info",
@@ -952,828 +1010,623 @@ __VLS_51.slots.default;
         icon: "pi pi-filter-slash",
         label: "Clear",
     }));
-    const __VLS_94 = __VLS_93({
+    const __VLS_103 = __VLS_102({
         ...{ 'onClick': {} },
         ...{ style: {} },
         severity: "info",
         type: "button",
         icon: "pi pi-filter-slash",
         label: "Clear",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_93));
-    let __VLS_96;
-    let __VLS_97;
-    let __VLS_98;
-    const __VLS_99 = {
+    }, ...__VLS_functionalComponentArgsRest(__VLS_102));
+    let __VLS_105;
+    let __VLS_106;
+    let __VLS_107;
+    const __VLS_108 = {
         onClick: (...[$event]) => {
             __VLS_ctx.clearFilter();
         }
     };
-    var __VLS_95;
+    var __VLS_104;
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "ml-auto flex items-center" },
     });
-    const __VLS_100 = {}.IconField;
+    const __VLS_109 = {}.IconField;
     /** @type {[typeof __VLS_components.IconField, typeof __VLS_components.IconField, ]} */ ;
     // @ts-ignore
-    const __VLS_101 = __VLS_asFunctionalComponent(__VLS_100, new __VLS_100({
+    const __VLS_110 = __VLS_asFunctionalComponent(__VLS_109, new __VLS_109({
         ...{ class: "flex items-center" },
     }));
-    const __VLS_102 = __VLS_101({
+    const __VLS_111 = __VLS_110({
         ...{ class: "flex items-center" },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_101));
-    __VLS_103.slots.default;
-    const __VLS_104 = {}.InputIcon;
+    }, ...__VLS_functionalComponentArgsRest(__VLS_110));
+    __VLS_112.slots.default;
+    const __VLS_113 = {}.InputIcon;
     /** @type {[typeof __VLS_components.InputIcon, typeof __VLS_components.InputIcon, ]} */ ;
     // @ts-ignore
-    const __VLS_105 = __VLS_asFunctionalComponent(__VLS_104, new __VLS_104({}));
-    const __VLS_106 = __VLS_105({}, ...__VLS_functionalComponentArgsRest(__VLS_105));
-    __VLS_107.slots.default;
+    const __VLS_114 = __VLS_asFunctionalComponent(__VLS_113, new __VLS_113({}));
+    const __VLS_115 = __VLS_114({}, ...__VLS_functionalComponentArgsRest(__VLS_114));
+    __VLS_116.slots.default;
     __VLS_asFunctionalElement(__VLS_intrinsicElements.i)({
         ...{ class: "pi pi-search" },
     });
-    var __VLS_107;
-    const __VLS_108 = {}.InputText;
+    var __VLS_116;
+    const __VLS_117 = {}.InputText;
     /** @type {[typeof __VLS_components.InputText, ]} */ ;
     // @ts-ignore
-    const __VLS_109 = __VLS_asFunctionalComponent(__VLS_108, new __VLS_108({
+    const __VLS_118 = __VLS_asFunctionalComponent(__VLS_117, new __VLS_117({
         modelValue: (__VLS_ctx.filters['global'].value),
         placeholder: "Keyword Search",
     }));
-    const __VLS_110 = __VLS_109({
+    const __VLS_119 = __VLS_118({
         modelValue: (__VLS_ctx.filters['global'].value),
         placeholder: "Keyword Search",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_109));
-    var __VLS_103;
+    }, ...__VLS_functionalComponentArgsRest(__VLS_118));
+    var __VLS_112;
 }
-const __VLS_112 = {}.Column;
-/** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
+const __VLS_121 = {}.Column;
+/** @type {[typeof __VLS_components.Column, ]} */ ;
 // @ts-ignore
-const __VLS_113 = __VLS_asFunctionalComponent(__VLS_112, new __VLS_112({
-    field: "id",
-    header: "Action",
+const __VLS_122 = __VLS_asFunctionalComponent(__VLS_121, new __VLS_121({
+    expander: true,
     ...{ style: {} },
 }));
-const __VLS_114 = __VLS_113({
+const __VLS_123 = __VLS_122({
+    expander: true,
+    ...{ style: {} },
+}, ...__VLS_functionalComponentArgsRest(__VLS_122));
+const __VLS_125 = {}.Column;
+/** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
+// @ts-ignore
+const __VLS_126 = __VLS_asFunctionalComponent(__VLS_125, new __VLS_125({
     field: "id",
     header: "Action",
-    ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_113));
-__VLS_115.slots.default;
+}));
+const __VLS_127 = __VLS_126({
+    field: "id",
+    header: "Action",
+}, ...__VLS_functionalComponentArgsRest(__VLS_126));
+__VLS_128.slots.default;
 {
-    const { body: __VLS_thisSlot } = __VLS_115.slots;
+    const { body: __VLS_thisSlot } = __VLS_128.slots;
     const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "card flex justify-center" },
     });
-    const __VLS_116 = {}.Button;
+    const __VLS_129 = {}.Button;
     /** @type {[typeof __VLS_components.Button, ]} */ ;
     // @ts-ignore
-    const __VLS_117 = __VLS_asFunctionalComponent(__VLS_116, new __VLS_116({
+    const __VLS_130 = __VLS_asFunctionalComponent(__VLS_129, new __VLS_129({
         ...{ 'onClick': {} },
         icon: "pi pi-eye",
         size: "small",
-        ...{ class: "text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" },
+        ...{ class: "text-white mr-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" },
     }));
-    const __VLS_118 = __VLS_117({
+    const __VLS_131 = __VLS_130({
         ...{ 'onClick': {} },
         icon: "pi pi-eye",
         size: "small",
-        ...{ class: "text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_117));
-    let __VLS_120;
-    let __VLS_121;
-    let __VLS_122;
-    const __VLS_123 = {
+        ...{ class: "text-white mr-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" },
+    }, ...__VLS_functionalComponentArgsRest(__VLS_130));
+    let __VLS_133;
+    let __VLS_134;
+    let __VLS_135;
+    const __VLS_136 = {
         onClick: (...[$event]) => {
             __VLS_ctx.retrieveDataviaAPI(data.id);
         }
     };
-    var __VLS_119;
-    const __VLS_124 = {}.Button;
+    var __VLS_132;
+    const __VLS_137 = {}.Button;
     /** @type {[typeof __VLS_components.Button, ]} */ ;
     // @ts-ignore
-    const __VLS_125 = __VLS_asFunctionalComponent(__VLS_124, new __VLS_124({
+    const __VLS_138 = __VLS_asFunctionalComponent(__VLS_137, new __VLS_137({
         ...{ 'onClick': {} },
         icon: "pi pi-file-edit",
         size: "small",
         ...{ class: "text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" },
     }));
-    const __VLS_126 = __VLS_125({
+    const __VLS_139 = __VLS_138({
         ...{ 'onClick': {} },
         icon: "pi pi-file-edit",
         size: "small",
         ...{ class: "text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_125));
-    let __VLS_128;
-    let __VLS_129;
-    let __VLS_130;
-    const __VLS_131 = {
+    }, ...__VLS_functionalComponentArgsRest(__VLS_138));
+    let __VLS_141;
+    let __VLS_142;
+    let __VLS_143;
+    const __VLS_144 = {
         onClick: (...[$event]) => {
             __VLS_ctx.viewRecord(data.id);
         }
     };
-    var __VLS_127;
+    var __VLS_140;
     if (!data.file_id) {
-        const __VLS_132 = {}.Button;
+        const __VLS_145 = {}.Button;
         /** @type {[typeof __VLS_components.Button, ]} */ ;
         // @ts-ignore
-        const __VLS_133 = __VLS_asFunctionalComponent(__VLS_132, new __VLS_132({
+        const __VLS_146 = __VLS_asFunctionalComponent(__VLS_145, new __VLS_145({
             ...{ 'onClick': {} },
             icon: "pi pi-cloud-upload",
             size: "small",
             ...{ class: "text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" },
         }));
-        const __VLS_134 = __VLS_133({
+        const __VLS_147 = __VLS_146({
             ...{ 'onClick': {} },
             icon: "pi pi-cloud-upload",
             size: "small",
             ...{ class: "text-white mr-2 bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" },
-        }, ...__VLS_functionalComponentArgsRest(__VLS_133));
-        let __VLS_136;
-        let __VLS_137;
-        let __VLS_138;
-        const __VLS_139 = {
+        }, ...__VLS_functionalComponentArgsRest(__VLS_146));
+        let __VLS_149;
+        let __VLS_150;
+        let __VLS_151;
+        const __VLS_152 = {
             onClick: (...[$event]) => {
                 if (!(!data.file_id))
                     return;
                 __VLS_ctx.openModal(data.id);
             }
         };
-        var __VLS_135;
+        var __VLS_148;
     }
 }
-var __VLS_115;
-const __VLS_140 = {}.Column;
+var __VLS_128;
+const __VLS_153 = {}.Column;
 /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
 // @ts-ignore
-const __VLS_141 = __VLS_asFunctionalComponent(__VLS_140, new __VLS_140({
+const __VLS_154 = __VLS_asFunctionalComponent(__VLS_153, new __VLS_153({
     field: "control_no",
     header: "Equipment Type",
     ...{ style: {} },
 }));
-const __VLS_142 = __VLS_141({
+const __VLS_155 = __VLS_154({
     field: "control_no",
     header: "Equipment Type",
     ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_141));
-__VLS_143.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_154));
+__VLS_156.slots.default;
 {
-    const { body: __VLS_thisSlot } = __VLS_143.slots;
+    const { body: __VLS_thisSlot } = __VLS_156.slots;
     const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_144 = {}.Tag;
+    const __VLS_157 = {}.Tag;
     /** @type {[typeof __VLS_components.Tag, ]} */ ;
     // @ts-ignore
-    const __VLS_145 = __VLS_asFunctionalComponent(__VLS_144, new __VLS_144({
+    const __VLS_158 = __VLS_asFunctionalComponent(__VLS_157, new __VLS_157({
         value: (data.equipment_title),
         severity: "success",
         ...{ class: "text-center" },
     }));
-    const __VLS_146 = __VLS_145({
+    const __VLS_159 = __VLS_158({
         value: (data.equipment_title),
         severity: "success",
         ...{ class: "text-center" },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_145));
+    }, ...__VLS_functionalComponentArgsRest(__VLS_158));
     __VLS_asFunctionalElement(__VLS_intrinsicElements.br)({});
     (data.control_no);
 }
-{
-    const { filter: __VLS_thisSlot } = __VLS_143.slots;
-    const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_148 = {}.InputText;
-    /** @type {[typeof __VLS_components.InputText, ]} */ ;
-    // @ts-ignore
-    const __VLS_149 = __VLS_asFunctionalComponent(__VLS_148, new __VLS_148({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }));
-    const __VLS_150 = __VLS_149({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_149));
-}
-var __VLS_143;
-const __VLS_152 = {}.Column;
+var __VLS_156;
+const __VLS_161 = {}.Column;
 /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
 // @ts-ignore
-const __VLS_153 = __VLS_asFunctionalComponent(__VLS_152, new __VLS_152({
+const __VLS_162 = __VLS_asFunctionalComponent(__VLS_161, new __VLS_161({
     field: "attachments",
     header: "Attachments",
     ...{ style: {} },
 }));
-const __VLS_154 = __VLS_153({
+const __VLS_163 = __VLS_162({
     field: "attachments",
     header: "Attachments",
     ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_153));
-__VLS_155.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_162));
+__VLS_164.slots.default;
 {
-    const { body: __VLS_thisSlot } = __VLS_155.slots;
+    const { body: __VLS_thisSlot } = __VLS_164.slots;
     const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
     if (data.file_id) {
         __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({});
-        const __VLS_156 = {}.Button;
+        const __VLS_165 = {}.Button;
         /** @type {[typeof __VLS_components.Button, typeof __VLS_components.Button, ]} */ ;
         // @ts-ignore
-        const __VLS_157 = __VLS_asFunctionalComponent(__VLS_156, new __VLS_156({
+        const __VLS_166 = __VLS_asFunctionalComponent(__VLS_165, new __VLS_165({
             ...{ 'onClick': {} },
             rel: "noopener noreferrer",
             ...{ style: {} },
             ...{ class: "text-white mr-2 border hover:opacity-90 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center" },
             href: ('https://drive.google.com/file/d/' + data.file_id + '/view?usp=drive_link'),
         }));
-        const __VLS_158 = __VLS_157({
+        const __VLS_167 = __VLS_166({
             ...{ 'onClick': {} },
             rel: "noopener noreferrer",
             ...{ style: {} },
             ...{ class: "text-white mr-2 border hover:opacity-90 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center" },
             href: ('https://drive.google.com/file/d/' + data.file_id + '/view?usp=drive_link'),
-        }, ...__VLS_functionalComponentArgsRest(__VLS_157));
-        let __VLS_160;
-        let __VLS_161;
-        let __VLS_162;
-        const __VLS_163 = {
+        }, ...__VLS_functionalComponentArgsRest(__VLS_166));
+        let __VLS_169;
+        let __VLS_170;
+        let __VLS_171;
+        const __VLS_172 = {
             onClick: (...[$event]) => {
                 if (!(data.file_id))
                     return;
                 __VLS_ctx.openFile(data.id);
             }
         };
-        __VLS_159.slots.default;
+        __VLS_168.slots.default;
         __VLS_asFunctionalElement(__VLS_intrinsicElements.i, __VLS_intrinsicElements.i)({
             ...{ class: "pi pi-external-link mr-2" },
         });
-        var __VLS_159;
+        var __VLS_168;
     }
     else {
         __VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
     }
 }
-var __VLS_155;
-const __VLS_164 = {}.Column;
+var __VLS_164;
+const __VLS_173 = {}.Column;
 /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
 // @ts-ignore
-const __VLS_165 = __VLS_asFunctionalComponent(__VLS_164, new __VLS_164({
+const __VLS_174 = __VLS_asFunctionalComponent(__VLS_173, new __VLS_173({
     field: "qr_code",
     header: "ICT Equipment QR Code",
     ...{ style: {} },
 }));
-const __VLS_166 = __VLS_165({
+const __VLS_175 = __VLS_174({
     field: "qr_code",
     header: "ICT Equipment QR Code",
     ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_165));
-__VLS_167.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_174));
+__VLS_176.slots.default;
 {
-    const { body: __VLS_thisSlot } = __VLS_167.slots;
+    const { body: __VLS_thisSlot } = __VLS_176.slots;
     const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "flex justify-center items-center h-24" },
     });
     if (data.qr_code && data.qr_code.trim() !== '') {
-        const __VLS_168 = {}.QrcodeVue;
+        const __VLS_177 = {}.QrcodeVue;
         /** @type {[typeof __VLS_components.QrcodeVue, ]} */ ;
         // @ts-ignore
-        const __VLS_169 = __VLS_asFunctionalComponent(__VLS_168, new __VLS_168({
+        const __VLS_178 = __VLS_asFunctionalComponent(__VLS_177, new __VLS_177({
             value: (data.qr_code),
             size: (50),
         }));
-        const __VLS_170 = __VLS_169({
+        const __VLS_179 = __VLS_178({
             value: (data.qr_code),
             size: (50),
-        }, ...__VLS_functionalComponentArgsRest(__VLS_169));
+        }, ...__VLS_functionalComponentArgsRest(__VLS_178));
     }
     (data.qr_code);
 }
-{
-    const { filter: __VLS_thisSlot } = __VLS_167.slots;
-    const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_172 = {}.InputText;
-    /** @type {[typeof __VLS_components.InputText, ]} */ ;
-    // @ts-ignore
-    const __VLS_173 = __VLS_asFunctionalComponent(__VLS_172, new __VLS_172({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }));
-    const __VLS_174 = __VLS_173({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_173));
-}
-var __VLS_167;
-const __VLS_176 = {}.Column;
+var __VLS_176;
+const __VLS_181 = {}.Column;
 /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
 // @ts-ignore
-const __VLS_177 = __VLS_asFunctionalComponent(__VLS_176, new __VLS_176({
+const __VLS_182 = __VLS_asFunctionalComponent(__VLS_181, new __VLS_181({
     field: "mon_qr_code1",
     header: "Primary Monitor QR Code",
     ...{ style: {} },
 }));
-const __VLS_178 = __VLS_177({
+const __VLS_183 = __VLS_182({
     field: "mon_qr_code1",
     header: "Primary Monitor QR Code",
     ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_177));
-__VLS_179.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_182));
+__VLS_184.slots.default;
 {
-    const { body: __VLS_thisSlot } = __VLS_179.slots;
+    const { body: __VLS_thisSlot } = __VLS_184.slots;
     const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "flex justify-center items-center h-24" },
     });
     if (data.mon_qr_code1 && data.mon_qr_code1.trim() !== '') {
-        const __VLS_180 = {}.QrcodeVue;
+        const __VLS_185 = {}.QrcodeVue;
         /** @type {[typeof __VLS_components.QrcodeVue, ]} */ ;
         // @ts-ignore
-        const __VLS_181 = __VLS_asFunctionalComponent(__VLS_180, new __VLS_180({
+        const __VLS_186 = __VLS_asFunctionalComponent(__VLS_185, new __VLS_185({
             value: (data.mon_qr_code1),
             size: (50),
         }));
-        const __VLS_182 = __VLS_181({
+        const __VLS_187 = __VLS_186({
             value: (data.mon_qr_code1),
             size: (50),
-        }, ...__VLS_functionalComponentArgsRest(__VLS_181));
+        }, ...__VLS_functionalComponentArgsRest(__VLS_186));
     }
     (data.mon_qr_code1);
 }
-{
-    const { filter: __VLS_thisSlot } = __VLS_179.slots;
-    const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_184 = {}.InputText;
-    /** @type {[typeof __VLS_components.InputText, ]} */ ;
-    // @ts-ignore
-    const __VLS_185 = __VLS_asFunctionalComponent(__VLS_184, new __VLS_184({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }));
-    const __VLS_186 = __VLS_185({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_185));
-}
-var __VLS_179;
-const __VLS_188 = {}.Column;
+var __VLS_184;
+const __VLS_189 = {}.Column;
 /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
 // @ts-ignore
-const __VLS_189 = __VLS_asFunctionalComponent(__VLS_188, new __VLS_188({
+const __VLS_190 = __VLS_asFunctionalComponent(__VLS_189, new __VLS_189({
     field: "mon_qr_code2",
     header: "Secondary Monitor QR Code",
     ...{ style: {} },
 }));
-const __VLS_190 = __VLS_189({
+const __VLS_191 = __VLS_190({
     field: "mon_qr_code2",
     header: "Secondary Monitor QR Code",
     ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_189));
-__VLS_191.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_190));
+__VLS_192.slots.default;
 {
-    const { body: __VLS_thisSlot } = __VLS_191.slots;
+    const { body: __VLS_thisSlot } = __VLS_192.slots;
     const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: "flex justify-center items-center h-24" },
     });
     if (data.mon_qr_code2 && data.mon_qr_code2.trim() !== '') {
-        const __VLS_192 = {}.QrcodeVue;
+        const __VLS_193 = {}.QrcodeVue;
         /** @type {[typeof __VLS_components.QrcodeVue, ]} */ ;
         // @ts-ignore
-        const __VLS_193 = __VLS_asFunctionalComponent(__VLS_192, new __VLS_192({
+        const __VLS_194 = __VLS_asFunctionalComponent(__VLS_193, new __VLS_193({
             value: (data.mon_qr_code2),
             size: (50),
         }));
-        const __VLS_194 = __VLS_193({
+        const __VLS_195 = __VLS_194({
             value: (data.mon_qr_code2),
             size: (50),
-        }, ...__VLS_functionalComponentArgsRest(__VLS_193));
+        }, ...__VLS_functionalComponentArgsRest(__VLS_194));
     }
     (data.mon_qr_code2);
 }
-{
-    const { filter: __VLS_thisSlot } = __VLS_191.slots;
-    const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_196 = {}.InputText;
-    /** @type {[typeof __VLS_components.InputText, ]} */ ;
-    // @ts-ignore
-    const __VLS_197 = __VLS_asFunctionalComponent(__VLS_196, new __VLS_196({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }));
-    const __VLS_198 = __VLS_197({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_197));
-}
-var __VLS_191;
-const __VLS_200 = {}.Column;
+var __VLS_192;
+const __VLS_197 = {}.Column;
 /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
 // @ts-ignore
-const __VLS_201 = __VLS_asFunctionalComponent(__VLS_200, new __VLS_200({
+const __VLS_198 = __VLS_asFunctionalComponent(__VLS_197, new __VLS_197({
     field: "ups_qr_code",
     header: "UPS QR Code",
     ...{ style: {} },
 }));
-const __VLS_202 = __VLS_201({
+const __VLS_199 = __VLS_198({
     field: "ups_qr_code",
     header: "UPS QR Code",
     ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_201));
-__VLS_203.slots.default;
+}, ...__VLS_functionalComponentArgsRest(__VLS_198));
+__VLS_200.slots.default;
 {
-    const { body: __VLS_thisSlot } = __VLS_203.slots;
+    const { body: __VLS_thisSlot } = __VLS_200.slots;
     const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
     if (data.ups_qr_code && data.ups_qr_code.trim() !== '') {
-        const __VLS_204 = {}.QrcodeVue;
+        const __VLS_201 = {}.QrcodeVue;
         /** @type {[typeof __VLS_components.QrcodeVue, ]} */ ;
         // @ts-ignore
-        const __VLS_205 = __VLS_asFunctionalComponent(__VLS_204, new __VLS_204({
+        const __VLS_202 = __VLS_asFunctionalComponent(__VLS_201, new __VLS_201({
             value: (data.ups_qr_code),
             size: (50),
             ...{ class: "text-center" },
         }));
-        const __VLS_206 = __VLS_205({
+        const __VLS_203 = __VLS_202({
             value: (data.ups_qr_code),
             size: (50),
             ...{ class: "text-center" },
-        }, ...__VLS_functionalComponentArgsRest(__VLS_205));
+        }, ...__VLS_functionalComponentArgsRest(__VLS_202));
     }
     (data.ups_qr_code);
 }
+var __VLS_200;
 {
-    const { filter: __VLS_thisSlot } = __VLS_203.slots;
-    const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_208 = {}.InputText;
-    /** @type {[typeof __VLS_components.InputText, ]} */ ;
-    // @ts-ignore
-    const __VLS_209 = __VLS_asFunctionalComponent(__VLS_208, new __VLS_208({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }));
-    const __VLS_210 = __VLS_209({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_209));
-}
-var __VLS_203;
-const __VLS_212 = {}.Column;
-/** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
-// @ts-ignore
-const __VLS_213 = __VLS_asFunctionalComponent(__VLS_212, new __VLS_212({
-    header: "Status",
-    field: "status",
-    filterMenuStyle: ({ width: '14rem' }),
-    ...{ style: {} },
-}));
-const __VLS_214 = __VLS_213({
-    header: "Status",
-    field: "status",
-    filterMenuStyle: ({ width: '14rem' }),
-    ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_213));
-__VLS_215.slots.default;
-{
-    const { body: __VLS_thisSlot } = __VLS_215.slots;
-    const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_216 = {}.Tag;
-    /** @type {[typeof __VLS_components.Tag, ]} */ ;
-    // @ts-ignore
-    const __VLS_217 = __VLS_asFunctionalComponent(__VLS_216, new __VLS_216({
-        value: (data.status),
-        severity: (__VLS_ctx.getSeverity(data.status)),
-    }));
-    const __VLS_218 = __VLS_217({
-        value: (data.status),
-        severity: (__VLS_ctx.getSeverity(data.status)),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_217));
-}
-{
-    const { filter: __VLS_thisSlot } = __VLS_215.slots;
-    const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_220 = {}.Select;
-    /** @type {[typeof __VLS_components.Select, typeof __VLS_components.Select, ]} */ ;
-    // @ts-ignore
-    const __VLS_221 = __VLS_asFunctionalComponent(__VLS_220, new __VLS_220({
-        modelValue: (filterModel.value),
-        options: (__VLS_ctx.statuses),
-        placeholder: "Select One",
-        showClear: true,
-    }));
-    const __VLS_222 = __VLS_221({
-        modelValue: (filterModel.value),
-        options: (__VLS_ctx.statuses),
-        placeholder: "Select One",
-        showClear: true,
-    }, ...__VLS_functionalComponentArgsRest(__VLS_221));
-    __VLS_223.slots.default;
-    {
-        const { option: __VLS_thisSlot } = __VLS_223.slots;
-        const [slotProps] = __VLS_getSlotParams(__VLS_thisSlot);
-        const __VLS_224 = {}.Tag;
-        /** @type {[typeof __VLS_components.Tag, ]} */ ;
-        // @ts-ignore
-        const __VLS_225 = __VLS_asFunctionalComponent(__VLS_224, new __VLS_224({
-            value: (slotProps.option),
-            severity: (__VLS_ctx.getSeverity(slotProps.option)),
-        }));
-        const __VLS_226 = __VLS_225({
-            value: (slotProps.option),
-            severity: (__VLS_ctx.getSeverity(slotProps.option)),
-        }, ...__VLS_functionalComponentArgsRest(__VLS_225));
-    }
-    var __VLS_223;
-}
-var __VLS_215;
-const __VLS_228 = {}.Column;
-/** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
-// @ts-ignore
-const __VLS_229 = __VLS_asFunctionalComponent(__VLS_228, new __VLS_228({
-    field: "brand",
-    header: "Brand & Model",
-    ...{ style: {} },
-}));
-const __VLS_230 = __VLS_229({
-    field: "brand",
-    header: "Brand & Model",
-    ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_229));
-__VLS_231.slots.default;
-{
-    const { body: __VLS_thisSlot } = __VLS_231.slots;
-    const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
-    (data.brand);
-}
-{
-    const { filter: __VLS_thisSlot } = __VLS_231.slots;
-    const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_232 = {}.InputText;
-    /** @type {[typeof __VLS_components.InputText, ]} */ ;
-    // @ts-ignore
-    const __VLS_233 = __VLS_asFunctionalComponent(__VLS_232, new __VLS_232({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }));
-    const __VLS_234 = __VLS_233({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_233));
-}
-var __VLS_231;
-const __VLS_236 = {}.Column;
-/** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
-// @ts-ignore
-const __VLS_237 = __VLS_asFunctionalComponent(__VLS_236, new __VLS_236({
-    field: "serial_no",
-    header: "Serial No.",
-    ...{ style: {} },
-}));
-const __VLS_238 = __VLS_237({
-    field: "serial_no",
-    header: "Serial No.",
-    ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_237));
-__VLS_239.slots.default;
-{
-    const { body: __VLS_thisSlot } = __VLS_239.slots;
-    const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
-    (data.serial_no);
-}
-{
-    const { filter: __VLS_thisSlot } = __VLS_239.slots;
-    const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_240 = {}.InputText;
-    /** @type {[typeof __VLS_components.InputText, ]} */ ;
-    // @ts-ignore
-    const __VLS_241 = __VLS_asFunctionalComponent(__VLS_240, new __VLS_240({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }));
-    const __VLS_242 = __VLS_241({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_241));
-}
-var __VLS_239;
-const __VLS_244 = {}.Column;
-/** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
-// @ts-ignore
-const __VLS_245 = __VLS_asFunctionalComponent(__VLS_244, new __VLS_244({
-    field: "acct_person",
-    header: "Accountable Person",
-    ...{ style: {} },
-}));
-const __VLS_246 = __VLS_245({
-    field: "acct_person",
-    header: "Accountable Person",
-    ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_245));
-__VLS_247.slots.default;
-{
-    const { body: __VLS_thisSlot } = __VLS_247.slots;
-    const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
-    (data.acct_person);
-}
-{
-    const { filter: __VLS_thisSlot } = __VLS_247.slots;
-    const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_248 = {}.InputText;
-    /** @type {[typeof __VLS_components.InputText, ]} */ ;
-    // @ts-ignore
-    const __VLS_249 = __VLS_asFunctionalComponent(__VLS_248, new __VLS_248({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }));
-    const __VLS_250 = __VLS_249({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_249));
-}
-var __VLS_247;
-const __VLS_252 = {}.Column;
-/** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
-// @ts-ignore
-const __VLS_253 = __VLS_asFunctionalComponent(__VLS_252, new __VLS_252({
-    field: "actual_user",
-    header: "Actual User",
-    ...{ style: {} },
-}));
-const __VLS_254 = __VLS_253({
-    field: "actual_user",
-    header: "Actual User",
-    ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_253));
-__VLS_255.slots.default;
-{
-    const { body: __VLS_thisSlot } = __VLS_255.slots;
-    const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
-    (data.actual_user);
-}
-{
-    const { filter: __VLS_thisSlot } = __VLS_255.slots;
-    const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_256 = {}.InputText;
-    /** @type {[typeof __VLS_components.InputText, ]} */ ;
-    // @ts-ignore
-    const __VLS_257 = __VLS_asFunctionalComponent(__VLS_256, new __VLS_256({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }));
-    const __VLS_258 = __VLS_257({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_257));
-}
-var __VLS_255;
-const __VLS_260 = {}.Column;
-/** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
-// @ts-ignore
-const __VLS_261 = __VLS_asFunctionalComponent(__VLS_260, new __VLS_260({
-    field: "roles",
-    header: "Registered Location",
-    ...{ style: {} },
-}));
-const __VLS_262 = __VLS_261({
-    field: "roles",
-    header: "Registered Location",
-    ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_261));
-__VLS_263.slots.default;
-{
-    const { body: __VLS_thisSlot } = __VLS_263.slots;
-    const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
-    (data.roles);
-    __VLS_asFunctionalElement(__VLS_intrinsicElements.br)({});
-    (data.actual_division_title);
-}
-{
-    const { filter: __VLS_thisSlot } = __VLS_263.slots;
-    const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_264 = {}.Select;
-    /** @type {[typeof __VLS_components.Select, typeof __VLS_components.Select, ]} */ ;
-    // @ts-ignore
-    const __VLS_265 = __VLS_asFunctionalComponent(__VLS_264, new __VLS_264({
-        modelValue: (filterModel.value),
-        options: (__VLS_ctx.office),
-        placeholder: "Select One",
-        showClear: true,
-    }));
-    const __VLS_266 = __VLS_265({
-        modelValue: (filterModel.value),
-        options: (__VLS_ctx.office),
-        placeholder: "Select One",
-        showClear: true,
-    }, ...__VLS_functionalComponentArgsRest(__VLS_265));
-    __VLS_267.slots.default;
-    {
-        const { option: __VLS_thisSlot } = __VLS_267.slots;
-        const [slotProps] = __VLS_getSlotParams(__VLS_thisSlot);
-        const __VLS_268 = {}.Tag;
-        /** @type {[typeof __VLS_components.Tag, ]} */ ;
-        // @ts-ignore
-        const __VLS_269 = __VLS_asFunctionalComponent(__VLS_268, new __VLS_268({
-            value: (slotProps.option),
-            severity: (__VLS_ctx.getSeverity(slotProps.option)),
-        }));
-        const __VLS_270 = __VLS_269({
-            value: (slotProps.option),
-            severity: (__VLS_ctx.getSeverity(slotProps.option)),
-        }, ...__VLS_functionalComponentArgsRest(__VLS_269));
-    }
-    var __VLS_267;
-}
-var __VLS_263;
-const __VLS_272 = {}.Column;
-/** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
-// @ts-ignore
-const __VLS_273 = __VLS_asFunctionalComponent(__VLS_272, new __VLS_272({
-    field: "full_specs",
-    header: "Specifications / Descriptions",
-    ...{ style: {} },
-}));
-const __VLS_274 = __VLS_273({
-    field: "full_specs",
-    header: "Specifications / Descriptions",
-    ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_273));
-__VLS_275.slots.default;
-{
-    const { body: __VLS_thisSlot } = __VLS_275.slots;
-    const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
+    const { expansion: __VLS_thisSlot } = __VLS_47.slots;
+    const [slotProps] = __VLS_getSlotParams(__VLS_thisSlot);
     __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ...{ class: "wrap-text" },
+        ...{ class: "p-4" },
     });
-    (data.full_specs);
-}
-{
-    const { filter: __VLS_thisSlot } = __VLS_275.slots;
-    const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_276 = {}.InputText;
-    /** @type {[typeof __VLS_components.InputText, ]} */ ;
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.h5, __VLS_intrinsicElements.h5)({
+        ...{ class: "font-semibold mb-2" },
+    });
+    const __VLS_205 = {}.DataTable;
+    /** @type {[typeof __VLS_components.DataTable, typeof __VLS_components.DataTable, ]} */ ;
     // @ts-ignore
-    const __VLS_277 = __VLS_asFunctionalComponent(__VLS_276, new __VLS_276({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
+    const __VLS_206 = __VLS_asFunctionalComponent(__VLS_205, new __VLS_205({
+        size: "small",
+        showGridlines: true,
+        value: ([slotProps.data]),
     }));
-    const __VLS_278 = __VLS_277({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_277));
-}
-var __VLS_275;
-const __VLS_280 = {}.Column;
-/** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
-// @ts-ignore
-const __VLS_281 = __VLS_asFunctionalComponent(__VLS_280, new __VLS_280({
-    field: "range_category",
-    header: "Range Category",
-    ...{ style: {} },
-}));
-const __VLS_282 = __VLS_281({
-    field: "range_category",
-    header: "Range Category",
-    ...{ style: {} },
-}, ...__VLS_functionalComponentArgsRest(__VLS_281));
-__VLS_283.slots.default;
-{
-    const { body: __VLS_thisSlot } = __VLS_283.slots;
-    const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
-    (data.range_category);
-}
-{
-    const { filter: __VLS_thisSlot } = __VLS_283.slots;
-    const [{ filterModel }] = __VLS_getSlotParams(__VLS_thisSlot);
-    const __VLS_284 = {}.InputText;
-    /** @type {[typeof __VLS_components.InputText, ]} */ ;
+    const __VLS_207 = __VLS_206({
+        size: "small",
+        showGridlines: true,
+        value: ([slotProps.data]),
+    }, ...__VLS_functionalComponentArgsRest(__VLS_206));
+    __VLS_208.slots.default;
+    const __VLS_209 = {}.Column;
+    /** @type {[typeof __VLS_components.Column, ]} */ ;
     // @ts-ignore
-    const __VLS_285 = __VLS_asFunctionalComponent(__VLS_284, new __VLS_284({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
+    const __VLS_210 = __VLS_asFunctionalComponent(__VLS_209, new __VLS_209({
+        field: "brand",
+        header: "Brand",
+        headerStyle: ({ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }),
     }));
-    const __VLS_286 = __VLS_285({
-        modelValue: (filterModel.value),
-        type: "text",
-        placeholder: "Search by name",
-    }, ...__VLS_functionalComponentArgsRest(__VLS_285));
+    const __VLS_211 = __VLS_210({
+        field: "brand",
+        header: "Brand",
+        headerStyle: ({ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }),
+    }, ...__VLS_functionalComponentArgsRest(__VLS_210));
+    const __VLS_213 = {}.Column;
+    /** @type {[typeof __VLS_components.Column, ]} */ ;
+    // @ts-ignore
+    const __VLS_214 = __VLS_asFunctionalComponent(__VLS_213, new __VLS_213({
+        field: "serial_no",
+        header: "Serial No",
+        headerStyle: ({ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }),
+    }));
+    const __VLS_215 = __VLS_214({
+        field: "serial_no",
+        header: "Serial No",
+        headerStyle: ({ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }),
+    }, ...__VLS_functionalComponentArgsRest(__VLS_214));
+    const __VLS_217 = {}.Column;
+    /** @type {[typeof __VLS_components.Column, ]} */ ;
+    // @ts-ignore
+    const __VLS_218 = __VLS_asFunctionalComponent(__VLS_217, new __VLS_217({
+        field: "property_no",
+        header: "Property No",
+        headerStyle: ({ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }),
+    }));
+    const __VLS_219 = __VLS_218({
+        field: "property_no",
+        header: "Property No",
+        headerStyle: ({ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }),
+    }, ...__VLS_functionalComponentArgsRest(__VLS_218));
+    const __VLS_221 = {}.Column;
+    /** @type {[typeof __VLS_components.Column, ]} */ ;
+    // @ts-ignore
+    const __VLS_222 = __VLS_asFunctionalComponent(__VLS_221, new __VLS_221({
+        field: "acct_person",
+        header: "Accountable Person",
+        headerStyle: ({ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }),
+    }));
+    const __VLS_223 = __VLS_222({
+        field: "acct_person",
+        header: "Accountable Person",
+        headerStyle: ({ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }),
+    }, ...__VLS_functionalComponentArgsRest(__VLS_222));
+    const __VLS_225 = {}.Column;
+    /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
+    // @ts-ignore
+    const __VLS_226 = __VLS_asFunctionalComponent(__VLS_225, new __VLS_225({
+        field: "roles",
+        header: "Office/Division",
+        headerStyle: ({ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }),
+    }));
+    const __VLS_227 = __VLS_226({
+        field: "roles",
+        header: "Office/Division",
+        headerStyle: ({ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }),
+    }, ...__VLS_functionalComponentArgsRest(__VLS_226));
+    __VLS_228.slots.default;
+    {
+        const { body: __VLS_thisSlot } = __VLS_228.slots;
+        const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
+        (data.roles);
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.br)({});
+        (data.acct_person_division_id);
+    }
+    var __VLS_228;
+    const __VLS_229 = {}.Column;
+    /** @type {[typeof __VLS_components.Column, ]} */ ;
+    // @ts-ignore
+    const __VLS_230 = __VLS_asFunctionalComponent(__VLS_229, new __VLS_229({
+        field: "actual_user",
+        header: "Actual User",
+        headerStyle: ({ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }),
+    }));
+    const __VLS_231 = __VLS_230({
+        field: "actual_user",
+        header: "Actual User",
+        headerStyle: ({ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }),
+    }, ...__VLS_functionalComponentArgsRest(__VLS_230));
+    const __VLS_233 = {}.Column;
+    /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
+    // @ts-ignore
+    const __VLS_234 = __VLS_asFunctionalComponent(__VLS_233, new __VLS_233({
+        field: "roles",
+        header: "Office/Division",
+        ...{ style: {} },
+        headerStyle: ({ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }),
+    }));
+    const __VLS_235 = __VLS_234({
+        field: "roles",
+        header: "Office/Division",
+        ...{ style: {} },
+        headerStyle: ({ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }),
+    }, ...__VLS_functionalComponentArgsRest(__VLS_234));
+    __VLS_236.slots.default;
+    {
+        const { body: __VLS_thisSlot } = __VLS_236.slots;
+        const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
+        (data.roles);
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.br)({});
+        (data.actual_user_division_id);
+    }
+    var __VLS_236;
+    const __VLS_237 = {}.Column;
+    /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
+    // @ts-ignore
+    const __VLS_238 = __VLS_asFunctionalComponent(__VLS_237, new __VLS_237({
+        field: "full_specs",
+        header: "Specifications / Descriptions",
+        ...{ style: {} },
+        headerStyle: ({ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }),
+    }));
+    const __VLS_239 = __VLS_238({
+        field: "full_specs",
+        header: "Specifications / Descriptions",
+        ...{ style: {} },
+        headerStyle: ({ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }),
+    }, ...__VLS_functionalComponentArgsRest(__VLS_238));
+    __VLS_240.slots.default;
+    {
+        const { body: __VLS_thisSlot } = __VLS_240.slots;
+        const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+            ...{ class: "wrap-text" },
+        });
+        (data.installed_gpu);
+        (data.processor);
+        (data.ram_type);
+    }
+    var __VLS_240;
+    const __VLS_241 = {}.Column;
+    /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
+    // @ts-ignore
+    const __VLS_242 = __VLS_asFunctionalComponent(__VLS_241, new __VLS_241({
+        field: "status",
+        header: "Status",
+        headerStyle: ({ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }),
+    }));
+    const __VLS_243 = __VLS_242({
+        field: "status",
+        header: "Status",
+        headerStyle: ({ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }),
+    }, ...__VLS_functionalComponentArgsRest(__VLS_242));
+    __VLS_244.slots.default;
+    {
+        const { body: __VLS_thisSlot } = __VLS_244.slots;
+        const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
+        const __VLS_245 = {}.Tag;
+        /** @type {[typeof __VLS_components.Tag, ]} */ ;
+        // @ts-ignore
+        const __VLS_246 = __VLS_asFunctionalComponent(__VLS_245, new __VLS_245({
+            value: (data.status),
+            severity: (__VLS_ctx.getSeverity(data.status)),
+        }));
+        const __VLS_247 = __VLS_246({
+            value: (data.status),
+            severity: (__VLS_ctx.getSeverity(data.status)),
+        }, ...__VLS_functionalComponentArgsRest(__VLS_246));
+    }
+    var __VLS_244;
+    const __VLS_249 = {}.Column;
+    /** @type {[typeof __VLS_components.Column, typeof __VLS_components.Column, ]} */ ;
+    // @ts-ignore
+    const __VLS_250 = __VLS_asFunctionalComponent(__VLS_249, new __VLS_249({
+        field: "range_category",
+        header: "Range Category",
+        ...{ style: {} },
+        headerStyle: ({ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }),
+    }));
+    const __VLS_251 = __VLS_250({
+        field: "range_category",
+        header: "Range Category",
+        ...{ style: {} },
+        headerStyle: ({ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }),
+    }, ...__VLS_functionalComponentArgsRest(__VLS_250));
+    __VLS_252.slots.default;
+    {
+        const { body: __VLS_thisSlot } = __VLS_252.slots;
+        const [{ data }] = __VLS_getSlotParams(__VLS_thisSlot);
+        (data.range_category);
+    }
+    var __VLS_252;
+    var __VLS_208;
 }
-var __VLS_283;
-var __VLS_51;
+var __VLS_47;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.iframe, __VLS_intrinsicElements.iframe)({
+    ref: "printFrame",
+    ...{ class: "hidden" },
+    title: "Print Preview",
+    ...{ style: {} },
+});
+/** @type {typeof __VLS_ctx.printFrame} */ ;
 var __VLS_3;
 /** @type {__VLS_StyleScopedClasses['grid']} */ ;
 /** @type {__VLS_StyleScopedClasses['grid-cols-1']} */ ;
@@ -1946,8 +1799,8 @@ var __VLS_3;
 /** @type {__VLS_StyleScopedClasses['justify-center']} */ ;
 /** @type {__VLS_StyleScopedClasses['text-white']} */ ;
 /** @type {__VLS_StyleScopedClasses['mr-2']} */ ;
-/** @type {__VLS_StyleScopedClasses['bg-green-700']} */ ;
-/** @type {__VLS_StyleScopedClasses['hover:bg-green-800']} */ ;
+/** @type {__VLS_StyleScopedClasses['bg-blue-700']} */ ;
+/** @type {__VLS_StyleScopedClasses['hover:bg-blue-800']} */ ;
 /** @type {__VLS_StyleScopedClasses['focus:ring-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['focus:outline-none']} */ ;
 /** @type {__VLS_StyleScopedClasses['focus:ring-blue-300']} */ ;
@@ -2030,7 +1883,11 @@ var __VLS_3;
 /** @type {__VLS_StyleScopedClasses['items-center']} */ ;
 /** @type {__VLS_StyleScopedClasses['h-24']} */ ;
 /** @type {__VLS_StyleScopedClasses['text-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['p-4']} */ ;
+/** @type {__VLS_StyleScopedClasses['font-semibold']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['wrap-text']} */ ;
+/** @type {__VLS_StyleScopedClasses['hidden']} */ ;
 var __VLS_dollars;
 const __VLS_self = (await import('vue')).defineComponent({
     setup() {
@@ -2052,12 +1909,8 @@ const __VLS_self = (await import('vue')).defineComponent({
             specs_form: specs_form,
             peripheral_form: peripheral_form,
             customers: customers,
+            expandedRows: expandedRows,
             software: software,
-            total_item: total_item,
-            serviceable_count: serviceable_count,
-            unserviceable_count: unserviceable_count,
-            outdated_count: outdated_count,
-            invalid_data_count: invalid_data_count,
             filters: filters,
             loading: loading,
             imageUrl: imageUrl,
@@ -2072,9 +1925,9 @@ const __VLS_self = (await import('vue')).defineComponent({
             openReviewForm: openReviewForm,
             uploadSuccess: uploadSuccess,
             uploadError: uploadError,
-            statuses: statuses,
-            office: office,
             item: item,
+            onRowExpand: onRowExpand,
+            onRowCollapse: onRowCollapse,
             fetchData: fetchData,
             filterByOffice: filterByOffice,
             clearFilter: clearFilter,
@@ -2088,6 +1941,8 @@ const __VLS_self = (await import('vue')).defineComponent({
             uploadImage: uploadImage,
             openFile: openFile,
             retrieveDataviaAPI: retrieveDataviaAPI,
+            printFrame: printFrame,
+            openPrintPreview: openPrintPreview,
             pageTitle: pageTitle,
         };
     },

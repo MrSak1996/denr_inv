@@ -19,6 +19,51 @@ import modal_print_qr from './modal/modal_print_qr.vue'
 import modal_export_report from './modal/modal_export_report.vue'
 import modal_attachments from './modal/modal_attachments.vue'
 
+interface Customer {
+  id: number
+  actual_division_title?: string
+  acct_division_title?: string
+  equipment_title?: string
+  acct_person?: string
+  qr_code?: string
+  mon_qr_code1?: string
+  mon_qr_code2?: string
+  ups_qr_code?: string
+  brand?: string
+  serial_no?: string
+  full_specs?: string
+  range_category?: string
+  actual_user?: string
+  status?: string
+  control_no?: string
+  roles?: string
+}
+
+interface ICTReport {
+  roles?: string
+  equipment_title?: string
+  year_acquired?: string
+  shelf_life?: string
+  brand?: string
+  model?: string
+  processor?: string
+  ram_capacity?: string
+  installed_gpu?: string
+  range_category?: string
+  os_installed?: string
+  office_productivity?: string
+  serial_no?: string
+  property_no?: string
+  acct_person?: string
+  sex?: string
+  employment_title?: string
+  nature_work_title?: string
+  actual_user?: string
+  sex_2?: string
+  remarks?: string
+  rict_code?: string
+}
+
 const {
   isLoading,
   currentMessage,
@@ -39,8 +84,9 @@ const { printRecord } = useInventory()
 const authStore = useAuthStore()
 
 const route = useRoute()
-const customers = ref([])
-const ict_report_data = ref([])
+const customers = ref<Customer[]>([])
+const ict_report_data = ref<ICTReport[]>([])
+const expandedRows = ref<Record<number, boolean>>({}) // fix null assignment error
 const software = ref([])
 const qr_code = ref()
 const total_item = ref(0)
@@ -72,20 +118,31 @@ const user_role = ref(0)
 const api_token = authStore.api_token
 const role_id = authStore.role_id
 const role_office = ref('')
-const expandedRows = ref({});
 
-const onRowExpand = (event) => {
+// -------------------------
+// Row expand/collapse handlers
+// -------------------------
+const onRowExpand = (event: { originalEvent: Event; data: Customer }) => {
   expandedRows.value = { [event.data.id]: true }
-};
-const onRowCollapse = (event) => {
-  expandedRows.value = null
-};
+}
+
+const onRowCollapse = (event?: { originalEvent: Event; data: Customer }) => {
+  expandedRows.value = {} // use empty object instead of null
+}
+
 const expandAll = () => {
-  expandedRows.value = customers.value.reduce((acc, p) => (acc[p.id] = true) && acc, {});
-};
+  expandedRows.value = customers.value.reduce<Record<number, boolean>>(
+    (acc, p) => {
+      acc[p.id] = true
+      return acc
+    },
+    {}
+  )
+}
+
 const collapseAll = () => {
-  expandedRows.value = null;
-};
+  expandedRows.value = {}
+}
 
 const loadUserData = async () => {
   const userData = await fetchCurUser()
@@ -496,108 +553,38 @@ const openPrintPreview = () => {
     return
   }
 
-  const tableRows = ict_report_data.value
-    .map(
-      (d) =>
-        `<tr>
-          <td>${d.roles ?? ''}</td>
-          <td>${d.equipment_title ?? ''}</td>
-          <td>${d.year_acquired ?? ''}</td>
-          <td>${d.shelf_life ?? ''}</td>
-          <td>${d.brand ?? ''}</td>
-          <td>${d.model ?? ''}</td>
-          <td>${d.processor ?? ''}</td>
-          <td>${d.ram_capacity ?? ''}</td>
-          <td>${d.installed_gpu ?? ''}</td>
-          <td>${d.range_category ?? ''}</td>
-          <td>${d.os_installed ?? ''}</td>
-          <td>${d.office_productivity ?? ''}</td>
-          <td></td>
-          <td></td>
-          <td>${d.serial_no ?? ''}</td>
-          <td>${d.property_no ?? ''}</td>
-          <td>${d.acct_person ?? ''}</td>
-          <td>${d.sex ?? ''}</td>
-          <td>${d.employment_title ?? ''}</td>
-          <td>${d.nature_work_title ?? ''}</td>
-          <td>${d.actual_user ?? ''}</td>
-          <td>${d.sex_2 ?? ''}</td>
-          <td></td>
-          <td></td>
-          <td>${d.remarks ?? ''}</td>
-          <td>${d.rict_code ?? ''}</td>
-          
-
-          <td></td>
-        </tr>`
-    )
-    .join('')
-
-  const win = window.open('', '_blank', 'width=900,height=900')
-  win.document.write(`
-    <html>
-      <head>
-        <title>ICT Inventory Report</title>
-        <style>
-          body { font-family: Arial, sans-serif; margin: 30px; }
-          h2 { text-align: center; }
-          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-          th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-          th { background-color: #f4f4f4; }
-          tr:nth-child(even) { background-color: #fafafa; }
-          button { 
-            margin-top: 20px; 
-            background: #4CAF50; 
-            color: white; 
-            border: none; 
-            padding: 10px 20px; 
-            border-radius: 4px; 
-            cursor: pointer; 
-          }
-        </style>
-      </head>
-      <body>
-        <h2>ICT Inventory Report</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Office/Division</th>
-              <th>Type of ICT Equipment</th>
-              <th>Year Acquired</th>
-              <th>Shelf Life</th>
-              <th>Brand</th>
-              <th>Model</th>
-              <th>Processor For Desktop & Laptop</th>
-              <th>Installed Memory Size (For Desktop & Laptop)</th>
-              <th>Installed GPU For Desktop & Laptop</th>
-              <th>Range Category (for Computers)</th>
-              <th>Operating System Version</th>
-              <th>Office Productivity</th>
-              <th>Type Endpoint Protection</th>
-              <th>Computer Name</th>
-              <th>Serial Number</th>
-              <th>Property Number</th>
-              <th>Accountable Person</th>
-              <th>Sex</th>
-              <th>Status of Employment</th>
-              <th>Nature of Work</th>
-              <th>Actual User</th>
-              <th>Sex</th>
-              <th>Status of Employment</th>
-              <th>Nature of Work</th>
-              <th>Remarks</th>
-              <th>RICT Code Local</th>
-            </tr>
-          </thead>
-          <tbody>${tableRows}</tbody>
-        </table>
-        <div style="text-align:center;">
-          <button onclick="window.print()">🖨️ Print</button>
-        </div>
-      </body>
-    </html>
-  `)
-  win.document.close()
+  // -------------------------
+// Example ICT report usage
+// -------------------------
+const tableRows = ict_report_data.value
+  .map(
+    (d) =>
+      `<tr>
+        <td>${d.roles ?? ''}</td>
+        <td>${d.equipment_title ?? ''}</td>
+        <td>${d.year_acquired ?? ''}</td>
+        <td>${d.shelf_life ?? ''}</td>
+        <td>${d.brand ?? ''}</td>
+        <td>${d.model ?? ''}</td>
+        <td>${d.processor ?? ''}</td>
+        <td>${d.ram_capacity ?? ''}</td>
+        <td>${d.installed_gpu ?? ''}</td>
+        <td>${d.range_category ?? ''}</td>
+        <td>${d.os_installed ?? ''}</td>
+        <td>${d.office_productivity ?? ''}</td>
+        <td>${d.serial_no ?? ''}</td>
+        <td>${d.property_no ?? ''}</td>
+        <td>${d.acct_person ?? ''}</td>
+        <td>${d.sex ?? ''}</td>
+        <td>${d.employment_title ?? ''}</td>
+        <td>${d.nature_work_title ?? ''}</td>
+        <td>${d.actual_user ?? ''}</td>
+        <td>${d.sex_2 ?? ''}</td>
+        <td>${d.remarks ?? ''}</td>
+        <td>${d.rict_code ?? ''}</td>
+      </tr>`
+  )
+  .join('')
 }
 
 
@@ -630,9 +617,9 @@ const pageTitle = ref('Inventory Management')
   <DefaultLayout>
     <BreadcrumbDefault :pageTitle="pageTitle" />
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-5 2xl:gap-7.5 mb-4">
-      <DataStatsOne :total_equipment="total_item" :total_serviceable_count="serviceable_count"
+      <!-- <DataStatsOne :total_equipment="total_item" :total_serviceable_count="serviceable_count"
         :total_unserviceable_count="unserviceable_count" :outdated_equipment="outdated_count"
-        :total_returned_count="invalid_data_count" />
+        :total_returned_count="invalid_data_count" /> -->
     </div>
 
     <!-- <form_dash
@@ -740,7 +727,7 @@ const pageTitle = ref('Inventory Management')
         </div>
         <!-- end of progress bar -->
 
-        <DataTable size="small" v-model:expandedRows="expandedRows" @rowExpand="onRowExpand"
+        <DataTable size="small" v-model:expandedRows="expandedRows" :filters="filters" @rowExpand="onRowExpand"
           @rowCollapse="onRowCollapse" :value="customers" paginator stripedRows showGridlines :rows="10" dataKey="id"
           filterDisplay="menu" :loading="loading" :globalFilterFields="[
             'control_no',
@@ -792,7 +779,7 @@ const pageTitle = ref('Inventory Management')
           <template #loading> Loading customers data. Please wait. </template> -->
           <Column expander style="width: 5rem" />
 
-          <Column field="id" header="Action" style="width: 500px !important">
+          <Column field="id" header="Action">
             <template #body="{ data }">
               <div class="card flex justify-center">
                 <Button @click="retrieveDataviaAPI(data.id)" icon="pi pi-eye" size="small"
@@ -890,29 +877,37 @@ const pageTitle = ref('Inventory Management')
             <div class="p-4">
               <h5 class="font-semibold mb-2">ICT Equipment Information</h5>
               <DataTable size="small" showGridlines :value="[slotProps.data]">
-                <Column field="brand" header="Brand" />
-                <Column field="serial_no" header="Serial No" />
-                <Column field="acct_person" header="Accountable Person" />
-                <Column field="actual_user" header="Actual User" />
-                <Column field="roles" header="Registered Location" style="min-width: 12rem">
-                  <template #body="{ data }">
-                    {{ data.roles }}<br />{{ data.actual_division_title }}
+                <Column field="brand" header="Brand"   :headerStyle="{ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }" />
+                <Column field="serial_no" header="Serial No" :headerStyle="{ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }"  />
+                <Column field="property_no" header="Property No" :headerStyle="{ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }" />
+                <Column field="acct_person" header="Accountable Person" :headerStyle="{ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }" />
+                <Column field="roles" header="Office/Division" :headerStyle="{ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }">
+                <template #body="{ data }">
+                    {{ data.roles }}<br />{{ data.acct_person_division_id }}
                   </template>
                 </Column>
-                 <Column field="full_specs" header="Specifications / Descriptions" style="min-width: 300px">
+                <Column field="actual_user" header="Actual User" :headerStyle="{ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }" />
+                <Column field="roles" header="Office/Division" style="min-width: 12rem" :headerStyle="{ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }">
+                  <template #body="{ data }">
+                    {{ data.roles }}<br />{{ data.actual_user_division_id }}
+                  </template>
+                </Column>
+                 <Column field="full_specs" header="Specifications / Descriptions" style="min-width: 300px" :headerStyle="{ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }">
             <template #body="{ data }">
               <div class="wrap-text">
-                {{ data.full_specs }}
+                {{ data.installed_gpu }}
+                {{ data.processor }}
+                {{ data.ram_type }}
               </div>
             </template>
 
           </Column>
-                <Column field="status" header="Status">
+                <Column field="status" header="Status" :headerStyle="{ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }">
                   <template #body="{ data }">
                     <Tag :value="data.status" :severity="getSeverity(data.status)" />
                   </template>
                 </Column>
-                  <Column field="range_category" header="Range Category" style="min-width: 1rem">
+                  <Column field="range_category" header="Range Category" style="min-width: 1rem" :headerStyle="{ backgroundColor: '#f1f5f9', color: '#000', fontWeight: 'bold' }">
             <template #body="{ data }">
               {{ data.range_category }}
               <!-- Ensure this field exists in the data object -->

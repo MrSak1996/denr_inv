@@ -14,8 +14,7 @@ export function useApi() {
     const work_nature = ref([]);
     const equipment_type = ref([]);
     const range_category = ref([]);
-    const ram_opts = ref([])
-
+    const ram_opts = ref([]);
     const employment_opts = ref([]);
     const roles_opts = ref([]);
     const currentMessage = ref('Loading, please wait...');
@@ -146,18 +145,18 @@ export function useApi() {
             console.error('Error fetching range categories:', error);
         }
     };
-
     const getRamTypes = async () => {
-    try {
-      const res = await api.get('/getRamTypes')
-      ram_opts.value = res.data.map((item) => ({
-        id: item.id,
-        name: item.name
-      }))
-    } catch (error) {
-      console.error('Error fetching ram types:', error)
-    }
-  }
+        try {
+            const res = await api.get('/getRamTypes');
+            ram_opts.value = res.data.map((item) => ({
+                id: item.id,
+                name: item.name
+            }));
+        }
+        catch (error) {
+            console.error('Error fetching ram types:', error);
+        }
+    };
     const getEmploymentType = async () => {
         try {
             const res = await api.get('/getEmploymentType');
@@ -250,10 +249,10 @@ export function useApi() {
         { name: 'MES', id: 2 },
         { name: 'PPS', id: 3 }
     ]);
-  const sex_opts = ref([
-    { name: 'MALE', value: 'MALE' },
-    { name: 'FEMALE', value: 'FEMALE' }
-  ])
+    const sex_opts = ref([
+        { name: 'MALE', value: 'MALE' },
+        { name: 'FEMALE', value: 'FEMALE' }
+    ]);
     const capacity_opts = ref([
         { name: '1 TB', value: '1 TB' },
         { name: '2 TB', value: '2 TB' },
@@ -275,7 +274,6 @@ export function useApi() {
         { name: '32 GB', value: '32 GB' },
         { name: '64 GB', value: '64 GB' }
     ]);
-   
     return {
         sex_opts,
         qr_opts,
